@@ -1,0 +1,16 @@
+name: CI
+on:
+  pull_request:
+  merge_group:
+  push:
+    branches: [ main ]
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run tests (voorbeeld)
+        run: |
+          echo "Run your tests here"
+          # bv: npm ci && npm test   of   pip install -r requirements.txt && pytest -q
