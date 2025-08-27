@@ -1,0 +1,57 @@
+name: Merge tracker
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review, closed]
+  merge_group:
+  push:
+    branches: [ main ]
+
+jobs:
+  track:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+    steps:
+      - name: Context (PR)
+        if: ${{ github.event_name == 'pull_request' }}
+        run: |
+          {
+            echo "### PR update";
+            echo "- **PR**: #${{ github.event.pull_request.number }} – ${{ github.event.pull_request.title }}";
+            echo "- **Auteur**: ${{ github.event.pull_request.user.login }}";
+            echo "- **Status**: ${{ github.event.action }}";
+            echo "- **Base**: ${{ github.event.pull_request.base.ref }}";
+            echo "- **Head**: ${{ github.event.pull_request.head.ref }}";
+            echo "- **Mergeable?** (indicatie): ${{ github.event.pull_request.mergeable }}";
+          } >> $GITHUB_STEP_SUMMARY
+
+      - name: Context (merge queue)
+        if: ${{ github.event_name == 'merge_group' }}
+        run: |
+          {
+            echo "### Merge Queue (merge_group)";
+            echo "- **Base branch**: ${{ github.event.merge_group.base_ref }}";
+            echo "- **Head SHA**: ${{ github.event.merge_group.head_sha }}";
+            echo "";
+            echo "_Tip: merge_group bundelt PR’s in een groep die samen getest wordt._";
+          } >> $GITHUB_STEP_SUMMARY
+
+      - name: Context (push naar main)
+        if: ${{ github.event_name == 'push' }}
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const sha = context.sha;
+            const prs = await github.rest.repos.listPullRequestsAssociatedWithCommit({owner, repo, commit_sha: sha});
+            let body = `### Push naar \`main\`\n- **Commit**: ${sha}\n`;
+            if (prs.data.length) {
+              const pr = prs.data[0];
+              body += `- **Merged PR**: #${pr.number} – ${pr.title} (door @${pr.user.login})\n`;
+            } else {
+              body += `- Geen gekoppelde PR gevonden.\n`;
+            }
+            core.summary.addRaw(body);
+            await core.summary.write();
