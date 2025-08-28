@@ -1,3 +1,12 @@
-node_modules
-.DS_Store
-# etc
+{
+  "name": "museum-buddy-app",
+  "version": "1.0.0",
+  "description": "Museum Buddy App",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node server.js",
+    "test": "echo \"No tests specified\""
+  }
+}
+
