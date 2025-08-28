@@ -18,6 +18,14 @@ export default function MuseumPage({ museum }) {
       <h1 className="detail-title">{museum.title}</h1>
       <p className="detail-sub">{museum.city}</p>
 
+    {museum.image && (
+  <img
+    className="hero"
+    src={museum.image}
+    alt={museum.title}
+  />
+)}
+
       <div className="chips" style={{ marginTop: 8 }}>
         {museum.free && <span className="chip">Gratis</span>}
         {museum.kidFriendly && <span className="chip">Kindvriendelijk</span>}
