@@ -1,24 +1,57 @@
 [
   {
-    "id": "1",
-    "title": "Van Gogh Museum",
-    "description": "Museum dedicated to the works of Vincent van Gogh.",
-    "openingHours": "Daily 9:00-18:00",
-    "url": "https://www.vangoghmuseum.nl/",
-    "images": [
-      "https://via.placeholder.com/300x200?text=Van+Gogh+1",
-      "https://via.placeholder.com/300x200?text=Van+Gogh+2"
-    ]
+    "id": "rijksmuseum",
+    "title": "Rijksmuseum",
+    "city": "Amsterdam",
+    "free": false,
+    "kidFriendly": true,
+    "temporary": true,
+    "tags": ["kunst", "nationale collectie"],
+    "description": "Het nationale museum van Nederland met meesterwerken uit de Gouden Eeuw.",
+    "url": "https://www.rijksmuseum.nl"
   },
   {
-    "id": "2",
-    "title": "Rijksmuseum",
-    "description": "National museum dedicated to arts and history in Amsterdam.",
-    "openingHours": "Daily 9:00-17:00",
-    "url": "https://www.rijksmuseum.nl/",
-    "images": [
-      "https://via.placeholder.com/300x200?text=Rijksmuseum+1",
-      "https://via.placeholder.com/300x200?text=Rijksmuseum+2"
-    ]
+    "id": "van-gogh-museum",
+    "title": "Van Gogh Museum",
+    "city": "Amsterdam",
+    "free": false,
+    "kidFriendly": true,
+    "temporary": true,
+    "tags": ["kunst", "Van Gogh"],
+    "description": "Grootste collectie werken van Vincent van Gogh.",
+    "url": "https://www.vangoghmuseum.nl"
+  },
+  {
+    "id": "stedelijk-museum",
+    "title": "Stedelijk Museum",
+    "city": "Amsterdam",
+    "free": false,
+    "kidFriendly": false,
+    "temporary": true,
+    "tags": ["moderne kunst", "design"],
+    "description": "Moderne en hedendaagse kunst en vormgeving.",
+    "url": "https://www.stedelijk.nl"
+  },
+  {
+    "id": "nemo-science-museum",
+    "title": "NEMO Science Museum",
+    "city": "Amsterdam",
+    "free": false,
+    "kidFriendly": true,
+    "temporary": true,
+    "tags": ["science", "techniek", "kinderen"],
+    "description": "Interactief wetenschapsmuseum, perfect voor kinderen.",
+    "url": "https://www.nemosciencemuseum.nl"
+  },
+  {
+    "id": "mauritshuis",
+    "title": "Mauritshuis",
+    "city": "Den Haag",
+    "free": false,
+    "kidFriendly": true,
+    "temporary": true,
+    "tags": ["kunst", "Gouden Eeuw"],
+    "description": "Thuis van Vermeer’s Meisje met de parel.",
+    "url": "https://www.mauritshuis.nl"
   }
 ]
