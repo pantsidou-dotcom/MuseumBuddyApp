@@ -1,20 +1,15 @@
 {
   "compilerOptions": {
-    "target": "ES6",
+    "target": "ES2020",
+    "lib": ["dom", "es2020"],
     "module": "ESNext",
-    "moduleResolution": "node",
-    "jsx": "react-jsx",
+    "moduleResolution": "Bundler",
+    "jsx": "preserve",
     "strict": false,
-    "strict": true,
-    "esModuleInterop": true,
-    "resolveJsonModule": true,
     "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "baseUrl": ".",
-    "paths": {
-      "@/*": ["./*"]
-    }
+    "resolveJsonModule": true,
+    "allowJs": true
   },
-  "include": ["**/*.ts", "**/*.tsx", "**/*.json"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],
   "exclude": ["node_modules"]
 }
