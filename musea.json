@@ -1,0 +1,22 @@
+[
+  {
+    "id": "1",
+    "title": "Van Gogh Museum",
+    "description": "Museum dedicated to the works of Vincent van Gogh.",
+    "openingHours": "Daily 9:00-18:00",
+    "images": [
+      "https://via.placeholder.com/300x200?text=Van+Gogh+1",
+      "https://via.placeholder.com/300x200?text=Van+Gogh+2"
+    ]
+  },
+  {
+    "id": "2",
+    "title": "Rijksmuseum",
+    "description": "National museum dedicated to arts and history in Amsterdam.",
+    "openingHours": "Daily 9:00-17:00",
+    "images": [
+      "https://via.placeholder.com/300x200?text=Rijksmuseum+1",
+      "https://via.placeholder.com/300x200?text=Rijksmuseum+2"
+    ]
+  }
+]
