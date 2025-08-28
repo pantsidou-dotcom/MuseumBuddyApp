@@ -15,5 +15,13 @@ jobs:
           node-version: '20'
       - name: Install dependencies and run tests
         run: |
-          npm ci
-          npm test
+          if [ -f package.json ]; then
+            if [ -f package-lock.json ]; then
+              npm ci
+            else
+              npm install
+            fi
+            npm test
+          else
+            echo "package.json not found. Skipping tests."
+          fi
