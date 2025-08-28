@@ -69,6 +69,15 @@ export default function Home({ musea }) {
       <ul className="grid" style={{ listStyle: 'none', padding: 0, margin: 0 }}>
         {filtered.map(m => (
           <li key={m.id} className="card">
+          {m.image && (
+  <img
+    className="card-img"
+    src={m.image}
+    alt={m.title}
+    loading="lazy"
+  />
+)}
+
             <div className="card-head">
               <div>
                 <h2 className="card-title">
