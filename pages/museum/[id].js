@@ -1,48 +1,50 @@
-import { GetStaticPaths, GetStaticProps } from 'next';
 import Link from 'next/link';
 import museaData from '../../musea.json';
 
-interface Museum {
-  id: string;
-  title: string;
-  description: string;
-  openingHours: string;
-  images: string[];
-}
-
-interface MuseumPageProps {
-  museum: Museum | null;
-}
-
-export default function MuseumPage({ museum }: MuseumPageProps) {
+export default function MuseumPage({ museum }) {
   if (!museum) {
-    return <div>Museum niet gevonden.</div>;
+    return (
+      <main style={{ padding: 24 }}>
+        <h1>Museum niet gevonden</h1>
+        <p>Dit museum bestaat niet.</p>
+        <p><Link href="/">&larr; Terug naar overzicht</Link></p>
+      </main>
+    );
   }
 
   return (
-    <div>
+    <main style={{ padding: 24 }}>
+      <p><Link href="/">&larr; Terug</Link></p>
       <h1>{museum.title}</h1>
-      <p>{museum.description}</p>
-      <p><strong>Openingstijden:</strong> {museum.openingHours}</p>
-      <div>
-        {museum.images.map((src, idx) => (
-          <img key={idx} src={src} alt={`${museum.title} afbeelding ${idx + 1}`} />
-        ))}
-      </div>
-      <p>
-        <Link href="/">Terug naar overzicht</Link>
-      </p>
-    </div>
+      {museum.image && (
+        <img
+          alt={museum.title}
+          src={museum.image.startsWith('/') ? museum.image : `/` + museum.image}
+          style={{ maxWidth: 600, width: '100%', height: 'auto', display: 'block', marginTop: 16 }}
+        />
+      )}
+      <p style={{ marginTop: 16 }}>{museum.description}</p>
+      {museum.url && (
+        <p style={{ marginTop: 16 }}>
+          <a href={museum.url} target="_blank" rel="noreferrer">Website</a>
+        </p>
+      )}
+    </main>
   );
 }
 
-export const getStaticPaths: GetStaticPaths = async () => {
-  const paths = (museaData as Museum[]).map((m) => ({ params: { id: m.id } }));
+// Genereer alle routes op basis van musea.json
+export async function getStaticPaths() {
+  const items = Array.isArray(museaData) ? museaData : (museaData.musea || []);
+  const paths = items
+    .filter(m => m && m.id != null)
+    .map(m => ({ params: { id: String(m.id) } }));
   return { paths, fallback: false };
-};
+}
 
-export const getStaticProps: GetStaticProps = async ({ params }) => {
-  const musea = museaData as Museum[];
-  const museum = musea.find((m) => m.id === params?.id) || null;
+// Geef de juiste museumdata aan de pagina
+export async function getStaticProps({ params }) {
+  const items = Array.isArray(museaData) ? museaData : (museaData.musea || []);
+  const museum = items.find(m => String(m.id) === String(params.id)) || null;
   return { props: { museum } };
-};
+}
