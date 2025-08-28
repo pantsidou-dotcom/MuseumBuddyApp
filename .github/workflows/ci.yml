@@ -10,7 +10,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Run tests (voorbeeld)
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install dependencies and run tests
         run: |
-          echo "Run your tests here"
-          # bv: npm ci && npm test   of   pip install -r requirements.txt && pytest -q
+          if [ -f package.json ]; then
+            if [ -f package-lock.json ]; then
+              npm ci
+            else
+              npm install
+            fi
+            npm test
+          else
+            echo "package.json not found. Skipping tests."
+          fi
