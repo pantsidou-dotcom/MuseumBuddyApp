@@ -1,12 +1,14 @@
 {
-  "name": "museum-buddy-app",
-  "version": "1.0.0",
-  "description": "Museum Buddy App",
-  "private": true,
-  "type": "module",
   "scripts": {
-    "dev": "node server.js",
-    "test": "echo \"No tests specified\""
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
+  "engines": { "node": "20.x" },
+  "dependencies": {
+    "next": "^14.0.0",
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0"
   }
 }
 
