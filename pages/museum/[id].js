@@ -12,18 +12,25 @@ export default function MuseumPage({ museum }) {
     );
   }
 
+  const image = museum.image || (museum.images && museum.images[0]);
+
   return (
     <main style={{ padding: 24 }}>
       <p><Link href="/">&larr; Terug</Link></p>
       <h1>{museum.title}</h1>
-      {museum.image && (
+      {image && (
         <img
           alt={museum.title}
-          src={museum.image.startsWith('/') ? museum.image : `/` + museum.image}
+          src={image}
           style={{ maxWidth: 600, width: '100%', height: 'auto', display: 'block', marginTop: 16 }}
         />
       )}
       <p style={{ marginTop: 16 }}>{museum.description}</p>
+      {museum.openingHours && (
+        <p style={{ marginTop: 16 }}>
+          <strong>Openingstijden:</strong> {museum.openingHours}
+        </p>
+      )}
       {museum.url && (
         <p style={{ marginTop: 16 }}>
           <a href={museum.url} target="_blank" rel="noreferrer">Website</a>
