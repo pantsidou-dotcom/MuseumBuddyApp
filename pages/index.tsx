@@ -1,9 +1,8 @@
 export default function Home() {
   return (
-    <main style={{ padding: 24 }}>
+    <main style={{ padding: 24, fontFamily: "system-ui, sans-serif" }}>
       <h1>MuseumBuddy – het werkt!</h1>
-      <p>Deze minimale pagina is alleen om de build te laten slagen.</p>
+      <p>Als je dit ziet, is de Vercel build geslaagd.</p>
     </main>
   );
 }
-
