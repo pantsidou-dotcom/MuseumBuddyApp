@@ -1,0 +1,10 @@
+{
+  "name": "museumbuddyapp",
+  "version": "1.0.0",
+  "description": "Museum Buddy App",
+  "scripts": {
+    "dev": "node server.js",
+    "test": "echo \"No tests\" && exit 0"
+  },
+  "type": "module"
+}
