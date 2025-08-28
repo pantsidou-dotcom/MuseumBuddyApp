@@ -9,7 +9,7 @@
     "tags": ["kunst", "nationale collectie"],
     "description": "Het nationale museum van Nederland met meesterwerken uit de Gouden Eeuw.",
     "url": "https://www.rijksmuseum.nl"
-    "image": "/musea/rijksmuseum.png"
+    "image": "rijksmuseum.png"
   },
   {
     "id": "van-gogh-museum",
@@ -21,6 +21,7 @@
     "tags": ["kunst", "Van Gogh"],
     "description": "Grootste collectie werken van Vincent van Gogh.",
     "url": "https://www.vangoghmuseum.nl"
+    "image": "public/vangogh.jpg"
   },
   {
     "id": "stedelijk-museum",
