@@ -1,0 +1,20 @@
+[
+  {
+    "id": 1,
+    "name": "Rijksmuseum",
+    "image": "/images/rijksmuseum.jpg",
+    "description": "Nationaal museum in Amsterdam met kunst en geschiedenis."
+  },
+  {
+    "id": 2,
+    "name": "Van Gogh Museum",
+    "image": "/images/vangogh.jpg",
+    "description": "Collectie schilderijen van Vincent van Gogh."
+  },
+  {
+    "id": 3,
+    "name": "Mauritshuis",
+    "image": "/images/mauritshuis.jpg",
+    "description": "Museum in Den Haag met Nederlandse meesterwerken."
+  }
+]

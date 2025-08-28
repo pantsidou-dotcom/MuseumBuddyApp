@@ -1,8 +1,11 @@
 {
-  "name": "museumbuddyapp",
+  "name": "museum-buddy-app",
   "version": "1.0.0",
+  "description": "Museum Buddy App",
   "private": true,
+  "type": "module",
   "scripts": {
-    "test": "echo 'No tests'"
+    "dev": "node server.js",
+    "test": "echo \"No tests specified\""
   }
 }
