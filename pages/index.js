@@ -1,3 +1,4 @@
+   // vercel ping
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import museaData from '../musea.json';
@@ -107,4 +108,4 @@ export default function Home({ musea }) {
     </>
   );
 }
-   // build ping
+
