@@ -13,3 +13,11 @@
     "react-dom": "18.2.0"
   }
 }
+{
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "export": "next build && next export"
+  }
+}
