@@ -93,6 +93,8 @@ export default function Home({ musea }) {
             </div>
 
             {m.description && <p style={{ marginTop: 10 }}>{m.description}</p>}
+                 // build ping
+
 
             {Array.isArray(m.tags) && m.tags.length > 0 && (
               <p style={{ marginTop: 8 }}>
