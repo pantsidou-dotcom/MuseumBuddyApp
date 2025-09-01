@@ -71,13 +71,13 @@ export default function Home({ musea }) {
         {filtered.map(m => (
           <li key={m.id} className="card">
           {m.image && (
-  <img
-    className="card-img"
-    src={m.image}
-    alt={m.title}
-    loading="lazy"
-  />
-)}
+            <img
+              className="card-img"
+              src={m.image.startsWith('/') ? m.image : `/${m.image}`}
+              alt={m.title}
+              loading="lazy"
+            />
+          )}
 
             <div className="card-head">
               <div>
