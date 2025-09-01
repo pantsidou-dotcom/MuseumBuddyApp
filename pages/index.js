@@ -82,7 +82,12 @@ export default function Home({ musea }) {
             <div className="card-head">
               <div>
                 <h2 className="card-title">
-                  <Link className="link-accent" href={`/museum/${m.id}`}>{m.title}</Link>
+                  <Link
+                    className="link-accent"
+                    href={{ pathname: '/museum/[id]', query: { id: m.id } }}
+                  >
+                    {m.title}
+                  </Link>
                 </h2>
                 <p className="card-sub">{m.city}</p>
               </div>
