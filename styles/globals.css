@@ -1,11 +1,11 @@
 :root{
-  --bg:#ffffff;
+  --bg:#fdfbf7;          /* zachte achtergrondkleur */
   --text:#111111;
   --muted:#6b7280;       /* grijs voor subtitels */
   --border:#e5e7eb;      /* subtiele randen */
-  --accent:#0a65cc;      /* rustige blauw-tint */
+  --accent:#b85c28;      /* warme accentkleur */
   --accent-ink:#ffffff;
-  --chip-bg:#f3f4f6;     /* lichte chip/badge achtergrond */
+  --chip-bg:#fff4ed;     /* lichte achtergrond voor chips/badges */
 }
 
 *{ box-sizing:border-box }
@@ -31,7 +31,7 @@ img { max-width: 100%; height: auto; display: block; }
   border-bottom: 1px solid var(--border);
   backdrop-filter: blur(8px);
 }
-.navbar { display:flex; align-items:center; gap:16px; padding: 12px 24px; }
+.navbar { display:flex; align-items:center; gap:16px; padding: 16px 24px; }
 .brand { font-weight:700; font-size: 20px; letter-spacing: .2px; }
 .navspacer { flex:1 }
 .navlink { color: var(--muted); font-size: 14px; }
@@ -60,7 +60,7 @@ img { max-width: 100%; height: auto; display: block; }
 .chips { display:flex; gap:8px; flex-wrap:wrap; }
 .chip {
   font-size: 12px; padding: 4px 10px; border-radius: 999px;
-  border: 1px solid var(--border); background: var(--chip-bg);
+  border: 1px solid var(--accent); background: var(--chip-bg); color: var(--accent);
 }
 .tag { color: var(--muted); margin-right: 8px; }
 
@@ -72,7 +72,7 @@ img { max-width: 100%; height: auto; display: block; }
 .card {
   border: 1px solid var(--border);
   border-radius: 16px;
-  padding: 16px;
+  padding: 24px;
   transition: box-shadow .15s ease, transform .15s ease;
   background:#fff;
 }
@@ -87,7 +87,7 @@ img { max-width: 100%; height: auto; display: block; }
 .detail-sub { margin:6px 0 0; color:var(--muted); }
 
 /* Footer space */
-.section { margin: 16px 0; }
+.section { margin: 24px 0; }
 .count { color: var(--muted); margin: 8px 0 16px; }
 .link-accent { color: var(--accent); }
 
