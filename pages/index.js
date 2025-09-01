@@ -1,6 +1,7 @@
    // vercel ping
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import museaData from '../musea.json';
 
 export async function getStaticProps() {
@@ -71,12 +72,15 @@ export default function Home({ musea }) {
         {filtered.map(m => (
           <li key={m.id} className="card">
           {m.image && (
-            <img
-              className="card-img"
-              src={m.image.startsWith('/') ? m.image : `/${m.image}`}
-              alt={m.title}
-              loading="lazy"
-            />
+            <div className="card-img">
+              <Image
+                src={m.image.startsWith('/') ? m.image : `/${m.image}`}
+                alt={m.title}
+                fill
+                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                style={{ objectFit: 'cover' }}
+              />
+            </div>
           )}
 
             <div className="card-head">
