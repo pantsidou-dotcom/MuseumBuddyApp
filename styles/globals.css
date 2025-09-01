@@ -93,21 +93,29 @@ img { max-width: 100%; height: auto; display: block; }
 
 /* Afbeeldingen */
 .card-img {
+  position: relative;
   width: 100%;
-  height: 180px;          /* vaste hoogte voor nette grid */
-  object-fit: cover;      /* snijdt netjes bij */
+  aspect-ratio: 4 / 3;
   border-radius: 12px;
-  display: block;
+  overflow: hidden;
   margin-bottom: 12px;
   background: #f3f4f6;
 }
 
 .hero {
+  position: relative;
   width: 100%;
-  max-height: 420px;
-  object-fit: cover;
+  aspect-ratio: 4 / 3;
   border-radius: 16px;
-  display: block;
+  overflow: hidden;
   margin: 12px 0 16px;
   background: #f3f4f6;
+}
+
+.card-img img,
+.hero img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
