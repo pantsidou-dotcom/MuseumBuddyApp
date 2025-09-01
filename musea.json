@@ -9,7 +9,7 @@
     "tags": ["kunst", "nationale collectie"],
     "description": "Het nationale museum van Nederland met meesterwerken uit de Gouden Eeuw.",
     "url": "https://www.rijksmuseum.nl",
-    "image": "rijksmuseum.png"
+    "image": "/images/rijksmuseum.png"
   },
   {
     "id": "van-gogh-museum",
@@ -21,7 +21,7 @@
     "tags": ["kunst", "Van Gogh"],
     "description": "Grootste collectie werken van Vincent van Gogh.",
     "url": "https://www.vangoghmuseum.nl",
-    "image": "vangogh.jpg"
+    "image": "/images/vangogh.jpg"
   },
   {
     "id": "stedelijk-museum",
@@ -33,7 +33,7 @@
     "tags": ["moderne kunst", "design"],
     "description": "Moderne en hedendaagse kunst en vormgeving.",
     "url": "https://www.stedelijk.nl",
-    "image": "stedelijk.jpg"
+    "image": "/images/stedelijk.jpg"
   },
   {
     "id": "nemo-science-museum",
@@ -45,7 +45,7 @@
     "tags": ["science", "techniek", "kinderen"],
     "description": "Interactief wetenschapsmuseum, perfect voor kinderen.",
     "url": "https://www.nemosciencemuseum.nl",
-    "image": "nemo.jpg"
+    "image": "/images/nemo.jpg"
   },
   {
     "id": "mauritshuis",
@@ -57,7 +57,7 @@
     "tags": ["kunst", "Gouden Eeuw"],
     "description": "Thuis van Vermeer’s Meisje met de parel.",
     "url": "https://www.mauritshuis.nl",
-    "image": "mauritshuis.jpg"
+    "image": "/images/mauritshuis.jpg"
   },
   {
     "id": "anne-frank-huis",
@@ -69,7 +69,7 @@
     "tags": ["geschiedenis", "oorlog"],
     "description": "Huis waar Anne Frank onderdook, nu museum.",
     "url": "https://www.annefrank.org",
-    "image": "annefrank.jpg"
+    "image": "/images/annefrank.jpg"
   },
   {
     "id": "amsterdam-museum",
@@ -81,7 +81,7 @@
     "tags": ["geschiedenis", "Amsterdam"],
     "description": "Museum over de geschiedenis van Amsterdam.",
     "url": "https://www.amsterdammuseum.nl",
-    "image": "amsterdammuseum.jpg"
+    "image": "/images/amsterdammuseum.jpg"
   },
   {
     "id": "hermitage-amsterdam",
@@ -93,7 +93,7 @@
     "tags": ["kunst", "culture"],
     "description": "Dependance van de Hermitage met wisselende exposities.",
     "url": "https://www.hermitage.nl",
-    "image": "hermitage.jpg"
+    "image": "/images/hermitage.jpg"
   },
   {
     "id": "rembrandthuis",
@@ -105,7 +105,7 @@
     "tags": ["kunst", "Rembrandt"],
     "description": "Woning en atelier van Rembrandt van Rijn.",
     "url": "https://www.rembrandthuis.nl",
-    "image": "rembrandthuis.jpg"
+    "image": "/images/rembrandthuis.jpg"
   },
   {
     "id": "ons-lieve-heer-op-solder",
@@ -117,7 +117,7 @@
     "tags": ["geschiedenis", "religie"],
     "description": "17e-eeuwse schuilkerk boven in een grachtenhuis.",
     "url": "https://www.opsolder.nl",
-    "image": "opsolder.jpg"
+    "image": "/images/opsolder.jpg"
   },
   {
     "id": "tropenmuseum",
@@ -129,7 +129,7 @@
     "tags": ["wereldculturen", "volkenkunde"],
     "description": "Museum over wereldculturen in een monumentaal gebouw.",
     "url": "https://www.tropenmuseum.nl",
-    "image": "tropenmuseum.jpg"
+    "image": "/images/tropenmuseum.jpg"
   },
   {
     "id": "eye-filmmuseum",
@@ -141,7 +141,7 @@
     "tags": ["film", "media"],
     "description": "Museum voor film en bewegend beeld aan het IJ.",
     "url": "https://www.eyefilm.nl",
-    "image": "eye.jpg"
+    "image": "/images/eye.jpg"
   },
   {
     "id": "scheepvaartmuseum",
@@ -153,7 +153,7 @@
     "tags": ["maritiem", "geschiedenis"],
     "description": "Scheepvaartmuseum met historische schepen en kaarten.",
     "url": "https://www.hetscheepvaartmuseum.nl",
-    "image": "scheepvaartmuseum.jpg"
+    "image": "/images/scheepvaartmuseum.jpg"
   },
   {
     "id": "foam",
@@ -165,7 +165,7 @@
     "tags": ["fotografie", "kunst"],
     "description": "Fotografiemuseum met wisselende tentoonstellingen.",
     "url": "https://www.foam.org",
-    "image": "foam.jpg"
+    "image": "/images/foam.jpg"
   },
   {
     "id": "moco-museum",
@@ -177,7 +177,7 @@
     "tags": ["moderne kunst"],
     "description": "Museum met moderne en hedendaagse kunst in Villa Alsberg.",
     "url": "https://mocomuseum.com",
-    "image": "moco.webp"
+    "image": "/images/moco.webp"
   },
   {
     "id": "joods-historisch-museum",
@@ -189,7 +189,7 @@
     "tags": ["geschiedenis", "joods"],
     "description": "Museum over Joodse cultuur, geschiedenis en religie.",
     "url": "https://www.jck.nl",
-    "image": "jhm.jpg"
+    "image": "/images/jhm.jpg"
   },
   {
     "id": "allard-pierson",
@@ -201,6 +201,6 @@
     "tags": ["archeologie", "geschiedenis"],
     "description": "Museum voor de geschiedenis van Amsterdam en de Oudheid.",
     "url": "https://www.allardpierson.nl",
-    "image": "allardpierson.jpg"
+    "image": "/images/allardpierson.jpg"
   }
 ]

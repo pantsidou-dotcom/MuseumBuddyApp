@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import museaData from '../../musea.json';
 
 export default function MuseumPage({ museum }) {
@@ -19,11 +20,15 @@ export default function MuseumPage({ museum }) {
       <p className="detail-sub">{museum.city}</p>
 
     {museum.image && (
-      <img
-        className="hero"
-        src={museum.image.startsWith('/') ? museum.image : `/${museum.image}`}
-        alt={museum.title}
-      />
+      <div className="hero">
+        <Image
+          src={museum.image.startsWith('/') ? museum.image : `/${museum.image}`}
+          alt={museum.title}
+          fill
+          sizes="100vw"
+          style={{ objectFit: 'cover' }}
+        />
+      </div>
     )}
 
       <div className="chips" style={{ marginTop: 8 }}>
