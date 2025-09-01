@@ -32,7 +32,8 @@
     "temporary": true,
     "tags": ["moderne kunst", "design"],
     "description": "Moderne en hedendaagse kunst en vormgeving.",
-    "url": "https://www.stedelijk.nl"
+    "url": "https://www.stedelijk.nl",
+    "image": "stedelijk.jpg"
   },
   {
     "id": "nemo-science-museum",
@@ -43,7 +44,8 @@
     "temporary": true,
     "tags": ["science", "techniek", "kinderen"],
     "description": "Interactief wetenschapsmuseum, perfect voor kinderen.",
-    "url": "https://www.nemosciencemuseum.nl"
+    "url": "https://www.nemosciencemuseum.nl",
+    "image": "nemo.jpg"
   },
   {
     "id": "mauritshuis",
@@ -54,6 +56,7 @@
     "temporary": true,
     "tags": ["kunst", "Gouden Eeuw"],
     "description": "Thuis van Vermeer’s Meisje met de parel.",
-    "url": "https://www.mauritshuis.nl"
+    "url": "https://www.mauritshuis.nl",
+    "image": "mauritshuis.jpg"
   }
 ]

@@ -19,12 +19,12 @@ export default function MuseumPage({ museum }) {
       <p className="detail-sub">{museum.city}</p>
 
     {museum.image && (
-  <img
-    className="hero"
-    src={museum.image}
-    alt={museum.title}
-  />
-)}
+      <img
+        className="hero"
+        src={museum.image.startsWith('/') ? museum.image : `/${museum.image}`}
+        alt={museum.title}
+      />
+    )}
 
       <div className="chips" style={{ marginTop: 8 }}>
         {museum.free && <span className="chip">Gratis</span>}
