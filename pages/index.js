@@ -69,55 +69,45 @@ export default function Home({ musea }) {
 
       {/* Grid met kaarten */}
       <ul className="grid" style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-        {filtered.map(m => (
-          <li key={m.id} className="card">
-          {m.image && (
-            <div className="card-img">
-              <Image
-                src={m.image.startsWith('/') ? m.image : `/${m.image}`}
-                alt={m.title}
-                fill
-                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                style={{ objectFit: 'cover' }}
-              />
-            </div>
-          )}
-
-            <div className="card-head">
-              <div>
+          {filtered.map(m => (
+            <li key={m.id} className="card">
+              {m.image && (
+                <Image
+                  src={m.image.startsWith('/') ? m.image : `/${m.image}`}
+                  alt={m.title}
+                  fill
+                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                  style={{ objectFit: 'cover' }}
+                />
+              )}
+              <div className="card-info">
                 <h2 className="card-title">
                   <Link
-                    className="link-accent"
                     href={{ pathname: '/museum/[id]', query: { id: m.id } }}
                   >
                     {m.title}
                   </Link>
                 </h2>
                 <p className="card-sub">{m.city}</p>
+                <div className="chips">
+                  {m.free && <span className="chip">Gratis</span>}
+                  {m.kidFriendly && <span className="chip">Kindvriendelijk</span>}
+                  {m.temporary && <span className="chip">Tijdelijk</span>}
+                </div>
+                {m.description && (
+                  <p className="description" style={{ marginTop: 10 }}>
+                    {m.description}
+                  </p>
+                )}
+                {Array.isArray(m.tags) && m.tags.length > 0 && (
+                  <p style={{ marginTop: 8 }}>
+                    {m.tags.map(t => <span key={t} className="tag">#{t}</span>)}
+                  </p>
+                )}
               </div>
-              <div className="chips">
-                {m.free && <span className="chip">Gratis</span>}
-                {m.kidFriendly && <span className="chip">Kindvriendelijk</span>}
-                {m.temporary && <span className="chip">Tijdelijk</span>}
-              </div>
-            </div>
-
-            {m.description && (
-              <p className="description" style={{ marginTop: 10 }}>
-                {m.description}
-              </p>
-            )}
-              
-
-
-            {Array.isArray(m.tags) && m.tags.length > 0 && (
-              <p style={{ marginTop: 8 }}>
-                {m.tags.map(t => <span key={t} className="tag">#{t}</span>)}
-              </p>
-            )}
-          </li>
-        ))}
-      </ul>
+            </li>
+          ))}
+        </ul>
     </>
   );
 }
