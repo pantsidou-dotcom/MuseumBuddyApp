@@ -120,16 +120,16 @@
     "image": "/images/opsolder.jpg"
   },
   {
-    "id": "tropenmuseum",
-    "title": "Tropenmuseum",
+    "id": "wereldmuseum",
+    "title": "Wereldmuseum",
     "city": "Amsterdam",
     "free": false,
     "kidFriendly": true,
     "temporary": false,
     "tags": ["wereldculturen", "volkenkunde"],
     "description": "Museum over wereldculturen in een monumentaal gebouw.",
-    "url": "https://www.tropenmuseum.nl",
-    "image": "/images/tropenmuseum.jpg"
+    "url": "https://www.wereldmuseum.nl",
+    "image": "/images/wereldmuseum.jpg"
   },
   {
     "id": "eye-filmmuseum",
