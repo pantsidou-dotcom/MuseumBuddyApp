@@ -6,7 +6,10 @@
     "free": false,
     "kidFriendly": true,
     "temporary": true,
-    "tags": ["kunst", "nationale collectie"],
+    "tags": [
+      "kunst",
+      "nationale collectie"
+    ],
     "description": "Het nationale museum van Nederland met meesterwerken uit de Gouden Eeuw.",
     "url": "https://www.rijksmuseum.nl",
     "image": "/images/rijksmuseum.png"
@@ -18,10 +21,13 @@
     "free": false,
     "kidFriendly": true,
     "temporary": true,
-    "tags": ["kunst", "Van Gogh"],
+    "tags": [
+      "kunst",
+      "Van Gogh"
+    ],
     "description": "Grootste collectie werken van Vincent van Gogh.",
     "url": "https://www.vangoghmuseum.nl",
-    "image": "/images/vangogh.jpg"
+    "image": "/images/Van Gogh Museum.jpg"
   },
   {
     "id": "stedelijk-museum",
@@ -30,10 +36,13 @@
     "free": false,
     "kidFriendly": false,
     "temporary": true,
-    "tags": ["moderne kunst", "design"],
+    "tags": [
+      "moderne kunst",
+      "design"
+    ],
     "description": "Moderne en hedendaagse kunst en vormgeving.",
     "url": "https://www.stedelijk.nl",
-    "image": "/images/stedelijk.jpg"
+    "image": "/images/Stedelijk Museum.jpg"
   },
   {
     "id": "nemo-science-museum",
@@ -42,10 +51,14 @@
     "free": false,
     "kidFriendly": true,
     "temporary": true,
-    "tags": ["science", "techniek", "kinderen"],
+    "tags": [
+      "science",
+      "techniek",
+      "kinderen"
+    ],
     "description": "Interactief wetenschapsmuseum, perfect voor kinderen.",
     "url": "https://www.nemosciencemuseum.nl",
-    "image": "/images/nemo.jpg"
+    "image": "/images/NEMO Sciende Museum.jpg"
   },
   {
     "id": "anne-frank-huis",
@@ -54,10 +67,13 @@
     "free": false,
     "kidFriendly": false,
     "temporary": false,
-    "tags": ["geschiedenis", "oorlog"],
+    "tags": [
+      "geschiedenis",
+      "oorlog"
+    ],
     "description": "Huis waar Anne Frank onderdook, nu museum.",
     "url": "https://www.annefrank.org",
-    "image": "/images/annefrank.jpg"
+    "image": "/images/Anne Frank Huis.jpg"
   },
   {
     "id": "amsterdam-museum",
@@ -66,10 +82,13 @@
     "free": false,
     "kidFriendly": true,
     "temporary": false,
-    "tags": ["geschiedenis", "Amsterdam"],
+    "tags": [
+      "geschiedenis",
+      "Amsterdam"
+    ],
     "description": "Museum over de geschiedenis van Amsterdam.",
     "url": "https://www.amsterdammuseum.nl",
-    "image": "/images/amsterdammuseum.jpg"
+    "image": "/images/Amsterdam Museum.webp"
   },
   {
     "id": "hart-museum",
@@ -78,10 +97,13 @@
     "free": false,
     "kidFriendly": true,
     "temporary": true,
-    "tags": ["kunst", "culture"],
+    "tags": [
+      "kunst",
+      "culture"
+    ],
     "description": "Museum met wisselende exposities in het voormalige Hermitage-gebouw.",
     "url": "https://www.hartmuseum.nl",
-    "image": "/images/hermitage.jpg"
+    "image": "/images/H'ART Fotograaf Eva Bloem.jpg"
   },
   {
     "id": "rembrandthuis",
@@ -90,10 +112,13 @@
     "free": false,
     "kidFriendly": true,
     "temporary": false,
-    "tags": ["kunst", "Rembrandt"],
+    "tags": [
+      "kunst",
+      "Rembrandt"
+    ],
     "description": "Woning en atelier van Rembrandt van Rijn.",
     "url": "https://www.rembrandthuis.nl",
-    "image": "/images/rembrandthuis.jpg"
+    "image": "/images/Museum Het Rembrandthuis.jpg"
   },
   {
     "id": "ons-lieve-heer-op-solder",
@@ -102,10 +127,13 @@
     "free": false,
     "kidFriendly": false,
     "temporary": false,
-    "tags": ["geschiedenis", "religie"],
+    "tags": [
+      "geschiedenis",
+      "religie"
+    ],
     "description": "17e-eeuwse schuilkerk boven in een grachtenhuis.",
     "url": "https://www.opsolder.nl",
-    "image": "/images/opsolder.jpg"
+    "image": "/images/Museum Ons Lieve Heer Op Solder Fotograaf Rebekka Mell.jpg"
   },
   {
     "id": "wereldmuseum",
@@ -114,10 +142,13 @@
     "free": false,
     "kidFriendly": true,
     "temporary": false,
-    "tags": ["wereldculturen", "volkenkunde"],
+    "tags": [
+      "wereldculturen",
+      "volkenkunde"
+    ],
     "description": "Museum over wereldculturen in een monumentaal gebouw.",
     "url": "https://www.wereldmuseum.nl",
-    "image": "/images/wereldmuseum.jpg"
+    "image": "/images/Wereldmuseum.jpg"
   },
   {
     "id": "eye-filmmuseum",
@@ -126,10 +157,13 @@
     "free": false,
     "kidFriendly": true,
     "temporary": false,
-    "tags": ["film", "media"],
+    "tags": [
+      "film",
+      "media"
+    ],
     "description": "Museum voor film en bewegend beeld aan het IJ.",
     "url": "https://www.eyefilm.nl",
-    "image": "/images/eye.jpg"
+    "image": "/images/Eye Filmuseum.jpg"
   },
   {
     "id": "scheepvaartmuseum",
@@ -138,10 +172,13 @@
     "free": false,
     "kidFriendly": true,
     "temporary": false,
-    "tags": ["maritiem", "geschiedenis"],
+    "tags": [
+      "maritiem",
+      "geschiedenis"
+    ],
     "description": "Scheepvaartmuseum met historische schepen en kaarten.",
     "url": "https://www.hetscheepvaartmuseum.nl",
-    "image": "/images/scheepvaartmuseum.jpg"
+    "image": "/images/Het Scheepaartmuseum.jpg"
   },
   {
     "id": "foam",
@@ -150,10 +187,13 @@
     "free": false,
     "kidFriendly": true,
     "temporary": true,
-    "tags": ["fotografie", "kunst"],
+    "tags": [
+      "fotografie",
+      "kunst"
+    ],
     "description": "Fotografiemuseum met wisselende tentoonstellingen.",
     "url": "https://www.foam.org",
-    "image": "/images/foam.jpg"
+    "image": "/images/Foam.webp"
   },
   {
     "id": "moco-museum",
@@ -162,10 +202,12 @@
     "free": false,
     "kidFriendly": true,
     "temporary": true,
-    "tags": ["moderne kunst"],
+    "tags": [
+      "moderne kunst"
+    ],
     "description": "Museum met moderne en hedendaagse kunst in Villa Alsberg.",
     "url": "https://mocomuseum.com",
-    "image": "/images/moco.webp"
+    "image": "/images/Moco Museum.webp"
   },
   {
     "id": "joods-historisch-museum",
@@ -174,10 +216,13 @@
     "free": false,
     "kidFriendly": true,
     "temporary": false,
-    "tags": ["geschiedenis", "joods"],
+    "tags": [
+      "geschiedenis",
+      "joods"
+    ],
     "description": "Museum over Joodse cultuur, geschiedenis en religie.",
     "url": "https://www.jck.nl",
-    "image": "/images/jhm.jpg"
+    "image": "/images/Joods Museum Fotograag Anneke Hymmen.jpeg"
   },
   {
     "id": "allard-pierson",
@@ -186,10 +231,13 @@
     "free": false,
     "kidFriendly": true,
     "temporary": false,
-    "tags": ["archeologie", "geschiedenis"],
+    "tags": [
+      "archeologie",
+      "geschiedenis"
+    ],
     "description": "Museum voor de geschiedenis van Amsterdam en de Oudheid.",
     "url": "https://www.allardpierson.nl",
-    "image": "/images/allardpierson.jpg"
+    "image": "/images/Allard Pierson Fotograaf Isabel Nabuurs.jpg"
   },
   {
     "id": "micropia",
@@ -198,10 +246,13 @@
     "free": false,
     "kidFriendly": true,
     "temporary": false,
-    "tags": ["science", "microben"],
+    "tags": [
+      "science",
+      "microben"
+    ],
     "description": "Museum over micro-organismen naast ARTIS.",
     "url": "https://www.micropia.nl",
-    "image": "/images/micropia.jpg"
+    "image": "/images/micropia museum.jpg"
   },
   {
     "id": "museum-van-loon",
@@ -210,10 +261,13 @@
     "free": false,
     "kidFriendly": false,
     "temporary": false,
-    "tags": ["historisch huis", "grachten"],
+    "tags": [
+      "historisch huis",
+      "grachten"
+    ],
     "description": "Historisch grachtenpand met authentiek interieur.",
     "url": "https://www.museumvanloon.nl",
-    "image": "/images/vanloon.jpg"
+    "image": "/images/Museum van Loon Fotograag peter kooijman.jpg"
   },
   {
     "id": "museum-het-schip",
@@ -222,10 +276,13 @@
     "free": false,
     "kidFriendly": true,
     "temporary": false,
-    "tags": ["architectuur", "Amsterdamse School"],
+    "tags": [
+      "architectuur",
+      "Amsterdamse School"
+    ],
     "description": "Museum over de Amsterdamse School architectuur.",
     "url": "https://www.hetschip.nl",
-    "image": "/images/hetschip.jpg"
+    "image": "/images/Het Schip Fotograaf Marcel Westhoff.jpg"
   },
   {
     "id": "straat-museum",
@@ -234,10 +291,12 @@
     "free": false,
     "kidFriendly": true,
     "temporary": true,
-    "tags": ["street art"],
+    "tags": [
+      "street art"
+    ],
     "description": "Street art museum op de NDSM-werf.",
     "url": "https://straatmuseum.com",
-    "image": "/images/straat.jpg"
+    "image": "/images/STRAAT Museum Fotograaf Matthias Suessen.jpg"
   },
   {
     "id": "nxt-museum",
@@ -246,10 +305,12 @@
     "free": false,
     "kidFriendly": true,
     "temporary": true,
-    "tags": ["digitale kunst"],
+    "tags": [
+      "digitale kunst"
+    ],
     "description": "Museum voor digitale kunst in Amsterdam-Noord.",
     "url": "https://nxtmuseum.com",
-    "image": "/images/nxtmuseum.jpg"
+    "image": "/images/Nxt Museum.webp"
   },
   {
     "id": "kattenkabinet",
@@ -258,10 +319,13 @@
     "free": false,
     "kidFriendly": true,
     "temporary": false,
-    "tags": ["kunst", "katten"],
+    "tags": [
+      "kunst",
+      "katten"
+    ],
     "description": "Museum gewijd aan de kat in de kunst en cultuur.",
     "url": "https://www.kattenkabinet.nl",
-    "image": "/images/kattenkabinet.jpg"
+    "image": "/images/KattenKabinet Fotograag Pejman Akbarzadeh.jpg"
   },
   {
     "id": "grachtenmuseum",
@@ -270,10 +334,13 @@
     "free": false,
     "kidFriendly": true,
     "temporary": false,
-    "tags": ["geschiedenis", "grachten"],
+    "tags": [
+      "geschiedenis",
+      "grachten"
+    ],
     "description": "Interactief museum over de Amsterdamse grachten.",
     "url": "https://www.grachten.museum",
-    "image": "/images/grachtenmuseum.jpg"
+    "image": "/images/Het Grachtenmuseum.jpg"
   },
   {
     "id": "woonbootmuseum",
@@ -282,10 +349,13 @@
     "free": false,
     "kidFriendly": true,
     "temporary": false,
-    "tags": ["woonboot", "grachten"],
+    "tags": [
+      "woonboot",
+      "grachten"
+    ],
     "description": "Museum in een voormalige woonboot aan de Prinsengracht.",
     "url": "https://www.woonbootmuseum.nl",
-    "image": "/images/woonbootmuseum.jpg"
+    "image": "/images/Woonbootmuseum Fotograaf Hendrika Maria.jpg"
   },
   {
     "id": "amsterdam-tulip-museum",
@@ -294,10 +364,13 @@
     "free": false,
     "kidFriendly": true,
     "temporary": false,
-    "tags": ["bloemen", "geschiedenis"],
+    "tags": [
+      "bloemen",
+      "geschiedenis"
+    ],
     "description": "Klein museum over de geschiedenis van de tulp.",
     "url": "https://amsterdamtulipmuseum.com",
-    "image": "/images/tulipmuseum.jpg"
+    "image": "/images/Amsterdam Tulip Museum.jpg"
   },
   {
     "id": "body-worlds",
@@ -306,9 +379,12 @@
     "free": false,
     "kidFriendly": true,
     "temporary": true,
-    "tags": ["anatomie", "lichaam"],
+    "tags": [
+      "anatomie",
+      "lichaam"
+    ],
     "description": "Tentoonstelling van geplastineerde menselijke lichamen.",
     "url": "https://bodyworlds.nl",
-    "image": "/images/bodyworlds.jpg"
+    "image": "/images/Body Worlds.jpg"
   }
 ]
