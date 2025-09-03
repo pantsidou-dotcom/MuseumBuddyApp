@@ -5,7 +5,6 @@
   --border:#e5e7eb;      /* subtiele randen */
   --accent:#000000;      /* warme accentkleur */
   --accent-ink:#ffffff;
-  --chip-bg:#f0f0f0;     /* lichte achtergrond voor chips/badges */
 }
 
 *{ box-sizing:border-box }
@@ -56,12 +55,7 @@ img { max-width: 100%; height: auto; display: block; }
   background:#f8fafc; cursor:pointer; font-size:14px;
 }
 
-/* Chips/badges */
-.chips { display:flex; gap:8px; flex-wrap:wrap; }
-.chip {
-  font-size: 12px; padding: 4px 10px; border-radius: 999px;
-  border: 1px solid var(--accent); background: var(--chip-bg); color: var(--accent);
-}
+/* Tags */
 .tag {
   color: var(--muted);
   margin-right: 8px;
@@ -101,11 +95,6 @@ img { max-width: 100%; height: auto; display: block; }
 .card-info .card-sub,
 .card-info .description,
 .card-info .tag {
-  color: #fff;
-}
-.card-info .chip {
-  border: 1px solid #fff;
-  background: rgba(0,0,0,0.4);
   color: #fff;
 }
 

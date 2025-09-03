@@ -11,9 +11,6 @@ export async function getStaticProps() {
 
 export default function Home({ musea }) {
   const [query, setQuery] = useState('');
-  const [onlyFree, setOnlyFree] = useState(false);
-  const [onlyKids, setOnlyKids] = useState(false);
-  const [onlyTemporary, setOnlyTemporary] = useState(false);
   const cities = useMemo(() => Array.from(new Set(musea.map(m => m.city))).sort(), [musea]);
   const [city, setCity] = useState('');
 
@@ -26,14 +23,11 @@ export default function Home({ musea }) {
         (m.city && m.city.toLowerCase().includes(q)) ||
         (Array.isArray(m.tags) && m.tags.join(' ').toLowerCase().includes(q));
 
-      const matchesFree = !onlyFree || Boolean(m.free);
-      const matchesKids = !onlyKids || Boolean(m.kidFriendly);
-      const matchesTemp = !onlyTemporary || Boolean(m.temporary);
       const matchesCity = !city || m.city === city;
 
-      return matchesQuery && matchesFree && matchesKids && matchesTemp && matchesCity;
+      return matchesQuery && matchesCity;
     });
-  }, [musea, query, onlyFree, onlyKids, onlyTemporary, city]);
+  }, [musea, query, city]);
 
   return (
     <>
@@ -51,12 +45,6 @@ export default function Home({ musea }) {
         />
 
         <div className="control-row">
-          <label className="checkbox"><input type="checkbox" checked={onlyFree} onChange={(e) => setOnlyFree(e.target.checked)} /> Gratis toegankelijk</label>
-          <label className="checkbox"><input type="checkbox" checked={onlyKids} onChange={(e) => setOnlyKids(e.target.checked)} /> Kindvriendelijk</label>
-          <label className="checkbox"><input type="checkbox" checked={onlyTemporary} onChange={(e) => setOnlyTemporary(e.target.checked)} /> Tijdelijke exposities</label>
-        </div>
-
-        <div className="control-row">
           <select className="select" value={city} onChange={(e) => setCity(e.target.value)} style={{ maxWidth: 260 }}>
             <option value="">Alle steden</option>
             {cities.map(c => <option key={c} value={c}>{c}</option>)}
@@ -71,18 +59,40 @@ export default function Home({ musea }) {
       <ul className="grid" style={{ listStyle: 'none', padding: 0, margin: 0 }}>
           {filtered.map(m => (
             <li key={m.id} className="card">
-              <Link
-                href={{ pathname: '/museum/[id]', query: { id: m.id } }}
-                style={{ display: 'block', width: '100%', height: '100%' }}
-              >
-                {m.image && (
-                  <Image
-                    src={m.image.startsWith('/') ? m.image : `/${m.image}`}
-                    alt={m.title}
-                    fill
-                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                    style={{ objectFit: 'cover' }}
-                  />
+<li key={m.id} className="card">
+  <Link
+    href={{ pathname: '/museum/[id]', query: { id: m.id } }}
+    aria-label={`Bekijk ${m.title}`}
+    className="card-link"
+    style={{ display: 'block', width: '100%', height: '100%', position: 'relative' }}
+  >
+    {m.image && (
+      <Image
+        src={m.image.startsWith('/') ? m.image : `/${m.image}`}
+        alt={m.title}
+        fill
+        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+        style={{ objectFit: 'cover' }}
+      />
+    )}
+    <div className="card-info">
+      <h2 className="card-title">{m.title}</h2>
+      <p className="card-sub">{m.city}</p>
+      {m.description && (
+        <p className="description" style={{ marginTop: 10 }}>
+          {m.description}
+        </p>
+      )}
+      {Array.isArray(m.tags) && m.tags.length > 0 && (
+        <p style={{ marginTop: 8 }}>
+          {m.tags.map((t) => (
+            <span key={t} className="tag">#{t}</span>
+          ))}
+        </p>
+      )}
+    </div>
+  </Link>
+</li>
                 )}
                 <div className="card-info">
                   <h2 className="card-title">{m.title}</h2>

@@ -30,13 +30,6 @@ export default function MuseumPage({ museum }) {
         />
       </div>
     )}
-
-      <div className="chips" style={{ marginTop: 8 }}>
-        {museum.free && <span className="chip">Gratis</span>}
-        {museum.kidFriendly && <span className="chip">Kindvriendelijk</span>}
-        {museum.temporary && <span className="chip">Tijdelijk</span>}
-      </div>
-
       {museum.description && (
         <p className="description" style={{ marginTop: 16 }}>
           {museum.description}

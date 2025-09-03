@@ -3,9 +3,6 @@
     "id": "rijksmuseum",
     "title": "Rijksmuseum",
     "city": "Amsterdam",
-    "free": false,
-    "kidFriendly": true,
-    "temporary": true,
     "tags": [
       "kunst",
       "nationale collectie"
@@ -18,9 +15,6 @@
     "id": "van-gogh-museum",
     "title": "Van Gogh Museum",
     "city": "Amsterdam",
-    "free": false,
-    "kidFriendly": true,
-    "temporary": true,
     "tags": [
       "kunst",
       "Van Gogh"
@@ -33,9 +27,6 @@
     "id": "stedelijk-museum",
     "title": "Stedelijk Museum",
     "city": "Amsterdam",
-    "free": false,
-    "kidFriendly": false,
-    "temporary": true,
     "tags": [
       "moderne kunst",
       "design"
@@ -48,9 +39,6 @@
     "id": "nemo-science-museum",
     "title": "NEMO Science Museum",
     "city": "Amsterdam",
-    "free": false,
-    "kidFriendly": true,
-    "temporary": true,
     "tags": [
       "science",
       "techniek",
@@ -64,9 +52,6 @@
     "id": "anne-frank-huis",
     "title": "Anne Frank Huis",
     "city": "Amsterdam",
-    "free": false,
-    "kidFriendly": false,
-    "temporary": false,
     "tags": [
       "geschiedenis",
       "oorlog"
@@ -79,9 +64,6 @@
     "id": "amsterdam-museum",
     "title": "Amsterdam Museum",
     "city": "Amsterdam",
-    "free": false,
-    "kidFriendly": true,
-    "temporary": false,
     "tags": [
       "geschiedenis",
       "Amsterdam"
@@ -94,9 +76,6 @@
     "id": "hart-museum",
     "title": "H’ART Museum",
     "city": "Amsterdam",
-    "free": false,
-    "kidFriendly": true,
-    "temporary": true,
     "tags": [
       "kunst",
       "culture"
@@ -109,9 +88,6 @@
     "id": "rembrandthuis",
     "title": "Museum Het Rembrandthuis",
     "city": "Amsterdam",
-    "free": false,
-    "kidFriendly": true,
-    "temporary": false,
     "tags": [
       "kunst",
       "Rembrandt"
@@ -124,9 +100,6 @@
     "id": "ons-lieve-heer-op-solder",
     "title": "Museum Ons' Lieve Heer op Solder",
     "city": "Amsterdam",
-    "free": false,
-    "kidFriendly": false,
-    "temporary": false,
     "tags": [
       "geschiedenis",
       "religie"
@@ -139,9 +112,6 @@
     "id": "wereldmuseum",
     "title": "Wereldmuseum",
     "city": "Amsterdam",
-    "free": false,
-    "kidFriendly": true,
-    "temporary": false,
     "tags": [
       "wereldculturen",
       "volkenkunde"
@@ -154,9 +124,6 @@
     "id": "eye-filmmuseum",
     "title": "Eye Filmmuseum",
     "city": "Amsterdam",
-    "free": false,
-    "kidFriendly": true,
-    "temporary": false,
     "tags": [
       "film",
       "media"
@@ -169,9 +136,6 @@
     "id": "scheepvaartmuseum",
     "title": "Het Scheepvaartmuseum",
     "city": "Amsterdam",
-    "free": false,
-    "kidFriendly": true,
-    "temporary": false,
     "tags": [
       "maritiem",
       "geschiedenis"
@@ -184,9 +148,6 @@
     "id": "foam",
     "title": "Foam Fotografiemuseum",
     "city": "Amsterdam",
-    "free": false,
-    "kidFriendly": true,
-    "temporary": true,
     "tags": [
       "fotografie",
       "kunst"
@@ -199,9 +160,6 @@
     "id": "moco-museum",
     "title": "Moco Museum",
     "city": "Amsterdam",
-    "free": false,
-    "kidFriendly": true,
-    "temporary": true,
     "tags": [
       "moderne kunst"
     ],
@@ -213,9 +171,6 @@
     "id": "joods-historisch-museum",
     "title": "Joods Historisch Museum",
     "city": "Amsterdam",
-    "free": false,
-    "kidFriendly": true,
-    "temporary": false,
     "tags": [
       "geschiedenis",
       "joods"
@@ -228,9 +183,6 @@
     "id": "allard-pierson",
     "title": "Allard Pierson Museum",
     "city": "Amsterdam",
-    "free": false,
-    "kidFriendly": true,
-    "temporary": false,
     "tags": [
       "archeologie",
       "geschiedenis"
@@ -243,9 +195,6 @@
     "id": "micropia",
     "title": "Micropia",
     "city": "Amsterdam",
-    "free": false,
-    "kidFriendly": true,
-    "temporary": false,
     "tags": [
       "science",
       "microben"
@@ -258,9 +207,6 @@
     "id": "museum-van-loon",
     "title": "Museum Van Loon",
     "city": "Amsterdam",
-    "free": false,
-    "kidFriendly": false,
-    "temporary": false,
     "tags": [
       "historisch huis",
       "grachten"
@@ -273,9 +219,6 @@
     "id": "museum-het-schip",
     "title": "Museum Het Schip",
     "city": "Amsterdam",
-    "free": false,
-    "kidFriendly": true,
-    "temporary": false,
     "tags": [
       "architectuur",
       "Amsterdamse School"
@@ -288,9 +231,6 @@
     "id": "straat-museum",
     "title": "STRAAT Museum",
     "city": "Amsterdam",
-    "free": false,
-    "kidFriendly": true,
-    "temporary": true,
     "tags": [
       "street art"
     ],
@@ -302,9 +242,6 @@
     "id": "nxt-museum",
     "title": "Nxt Museum",
     "city": "Amsterdam",
-    "free": false,
-    "kidFriendly": true,
-    "temporary": true,
     "tags": [
       "digitale kunst"
     ],
@@ -316,9 +253,6 @@
     "id": "kattenkabinet",
     "title": "KattenKabinet",
     "city": "Amsterdam",
-    "free": false,
-    "kidFriendly": true,
-    "temporary": false,
     "tags": [
       "kunst",
       "katten"
@@ -331,9 +265,6 @@
     "id": "grachtenmuseum",
     "title": "Het Grachtenmuseum",
     "city": "Amsterdam",
-    "free": false,
-    "kidFriendly": true,
-    "temporary": false,
     "tags": [
       "geschiedenis",
       "grachten"
@@ -346,9 +277,6 @@
     "id": "woonbootmuseum",
     "title": "Woonbootmuseum",
     "city": "Amsterdam",
-    "free": false,
-    "kidFriendly": true,
-    "temporary": false,
     "tags": [
       "woonboot",
       "grachten"
@@ -361,9 +289,6 @@
     "id": "amsterdam-tulip-museum",
     "title": "Amsterdam Tulip Museum",
     "city": "Amsterdam",
-    "free": false,
-    "kidFriendly": true,
-    "temporary": false,
     "tags": [
       "bloemen",
       "geschiedenis"
@@ -376,9 +301,6 @@
     "id": "body-worlds",
     "title": "Body Worlds",
     "city": "Amsterdam",
-    "free": false,
-    "kidFriendly": true,
-    "temporary": true,
     "tags": [
       "anatomie",
       "lichaam"
