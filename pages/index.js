@@ -55,44 +55,24 @@ export default function Home({ musea }) {
 
       <p className="count">{filtered.length} resultaat{filtered.length === 1 ? '' : 'ten'}</p>
 
-      {/* Grid met kaarten */}
-      <ul className="grid" style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+        {/* Grid met kaarten */}
+        <ul className="grid" style={{ listStyle: 'none', padding: 0, margin: 0 }}>
           {filtered.map(m => (
             <li key={m.id} className="card">
-<li key={m.id} className="card">
-  <Link
-    href={{ pathname: '/museum/[id]', query: { id: m.id } }}
-    aria-label={`Bekijk ${m.title}`}
-    className="card-link"
-    style={{ display: 'block', width: '100%', height: '100%', position: 'relative' }}
-  >
-    {m.image && (
-      <Image
-        src={m.image.startsWith('/') ? m.image : `/${m.image}`}
-        alt={m.title}
-        fill
-        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-        style={{ objectFit: 'cover' }}
-      />
-    )}
-    <div className="card-info">
-      <h2 className="card-title">{m.title}</h2>
-      <p className="card-sub">{m.city}</p>
-      {m.description && (
-        <p className="description" style={{ marginTop: 10 }}>
-          {m.description}
-        </p>
-      )}
-      {Array.isArray(m.tags) && m.tags.length > 0 && (
-        <p style={{ marginTop: 8 }}>
-          {m.tags.map((t) => (
-            <span key={t} className="tag">#{t}</span>
-          ))}
-        </p>
-      )}
-    </div>
-  </Link>
-</li>
+              <Link
+                href={{ pathname: '/museum/[id]', query: { id: m.id } }}
+                aria-label={`Bekijk ${m.title}`}
+                className="card-link"
+                style={{ display: 'block', width: '100%', height: '100%', position: 'relative' }}
+              >
+                {m.image && (
+                  <Image
+                    src={m.image.startsWith('/') ? m.image : `/${m.image}`}
+                    alt={m.title}
+                    fill
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                    style={{ objectFit: 'cover' }}
+                  />
                 )}
                 <div className="card-info">
                   <h2 className="card-title">{m.title}</h2>
@@ -109,7 +89,9 @@ export default function Home({ musea }) {
                   )}
                   {Array.isArray(m.tags) && m.tags.length > 0 && (
                     <p style={{ marginTop: 8 }}>
-                      {m.tags.map(t => <span key={t} className="tag">#{t}</span>)}
+                      {m.tags.map(t => (
+                        <span key={t} className="tag">#{t}</span>
+                      ))}
                     </p>
                   )}
                 </div>
