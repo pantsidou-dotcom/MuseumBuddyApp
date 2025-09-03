@@ -11,9 +11,6 @@ export async function getStaticProps() {
 
 export default function Home({ musea }) {
   const [query, setQuery] = useState('');
-  const [onlyFree, setOnlyFree] = useState(false);
-  const [onlyKids, setOnlyKids] = useState(false);
-  const [onlyTemporary, setOnlyTemporary] = useState(false);
   const cities = useMemo(() => Array.from(new Set(musea.map(m => m.city))).sort(), [musea]);
   const [city, setCity] = useState('');
 
@@ -26,14 +23,11 @@ export default function Home({ musea }) {
         (m.city && m.city.toLowerCase().includes(q)) ||
         (Array.isArray(m.tags) && m.tags.join(' ').toLowerCase().includes(q));
 
-      const matchesFree = !onlyFree || Boolean(m.free);
-      const matchesKids = !onlyKids || Boolean(m.kidFriendly);
-      const matchesTemp = !onlyTemporary || Boolean(m.temporary);
       const matchesCity = !city || m.city === city;
 
-      return matchesQuery && matchesFree && matchesKids && matchesTemp && matchesCity;
+      return matchesQuery && matchesCity;
     });
-  }, [musea, query, onlyFree, onlyKids, onlyTemporary, city]);
+  }, [musea, query, city]);
 
   return (
     <>
@@ -49,12 +43,6 @@ export default function Home({ musea }) {
           placeholder="Zoek op naam, stad of tag…"
           type="search"
         />
-
-        <div className="control-row">
-          <label className="checkbox"><input type="checkbox" checked={onlyFree} onChange={(e) => setOnlyFree(e.target.checked)} /> Gratis toegankelijk</label>
-          <label className="checkbox"><input type="checkbox" checked={onlyKids} onChange={(e) => setOnlyKids(e.target.checked)} /> Kindvriendelijk</label>
-          <label className="checkbox"><input type="checkbox" checked={onlyTemporary} onChange={(e) => setOnlyTemporary(e.target.checked)} /> Tijdelijke exposities</label>
-        </div>
 
         <div className="control-row">
           <select className="select" value={city} onChange={(e) => setCity(e.target.value)} style={{ maxWidth: 260 }}>
@@ -89,11 +77,6 @@ export default function Home({ musea }) {
                   </Link>
                 </h2>
                 <p className="card-sub">{m.city}</p>
-                <div className="chips">
-                  {m.free && <span className="chip">Gratis</span>}
-                  {m.kidFriendly && <span className="chip">Kindvriendelijk</span>}
-                  {m.temporary && <span className="chip">Tijdelijk</span>}
-                </div>
                 {m.description && (
                   <p className="description" style={{ marginTop: 10 }}>
                     {m.description}
