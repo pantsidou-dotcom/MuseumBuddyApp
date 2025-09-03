@@ -2,6 +2,11 @@ import Link from 'next/link';
 import Image from 'next/image';
 
 export default function MuseumCard({ museum }) {
+  // Guard against undefined museum data which previously caused build issues
+  if (!museum) {
+    return null;
+  }
+
   return (
     <article className="museum-card">
       <div className="museum-card-image">
