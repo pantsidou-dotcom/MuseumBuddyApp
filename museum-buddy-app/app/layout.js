@@ -1,8 +1,8 @@
 import './globals.css'
-import { Inter } from 'next/font/google'
+import { Quicksand } from 'next/font/google'
 import type { Metadata } from 'next'
 
-const inter = Inter({ subsets: ['latin'], variable: '--font-inter' })
+const quicksand = Quicksand({ subsets: ['latin'], variable: '--font-quicksand', weight: ['400','500','700'], display: 'swap' })
 
 export const metadata: Metadata = {
   title: 'Museum Buddy App',
@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body className={inter.variable}>{children}</body>
+      <body className={quicksand.variable}>{children}</body>
     </html>
   )
 }
