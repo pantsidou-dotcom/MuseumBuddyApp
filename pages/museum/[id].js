@@ -37,7 +37,11 @@ export default function MuseumPage({ museum }) {
         {museum.temporary && <span className="chip">Tijdelijk</span>}
       </div>
 
-      {museum.description && <p style={{ marginTop: 16 }}>{museum.description}</p>}
+      {museum.description && (
+        <p className="description" style={{ marginTop: 16 }}>
+          {museum.description}
+        </p>
+      )}
 
       {museum.url && (
         <p style={{ marginTop: 16 }}>

@@ -102,7 +102,11 @@ export default function Home({ musea }) {
               </div>
             </div>
 
-            {m.description && <p style={{ marginTop: 10 }}>{m.description}</p>}
+            {m.description && (
+              <p className="description" style={{ marginTop: 10 }}>
+                {m.description}
+              </p>
+            )}
               
 
 
