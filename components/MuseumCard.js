@@ -1,7 +1,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
-
 export default function MuseumCard({ museum }) {
   const [saved, setSaved] = useState(false);
 
@@ -45,6 +44,8 @@ export default function MuseumCard({ museum }) {
     }
   };
 
+  // …rest van je JSX-rendering hier (ongewijzigd) …
+}
   return (
     <article className="museum-card">
       <div className="museum-card-image">
@@ -64,19 +65,19 @@ export default function MuseumCard({ museum }) {
           )}
         </Link>
         <div className="museum-card-actions">
-          <button className="icon-button" aria-label="Deel" onClick={handleShare}>
+<button className="icon-button" aria-label="Deel" onClick={handleShare}>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
               <path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7" />
               <path d="M16 6l-4-4-4 4" />
               <path d="M12 2v14" />
             </svg>
           </button>
-          <button
-            className={`icon-button${saved ? ' active' : ''}`}
-            aria-label="Bewaar"
-            aria-pressed={saved}
-            onClick={toggleSave}
-          >
+<button
+  className={`icon-button${saved ? ' active' : ''}`}
+  aria-label="Bewaar"
+  aria-pressed={saved}
+  onClick={toggleSave}
+>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
               <path d="M21 8.25c0 4.556-9 11.25-9 11.25S3 12.806 3 8.25a5.25 5.25 0 0 1 9-3.676A5.25 5.25 0 0 1 21 8.25Z" />
             </svg>
