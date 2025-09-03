@@ -1,0 +1,66 @@
+.card {
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  background: #fff;
+  width: 320px;
+}
+
+.imageWrapper {
+  position: relative;
+  aspect-ratio: 3 / 2;
+}
+
+.image {
+  object-fit: cover;
+}
+
+.actions {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: flex;
+  gap: 8px;
+}
+
+.iconButton {
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255,255,255,0.7);
+  backdrop-filter: blur(4px);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+  cursor: pointer;
+}
+
+.content {
+  padding: 20px;
+  background: #f9f9f9;
+}
+
+.title {
+  margin: 0 0 16px;
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.location {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #666;
+  font-size: 16px;
+}
+
+.locationText {
+  display: block;
+}
+
+.pin {
+  flex-shrink: 0;
+}
