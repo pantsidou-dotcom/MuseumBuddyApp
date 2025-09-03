@@ -1,11 +1,11 @@
 :root{
-  --bg:#fdfbf7;          /* zachte achtergrondkleur */
-  --text:#111111;
+  --bg:#ffffff;          /* zachte achtergrondkleur */
+  --text:#000000;
   --muted:#6b7280;       /* grijs voor subtitels */
   --border:#e5e7eb;      /* subtiele randen */
-  --accent:#b85c28;      /* warme accentkleur */
+  --accent:#000000;      /* warme accentkleur */
   --accent-ink:#ffffff;
-  --chip-bg:#fff4ed;     /* lichte achtergrond voor chips/badges */
+  --chip-bg:#f0f0f0;     /* lichte achtergrond voor chips/badges */
 }
 
 *{ box-sizing:border-box }
