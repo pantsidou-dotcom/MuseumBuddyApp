@@ -71,40 +71,39 @@ export default function Home({ musea }) {
       <ul className="grid" style={{ listStyle: 'none', padding: 0, margin: 0 }}>
           {filtered.map(m => (
             <li key={m.id} className="card">
-              {m.image && (
-                <Image
-                  src={m.image.startsWith('/') ? m.image : `/${m.image}`}
-                  alt={m.title}
-                  fill
-                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                  style={{ objectFit: 'cover' }}
-                />
-              )}
-              <div className="card-info">
-                <h2 className="card-title">
-                  <Link
-                    href={{ pathname: '/museum/[id]', query: { id: m.id } }}
-                  >
-                    {m.title}
-                  </Link>
-                </h2>
-                <p className="card-sub">{m.city}</p>
-                <div className="chips">
-                  {m.free && <span className="chip">Gratis</span>}
-                  {m.kidFriendly && <span className="chip">Kindvriendelijk</span>}
-                  {m.temporary && <span className="chip">Tijdelijk</span>}
+              <Link
+                href={{ pathname: '/museum/[id]', query: { id: m.id } }}
+                style={{ display: 'block', width: '100%', height: '100%' }}
+              >
+                {m.image && (
+                  <Image
+                    src={m.image.startsWith('/') ? m.image : `/${m.image}`}
+                    alt={m.title}
+                    fill
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                    style={{ objectFit: 'cover' }}
+                  />
+                )}
+                <div className="card-info">
+                  <h2 className="card-title">{m.title}</h2>
+                  <p className="card-sub">{m.city}</p>
+                  <div className="chips">
+                    {m.free && <span className="chip">Gratis</span>}
+                    {m.kidFriendly && <span className="chip">Kindvriendelijk</span>}
+                    {m.temporary && <span className="chip">Tijdelijk</span>}
+                  </div>
+                  {m.description && (
+                    <p className="description" style={{ marginTop: 10 }}>
+                      {m.description}
+                    </p>
+                  )}
+                  {Array.isArray(m.tags) && m.tags.length > 0 && (
+                    <p style={{ marginTop: 8 }}>
+                      {m.tags.map(t => <span key={t} className="tag">#{t}</span>)}
+                    </p>
+                  )}
                 </div>
-                {m.description && (
-                  <p className="description" style={{ marginTop: 10 }}>
-                    {m.description}
-                  </p>
-                )}
-                {Array.isArray(m.tags) && m.tags.length > 0 && (
-                  <p style={{ marginTop: 8 }}>
-                    {m.tags.map(t => <span key={t} className="tag">#{t}</span>)}
-                  </p>
-                )}
-              </div>
+              </Link>
             </li>
           ))}
         </ul>
