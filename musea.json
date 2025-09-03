@@ -84,15 +84,15 @@
     "image": "/images/amsterdammuseum.jpg"
   },
   {
-    "id": "hermitage-amsterdam",
-    "title": "Hermitage Amsterdam",
+    "id": "hart-museum",
+    "title": "H’ART Museum",
     "city": "Amsterdam",
     "free": false,
     "kidFriendly": true,
     "temporary": true,
     "tags": ["kunst", "culture"],
-    "description": "Dependance van de Hermitage met wisselende exposities.",
-    "url": "https://www.hermitage.nl",
+    "description": "Museum met wisselende exposities in het voormalige Hermitage-gebouw.",
+    "url": "https://www.hartmuseum.nl",
     "image": "/images/hermitage.jpg"
   },
   {
