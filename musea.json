@@ -48,18 +48,6 @@
     "image": "/images/nemo.jpg"
   },
   {
-    "id": "mauritshuis",
-    "title": "Mauritshuis",
-    "city": "Den Haag",
-    "free": false,
-    "kidFriendly": true,
-    "temporary": true,
-    "tags": ["kunst", "Gouden Eeuw"],
-    "description": "Thuis van Vermeer’s Meisje met de parel.",
-    "url": "https://www.mauritshuis.nl",
-    "image": "/images/mauritshuis.jpg"
-  },
-  {
     "id": "anne-frank-huis",
     "title": "Anne Frank Huis",
     "city": "Amsterdam",
@@ -202,5 +190,125 @@
     "description": "Museum voor de geschiedenis van Amsterdam en de Oudheid.",
     "url": "https://www.allardpierson.nl",
     "image": "/images/allardpierson.jpg"
+  },
+  {
+    "id": "micropia",
+    "title": "Micropia",
+    "city": "Amsterdam",
+    "free": false,
+    "kidFriendly": true,
+    "temporary": false,
+    "tags": ["science", "microben"],
+    "description": "Museum over micro-organismen naast ARTIS.",
+    "url": "https://www.micropia.nl",
+    "image": "/images/micropia.jpg"
+  },
+  {
+    "id": "museum-van-loon",
+    "title": "Museum Van Loon",
+    "city": "Amsterdam",
+    "free": false,
+    "kidFriendly": false,
+    "temporary": false,
+    "tags": ["historisch huis", "grachten"],
+    "description": "Historisch grachtenpand met authentiek interieur.",
+    "url": "https://www.museumvanloon.nl",
+    "image": "/images/vanloon.jpg"
+  },
+  {
+    "id": "museum-het-schip",
+    "title": "Museum Het Schip",
+    "city": "Amsterdam",
+    "free": false,
+    "kidFriendly": true,
+    "temporary": false,
+    "tags": ["architectuur", "Amsterdamse School"],
+    "description": "Museum over de Amsterdamse School architectuur.",
+    "url": "https://www.hetschip.nl",
+    "image": "/images/hetschip.jpg"
+  },
+  {
+    "id": "straat-museum",
+    "title": "STRAAT Museum",
+    "city": "Amsterdam",
+    "free": false,
+    "kidFriendly": true,
+    "temporary": true,
+    "tags": ["street art"],
+    "description": "Street art museum op de NDSM-werf.",
+    "url": "https://straatmuseum.com",
+    "image": "/images/straat.jpg"
+  },
+  {
+    "id": "nxt-museum",
+    "title": "Nxt Museum",
+    "city": "Amsterdam",
+    "free": false,
+    "kidFriendly": true,
+    "temporary": true,
+    "tags": ["digitale kunst"],
+    "description": "Museum voor digitale kunst in Amsterdam-Noord.",
+    "url": "https://nxtmuseum.com",
+    "image": "/images/nxtmuseum.jpg"
+  },
+  {
+    "id": "kattenkabinet",
+    "title": "KattenKabinet",
+    "city": "Amsterdam",
+    "free": false,
+    "kidFriendly": true,
+    "temporary": false,
+    "tags": ["kunst", "katten"],
+    "description": "Museum gewijd aan de kat in de kunst en cultuur.",
+    "url": "https://www.kattenkabinet.nl",
+    "image": "/images/kattenkabinet.jpg"
+  },
+  {
+    "id": "grachtenmuseum",
+    "title": "Het Grachtenmuseum",
+    "city": "Amsterdam",
+    "free": false,
+    "kidFriendly": true,
+    "temporary": false,
+    "tags": ["geschiedenis", "grachten"],
+    "description": "Interactief museum over de Amsterdamse grachten.",
+    "url": "https://www.grachten.museum",
+    "image": "/images/grachtenmuseum.jpg"
+  },
+  {
+    "id": "woonbootmuseum",
+    "title": "Woonbootmuseum",
+    "city": "Amsterdam",
+    "free": false,
+    "kidFriendly": true,
+    "temporary": false,
+    "tags": ["woonboot", "grachten"],
+    "description": "Museum in een voormalige woonboot aan de Prinsengracht.",
+    "url": "https://www.woonbootmuseum.nl",
+    "image": "/images/woonbootmuseum.jpg"
+  },
+  {
+    "id": "amsterdam-tulip-museum",
+    "title": "Amsterdam Tulip Museum",
+    "city": "Amsterdam",
+    "free": false,
+    "kidFriendly": true,
+    "temporary": false,
+    "tags": ["bloemen", "geschiedenis"],
+    "description": "Klein museum over de geschiedenis van de tulp.",
+    "url": "https://amsterdamtulipmuseum.com",
+    "image": "/images/tulipmuseum.jpg"
+  },
+  {
+    "id": "body-worlds",
+    "title": "Body Worlds",
+    "city": "Amsterdam",
+    "free": false,
+    "kidFriendly": true,
+    "temporary": true,
+    "tags": ["anatomie", "lichaam"],
+    "description": "Tentoonstelling van geplastineerde menselijke lichamen.",
+    "url": "https://bodyworlds.nl",
+    "image": "/images/bodyworlds.jpg"
   }
 ]
