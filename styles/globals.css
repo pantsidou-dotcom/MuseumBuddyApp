@@ -126,3 +126,68 @@ img { max-width: 100%; height: auto; display: block; }
   object-fit: cover;
   display: block;
 }
+
+/* MuseumCard component */
+.museum-card {
+  background: #f3f4f6;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+.museum-card-image {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+}
+.museum-card-actions {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: flex;
+  gap: 8px;
+}
+.icon-button {
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+.icon-button svg {
+  width: 18px;
+  height: 18px;
+}
+.icon-button.active {
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+.icon-button.active svg path {
+  fill: currentColor;
+}
+.museum-card-info {
+  padding: 16px;
+}
+.museum-card-title {
+  margin: 0 0 8px;
+  font-size: 20px;
+  font-weight: 600;
+}
+.museum-card-location {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+  color: var(--muted);
+}
+.museum-card-location svg {
+  width: 16px;
+  height: 16px;
+  margin-right: 4px;
+}
