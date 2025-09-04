@@ -109,7 +109,6 @@ img { max-width: 100%; height: auto; display: block; }
 .link-accent { color: var(--accent); }
 
 /* Afbeeldingen */
-
 .hero {
   position: relative;
   width: 100%;
@@ -164,7 +163,8 @@ img { max-width: 100%; height: auto; display: block; }
   width: 18px;
   height: 18px;
 }
-.icon-button.favorited {
+
+/* Favorited state */
 .icon-button.favorited {
   background: var(--accent);
   color: var(--accent-ink);
@@ -172,6 +172,7 @@ img { max-width: 100%; height: auto; display: block; }
 .icon-button.favorited svg path {
   fill: currentColor;
 }
+
 .museum-card-info {
   padding: 16px;
 }
