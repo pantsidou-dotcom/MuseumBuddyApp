@@ -11,9 +11,9 @@ Deze CI-workflow voert de tests van het project uit zodat de badge de status van
 
 ## Environment Variables
 
-Add the following variables in your Vercel project settings for both build and runtime:
+To run the app locally:
 
-- `NEXT_PUBLIC_SUPABASE_URL`
-- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+1. Copy `.env.example` to `.env.local`.
+2. Fill in the values for `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY`.
 
-These are required for the application to connect to Supabase.
+These variables are required for the application to connect to Supabase and should also be added to your Vercel project settings for both build and runtime.
