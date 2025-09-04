@@ -36,7 +36,7 @@ export default function MuseumCard({ museum }) {
   const shareMuseum = async () => {
     if (typeof window === 'undefined') return;
 
-    const url = `${window.location.origin}/museum/${museum.id}`;
+    const url = `${window.location.origin}/museum/${museum.slug}`;
     const shareData = {
       title: museum.title,
       text: `Bekijk ${museum.title}`,
@@ -73,7 +73,7 @@ export default function MuseumCard({ museum }) {
     <article className="museum-card">
       <div className="museum-card-image">
         <Link
-          href={{ pathname: '/museum/[id]', query: { id: museum.id } }}
+          href={{ pathname: '/museum/[slug]', query: { slug: museum.slug } }}
           style={{ display: 'block', width: '100%', height: '100%', position: 'relative' }}
           aria-label={`Bekijk ${museum.title}`}
         >
