@@ -12,6 +12,7 @@ export default function MuseumCard({ museum }) {
 
   // Load favorite state from localStorage on mount
   useEffect(() => {
+    if (typeof window === 'undefined') return;
     try {
       const stored = JSON.parse(localStorage.getItem('favorites') || '[]');
       setIsFavorite(stored.includes(museum.id));
@@ -21,43 +22,57 @@ export default function MuseumCard({ museum }) {
   }, [museum.id]);
 
   const toggleFavorite = () => {
+    if (typeof window === 'undefined') return;
     try {
       const stored = JSON.parse(localStorage.getItem('favorites') || '[]');
-      let updated;
-      if (stored.includes(museum.id)) {
-        updated = stored.filter(id => id !== museum.id);
-      } else {
-        updated = [...stored, museum.id];
-      }
-      localStorage.setItem('favorites', JSON.stringify(updated));
-      setIsFavorite(!isFavorite);
+      const exists = stored.includes(museum.id);
+      const next = exists
+        ? stored.filter((id) => id !== museum.id)
+        : [...stored, museum.id];
+      localStorage.setItem('favorites', JSON.stringify(next));
+      // Baseer UI op de werkelijkheid (exists), niet op mogelijk verouderde state
+      setIsFavorite(!exists);
     } catch {
-      // localStorage might be unavailable
+      // localStorage might be unavailable; best-effort fallback
     }
   };
 
-const url = `${window.location.origin}/museum/${museum.id}`;
-const shareData = {
-  title: museum.title,
-  text: `Bekijk ${museum.title}`,
-  url,
-};
+  const shareMuseum = async () => {
+    if (typeof window === 'undefined') return;
 
+    const url = `${window.location.origin}/museum/${museum.id}`;
+    const shareData = {
+      title: museum.title,
+      text: `Bekijk ${museum.title}`,
+      url,
+    };
+
+    // 1) Native share indien beschikbaar
     if (navigator.share) {
       try {
         await navigator.share(shareData);
+        return;
       } catch {
-        // ignore share cancellation or failure
+        // ignore cancellation or failure, val door naar clipboard/open
       }
-    } else if (navigator.clipboard) {
+    }
+
+    // 2) Clipboard fallback
+    if (navigator.clipboard) {
       try {
         await navigator.clipboard.writeText(url);
         alert('Link gekopieerd naar klembord');
+        return;
       } catch {
-        window.open(url, '_blank');
+        // val door naar laatste fallback
       }
-    } else {
-      window.open(url, '_blank');
+    }
+
+    // 3) Laatste fallbacks
+    try {
+      window.open(url, '_blank', 'noopener,noreferrer');
+    } catch {
+      window.prompt('Kopieer deze link', url);
     }
   };
 
@@ -81,7 +96,14 @@ const shareData = {
         </Link>
         <div className="museum-card-actions">
           <button className="icon-button" aria-label="Deel" onClick={shareMuseum}>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
               <path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7" />
               <path d="M16 6l-4-4-4 4" />
               <path d="M12 2v14" />
@@ -109,7 +131,15 @@ const shareData = {
       <div className="museum-card-info">
         <h3 className="museum-card-title">{museum.title}</h3>
         <p className="museum-card-location">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+          >
             <path d="M12 11.25a2.25 2.25 0 1 0 0-4.5 2.25 2.25 0 0 0 0 4.5Z" />
             <path d="M12 21s-7.5-7.048-7.5-11.25a7.5 7.5 0 1 1 15 0C19.5 13.952 12 21 12 21Z" />
           </svg>
@@ -119,4 +149,5 @@ const shareData = {
     </article>
   );
 }
+
 
