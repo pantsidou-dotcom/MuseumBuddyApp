@@ -3,3 +3,16 @@ node_modules
 .out
 dist
 .env*
+# Legacy files
+museum-buddy-app/
+main.js
+data/
+style.css
+musea.json
+z_parked/
+netlify.toml
+components/Button.js
+components/Header.js
+components/MuseumCard.jsx
+components/MuseumCard.styles.js
+lib/museums.js
