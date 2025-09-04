@@ -28,32 +28,49 @@ export default function MuseumCard({ museum }) {
       const exists = stored.includes(museum.id);
       const next = exists ? stored.filter(id => id !== museum.id) : [...stored, museum.id];
       localStorage.setItem('favorites', JSON.stringify(next));
+      // Baseer UI op de werkelijkheid (exists), niet op mogelijk verouderde state
       setIsFavorite(!exists);
     } catch {
-      // localStorage might be unavailable
+      // localStorage might be unavailable; best-effort fallback
     }
   };
 
   const shareMuseum = async () => {
     if (typeof window === 'undefined') return;
+
     const url = `${window.location.origin}/museum/${museum.id}`;
-    const shareData = {
+    const shareData: ShareData = {
       title: museum.title,
       text: `Bekijk ${museum.title}`,
       url,
     };
 
-    try {
-      if (navigator.share) {
+    // 1) Native share indien beschikbaar
+    if (navigator.share) {
+      try {
         await navigator.share(shareData);
-      } else if (navigator.clipboard) {
+        return;
+      } catch {
+        // ignore cancellation or failure, val door naar clipboard/open
+      }
+    }
+
+    // 2) Clipboard fallback
+    if (navigator.clipboard) {
+      try {
         await navigator.clipboard.writeText(url);
         alert('Link gekopieerd naar klembord');
-      } else {
-        prompt('Kopieer deze link', url);
+        return;
+      } catch {
+        // val door naar laatste fallback
       }
+    }
+
+    // 3) Laatste fallbacks
+    try {
+      window.open(url, '_blank', 'noopener,noreferrer');
     } catch {
-      // ignore share cancellation or failure
+      window.prompt('Kopieer deze link', url);
     }
   };
 
@@ -115,4 +132,3 @@ export default function MuseumCard({ museum }) {
     </article>
   );
 }
-
