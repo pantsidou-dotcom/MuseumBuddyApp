@@ -5,8 +5,7 @@ Deze CI-workflow voert de tests van het project uit zodat de badge de status van
 
 ## Project Structure
 
-- `lib/` contains JavaScript helpers.
-- `components/` contains React components used throughout the app.
+
 
 ## Environment Variables
 
