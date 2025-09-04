@@ -1,8 +1,18 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import museaData from '../../musea.json';
+import { supabase } from '../../lib/supabase';
 
-export default function MuseumPage({ museum }) {
+export default function MuseumPage({ museum, error }) {
+  if (error) {
+    return (
+      <>
+        <p><Link className="backlink" href="/">&larr; Terug naar overzicht</Link></p>
+        <h1 className="detail-title">Museum niet gevonden</h1>
+        <p className="detail-sub">{error}</p>
+      </>
+    );
+  }
+
   if (!museum) {
     return (
       <>
@@ -45,14 +55,34 @@ export default function MuseumPage({ museum }) {
   );
 }
 
-export async function getStaticPaths() {
-  const items = Array.isArray(museaData) ? museaData : (museaData.musea || []);
-  const paths = items.filter(m => m && m.id != null).map(m => ({ params: { id: String(m.id) } }));
-  return { paths, fallback: false };
-}
+export async function getServerSideProps({ params }) {
+  if (!supabase) {
+    const errorMsg =
+      'Supabase client not configured. Please set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY.';
+    console.error('[Supabase] detail client error:', errorMsg);
+    return { props: { museum: null, error: errorMsg } };
+  }
 
-export async function getStaticProps({ params }) {
-  const items = Array.isArray(museaData) ? museaData : (museaData.musea || []);
-  const museum = items.find(m => String(m.id) === String(params.id)) || null;
-  return { props: { museum } };
+  const { data, error } = await supabase
+    .from('musea')
+    .select('*')
+    .eq('id', params.id)
+    .maybeSingle();
+
+  if (error) {
+    console.error('[Supabase] detail query error:', error.message);
+  }
+
+  const museum = data
+    ? {
+        id: data.id,
+        title: data.naam,
+        city: data.stad || '',
+        description: data.beschrijving || data.description || '',
+        url: data.website_url || data.url || '',
+        image: data.image || data.image_url || '',
+      }
+    : null;
+
+  return { props: { museum, error: error ? error.message : null } };
 }
