@@ -35,15 +35,41 @@ export default function MuseumCard({ museum }) {
     }
   };
 
-  const shareMuseum = async () => {
-    if (typeof window === 'undefined') return;
+const shareMuseum = async () => {
+  if (typeof window === 'undefined') return;
 
-    const url = `${window.location.origin}/museum/${museum.id}`;
-    const shareData: ShareData = {
-      title: museum.title,
-      text: `Bekijk ${museum.title}`,
-      url,
-    };
+  const url = `${window.location.origin}/museum/${museum.id}`;
+  const shareData = {
+    title: museum.title,
+    text: `Bekijk ${museum.title}`,
+    url,
+  };
+
+  if (navigator.share) {
+    try {
+      await navigator.share(shareData);
+      return;
+    } catch {
+      // ignore cancellation
+    }
+  }
+
+  if (navigator.clipboard) {
+    try {
+      await navigator.clipboard.writeText(url);
+      alert('Link gekopieerd naar klembord');
+      return;
+    } catch {
+      // fallback
+    }
+  }
+
+  try {
+    window.open(url, '_blank', 'noopener,noreferrer');
+  } catch {
+    window.prompt('Kopieer deze link', url);
+  }
+};
 
     // 1) Native share indien beschikbaar
     if (navigator.share) {
