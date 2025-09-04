@@ -1,140 +1,113 @@
- // pages/index.js — leest nu uit Supabase i.p.v. musea.json
 import Head from 'next/head';
-import { useMemo, useState } from 'react';
 import Link from 'next/link';
-import { supabase } from '../lib/supabase';
-import MuseumCard from '../components/MuseumCard.js';
+import { createClient } from '@supabase/supabase-js';
 
-// We halen data server-side op, zodat je live DB gebruikt
-export async function getServerSideProps() {
-  if (!supabase) {
-    const errorMsg =
-      'Supabase client not configured. Please set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY.';
-    console.error('[Supabase] index client error:', errorMsg);
-    return { props: { musea: [], error: errorMsg } };
-  }
-
-  // Haal alle musea op (je kunt hier filters toevoegen als je wilt)
-  const { data, error } = await supabase
-    .from('musea')
-    .select('*')
-    .order('stad', { ascending: true });
-
-  if (error) {
-    console.error('[Supabase] index query error:', error.message);
-  }
-
-  // Normaliseer naar de vorm die jouw MuseumCard waarschijnlijk verwacht
-  // (title/city/tags/slug). Pas aan als MuseumCard meer velden nodig heeft.
-  const musea = (data || []).map((m) => ({
-    id: m.id,
-    title: m.naam,          // jouw JSON had 'title'; uit DB komt 'naam'
-    city: m.stad || '',     // jouw JSON had 'city'; uit DB komt 'stad'
-    tags: [
-      ...(m.gratis_toegankelijk ? ['gratis'] : []),
-      ...(m.kindvriendelijk ? ['kindvriendelijk'] : [])
-    ],
-    slug: m.slug,           // voor link naar detailpagina
-    provincie: m.provincie || '',
-    website: m.website_url || '',
-    // voeg eventueel andere props toe die MuseumCard gebruikt
-  }));
-
-  return { props: { musea, error: error ? error.message : null } };
-}
-
-export default function Home({ musea, error }) {
-  const [query, setQuery] = useState('');
-  const cities = useMemo(
-    () => Array.from(new Set(musea.map((m) => m.city).filter(Boolean))).sort(),
-    [musea]
-  );
-  const [city, setCity] = useState('');
-
-  const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    return musea.filter((m) => {
-      const matchesQuery =
-        !q ||
-        (m.title && m.title.toLowerCase().includes(q)) ||
-        (m.city && m.city.toLowerCase().includes(q)) ||
-        (Array.isArray(m.tags) && m.tags.join(' ').toLowerCase().includes(q));
-
-      const matchesCity = !city || m.city === city;
-
-      return matchesQuery && matchesCity;
-    });
-  }, [musea, query, city]);
-
-  if (error) {
-    return (
-      <>
-        <Head>
-          <title>MuseumBuddy</title>
-        </Head>
-        <p>{error}</p>
-      </>
-    );
-  }
-
+export default function Home({ items, q, gratis, kids }) {
   return (
     <>
       <Head>
-        <title>MuseumBuddy</title>
-        <meta name="description" content="Vind musea en exposities in Nederland" />
+        <title>MuseumBuddy — Musea</title>
+        <meta name="description" content="Zoek en filter musea in Nederland." />
       </Head>
 
-      <h1 className="page-title">Zoek musea</h1>
-      <p className="page-subtitle">Vind musea en exposities in Nederland</p>
+      <main style={{ maxWidth: 900, margin: '2rem auto', padding: '0 1rem' }}>
+        <h1 style={{ marginTop: 0 }}>Musea</h1>
 
-      {/* Filters */}
-      <section className="section controls">
-        <input
-          className="input"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="Zoek op naam, stad of tag…"
-          type="search"
-        />
+        <form method="get" style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap', marginBottom: '1rem' }}>
+          <input
+            type="text"
+            name="q"
+            placeholder="Zoek op naam…"
+            defaultValue={q || ''}
+            style={{ flex: '1 1 260px', padding: '0.5rem 0.75rem', borderRadius: 8, border: '1px solid #ddd' }}
+          />
+          <label style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <input type="checkbox" name="gratis" value="1" defaultChecked={!!gratis} />
+            Gratis
+          </label>
+          <label style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <input type="checkbox" name="kids" value="1" defaultChecked={!!kids} />
+            Kindvriendelijk
+          </label>
+          <button type="submit" style={{ padding: '0.5rem 0.75rem', borderRadius: 8, border: '1px solid #ddd', background: '#fafafa' }}>
+            Zoeken
+          </button>
+        </form>
 
-        <div className="control-row">
-          <select
-            className="select"
-            value={city}
-            onChange={(e) => setCity(e.target.value)}
-            style={{ maxWidth: 260 }}
-          >
-            <option value="">Alle steden</option>
-            {cities.map((c) => (
-              <option key={c} value={c}>
-                {c}
-              </option>
+        {(!items || items.length === 0) ? (
+          <p>Geen resultaten.</p>
+        ) : (
+          <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+            {items.map((m) => (
+              <li key={m.id} style={{ borderBottom: '1px solid #eee', padding: '0.75rem 0' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', gap: '1rem', alignItems: 'center' }}>
+                  <div>
+                    <div style={{ fontWeight: 600, marginBottom: 4 }}>
+                      <Link href={`/museum/${m.slug}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                        {m.naam}
+                      </Link>
+                    </div>
+                    <div style={{ color: '#666', fontSize: 14 }}>
+                      {[m.stad, m.provincie].filter(Boolean).join(', ')}
+                    </div>
+                  </div>
+                  <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                    {m.gratis_toegankelijk && (
+                      <span style={{ border: '1px solid #ddd', borderRadius: 999, padding: '2px 8px', fontSize: 12 }}>Gratis</span>
+                    )}
+                    {m.kindvriendelijk && (
+                      <span style={{ border: '1px solid #ddd', borderRadius: 999, padding: '2px 8px', fontSize: 12 }}>Kids</span>
+                    )}
+                  </div>
+                </div>
+              </li>
             ))}
-          </select>
-          {city && (
-            <button className="btn-reset" onClick={() => setCity('')}>
-              Reset stad
-            </button>
-          )}
-        </div>
-      </section>
-
-      <p className="count">
-        {filtered.length} resultaat{filtered.length === 1 ? '' : 'ten'}
-      </p>
-
-      {/* Grid met kaarten */}
-      <ul className="grid" style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-        {filtered.map((m) => (
-          <li key={m.id}>
-            {/* MuseumCard blijft werken; hij krijgt nu museum uit DB (genormaliseerd) */}
-            <MuseumCard museum={m} />
-
-            {/* Optioneel: als je geen MuseumCard-link hebt, kun je deze link laten staan */}
-            {/* <Link href={`/museum/${m.slug}`}>Bekijk</Link> */}
-          </li>
-        ))}
-      </ul>
+          </ul>
+        )}
+      </main>
     </>
   );
 }
+
+export async function getServerSideProps({ query }) {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  const supabase = createClient(url, anon);
+
+  const q = typeof query.q === 'string' ? query.q.trim() : '';
+  const gratis = query.gratis === '1';
+  const kids = query.kids === '1';
+
+  let db = supabase
+    .from('musea')
+    .select('id, naam, stad, provincie, slug, gratis_toegankelijk, kindvriendelijk')
+    .order('naam', { ascending: true });
+
+  if (q) {
+    // case-insensitive zoeken op naam
+    db = db.ilike('naam', `%${q}%`);
+  }
+  if (gratis) {
+    db = db.eq('gratis_toegankelijk', true);
+  }
+  if (kids) {
+    db = db.eq('kindvriendelijk', true);
+  }
+
+  const { data, error } = await db;
+
+  if (error) {
+    // Fallback: geen resultaten tonen i.p.v. hard crashen
+    return { props: { items: [], q, gratis, kids } };
+  }
+
+  return {
+    props: {
+      items: data || [],
+      q,
+      gratis,
+      kids,
+    },
+  };
+}
+
