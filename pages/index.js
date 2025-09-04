@@ -3,7 +3,7 @@ import Head from 'next/head';
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import { supabase } from '../lib/supabase';
-import MuseumCard from '../components/MuseumCard';
+import MuseumCard from '../components/MuseumCard.js';
 
 // We halen data server-side op, zodat je live DB gebruikt
 export async function getServerSideProps() {
