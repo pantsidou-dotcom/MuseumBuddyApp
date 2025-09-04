@@ -7,6 +7,13 @@ import MuseumCard from '../components/MuseumCard';
 
 // We halen data server-side op, zodat je live DB gebruikt
 export async function getServerSideProps() {
+  if (!supabase) {
+    const errorMsg =
+      'Supabase client not configured. Please set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY.';
+    console.error('[Supabase] index client error:', errorMsg);
+    return { props: { musea: [], error: errorMsg } };
+  }
+
   // Haal alle musea op (je kunt hier filters toevoegen als je wilt)
   const { data, error } = await supabase
     .from('musea')
@@ -33,10 +40,10 @@ export async function getServerSideProps() {
     // voeg eventueel andere props toe die MuseumCard gebruikt
   }));
 
-  return { props: { musea } };
+  return { props: { musea, error: error ? error.message : null } };
 }
 
-export default function Home({ musea }) {
+export default function Home({ musea, error }) {
   const [query, setQuery] = useState('');
   const cities = useMemo(
     () => Array.from(new Set(musea.map((m) => m.city).filter(Boolean))).sort(),
@@ -58,6 +65,17 @@ export default function Home({ musea }) {
       return matchesQuery && matchesCity;
     });
   }, [musea, query, city]);
+
+  if (error) {
+    return (
+      <>
+        <Head>
+          <title>MuseumBuddy</title>
+        </Head>
+        <p>{error}</p>
+      </>
+    );
+  }
 
   return (
     <>

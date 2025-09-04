@@ -8,3 +8,12 @@ Deze CI-workflow voert de tests van het project uit zodat de badge de status van
 - `lib/` bevat pure JavaScript-logica. Deze modules kunnen zonder wijzigingen in React Native worden gebruikt.
 - `components/` bevat presentatiecomponenten. Ze zijn opgebouwd uit React Native-primitieven (`View`, `Text`) en hebben hun styling in aparte modules zoals `MuseumCard.styles.js`. Daardoor kunnen ze direct naar React Native worden overgezet.
 - Componenten vermijden HTML-specifieke tags, wat het hergebruik in React Native vereenvoudigt.
+
+## Environment Variables
+
+Add the following variables in your Vercel project settings for both build and runtime:
+
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+
+These are required for the application to connect to Supabase.
