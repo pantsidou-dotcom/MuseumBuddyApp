@@ -25,10 +25,14 @@ export default function MuseumCard({ museum }) {
     if (typeof window === 'undefined') return;
     try {
       const stored = JSON.parse(localStorage.getItem('favorites') || '[]');
-      const exists = stored.includes(museum.id);
-      const next = exists ? stored.filter(id => id !== museum.id) : [...stored, museum.id];
-      localStorage.setItem('favorites', JSON.stringify(next));
-      setIsFavorite(!exists);
+      let updated;
+      if (stored.includes(museum.id)) {
+        updated = stored.filter(id => id !== museum.id);
+      } else {
+        updated = [...stored, museum.id];
+      }
+      localStorage.setItem('favorites', JSON.stringify(updated));
+      setIsFavorite(!isFavorite);
     } catch {
       // localStorage might be unavailable
     }
@@ -43,17 +47,21 @@ export default function MuseumCard({ museum }) {
       url,
     };
 
-    try {
-      if (navigator.share) {
+    if (navigator.share) {
+      try {
         await navigator.share(shareData);
-      } else if (navigator.clipboard) {
+      } catch {
+        // ignore share cancellation or failure
+      }
+    } else if (navigator.clipboard) {
+      try {
         await navigator.clipboard.writeText(url);
         alert('Link gekopieerd naar klembord');
-      } else {
-        prompt('Kopieer deze link', url);
+      } catch {
+        window.open(url, '_blank');
       }
-    } catch {
-      // ignore share cancellation or failure
+    } else {
+      window.open(url, '_blank');
     }
   };
 
