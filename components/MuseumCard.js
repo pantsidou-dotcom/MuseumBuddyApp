@@ -3,21 +3,17 @@ import Image from 'next/image';
 import { useEffect, useState } from 'react';
 
 export default function MuseumCard({ museum }) {
-  // Guard against undefined museum data which previously caused build issues
-  if (!museum) {
-    return null;
-  }
+  if (!museum) return null;
 
   const [isFavorite, setIsFavorite] = useState(false);
 
-  // Load favorite state from localStorage on mount
   useEffect(() => {
     if (typeof window === 'undefined') return;
     try {
       const stored = JSON.parse(localStorage.getItem('favorites') || '[]');
       setIsFavorite(stored.includes(museum.id));
     } catch {
-      // ignore JSON parse errors
+      // ignore
     }
   }, [museum.id]);
 
@@ -29,11 +25,11 @@ export default function MuseumCard({ museum }) {
       const next = exists
         ? stored.filter((id) => id !== museum.id)
         : [...stored, museum.id];
+
       localStorage.setItem('favorites', JSON.stringify(next));
-      // Baseer UI op de werkelijkheid (exists), niet op mogelijk verouderde state
       setIsFavorite(!exists);
     } catch {
-      // localStorage might be unavailable; best-effort fallback
+      // ignore
     }
   };
 
@@ -47,28 +43,25 @@ export default function MuseumCard({ museum }) {
       url,
     };
 
-    // 1) Native share indien beschikbaar
     if (navigator.share) {
       try {
         await navigator.share(shareData);
         return;
       } catch {
-        // ignore cancellation or failure, val door naar clipboard/open
+        // ignore
       }
     }
 
-    // 2) Clipboard fallback
     if (navigator.clipboard) {
       try {
         await navigator.clipboard.writeText(url);
         alert('Link gekopieerd naar klembord');
         return;
       } catch {
-        // val door naar laatste fallback
+        // ignore
       }
     }
 
-    // 3) Laatste fallbacks
     try {
       window.open(url, '_blank', 'noopener,noreferrer');
     } catch {
@@ -96,14 +89,7 @@ export default function MuseumCard({ museum }) {
         </Link>
         <div className="museum-card-actions">
           <button className="icon-button" aria-label="Deel" onClick={shareMuseum}>
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
               <path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7" />
               <path d="M16 6l-4-4-4 4" />
               <path d="M12 2v14" />
@@ -131,15 +117,7 @@ export default function MuseumCard({ museum }) {
       <div className="museum-card-info">
         <h3 className="museum-card-title">{museum.title}</h3>
         <p className="museum-card-location">
-          <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            aria-hidden="true"
-          >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
             <path d="M12 11.25a2.25 2.25 0 1 0 0-4.5 2.25 2.25 0 0 0 0 4.5Z" />
             <path d="M12 21s-7.5-7.048-7.5-11.25a7.5 7.5 0 1 1 15 0C19.5 13.952 12 21 12 21Z" />
           </svg>
@@ -149,5 +127,3 @@ export default function MuseumCard({ museum }) {
     </article>
   );
 }
-
-
