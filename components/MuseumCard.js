@@ -36,13 +36,12 @@ export default function MuseumCard({ museum }) {
     }
   };
 
-  const shareMuseum = async () => {
-    const url = `${window.location.origin}/museum/${museum.id}`;
-    const shareData = {
-      title: museum.title,
-      text: `Bekijk ${museum.title}`,
-      url,
-    };
+const url = `${window.location.origin}/museum/${museum.id}`;
+const shareData = {
+  title: museum.title,
+  text: `Bekijk ${museum.title}`,
+  url,
+};
 
     if (navigator.share) {
       try {
