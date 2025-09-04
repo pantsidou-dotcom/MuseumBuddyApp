@@ -164,6 +164,13 @@ img { max-width: 100%; height: auto; display: block; }
   width: 18px;
   height: 18px;
 }
+.icon-button.favorited {
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+.icon-button.favorited svg path {
+  fill: currentColor;
+}
 .museum-card-info {
   padding: 16px;
 }

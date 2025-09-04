@@ -1,11 +1,61 @@
 import Link from 'next/link';
 import Image from 'next/image';
+import { useEffect, useState } from 'react';
 
 export default function MuseumCard({ museum }) {
   // Guard against undefined museum data which previously caused build issues
   if (!museum) {
     return null;
   }
+
+  const [isFavorite, setIsFavorite] = useState(false);
+
+  // Load favorite state from localStorage on mount
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    try {
+      const stored = JSON.parse(localStorage.getItem('favorites') || '[]');
+      setIsFavorite(stored.includes(museum.id));
+    } catch {
+      // ignore JSON parse errors
+    }
+  }, [museum.id]);
+
+  const toggleFavorite = () => {
+    if (typeof window === 'undefined') return;
+    try {
+      const stored = JSON.parse(localStorage.getItem('favorites') || '[]');
+      const exists = stored.includes(museum.id);
+      const next = exists ? stored.filter(id => id !== museum.id) : [...stored, museum.id];
+      localStorage.setItem('favorites', JSON.stringify(next));
+      setIsFavorite(!exists);
+    } catch {
+      // localStorage might be unavailable
+    }
+  };
+
+  const shareMuseum = async () => {
+    if (typeof window === 'undefined') return;
+    const url = `${window.location.origin}/museum/${museum.id}`;
+    const shareData = {
+      title: museum.title,
+      text: `Bekijk ${museum.title}`,
+      url,
+    };
+
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData);
+      } else if (navigator.clipboard) {
+        await navigator.clipboard.writeText(url);
+        alert('Link gekopieerd naar klembord');
+      } else {
+        prompt('Kopieer deze link', url);
+      }
+    } catch {
+      // ignore share cancellation or failure
+    }
+  };
 
   return (
     <article className="museum-card">
@@ -26,15 +76,27 @@ export default function MuseumCard({ museum }) {
           )}
         </Link>
         <div className="museum-card-actions">
-          <button className="icon-button" aria-label="Deel">
+          <button className="icon-button" aria-label="Deel" onClick={shareMuseum}>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
               <path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7" />
               <path d="M16 6l-4-4-4 4" />
               <path d="M12 2v14" />
             </svg>
           </button>
-          <button className="icon-button" aria-label="Bewaar">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+          <button
+            className={`icon-button${isFavorite ? ' favorited' : ''}`}
+            aria-label="Bewaar"
+            aria-pressed={isFavorite}
+            onClick={toggleFavorite}
+          >
+            <svg
+              viewBox="0 0 24 24"
+              fill={isFavorite ? 'currentColor' : 'none'}
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
               <path d="M21 8.25c0 4.556-9 11.25-9 11.25S3 12.806 3 8.25a5.25 5.25 0 0 1 9-3.676A5.25 5.25 0 0 1 21 8.25Z" />
             </svg>
           </button>
