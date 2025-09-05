@@ -1,12 +1,72 @@
 [
   {
     "slug": "rijksmuseum-amsterdam",
-    "url": "https://www.rijksmuseum.nl",
-    "item": ".teaser, .tile, .grid__item, article, .card, a:has(h2), a:has(h3)" 
+    "url": "https://www.rijksmuseum.nl/nl/tentoonstellingen",
+    "item": ".teaser, .tile, .grid__item, article, .card, a:has(h2), a:has(h3)"
   },
   {
     "slug": "van-gogh-museum-amsterdam",
-    "url": "https://www.vangoghmuseum.nl",
-    "item": ".teaser, .card, .grid__item"
+    "url": "https://www.vangoghmuseum.nl/nl/zien-en-doen/tentoonstellingen",
+    "item": ".teaser, .card, .grid__item, article, a:has(h2), a:has(h3)"
+  },
+  {
+    "slug": "stedelijk-museum-amsterdam",
+    "url": "https://www.stedelijk.nl/nl/tentoonstellingen",
+    "item": ".exhibition-card, .card, article, .tile, a:has(h2), a:has(h3)"
+  },
+  {
+    "slug": "nemo-science-museum-amsterdam",
+    "url": "https://www.nemosciencemuseum.nl/bezoeken/agenda/",
+    "item": ".agenda-item, .card, article, a:has(h2), a:has(h3)"
+  },
+  {
+    "slug": "joods-museum-amsterdam",
+    "url": "https://jck.nl/nl/tentoonstellingen",
+    "item": ".view-content .node, .card, article, a:has(h2), a:has(h3)"
+  },
+  {
+    "slug": "scheepvaartmuseum-amsterdam",
+    "url": "https://www.hetscheepvaartmuseum.nl/zien-en-doen/tentoonstellingen",
+    "item": ".card, .exhibition, article, a:has(h2), a:has(h3)"
+  },
+  {
+    "slug": "eye-filmmuseum-amsterdam",
+    "url": "https://www.eyefilm.nl/en/whats-on/exhibitions",
+    "item": ".teaser, .card, article, a:has(h2), a:has(h3)"
+  },
+  {
+    "slug": "tropenmuseum-amsterdam",
+    "url": "https://www.tropenmuseum.nl/nl/zien-en-doen/tentoonstellingen",
+    "item": ".view-content .node, .card, article, a:has(h2), a:has(h3)"
+  },
+  {
+    "slug": "foam-fotografiemuseum-amsterdam",
+    "url": "https://www.foam.org/nl/agenda",
+    "item": ".c-card, .card, article, a:has(h2), a:has(h3)"
+  },
+  {
+    "slug": "huis-marseille-amsterdam",
+    "url": "https://www.huismarseille.nl/nl/tentoonstellingen/",
+    "item": ".exhibitions-list .item, .card, article, a:has(h2), a:has(h3)"
+  },
+  {
+    "slug": "rembrandthuis-amsterdam",
+    "url": "https://www.rembrandthuis.nl/ontdek/tentoonstellingen/",
+    "item": ".card, article, .tile, a:has(h2), a:has(h3)"
+  },
+  {
+    "slug": "moco-museum-amsterdam",
+    "url": "https://mocomuseum.com/amsterdam/exhibitions/",
+    "item": ".grid-item, .card, article, a:has(h2), a:has(h3)"
+  },
+  {
+    "slug": "straat-museum-amsterdam",
+    "url": "https://straatmuseum.com/nl/exposities",
+    "item": ".exhibition, .card, article, a:has(h2), a:has(h3)"
+  },
+  {
+    "slug": "amsterdam-museum-amsterdam",
+    "url": "https://www.amsterdam-museum.nl/nl/tentoonstellingen",
+    "item": ".card, .grid__item, article, a:has(h2), a:has(h3)"
   }
 ]
