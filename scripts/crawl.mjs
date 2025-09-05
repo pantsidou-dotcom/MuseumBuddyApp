@@ -2,10 +2,11 @@
 import axios from 'axios';
 import * as cheerio from 'cheerio';
 import { createClient } from '@supabase/supabase-js';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
-// Optioneel lokaal testen: laadt .env (in Actions NIET nodig)
-// try { await import('dotenv/config'); } catch {}
-
+// --- ENV ---
 const SUPABASE_URL = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
 const SERVICE_ROLE = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
@@ -16,7 +17,7 @@ if (!SUPABASE_URL || !SERVICE_ROLE) {
 
 const supabase = createClient(SUPABASE_URL, SERVICE_ROLE);
 
-// Helpers
+// --- UTILS ---
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const nowIso = () => new Date().toISOString();
 
@@ -53,76 +54,91 @@ async function insertExpositions(rows) {
   return { inserted: rows.length };
 }
 
+// --- CRAWL ---
 async function crawlTarget(target) {
   const { slug, url, item } = target;
   if (!slug || !url || !item) {
     console.warn('⚠️ Ongeldig target, overslaan:', target);
-    return { slug, url, found: 0, inserted: 0 };
-    }
+    return { slug, url, found: 0, inserted: 0, skippedDup: 0, ok: false };
+  }
+
   const museum = await getMuseumBySlug(slug);
 
   // HTML ophalen
   const res = await axios.get(url, {
     timeout: 20000,
     headers: {
-      'User-Agent': 'MuseumBuddyBot/0.1 (+contact: yourdomain.example)',
+      'User-Agent': 'Mozilla/5.0 (compatible; MuseumBuddyBot/0.1; +https://example.com/bot)',
       'Accept': 'text/html,application/xhtml+xml',
+      'Accept-Language': 'nl-NL,nl;q=0.9,en;q=0.8',
+      'Referer': 'https://www.google.com/'
     },
-    // geen redirects volgen naar pdf of zip, maar axios volgt standaard 5x
+    validateStatus: (s) => s >= 200 && s < 400 // laat 3xx door
   });
+  console.log(`ℹ️  GET ${url} → status ${res.status}`);
   const $ = cheerio.load(res.data);
 
-  // Items selecteren
-  // was: const maxItems = 5;
+  // Hoeveel items per target?
   const maxItems = typeof target.maxItems === 'number' ? target.maxItems : 12;
-  if (nodes.length === 0) {
-  console.warn(`⚠️  Selector matched 0 nodes for ${slug}. Tried: ${item}`);
 
-  // brede fallback: betekenisvolle links binnen main/content
-  nodes = $('main a, .content a, article a, li a')
-    .filter((_, el) => {
-      const t = $(el).text().trim();
-      return t.length > 3 && /tentoon|exhib|expo|present|te zien|exhibition|exhibitions|expositie/i.test(t);
-    })
-    .slice(0, maxItems);
+  // Probeer eerst de opgegeven selector
+  let nodes = $(item).slice(0, maxItems);
+
+  // Fallback als 0 matches
+  if (nodes.length === 0) {
+    console.warn(`⚠️  Selector matched 0 nodes for ${slug}. Tried: ${item}`);
+    nodes = $('main a, .content a, article a, li a')
+      .filter((_, el) => {
+        const t = $(el).text().trim();
+        return t.length > 3 && /tentoon|exhib|expo|present|te zien|exhibition|exhibitions|expositie/i.test(t);
+      })
+      .slice(0, maxItems);
+  }
+
   const existing = await existingTitlesForMuseum(museum.id);
 
   const rows = [];
+  let skippedDup = 0;
+
   nodes.each((_, el) => {
     const context = $(el);
 
-    // Slimme goks voor titel & link:
+    // Probeer een zinnige titel te vinden
     const titleCand =
-      context.find('h3, h2, .title, .card-title, .teaser__title, a').first().text() ||
+      context.find('h1, h2, h3, .title, .card-title, .teaser__title, a').first().text() ||
       context.attr('title') ||
       context.text();
 
-    const hrefCand =
+    let hrefCand =
       context.find('a[href]').first().attr('href') ||
       $(el).attr('href');
 
-    const titel = normalizeText(titleCand).slice(0, 200); // houd het beperkt
+    const titel = normalizeText(titleCand).slice(0, 200);
     if (!titel) return;
 
-    // Absolutiseer URL als nodig
-    let bron_url = hrefCand || '';
-    if (bron_url && bron_url.startsWith('/')) {
+    if (hrefCand && hrefCand.startsWith('/')) {
       try {
         const base = new URL(url);
-        bron_url = base.origin + bron_url;
-      } catch {}
+        hrefCand = base.origin + hrefCand;
+      } catch {
+        // ignore
+      }
     }
+    const bron_url = hrefCand || url;
 
-    // dubbele titels overslaan (simpele dedup)
-    if (existing.has(titel.toLowerCase())) return;
+    // Dedup op titel per museum
+    if (existing.has(titel.toLowerCase())) {
+      skippedDup++;
+      return;
+    }
 
     rows.push({
       museum_id: museum.id,
       titel,
-      bron_url: bron_url || url,
+      bron_url,
       is_tijdelijk: true,
       last_crawled_at: nowIso(),
-      // start/eind datum laten we leeg; geavanceerd parsen kan later
+      // start_datum / eind_datum nog leeg; kan later via regex parsers
     });
   });
 
@@ -132,18 +148,29 @@ async function crawlTarget(target) {
     inserted = resInsert.inserted || 0;
   }
 
-  return { slug, url, found: nodes.length, inserted };
+  return { slug, url, found: nodes.length, inserted, skippedDup, ok: true };
 }
 
 async function main() {
-  // targets.json inlezen (dynamic import zodat bundlers niet klagen)
-  const targets = (await import('./targets.json', { assert: { type: 'json' } })).default;
+  // targets.json inlezen via fs (voorkomt deprecated assert-warning)
+  const __filename = fileURLToPath(import.meta.url);
+  const __dirname = path.dirname(__filename);
+  const targetsPath = path.join(__dirname, 'targets.json');
+
+  let targets = [];
+  try {
+    const raw = fs.readFileSync(targetsPath, 'utf-8');
+    targets = JSON.parse(raw);
+  } catch (e) {
+    console.error('❌ targets.json kon niet worden gelezen of geparsed:', e.message);
+    process.exit(1);
+  }
 
   const summary = [];
   for (const t of targets) {
     try {
       const res = await crawlTarget(t);
-      summary.push({ ...res, ok: true });
+      summary.push(res);
       // kleine pauze tussen sites
       await sleep(1000);
     } catch (err) {
@@ -155,13 +182,13 @@ async function main() {
   console.log('--- CRAWL SUMMARY ---');
   for (const s of summary) {
     if (s.ok) {
-      console.log(`✅ ${s.slug} → found: ${s.found}, inserted: ${s.inserted}`);
+      console.log(`✅ ${s.slug} → found: ${s.found}, inserted: ${s.inserted}${typeof s.skippedDup === 'number' ? `, skippedDup: ${s.skippedDup}` : ''}`);
     } else {
-      console.log(`❌ ${s.slug} → ${s.error}`);
+      console.log(`❌ ${s.slug} → ${s.error || 'unknown error'}`);
     }
   }
 
-  // Exit code 0 ook als sommige targets falen → we willen niet dat de hele Action stopt.
+  // Laten we niet falen als een deel misgaat; alleen falen als ALLES faalt
   const allFailed = summary.every((s) => !s.ok);
   process.exit(allFailed ? 1 : 0);
 }
