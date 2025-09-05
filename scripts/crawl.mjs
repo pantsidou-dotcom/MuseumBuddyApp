@@ -54,29 +54,49 @@ async function insertExpositions(rows) {
   return { inserted: rows.length };
 }
 
+// --- Fetch helper: probeer meerdere URL-kandidaten, kies de eerste die 2xx/3xx geeft ---
+async function fetchFirstOk(urls) {
+  const list = Array.isArray(urls) ? urls : [urls];
+  let lastError = null;
+  for (const u of list) {
+    try {
+      const res = await axios.get(u, {
+        timeout: 20000,
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (compatible; MuseumBuddyBot/0.1; +https://example.com/bot)',
+          'Accept': 'text/html,application/xhtml+xml',
+          'Accept-Language': 'nl-NL,nl;q=0.9,en;q=0.8',
+          'Referer': 'https://www.google.com/'
+        },
+        validateStatus: (s) => s >= 200 && s < 400
+      });
+      console.log(`ℹ️  GET ${u} → status ${res.status}`);
+      return { ok: true, url: u, html: res.data };
+    } catch (e) {
+      lastError = e;
+      console.warn(`⚠️  GET ${u} failed: ${e?.response?.status || e.message}`);
+    }
+  }
+  return { ok: false, error: lastError?.message || 'all candidates failed' };
+}
+
 // --- CRAWL ---
 async function crawlTarget(target) {
-  const { slug, url, item } = target;
-  if (!slug || !url || !item) {
+  const { slug, item } = target;
+  const urlCandidates = target.urls || target.url;
+  if (!slug || !urlCandidates || !item) {
     console.warn('⚠️ Ongeldig target, overslaan:', target);
-    return { slug, url, found: 0, inserted: 0, skippedDup: 0, ok: false };
+    return { slug, found: 0, inserted: 0, skippedDup: 0, ok: false };
   }
 
   const museum = await getMuseumBySlug(slug);
 
-  // HTML ophalen
-  const res = await axios.get(url, {
-    timeout: 20000,
-    headers: {
-      'User-Agent': 'Mozilla/5.0 (compatible; MuseumBuddyBot/0.1; +https://example.com/bot)',
-      'Accept': 'text/html,application/xhtml+xml',
-      'Accept-Language': 'nl-NL,nl;q=0.9,en;q=0.8',
-      'Referer': 'https://www.google.com/'
-    },
-    validateStatus: (s) => s >= 200 && s < 400 // laat 3xx door
-  });
-  console.log(`ℹ️  GET ${url} → status ${res.status}`);
-  const $ = cheerio.load(res.data);
+  // HTML ophalen (probeer meerdere URL-kandidaten)
+  const fetched = await fetchFirstOk(urlCandidates);
+  if (!fetched.ok) {
+    throw new Error(fetched.error || 'no working URL');
+  }
+  const $ = cheerio.load(fetched.html);
 
   // Hoeveel items per target?
   const maxItems = typeof target.maxItems === 'number' ? target.maxItems : 12;
@@ -118,13 +138,13 @@ async function crawlTarget(target) {
 
     if (hrefCand && hrefCand.startsWith('/')) {
       try {
-        const base = new URL(url);
+        const base = new URL(fetched.url || (Array.isArray(urlCandidates) ? urlCandidates[0] : urlCandidates));
         hrefCand = base.origin + hrefCand;
       } catch {
         // ignore
       }
     }
-    const bron_url = hrefCand || url;
+    const bron_url = hrefCand || (Array.isArray(urlCandidates) ? urlCandidates[0] : urlCandidates);
 
     // Dedup op titel per museum
     if (existing.has(titel.toLowerCase())) {
@@ -148,7 +168,7 @@ async function crawlTarget(target) {
     inserted = resInsert.inserted || 0;
   }
 
-  return { slug, url, found: nodes.length, inserted, skippedDup, ok: true };
+  return { slug, found: nodes.length, inserted, skippedDup, ok: true };
 }
 
 async function main() {
@@ -174,7 +194,7 @@ async function main() {
       // kleine pauze tussen sites
       await sleep(1000);
     } catch (err) {
-      summary.push({ slug: t.slug, url: t.url, ok: false, error: err.message });
+      summary.push({ slug: t.slug, ok: false, error: err.message });
     }
   }
 
