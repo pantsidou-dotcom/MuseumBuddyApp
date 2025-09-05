@@ -1,7 +1,7 @@
 [
   {
     "slug": "rijksmuseum-amsterdam",
-    "url": "https://www.rijksmuseum.nl/nl/tentoonstellingen",
+    "url": "https://www.rijksmuseum.nl",
     "item": ".exhibition-item, .grid__item, .tile" 
   },
   {
