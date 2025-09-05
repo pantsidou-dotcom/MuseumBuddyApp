@@ -73,8 +73,18 @@ async function crawlTarget(target) {
   const $ = cheerio.load(res.data);
 
   // Items selecteren
-  const maxItems = 5;
-  const nodes = $(item).slice(0, maxItems);
+  // was: const maxItems = 5;
+  const maxItems = typeof target.maxItems === 'number' ? target.maxItems : 12;
+  if (nodes.length === 0) {
+  console.warn(`⚠️  Selector matched 0 nodes for ${slug}. Tried: ${item}`);
+
+  // brede fallback: betekenisvolle links binnen main/content
+  nodes = $('main a, .content a, article a, li a')
+    .filter((_, el) => {
+      const t = $(el).text().trim();
+      return t.length > 3 && /tentoon|exhib|expo|present|te zien|exhibition|exhibitions|expositie/i.test(t);
+    })
+    .slice(0, maxItems);
   const existing = await existingTitlesForMuseum(museum.id);
 
   const rows = [];
