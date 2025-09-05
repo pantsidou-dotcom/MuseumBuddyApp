@@ -2,7 +2,7 @@
   {
     "slug": "rijksmuseum-amsterdam",
     "url": "https://www.rijksmuseum.nl",
-    "item": ".exhibition-item, .grid__item, .tile" 
+    "item": ".teaser, .grid__item, .tile" 
   },
   {
     "slug": "van-gogh-museum-amsterdam",
