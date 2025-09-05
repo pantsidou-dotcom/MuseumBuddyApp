@@ -161,7 +161,7 @@ export async function getServerSideProps(context) {
     }
     context.res.statusCode = 500;
     return { props: { museum: null, exposities: [], error: true) } };
-  }
+  
 
   // 2) Exposities ophalen (alleen lopend of komend)
   const today = todayYMD('Europe/Amsterdam'); // "YYYY-MM-DD"
