@@ -11,7 +11,6 @@ function formatDate(d) {
   }
 }
 
-// Helper: "YYYY-MM-DD" van vandaag in Amsterdam-tijd
 function todayYMD(tz = 'Europe/Amsterdam') {
   const fmt = new Intl.DateTimeFormat('sv-SE', {
     timeZone: tz,
@@ -91,7 +90,6 @@ export default function MuseumDetail({ museum, exposities, error }) {
               const start = e.start_datum ? new Date(e.start_datum + 'T00:00:00') : null;
               const end = e.eind_datum ? new Date(e.eind_datum + 'T00:00:00') : null;
 
-              // Status bepalen
               let status = '';
               if (start && start > today) status = 'Komt eraan';
               else if ((!start || start <= today) && (!end || end >= today)) status = 'Loopt nu';
@@ -99,6 +97,7 @@ export default function MuseumDetail({ museum, exposities, error }) {
               const periode = [formatDate(e.start_datum), formatDate(e.eind_datum)]
                 .filter(Boolean)
                 .join(' – ');
+
               const inhoud = (
                 <div>
                   <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
@@ -112,15 +111,11 @@ export default function MuseumDetail({ museum, exposities, error }) {
                   <div style={{ color: '#666', fontSize: 14 }}>{periode}</div>
                 </div>
               );
+
               return (
                 <li key={e.id} style={{ borderBottom: '1px solid #eee', padding: '0.75rem 0' }}>
                   {e.bron_url ? (
-                    <a
-                      href={e.bron_url}
-                      target="_blank"
-                      rel="noreferrer"
-                      style={{ color: 'inherit', textDecoration: 'none' }}
-                    >
+                    <a href={e.bron_url} target="_blank" rel="noreferrer" style={{ color: 'inherit', textDecoration: 'none' }}>
                       {inhoud}
                     </a>
                   ) : (
@@ -148,7 +143,6 @@ export async function getServerSideProps(context) {
 
   const supabase = createClient(url, anon);
 
-  // 1) Museum ophalen
   const { data: museum, error: museumError } = await supabase
     .from('musea')
     .select('id, naam, stad, provincie, website_url, ticket_affiliate_url, slug')
@@ -160,10 +154,9 @@ export async function getServerSideProps(context) {
       return { notFound: true };
     }
     context.res.statusCode = 500;
-    return { props: { museum: null, exposities: [], error: true) } };
-  
+    return { props: { museum: null, exposities: [], error: true } };
+  }
 
-  // 2) Exposities ophalen (alleen lopend of komend)
   const today = todayYMD('Europe/Amsterdam'); // "YYYY-MM-DD"
   const { data: exposities, error: exError } = await supabase
     .from('exposities')
