@@ -54,33 +54,91 @@ async function insertExpositions(rows) {
   return { inserted: rows.length };
 }
 
-// --- Fetch helper: probeer meerdere URL-kandidaten, kies de eerste die 2xx/3xx geeft ---
-async function fetchFirstOk(urls) {
-  const list = Array.isArray(urls) ? urls : [urls];
+// ---------- URL CANDIDATES & FETCHING ----------
+
+// Bouw veelvoorkomende paden (NL/EN) voor sites waar je alleen een domein geeft
+function buildCommonPaths() {
+  return [
+    '/nl/tentoonstellingen/',
+    '/nl/zien-en-doen/tentoonstellingen/',
+    '/nl/agenda/',
+    '/en/whats-on/exhibitions/',
+    '/en/whats-on/',
+    '/exhibitions/',
+    '/exhibitions',
+    '/tentoonstellingen/',
+    '/tentoonstellingen',
+    '/agenda/'
+  ];
+}
+
+function ensureVariants(u) {
+  // voeg variant zonder / of met / toe
+  const out = new Set([u]);
+  if (u.endsWith('/')) out.add(u.slice(0, -1));
+  else out.add(u + '/');
+  return [...out];
+}
+
+function isDomainOnly(u) {
+  try {
+    const url = new URL(u);
+    return url.pathname === '/' || url.pathname === '';
+  } catch {
+    return false;
+  }
+}
+
+function expandCandidates(urlOrArray) {
+  if (Array.isArray(urlOrArray)) {
+    // Voor arrays: voor elk item ook trailing-slash varianten
+    return urlOrArray.flatMap(ensureVariants);
+  }
+  const base = urlOrArray;
+  // Als je alleen een domein gaf → plak common paths eraan
+  if (isDomainOnly(base)) {
+    const { origin } = new URL(base);
+    const paths = buildCommonPaths();
+    return paths.flatMap((p) => ensureVariants(origin + p));
+  }
+  // Anders: gebruik de gegeven url + varianten
+  return ensureVariants(base);
+}
+
+async function fetchFirstOk(urls, retries = 1) {
+  const list = expandCandidates(urls);
   let lastError = null;
+
   for (const u of list) {
-    try {
-      const res = await axios.get(u, {
-        timeout: 20000,
-        headers: {
-          'User-Agent': 'Mozilla/5.0 (compatible; MuseumBuddyBot/0.1; +https://example.com/bot)',
-          'Accept': 'text/html,application/xhtml+xml',
-          'Accept-Language': 'nl-NL,nl;q=0.9,en;q=0.8',
-          'Referer': 'https://www.google.com/'
-        },
-        validateStatus: (s) => s >= 200 && s < 400
-      });
-      console.log(`ℹ️  GET ${u} → status ${res.status}`);
-      return { ok: true, url: u, html: res.data };
-    } catch (e) {
-      lastError = e;
-      console.warn(`⚠️  GET ${u} failed: ${e?.response?.status || e.message}`);
+    for (let attempt = 0; attempt <= retries; attempt++) {
+      try {
+        const res = await axios.get(u, {
+          timeout: 30000,
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (compatible; MuseumBuddyBot/0.1; +https://example.com/bot)',
+            'Accept': 'text/html,application/xhtml+xml',
+            'Accept-Language': 'nl-NL,nl;q=0.9,en;q=0.8',
+            'Referer': 'https://www.google.com/'
+          },
+          validateStatus: (s) => s >= 200 && s < 400
+        });
+        console.log(`ℹ️  GET ${u} → status ${res.status}`);
+        return { ok: true, url: u, html: res.data };
+      } catch (e) {
+        lastError = e;
+        const code = e?.response?.status || e.code || e.message;
+        console.warn(`⚠️  GET ${u} (attempt ${attempt + 1}) failed: ${code}`);
+        // Bij 403/405 heeft nog een poging vaak geen zin; ga door naar volgende URL
+        if (e?.response?.status === 403 || e?.response?.status === 405) break;
+        // kleine backoff
+        await sleep(800);
+      }
     }
   }
   return { ok: false, error: lastError?.message || 'all candidates failed' };
 }
 
-// --- CRAWL ---
+// ---------- CRAWL ----------
 async function crawlTarget(target) {
   const { slug, item } = target;
   const urlCandidates = target.urls || target.url;
@@ -91,8 +149,8 @@ async function crawlTarget(target) {
 
   const museum = await getMuseumBySlug(slug);
 
-  // HTML ophalen (probeer meerdere URL-kandidaten)
-  const fetched = await fetchFirstOk(urlCandidates);
+  // HTML ophalen (probeer meerdere URL-kandidaten + varianten)
+  const fetched = await fetchFirstOk(urlCandidates, 1);
   if (!fetched.ok) {
     throw new Error(fetched.error || 'no working URL');
   }
@@ -138,13 +196,13 @@ async function crawlTarget(target) {
 
     if (hrefCand && hrefCand.startsWith('/')) {
       try {
-        const base = new URL(fetched.url || (Array.isArray(urlCandidates) ? urlCandidates[0] : urlCandidates));
+        const base = new URL(fetched.url);
         hrefCand = base.origin + hrefCand;
       } catch {
         // ignore
       }
     }
-    const bron_url = hrefCand || (Array.isArray(urlCandidates) ? urlCandidates[0] : urlCandidates);
+    const bron_url = hrefCand || fetched.url;
 
     // Dedup op titel per museum
     if (existing.has(titel.toLowerCase())) {
@@ -157,8 +215,7 @@ async function crawlTarget(target) {
       titel,
       bron_url,
       is_tijdelijk: true,
-      last_crawled_at: nowIso(),
-      // start_datum / eind_datum nog leeg; kan later via regex parsers
+      last_crawled_at: nowIso()
     });
   });
 
@@ -172,7 +229,7 @@ async function crawlTarget(target) {
 }
 
 async function main() {
-  // targets.json inlezen via fs (voorkomt deprecated assert-warning)
+  // targets.json inlezen via fs
   const __filename = fileURLToPath(import.meta.url);
   const __dirname = path.dirname(__filename);
   const targetsPath = path.join(__dirname, 'targets.json');
@@ -191,14 +248,12 @@ async function main() {
     try {
       const res = await crawlTarget(t);
       summary.push(res);
-      // kleine pauze tussen sites
-      await sleep(1000);
+      await sleep(800); // kleine pauze tussen sites
     } catch (err) {
       summary.push({ slug: t.slug, ok: false, error: err.message });
     }
   }
 
-  // Console samenvatting
   console.log('--- CRAWL SUMMARY ---');
   for (const s of summary) {
     if (s.ok) {
@@ -208,7 +263,6 @@ async function main() {
     }
   }
 
-  // Laten we niet falen als een deel misgaat; alleen falen als ALLES faalt
   const allFailed = summary.every((s) => !s.ok);
   process.exit(allFailed ? 1 : 0);
 }
