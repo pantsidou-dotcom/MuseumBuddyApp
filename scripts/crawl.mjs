@@ -141,10 +141,15 @@ async function fetchFirstOk(urls, retries = 1) {
 // ---------- CRAWL ----------
 async function crawlTarget(target) {
   const { slug, item } = target;
-  const urlCandidates = target.urls || target.url;
+  let urlCandidates = target.urls || target.url;
   if (!slug || !urlCandidates || !item) {
     console.warn('⚠️ Ongeldig target, overslaan:', target);
     return { slug, found: 0, inserted: 0, skippedDup: 0, ok: false };
+  }
+
+  // Zorg dat we altijd met een array van URL-kandidaten werken
+  if (!Array.isArray(urlCandidates)) {
+    urlCandidates = [urlCandidates];
   }
 
   const museum = await getMuseumBySlug(slug);
