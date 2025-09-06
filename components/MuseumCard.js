@@ -1,10 +1,11 @@
-import Link from 'next/link';
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/router';
 
 export default function MuseumCard({ museum }) {
   if (!museum) return null;
 
+  const router = useRouter();
   const [isFavorite, setIsFavorite] = useState(false);
 
   useEffect(() => {
@@ -69,26 +70,51 @@ export default function MuseumCard({ museum }) {
     }
   };
 
+  const goToMuseum = () => {
+    router.push({ pathname: '/museum/[slug]', query: { slug: museum.slug } });
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      goToMuseum();
+    }
+  };
+
+  const imageSrc = museum.image
+    ? museum.image.startsWith('http') || museum.image.startsWith('/')
+      ? museum.image
+      : `/images/${museum.image}`
+    : null;
+
   return (
-    <article className="museum-card">
+    <article
+      className="museum-card"
+      onClick={goToMuseum}
+      onKeyDown={handleKeyDown}
+      role="link"
+      tabIndex={0}
+    >
       <div className="museum-card-image">
-        <Link
-          href={{ pathname: '/museum/[slug]', query: { slug: museum.slug } }}
-          style={{ display: 'block', width: '100%', height: '100%', position: 'relative' }}
-          aria-label={`Bekijk ${museum.title}`}
-        >
-          {museum.image && (
-            <Image
-              src={museum.image.startsWith('/') ? museum.image : `/${museum.image}`}
-              alt={museum.title}
-              fill
-              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-              style={{ objectFit: 'cover' }}
-            />
-          )}
-        </Link>
+        {imageSrc && (
+          <Image
+            src={imageSrc}
+            alt={museum.title}
+            fill
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+            style={{ objectFit: 'cover' }}
+            unoptimized={imageSrc.startsWith('http')}
+          />
+        )}
         <div className="museum-card-actions">
-          <button className="icon-button" aria-label="Deel" onClick={shareMuseum}>
+          <button
+            className="icon-button"
+            aria-label="Deel"
+            onClick={(e) => {
+              e.stopPropagation();
+              shareMuseum();
+            }}
+          >
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
               <path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7" />
               <path d="M16 6l-4-4-4 4" />
@@ -99,7 +125,10 @@ export default function MuseumCard({ museum }) {
             className={`icon-button${isFavorite ? ' favorited' : ''}`}
             aria-label="Bewaar"
             aria-pressed={isFavorite}
-            onClick={toggleFavorite}
+            onClick={(e) => {
+              e.stopPropagation();
+              toggleFavorite();
+            }}
           >
             <svg
               viewBox="0 0 24 24"

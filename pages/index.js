@@ -69,6 +69,7 @@ export default function Home({ items, q, gratis, kids }) {
                   province: m.provincie,
                   free: m.gratis_toegankelijk,
                   kids: m.kindvriendelijk,
+                  image: m.image,
                 }}
               />
             </li>
@@ -90,7 +91,7 @@ export async function getServerSideProps({ query }) {
 
   let db = supabase
     .from('musea')
-    .select('id, naam, stad, provincie, slug, gratis_toegankelijk, kindvriendelijk')
+    .select('id, naam, stad, provincie, slug, gratis_toegankelijk, kindvriendelijk, image')
     .order('naam', { ascending: true });
 
   if (q) {
