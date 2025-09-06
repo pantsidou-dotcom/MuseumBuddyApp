@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { createClient } from '@supabase/supabase-js';
 import MuseumCard from '../components/MuseumCard';
 import museumImages from '../lib/museumImages';
+import museumNames from '../lib/museumNames';
 
 export default function Home({ items, q, gratis, kids }) {
   const [showFilters, setShowFilters] = useState(false);
@@ -65,7 +66,7 @@ export default function Home({ items, q, gratis, kids }) {
                 museum={{
                   id: m.id,
                   slug: m.slug,
-                  title: m.naam,
+                  title: museumNames[m.slug] || m.naam,
                   city: m.stad,
                   province: m.provincie,
                   free: m.gratis_toegankelijk,
