@@ -2,7 +2,6 @@ import Head from 'next/head';
 import { useState } from 'react';
 import { createClient } from '@supabase/supabase-js';
 import MuseumCard from '../components/MuseumCard';
-import museumImages from '../lib/museumImages';
 import museumNames from '../lib/museumNames';
 
 export default function Home({ items, q, gratis, kids }) {
@@ -71,7 +70,8 @@ export default function Home({ items, q, gratis, kids }) {
                   province: m.provincie,
                   free: m.gratis_toegankelijk,
                   kids: m.kindvriendelijk,
-                  image: museumImages[m.slug],
+                  image_url: m.image_url,
+                  attribution: m.attribution,
                 }}
               />
             </li>
@@ -93,7 +93,8 @@ export async function getServerSideProps({ query }) {
 
   let db = supabase
     .from('musea')
-    .select('id, naam, stad, provincie, slug, gratis_toegankelijk, kindvriendelijk')
+    // select all columns to avoid errors if optional image fields are missing
+    .select('*')
     .order('naam', { ascending: true });
 
   if (q) {
