@@ -1,7 +1,6 @@
 import Head from 'next/head';
 import Image from 'next/image';
 import { createClient } from '@supabase/supabase-js';
-import museumImages from '../../lib/museumImages';
 import museumNames from '../../lib/museumNames';
 
 function formatDate(d) {
@@ -24,7 +23,7 @@ function todayYMD(tz = 'Europe/Amsterdam') {
   return fmt.format(new Date());
 }
 
-export default function MuseumDetail({ museum, exposities, error }) {
+export default function MuseumDetail({ museum, exposities, image, error }) {
   if (error) {
     return (
       <>
@@ -62,15 +61,20 @@ export default function MuseumDetail({ museum, exposities, error }) {
           {[museum.stad, museum.provincie].filter(Boolean).join(', ')}
         </p>
 
-        {museumImages[museum.slug] && (
-          <div style={{ position: 'relative', width: '100%', height: 300, margin: '1rem 0' }}>
-            <Image
-              src={museumImages[museum.slug]}
-              alt={name}
-              fill
-              sizes="(max-width: 800px) 100vw, 800px"
-              style={{ objectFit: 'cover' }}
-            />
+        {image?.image_url && (
+          <div style={{ margin: '1rem 0' }}>
+            <div style={{ position: 'relative', width: '100%', height: 300 }}>
+              <Image
+                src={image.image_url}
+                alt={name}
+                fill
+                sizes="(max-width: 800px) 100vw, 800px"
+                style={{ objectFit: 'cover' }}
+              />
+            </div>
+            {image.attribution && (
+              <p style={{ fontSize: 12, color: '#666', marginTop: 4 }}>{image.attribution}</p>
+            )}
           </div>
         )}
 
@@ -154,7 +158,7 @@ export async function getServerSideProps(context) {
 
   if (!url || !anon) {
     context.res.statusCode = 500;
-    return { props: { museum: null, exposities: [], error: true } };
+    return { props: { museum: null, exposities: [], image: null, error: true } };
   }
 
   const supabase = createClient(url, anon);
@@ -170,8 +174,14 @@ export async function getServerSideProps(context) {
       return { notFound: true };
     }
     context.res.statusCode = 500;
-    return { props: { museum: null, exposities: [], error: true } };
+    return { props: { museum: null, exposities: [], image: null, error: true } };
   }
+
+  const { data: image } = await supabase
+    .from('museum_images')
+    .select('image_url, attribution')
+    .eq('museum_id', museum.id)
+    .single();
 
   const today = todayYMD('Europe/Amsterdam'); // "YYYY-MM-DD"
   const { data: exposities, error: exError } = await supabase
@@ -183,13 +193,14 @@ export async function getServerSideProps(context) {
 
   if (exError) {
     context.res.statusCode = 500;
-    return { props: { museum: null, exposities: [], error: true } };
+    return { props: { museum: null, exposities: [], image: image || null, error: true } };
   }
 
   return {
     props: {
       museum,
       exposities: exposities || [],
+      image: image || null,
       error: false,
     },
   };

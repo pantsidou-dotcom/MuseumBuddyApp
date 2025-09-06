@@ -2,7 +2,6 @@ import Head from 'next/head';
 import { useState } from 'react';
 import { createClient } from '@supabase/supabase-js';
 import MuseumCard from '../components/MuseumCard';
-import museumImages from '../lib/museumImages';
 import museumNames from '../lib/museumNames';
 
 export default function Home({ items, q, gratis, kids }) {
@@ -71,7 +70,8 @@ export default function Home({ items, q, gratis, kids }) {
                   province: m.provincie,
                   free: m.gratis_toegankelijk,
                   kids: m.kindvriendelijk,
-                  image: museumImages[m.slug],
+                  image: m.image_url,
+                  attribution: m.attribution,
                 }}
               />
             </li>
@@ -112,9 +112,25 @@ export async function getServerSideProps({ query }) {
     return { props: { items: [], q, gratis, kids } };
   }
 
+  const ids = (data || []).map((m) => m.id);
+  let imagesById = {};
+  if (ids.length) {
+    const { data: imgs } = await supabase
+      .from('museum_images')
+      .select('museum_id, image_url, attribution')
+      .in('museum_id', ids);
+    imagesById = Object.fromEntries((imgs || []).map((i) => [i.museum_id, i]));
+  }
+
+  const items = (data || []).map((m) => ({
+    ...m,
+    image_url: imagesById[m.id]?.image_url || null,
+    attribution: imagesById[m.id]?.attribution || null,
+  }));
+
   return {
     props: {
-      items: data || [],
+      items,
       q,
       gratis,
       kids,
