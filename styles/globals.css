@@ -176,6 +176,7 @@ img { max-width: 100%; height: auto; display: block; }
 
 .museum-card-info {
   padding: 16px;
+  background: #a7f3d0;
 }
 .museum-card-title {
   margin: 0 0 8px;
@@ -193,4 +194,11 @@ img { max-width: 100%; height: auto; display: block; }
   width: 16px;
   height: 16px;
   margin-right: 4px;
+}
+
+.museum-card-tags {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 8px;
 }

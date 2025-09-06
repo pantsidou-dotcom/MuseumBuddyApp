@@ -121,8 +121,14 @@ export default function MuseumCard({ museum }) {
             <path d="M12 11.25a2.25 2.25 0 1 0 0-4.5 2.25 2.25 0 0 0 0 4.5Z" />
             <path d="M12 21s-7.5-7.048-7.5-11.25a7.5 7.5 0 1 1 15 0C19.5 13.952 12 21 12 21Z" />
           </svg>
-          {museum.title}, {museum.city}
+          {[museum.city, museum.province].filter(Boolean).join(', ')}
         </p>
+        {(museum.free || museum.kids) && (
+          <div className="museum-card-tags">
+            {museum.free && <span className="tag">Gratis</span>}
+            {museum.kids && <span className="tag">Kids</span>}
+          </div>
+        )}
       </div>
     </article>
   );
