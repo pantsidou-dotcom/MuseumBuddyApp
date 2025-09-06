@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import Link from 'next/link';
 
 export default function Layout({ children }) {
@@ -5,7 +6,16 @@ export default function Layout({ children }) {
     <>
       <header className="header">
         <nav className="navbar container">
-          <Link href="/" className="brand">MuseumBuddy</Link>
+          <Link href="/" className="brand">
+            <Image
+              src="/logo.svg"
+              alt="Museum Buddy"
+              width={32}
+              height={32}
+              className="brand-logo"
+              priority
+            />
+          </Link>
           <div className="navspacer" />
           {/* Eventuele navigatie-items voor later */}
           <Link href="/" className="navlink">Musea</Link>
