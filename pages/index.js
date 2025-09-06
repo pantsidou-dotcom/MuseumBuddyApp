@@ -2,6 +2,7 @@ import Head from 'next/head';
 import { useState } from 'react';
 import { createClient } from '@supabase/supabase-js';
 import MuseumCard from '../components/MuseumCard';
+import museumImages from '../lib/museumImages';
 
 export default function Home({ items, q, gratis, kids }) {
   const [showFilters, setShowFilters] = useState(false);
@@ -69,6 +70,7 @@ export default function Home({ items, q, gratis, kids }) {
                   province: m.provincie,
                   free: m.gratis_toegankelijk,
                   kids: m.kindvriendelijk,
+                  image: museumImages[m.slug],
                 }}
               />
             </li>
