@@ -10,12 +10,12 @@
 *{ box-sizing:border-box }
 html, body { padding:0; margin:0; background:var(--bg); color:var(--text); }
 body {
-  font-family: var(--font-quicksand), system-ui, -apple-system, Segoe UI, Ubuntu, Cantarell, Noto Sans, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+  font-family: system-ui, -apple-system, Segoe UI, Ubuntu, Cantarell, Noto Sans, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
   font-weight: 400;
   line-height: 1.6;
 }
 h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-quicksand), sans-serif;
+  font-family: sans-serif;
   font-weight: 700;
   line-height: 1.3;
 }
@@ -32,6 +32,7 @@ img { max-width: 100%; height: auto; display: block; }
 }
 .navbar { display:flex; align-items:center; gap:16px; padding: 16px 24px; }
 .brand { font-weight:700; font-size: 20px; letter-spacing: .2px; }
+.brand-logo { display:block; height:32px; }
 .navspacer { flex:1 }
 .navlink { color: var(--muted); font-size: 14px; }
 
@@ -59,11 +60,11 @@ img { max-width: 100%; height: auto; display: block; }
 .tag {
   color: var(--muted);
   margin-right: 8px;
-  font-family: var(--font-quicksand), sans-serif;
+  font-family: sans-serif;
 }
 
 .description {
-  font-family: var(--font-quicksand), sans-serif;
+  font-family: sans-serif;
 }
 
 /* Cards grid */
