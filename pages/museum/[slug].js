@@ -2,6 +2,7 @@ import Head from 'next/head';
 import Image from 'next/image';
 import { createClient } from '@supabase/supabase-js';
 import museumImages from '../../lib/museumImages';
+import museumNames from '../../lib/museumNames';
 
 function formatDate(d) {
   if (!d) return '';
@@ -42,12 +43,13 @@ export default function MuseumDetail({ museum, exposities, error }) {
 
   const todayStr = todayYMD('Europe/Amsterdam');
   const today = new Date(todayStr + 'T00:00:00');
+  const name = museum ? museumNames[museum.slug] || museum.naam : '';
 
   return (
     <>
       <Head>
-        <title>{museum?.naam ? `${museum.naam} — MuseumBuddy` : 'Museum — MuseumBuddy'}</title>
-        <meta name="description" content={`Informatie en exposities van ${museum?.naam || 'museum'}.`} />
+        <title>{name ? `${name} — MuseumBuddy` : 'Museum — MuseumBuddy'}</title>
+        <meta name="description" content={`Informatie en exposities van ${name || 'museum'}.`} />
       </Head>
 
       <main style={{ maxWidth: 800, margin: '2rem auto', padding: '0 1rem' }}>
@@ -55,7 +57,7 @@ export default function MuseumDetail({ museum, exposities, error }) {
           &larr; Terug
         </a>
 
-        <h1 style={{ margin: '0 0 0.25rem' }}>{museum.naam}</h1>
+        <h1 style={{ margin: '0 0 0.25rem' }}>{name}</h1>
         <p style={{ marginTop: 0, color: '#666' }}>
           {[museum.stad, museum.provincie].filter(Boolean).join(', ')}
         </p>
@@ -64,7 +66,7 @@ export default function MuseumDetail({ museum, exposities, error }) {
           <div style={{ position: 'relative', width: '100%', height: 300, margin: '1rem 0' }}>
             <Image
               src={museumImages[museum.slug]}
-              alt={museum.naam}
+              alt={name}
               fill
               sizes="(max-width: 800px) 100vw, 800px"
               style={{ objectFit: 'cover' }}

@@ -61,8 +61,8 @@
   },
 
   {
-    "slug": "tropenmuseum-amsterdam",
-    "url": "https://www.tropenmuseum.nl",
+    "slug": "wereldmuseum-amsterdam",
+    "url": "https://www.wereldmuseum.nl/nl/locatie/amsterdam",
     "item": ".view-content .node, .card, article, a:has(h2), a:has(h3)"
   },
   {
