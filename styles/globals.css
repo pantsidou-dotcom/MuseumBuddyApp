@@ -176,6 +176,7 @@ img { max-width: 100%; height: auto; display: block; }
 
 .museum-card-info {
   padding: 16px;
+  background: #a7f3d0;
 }
 .museum-card-title {
   margin: 0 0 8px;
