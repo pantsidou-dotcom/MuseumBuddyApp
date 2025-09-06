@@ -27,3 +27,13 @@ python scripts/supabase_dedup.py
 ```
 
 The script fetches all rows, keeps only unique `museum_id` values, writes the cleaned data back, and ensures the constraint exists to prevent future duplicates.
+
+## Image crawler
+
+A TypeScript script extracts a preferred image from a museum website and stores only the remote URL in Supabase.
+
+```
+npx ts-node scripts/image-crawler.ts <museum_id> <museum_url> [attribution]
+```
+
+Environment variables `SUPABASE_URL` (or `NEXT_PUBLIC_SUPABASE_URL`) and `SUPABASE_SERVICE_ROLE_KEY` must be set so the script can upsert into the `museum_images` table.

@@ -5,7 +5,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "crawl": "node scripts/crawl.mjs"
+    "crawl": "node scripts/crawl.mjs",
+    "crawl-image": "ts-node scripts/image-crawler.ts"
   },
   "engines": {
     "node": "20.x"
