@@ -69,6 +69,7 @@ export default function Home({ items, q, gratis, kids }) {
                   province: m.provincie,
                   free: m.gratis_toegankelijk,
                   kids: m.kindvriendelijk,
+                  image: m.image,
                 }}
               />
             </li>
@@ -88,22 +89,34 @@ export async function getServerSideProps({ query }) {
   const gratis = query.gratis === '1';
   const kids = query.kids === '1';
 
-  let db = supabase
-    .from('musea')
-    .select('id, naam, stad, provincie, slug, gratis_toegankelijk, kindvriendelijk')
-    .order('naam', { ascending: true });
+  const buildQuery = (fields) => {
+    let query = supabase
+      .from('musea')
+      .select(fields)
+      .order('naam', { ascending: true });
 
-  if (q) {
-    db = db.ilike('naam', `%${q}%`);
-  }
-  if (gratis) {
-    db = db.eq('gratis_toegankelijk', true);
-  }
-  if (kids) {
-    db = db.eq('kindvriendelijk', true);
-  }
+    if (q) {
+      query = query.ilike('naam', `%${q}%`);
+    }
+    if (gratis) {
+      query = query.eq('gratis_toegankelijk', true);
+    }
+    if (kids) {
+      query = query.eq('kindvriendelijk', true);
+    }
 
-  const { data, error } = await db;
+    return query;
+  };
+
+  let { data, error } = await buildQuery(
+    'id, naam, stad, provincie, slug, gratis_toegankelijk, kindvriendelijk, image'
+  );
+
+  if (error && error.code === '42703') {
+    ({ data, error } = await buildQuery(
+      'id, naam, stad, provincie, slug, gratis_toegankelijk, kindvriendelijk'
+    ));
+  }
 
   if (error) {
     return { props: { items: [], q, gratis, kids } };
