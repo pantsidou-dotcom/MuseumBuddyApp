@@ -1,7 +1,6 @@
 import Head from 'next/head';
 import Image from 'next/image';
 import { createClient } from '@supabase/supabase-js';
-import museumImages from '../../lib/museumImages';
 import museumNames from '../../lib/museumNames';
 
 function formatDate(d) {
@@ -62,15 +61,20 @@ export default function MuseumDetail({ museum, exposities, error }) {
           {[museum.stad, museum.provincie].filter(Boolean).join(', ')}
         </p>
 
-        {museumImages[museum.slug] && (
-          <div style={{ position: 'relative', width: '100%', height: 300, margin: '1rem 0' }}>
-            <Image
-              src={museumImages[museum.slug]}
-              alt={name}
-              fill
-              sizes="(max-width: 800px) 100vw, 800px"
-              style={{ objectFit: 'cover' }}
-            />
+        {museum.image_url && (
+          <div style={{ margin: '1rem 0' }}>
+            <div style={{ position: 'relative', width: '100%', height: 300 }}>
+              <Image
+                src={museum.image_url}
+                alt={name}
+                fill
+                sizes="(max-width: 800px) 100vw, 800px"
+                style={{ objectFit: 'cover' }}
+              />
+            </div>
+            {museum.attribution && (
+              <p style={{ fontSize: 12, color: '#666', marginTop: 4 }}>{museum.attribution}</p>
+            )}
           </div>
         )}
 
@@ -161,7 +165,8 @@ export async function getServerSideProps(context) {
 
   const { data: museum, error: museumError } = await supabase
     .from('musea')
-    .select('id, naam, stad, provincie, website_url, ticket_affiliate_url, slug')
+    // select all columns so missing optional fields don't break the query
+    .select('*')
     .eq('slug', slug)
     .single();
 
