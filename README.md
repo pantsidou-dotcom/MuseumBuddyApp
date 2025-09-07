@@ -27,3 +27,15 @@ python scripts/supabase_dedup.py
 ```
 
 The script fetches all rows, keeps only unique `museum_id` values, writes the cleaned data back, and ensures the constraint exists to prevent future duplicates.
+
+## Image crawler
+
+A TypeScript script extracts a preferred image from a museum website and stores only the remote URL in the `musea` table.
+
+```
+npx ts-node scripts/image-crawler.ts <museum_id> <museum_url> [attribution]
+```
+
+Environment variables `SUPABASE_URL` (or `NEXT_PUBLIC_SUPABASE_URL`) and `SUPABASE_SERVICE_ROLE_KEY` must be set so the script can update the `image_url`, `image_source` and optional `attribution` columns for the given museum.
+
+The Next.js configuration disables built-in image optimization so these remote images are never proxied or cached by the app; the browser loads them directly from the museum's own servers.

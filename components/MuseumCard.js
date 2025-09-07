@@ -77,14 +77,29 @@ export default function MuseumCard({ museum }) {
           style={{ display: 'block', width: '100%', height: '100%', position: 'relative' }}
           aria-label={`Bekijk ${museum.title}`}
         >
-          {museum.image && (
+          {museum.image_url && (
             <Image
-              src={museum.image.startsWith('/') ? museum.image : `/${museum.image}`}
+              src={museum.image_url}
               alt={museum.title}
               fill
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
               style={{ objectFit: 'cover' }}
             />
+          )}
+          {museum.attribution && (
+            <div
+              style={{
+                position: 'absolute',
+                bottom: 0,
+                right: 0,
+                background: 'rgba(0,0,0,0.6)',
+                color: '#fff',
+                fontSize: 12,
+                padding: '2px 4px',
+              }}
+            >
+              {museum.attribution}
+            </div>
           )}
         </Link>
         <div className="museum-card-actions">
