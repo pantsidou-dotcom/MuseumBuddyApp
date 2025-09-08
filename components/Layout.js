@@ -1,27 +1,12 @@
-import Image from 'next/image';
-import Link from 'next/link';
+import Header from './Header';
 
 export default function Layout({ children }) {
   return (
     <>
-      <header className="header">
-        <nav className="navbar container">
-          <Link href="/" className="brand">
-            <Image
-              src="/logo.svg"
-              alt="Museum Buddy"
-              width={32}
-              height={32}
-              className="brand-logo"
-              priority
-            />
-          </Link>
-          <div className="navspacer" />
-          {/* Eventuele navigatie-items voor later */}
-          <Link href="/" className="navlink">Musea</Link>
-        </nav>
-      </header>
-      <main className="container">{children}</main>
+      <Header />
+      <main>
+        {children}
+      </main>
     </>
   );
 }
