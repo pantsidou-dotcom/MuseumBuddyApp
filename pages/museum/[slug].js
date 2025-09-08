@@ -98,7 +98,7 @@ export default function MuseumDetail({ museum, exposities, error }) {
           )}
         </div>
 
-        <h2 className="page-title">Exposities</h2>
+        <h2 className="page-title">Expositie</h2>
         {!exposities || exposities.length === 0 ? (
           <p>Geen lopende of komende exposities.</p>
         ) : (
@@ -117,7 +117,12 @@ export default function MuseumDetail({ museum, exposities, error }) {
 
               return (
                 <li key={e.id}>
-                  <ExpositionCard exposition={e} status={status} periode={periode} />
+                  <ExpositionCard
+                    exposition={e}
+                    status={status}
+                    periode={periode}
+                    ticketUrl={museum.ticket_affiliate_url || museum.website_url || e.bron_url}
+                  />
                 </li>
               );
             })}

@@ -284,3 +284,12 @@ img { max-width: 100%; height: auto; display: block; }
 .exposition-card .tag {
   font-size: 12px;
 }
+
+.exposition-card .exposition-ticket {
+  margin-top: 8px;
+}
+
+.exposition-card .ticket-button {
+  font-size: 12px;
+  padding: 4px 8px;
+}

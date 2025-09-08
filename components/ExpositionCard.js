@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-export default function ExpositionCard({ exposition, status, periode }) {
+export default function ExpositionCard({ exposition, status, periode, ticketUrl }) {
   if (!exposition) return null;
 
   const [isFavorite, setIsFavorite] = useState(false);
@@ -120,6 +120,18 @@ export default function ExpositionCard({ exposition, status, periode }) {
         {status && (
           <div className="museum-card-tags">
             <span className="tag">{status}</span>
+          </div>
+        )}
+        {ticketUrl && (
+          <div className="exposition-ticket">
+            <a
+              href={ticketUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="ticket-button"
+            >
+              Ticket Kopen
+            </a>
           </div>
         )}
       </div>
