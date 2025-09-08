@@ -10,8 +10,8 @@ export default function Layout({ children }) {
             <Image
               src="/logo.svg"
               alt="Museum Buddy"
-              width={200}
-              height={200}
+              width={350}
+              height={350}
               className="brand-logo"
               priority
             />

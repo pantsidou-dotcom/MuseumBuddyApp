@@ -1,7 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
   <rect width="1024" height="1024" fill="#F5F3EE"/>
   <text x="50%" y="38%" text-anchor="middle"
-        font-family="sans-serif" font-size="280" font-weight="700" fill="#000">MUSEUM</text>
+        font-family="sans-serif" font-size="360" font-weight="700" fill="#000">MUSEUM</text>
   <text x="50%" y="78%" text-anchor="middle"
-        font-family="sans-serif" font-size="280" font-weight="700" fill="#000">BUDDY</text>
+        font-family="sans-serif" font-size="360" font-weight="700" fill="#000">BUDDY</text>
 </svg>
