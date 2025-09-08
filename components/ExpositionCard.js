@@ -67,7 +67,28 @@ export default function ExpositionCard({ exposition, status, periode }) {
   return (
     <article className="museum-card exposition-card">
       <div className="museum-card-image">
-        {exposition.bron_url ? (
+        {exposition.image_url ? (
+          exposition.bron_url ? (
+            <a
+              href={exposition.bron_url}
+              target="_blank"
+              rel="noreferrer"
+              style={{ display: 'block', width: '100%', height: '100%' }}
+            >
+              <img
+                src={exposition.image_url}
+                alt={exposition.titel}
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+              />
+            </a>
+          ) : (
+            <img
+              src={exposition.image_url}
+              alt={exposition.titel}
+              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+            />
+          )
+        ) : exposition.bron_url ? (
           <a
             href={exposition.bron_url}
             target="_blank"
