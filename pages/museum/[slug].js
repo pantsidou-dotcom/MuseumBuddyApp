@@ -163,11 +163,22 @@ export async function getServerSideProps(context) {
 
   const supabase = createClient(url, anon);
 
-  const { data: museum, error: museumError } = await supabase
-    .from('musea')
-    .select('id, naam, stad, provincie, website_url, ticket_affiliate_url, slug, image_url')
-    .eq('slug', slug)
-    .single();
+  const selectMuseum = async (cols) =>
+    supabase
+      .from('musea')
+      .select(cols)
+      .eq('slug', slug)
+      .single();
+
+  let { data: museum, error: museumError } = await selectMuseum(
+    'id, naam, stad, provincie, website_url, ticket_affiliate_url, slug, image_url'
+  );
+
+  if (museumError) {
+    ({ data: museum, error: museumError } = await selectMuseum(
+      'id, naam, stad, provincie, website_url, ticket_affiliate_url, slug'
+    ));
+  }
 
   if (museumError) {
     if (museumError.code === 'PGRST116') {

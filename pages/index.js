@@ -90,23 +90,32 @@ export async function getServerSideProps({ query }) {
   const q = typeof query.q === 'string' ? query.q.trim() : '';
   const gratis = query.gratis === '1';
   const kids = query.kids === '1';
+  const selectWithFilters = (cols) => {
+    let db = supabase
+      .from('musea')
+      .select(cols)
+      .order('naam', { ascending: true });
+    if (q) {
+      db = db.ilike('naam', `%${q}%`);
+    }
+    if (gratis) {
+      db = db.eq('gratis_toegankelijk', true);
+    }
+    if (kids) {
+      db = db.eq('kindvriendelijk', true);
+    }
+    return db;
+  };
 
-  let db = supabase
-    .from('musea')
-    .select('id, naam, stad, provincie, slug, gratis_toegankelijk, kindvriendelijk, image_url')
-    .order('naam', { ascending: true });
+  let { data, error } = await selectWithFilters(
+    'id, naam, stad, provincie, slug, gratis_toegankelijk, kindvriendelijk, image_url'
+  );
 
-  if (q) {
-    db = db.ilike('naam', `%${q}%`);
+  if (error) {
+    ({ data, error } = await selectWithFilters(
+      'id, naam, stad, provincie, slug, gratis_toegankelijk, kindvriendelijk'
+    ));
   }
-  if (gratis) {
-    db = db.eq('gratis_toegankelijk', true);
-  }
-  if (kids) {
-    db = db.eq('kindvriendelijk', true);
-  }
-
-  const { data, error } = await db;
 
   if (error) {
     return { props: { items: [], q, gratis, kids } };
