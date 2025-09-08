@@ -3,6 +3,7 @@ import Image from 'next/image';
 import { createClient } from '@supabase/supabase-js';
 import museumImages from '../../lib/museumImages';
 import museumNames from '../../lib/museumNames';
+import ExpositionCard from '../../components/ExpositionCard';
 
 function formatDate(d) {
   if (!d) return '';
@@ -52,18 +53,18 @@ export default function MuseumDetail({ museum, exposities, error }) {
         <meta name="description" content={`Informatie en exposities van ${name || 'museum'}.`} />
       </Head>
 
-      <main style={{ maxWidth: 800, margin: '2rem auto', padding: '0 1rem' }}>
-        <a href="/" style={{ display: 'inline-block', marginBottom: '1rem' }}>
+      <main className="container" style={{ maxWidth: 800 }}>
+        <a href="/" className="backlink" style={{ display: 'inline-block', marginBottom: 16 }}>
           &larr; Terug
         </a>
 
-        <h1 style={{ margin: '0 0 0.25rem' }}>{name}</h1>
-        <p style={{ marginTop: 0, color: '#666' }}>
+        <h1 className="detail-title">{name}</h1>
+        <p className="detail-sub">
           {[museum.stad, museum.provincie].filter(Boolean).join(', ')}
         </p>
 
         {museumImages[museum.slug] && (
-          <div style={{ position: 'relative', width: '100%', height: 300, margin: '1rem 0' }}>
+          <div style={{ position: 'relative', width: '100%', height: 300, margin: '16px 0' }}>
             <Image
               src={museumImages[museum.slug]}
               alt={name}
@@ -74,13 +75,13 @@ export default function MuseumDetail({ museum, exposities, error }) {
           </div>
         )}
 
-        <div style={{ display: 'flex', gap: '0.5rem', margin: '1rem 0' }}>
+        <div style={{ display: 'flex', gap: '8px', margin: '16px 0' }}>
           {museum.website_url && (
             <a
               href={museum.website_url}
               target="_blank"
               rel="noreferrer"
-              style={{ padding: '0.5rem 0.75rem', border: '1px solid #ddd', borderRadius: 8, textDecoration: 'none' }}
+              className="btn-reset"
             >
               Website
             </a>
@@ -90,18 +91,18 @@ export default function MuseumDetail({ museum, exposities, error }) {
               href={museum.ticket_affiliate_url}
               target="_blank"
               rel="noreferrer"
-              style={{ padding: '0.5rem 0.75rem', border: '1px solid #ddd', borderRadius: 8, textDecoration: 'none' }}
+              className="btn-reset"
             >
               Tickets (affiliate)
             </a>
           )}
         </div>
 
-        <h2>Exposities</h2>
+        <h2 className="page-title">Exposities</h2>
         {!exposities || exposities.length === 0 ? (
           <p>Geen lopende of komende exposities.</p>
         ) : (
-          <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+          <ul className="grid" style={{ listStyle: 'none', padding: 0, margin: 0 }}>
             {exposities.map((e) => {
               const start = e.start_datum ? new Date(e.start_datum + 'T00:00:00') : null;
               const end = e.eind_datum ? new Date(e.eind_datum + 'T00:00:00') : null;
@@ -114,29 +115,9 @@ export default function MuseumDetail({ museum, exposities, error }) {
                 .filter(Boolean)
                 .join(' – ');
 
-              const inhoud = (
-                <div>
-                  <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                    <div style={{ fontWeight: 600 }}>{e.titel}</div>
-                    {status && (
-                      <span style={{ border: '1px solid #ddd', borderRadius: 999, padding: '2px 8px', fontSize: 12 }}>
-                        {status}
-                      </span>
-                    )}
-                  </div>
-                  <div style={{ color: '#666', fontSize: 14 }}>{periode}</div>
-                </div>
-              );
-
               return (
-                <li key={e.id} style={{ borderBottom: '1px solid #eee', padding: '0.75rem 0' }}>
-                  {e.bron_url ? (
-                    <a href={e.bron_url} target="_blank" rel="noreferrer" style={{ color: 'inherit', textDecoration: 'none' }}>
-                      {inhoud}
-                    </a>
-                  ) : (
-                    inhoud
-                  )}
+                <li key={e.id}>
+                  <ExpositionCard exposition={e} status={status} periode={periode} />
                 </li>
               );
             })}
