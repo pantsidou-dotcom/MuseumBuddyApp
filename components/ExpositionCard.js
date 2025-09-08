@@ -65,7 +65,7 @@ export default function ExpositionCard({ exposition, status, periode }) {
   };
 
   return (
-    <article className="museum-card">
+    <article className="museum-card exposition-card">
       <div className="museum-card-image">
         {exposition.bron_url ? (
           <a

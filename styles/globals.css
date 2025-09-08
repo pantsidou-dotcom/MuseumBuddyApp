@@ -206,3 +206,16 @@ img { max-width: 100%; height: auto; display: block; }
   flex-wrap: wrap;
   margin-top: 8px;
 }
+
+/* Smaller typography for exposition cards */
+.exposition-card .museum-card-title {
+  font-size: 18px;
+}
+
+.exposition-card .museum-card-location {
+  font-size: 12px;
+}
+
+.exposition-card .tag {
+  font-size: 12px;
+}
