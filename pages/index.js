@@ -18,9 +18,6 @@ export default function Home({ items, q, gratis }) {
 
       <form method="get" className="controls">
         <div className="control-row">
-          <select name="type" className="select" defaultValue="musea">
-            <option value="musea">Museums</option>
-          </select>
           <button
             type="button"
             className="btn-reset"
