@@ -40,7 +40,7 @@ img { max-width: 100%; height: auto; display: block; }
 .page-subtitle { margin: 0 0 16px; color: var(--muted); }
 
 /* Controls */
-.input, .select {
+.input {
   width: 100%;
   padding: 12px 14px;
   border: 1px solid var(--border);
