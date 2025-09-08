@@ -1,5 +1,4 @@
 import Head from 'next/head';
-import Image from 'next/image';
 import { createClient } from '@supabase/supabase-js';
 import museumImageUrl from '../../lib/museumImages';
 import museumNames from '../../lib/museumNames';
@@ -63,13 +62,12 @@ export default function MuseumDetail({ museum, exposities, error }) {
         </p>
 
         {museumImageUrl(museum.slug) && (
-          <div style={{ position: 'relative', width: '100%', height: 300, margin: '1rem 0' }}>
-            <Image
+          <div style={{ width: '100%', height: 300, margin: '1rem 0' }}>
+            <img
               src={museumImageUrl(museum.slug)}
               alt={name}
-              fill
-              sizes="(max-width: 800px) 100vw, 800px"
-              style={{ objectFit: 'cover' }}
+              loading="lazy"
+              style={{ objectFit: 'cover', width: '100%', height: '100%' }}
             />
           </div>
         )}

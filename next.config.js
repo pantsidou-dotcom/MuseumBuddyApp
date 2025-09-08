@@ -3,18 +3,6 @@
 const nextConfig = {
   reactStrictMode: true,
   // geen "output: 'export'"
-  images: {
-    remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: 'upload.wikimedia.org',
-      },
-      {
-        protocol: 'https',
-        hostname: 'picsum.photos',
-      },
-    ],
-  },
 };
 
 module.exports = nextConfig;

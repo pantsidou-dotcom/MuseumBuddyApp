@@ -1,5 +1,4 @@
 import Link from 'next/link';
-import Image from 'next/image';
 import { useEffect, useState } from 'react';
 
 export default function MuseumCard({ museum }) {
@@ -78,12 +77,11 @@ export default function MuseumCard({ museum }) {
           aria-label={`Bekijk ${museum.title}`}
         >
           {museum.image && (
-            <Image
+            <img
               src={museum.image}
               alt={museum.title}
-              fill
-              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-              style={{ objectFit: 'cover' }}
+              loading="lazy"
+              style={{ objectFit: 'cover', width: '100%', height: '100%' }}
             />
           )}
         </Link>
