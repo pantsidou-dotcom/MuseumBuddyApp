@@ -176,7 +176,11 @@ img { max-width: 100%; height: auto; display: block; }
 
 .museum-card-info {
   padding: 16px;
-  background: #a7f3d0;
+  background: #fff;
+  transition: background 0.3s ease;
+}
+.museum-card:hover .museum-card-info {
+  background: var(--hover-bg, #fff);
 }
 .museum-card-title {
   margin: 0 0 8px;

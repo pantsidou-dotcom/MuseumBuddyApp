@@ -1,11 +1,15 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 
 export default function MuseumCard({ museum }) {
   if (!museum) return null;
 
   const [isFavorite, setIsFavorite] = useState(false);
+  const hoverColor = useMemo(() => {
+    const colors = ['#A7D8F0', '#77DDDD', '#F7C59F', '#D8BFD8', '#EAE0C8'];
+    return colors[Math.floor(Math.random() * colors.length)];
+  }, [museum.id]);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -70,7 +74,7 @@ export default function MuseumCard({ museum }) {
   };
 
   return (
-    <article className="museum-card">
+    <article className="museum-card" style={{ '--hover-bg': hoverColor }}>
       <div className="museum-card-image">
         <Link
           href={{ pathname: '/museum/[slug]', query: { slug: museum.slug } }}
