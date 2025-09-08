@@ -5,16 +5,6 @@ import museumImages from '../lib/museumImages';
 import museumNames from '../lib/museumNames';
 import museumSummaries from '../lib/museumSummaries';
 
-function formatDate(d) {
-  if (!d) return '';
-  try {
-    const date = new Date(d + 'T00:00:00');
-    return date.toLocaleDateString('nl-NL', { day: '2-digit', month: '2-digit', year: 'numeric' });
-  } catch {
-    return d;
-  }
-}
-
 function todayYMD(tz = 'Europe/Amsterdam') {
   const fmt = new Intl.DateTimeFormat('sv-SE', {
     timeZone: tz,
@@ -25,9 +15,8 @@ function todayYMD(tz = 'Europe/Amsterdam') {
   return fmt.format(new Date());
 }
 
-export default function Home({ items, q, exposities }) {
-  const todayStr = todayYMD('Europe/Amsterdam');
-  const today = new Date(todayStr + 'T00:00:00');
+export default function Home({ items, q, hasExposities }) {
+  const expositiesHref = q ? `/?q=${encodeURIComponent(q)}&exposities=1` : '/?exposities=1';
 
   return (
     <>
@@ -45,7 +34,10 @@ export default function Home({ items, q, exposities }) {
             placeholder="Search"
             defaultValue={q || ''}
           />
-          {q && (
+          <a href={expositiesHref} className="btn-reset">
+            Exposities
+          </a>
+          {(q || hasExposities) && (
             <a href="/" className="btn-reset">
               Reset
             </a>
@@ -77,66 +69,6 @@ export default function Home({ items, q, exposities }) {
           ))}
         </ul>
       )}
-
-      {exposities.length > 0 && (
-        <section style={{ marginTop: '2rem' }}>
-          <h2>Exposities</h2>
-          <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-            {exposities.map((e) => {
-              const start = e.start_datum ? new Date(e.start_datum + 'T00:00:00') : null;
-              const end = e.eind_datum ? new Date(e.eind_datum + 'T00:00:00') : null;
-
-              let status = '';
-              if (start && start > today) status = 'Komt eraan';
-              else if ((!start || start <= today) && (!end || end >= today)) status = 'Loopt nu';
-
-              const periode = [formatDate(e.start_datum), formatDate(e.eind_datum)]
-                .filter(Boolean)
-                .join(' – ');
-
-              const inhoud = (
-                <div>
-                  <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                    <div style={{ fontWeight: 600 }}>{e.titel}</div>
-                    {status && (
-                      <span
-                        style={{
-                          border: '1px solid #ddd',
-                          borderRadius: 999,
-                          padding: '2px 8px',
-                          fontSize: 12,
-                        }}
-                      >
-                        {status}
-                      </span>
-                    )}
-                  </div>
-                  <div style={{ color: '#666', fontSize: 14 }}>
-                    {[e.musea?.naam, periode].filter(Boolean).join(' – ')}
-                  </div>
-                </div>
-              );
-
-              return (
-                <li key={e.id} style={{ borderBottom: '1px solid #eee', padding: '0.75rem 0' }}>
-                  {e.bron_url ? (
-                    <a
-                      href={e.bron_url}
-                      target="_blank"
-                      rel="noreferrer"
-                      style={{ color: 'inherit', textDecoration: 'none' }}
-                    >
-                      {inhoud}
-                    </a>
-                  ) : (
-                    inhoud
-                  )}
-                </li>
-              );
-            })}
-          </ul>
-        </section>
-      )}
     </>
   );
 }
@@ -147,6 +79,7 @@ export async function getServerSideProps({ query }) {
   const supabase = createClient(url, anon);
 
   const q = typeof query.q === 'string' ? query.q.trim() : '';
+  const hasExposities = Object.prototype.hasOwnProperty.call(query, 'exposities');
 
   let db = supabase
     .from('musea')
@@ -157,24 +90,37 @@ export async function getServerSideProps({ query }) {
     db = db.ilike('naam', `%${q}%`);
   }
 
+  if (hasExposities) {
+    const today = todayYMD('Europe/Amsterdam');
+    const { data: exRows, error: exError } = await supabase
+      .from('exposities')
+      .select('museum_id')
+      .or(`eind_datum.gte.${today},eind_datum.is.null`);
+
+    if (exError) {
+      return { props: { items: [], q, hasExposities } };
+    }
+
+    const ids = [...new Set((exRows || []).map((e) => e.museum_id))];
+
+    if (ids.length === 0) {
+      return { props: { items: [], q, hasExposities } };
+    }
+
+    db = db.in('id', ids);
+  }
+
   const { data, error } = await db;
 
-  const today = todayYMD('Europe/Amsterdam');
-  const { data: exposities, error: exError } = await supabase
-    .from('exposities')
-    .select('id, titel, start_datum, eind_datum, bron_url, musea (naam)')
-    .or(`eind_datum.gte.${today},eind_datum.is.null`)
-    .order('start_datum', { ascending: true, nullsFirst: false });
-
-  if (error || exError) {
-    return { props: { items: [], q, exposities: [] } };
+  if (error) {
+    return { props: { items: [], q, hasExposities } };
   }
 
   return {
     props: {
       items: data || [],
       q,
-      exposities: exposities || [],
+      hasExposities,
     },
   };
 }
