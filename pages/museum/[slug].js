@@ -1,7 +1,7 @@
 import Head from 'next/head';
 import Image from 'next/image';
 import { createClient } from '@supabase/supabase-js';
-import museumImages from '../../lib/museumImages';
+import museumImageUrl from '../../lib/museumImages';
 import museumNames from '../../lib/museumNames';
 
 function formatDate(d) {
@@ -62,10 +62,10 @@ export default function MuseumDetail({ museum, exposities, error }) {
           {[museum.stad, museum.provincie].filter(Boolean).join(', ')}
         </p>
 
-        {museumImages[museum.slug] && (
+        {museumImageUrl(museum.slug) && (
           <div style={{ position: 'relative', width: '100%', height: 300, margin: '1rem 0' }}>
             <Image
-              src={museumImages[museum.slug]}
+              src={museumImageUrl(museum.slug)}
               alt={name}
               fill
               sizes="(max-width: 800px) 100vw, 800px"
