@@ -112,6 +112,15 @@ img { max-width: 100%; height: auto; display: block; }
 @media (min-width: 640px){ .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (min-width: 1024px){ .grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 
+.exposition-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
 .card {
   position: relative;
   width: 100%;
@@ -273,9 +282,12 @@ img { max-width: 100%; height: auto; display: block; }
 }
 
 /* Exposition card hover border */
+
 .exposition-card {
   border: 2px solid #ffffff;
   transition: border-color 0.3s ease;
+  flex-direction: row;
+  align-items: center;
 }
 
 .exposition-card:hover {
@@ -293,4 +305,15 @@ img { max-width: 100%; height: auto; display: block; }
 
 .exposition-card .tag {
   font-size: 12px;
+}
+
+.exposition-card .museum-card-info {
+  flex: 1;
+}
+
+.exposition-card .museum-card-actions {
+  position: static;
+  top: auto;
+  right: auto;
+  margin-left: 16px;
 }

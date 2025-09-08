@@ -48,7 +48,7 @@ export default function Exposities({ exposities, error }) {
       {!exposities || exposities.length === 0 ? (
         <p>Geen lopende of komende exposities.</p>
       ) : (
-        <ul className="grid" style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+        <ul className="exposition-list">
           {exposities.map((e) => {
             const start = e.start_datum ? new Date(e.start_datum + 'T00:00:00') : null;
             const end = e.eind_datum ? new Date(e.eind_datum + 'T00:00:00') : null;
