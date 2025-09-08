@@ -42,8 +42,6 @@ export default function MuseumDetail({ museum, exposities, error }) {
     );
   }
 
-  const todayStr = todayYMD('Europe/Amsterdam');
-  const today = new Date(todayStr + 'T00:00:00');
   const name = museum ? museumNames[museum.slug] || museum.naam : '';
 
   return (
@@ -104,20 +102,13 @@ export default function MuseumDetail({ museum, exposities, error }) {
         ) : (
           <ul className="events-list">
             {exposities.map((e) => {
-              const start = e.start_datum ? new Date(e.start_datum + 'T00:00:00') : null;
-              const end = e.eind_datum ? new Date(e.eind_datum + 'T00:00:00') : null;
-
-              let status = '';
-              if (start && start > today) status = 'Komt eraan';
-              else if ((!start || start <= today) && (!end || end >= today)) status = 'Loopt nu';
-
               const periode = [formatDate(e.start_datum), formatDate(e.eind_datum)]
                 .filter(Boolean)
                 .join(' – ');
 
               return (
                 <li key={e.id}>
-                  <ExpositionCard exposition={e} status={status} periode={periode} />
+                  <ExpositionCard exposition={e} periode={periode} />
                 </li>
               );
             })}

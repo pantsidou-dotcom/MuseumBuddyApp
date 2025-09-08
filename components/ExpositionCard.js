@@ -15,7 +15,7 @@ function formatRange(start, end) {
   return `${startFmt} - ${endFmt}`;
 }
 
-export default function ExpositionCard({ exposition, status, periode }) {
+export default function ExpositionCard({ exposition, periode }) {
   if (!exposition) return null;
 
   const start = exposition.start_datum ? new Date(exposition.start_datum + 'T00:00:00') : null;
@@ -25,7 +25,7 @@ export default function ExpositionCard({ exposition, status, periode }) {
   return (
     <article className="event-card exposition-card">
       <div className="event-card-date">
-        {status === 'Loopt nu' && <span className="event-card-status">TODAY</span>}
+        {rangeLabel && <span className="event-card-status">Looptijd</span>}
         {rangeLabel && <span className="event-card-range">{rangeLabel}</span>}
       </div>
       <div className="event-card-info">
