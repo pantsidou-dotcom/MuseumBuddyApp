@@ -76,6 +76,14 @@ img { max-width: 100%; height: auto; display: block; }
 }
 .header-icon svg { width:20px; height:20px; }
 
+@media (max-width: 600px) {
+  .brand-title { display: none; }
+  .navbar { padding: 16px 12px; }
+  .header-actions { gap: 8px; }
+  .lang-select,
+  .contrast-toggle { display: none; }
+}
+
 .page-title { margin: 8px 0 4px; font-size: 28px; font-weight: 700; }
 .page-subtitle { margin: 0 0 16px; color: var(--muted); }
 
