@@ -1,8 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
   <rect width="64" height="64" rx="8" fill="#1E3A8A"/>
-  <polygon points="32 12 12 24 52 24" fill="#F8FAFC"/>
-  <rect x="18" y="24" width="4" height="20" fill="#F8FAFC"/>
-  <rect x="30" y="24" width="4" height="20" fill="#F8FAFC"/>
-  <rect x="42" y="24" width="4" height="20" fill="#F8FAFC"/>
-  <rect x="12" y="44" width="40" height="4" fill="#F8FAFC"/>
+  <text x="32" y="28" fill="#F8FAFC" font-family="Arial, sans-serif" font-size="12" text-anchor="middle">Museum</text>
+  <text x="32" y="50" fill="#F8FAFC" font-family="Arial, sans-serif" font-size="12" text-anchor="middle">Buddy</text>
 </svg>
