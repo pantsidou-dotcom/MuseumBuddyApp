@@ -115,7 +115,14 @@ export default function MuseumCard({ museum }) {
         </div>
       </div>
       <div className="museum-card-info">
-        <h3 className="museum-card-title">{museum.title}</h3>
+        <h3 className="museum-card-title">
+          <Link
+            href={{ pathname: '/museum/[slug]', query: { slug: museum.slug } }}
+            style={{ color: 'inherit', textDecoration: 'none' }}
+          >
+            {museum.title}
+          </Link>
+        </h3>
         <p className="museum-card-location">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
             <path d="M12 11.25a2.25 2.25 0 1 0 0-4.5 2.25 2.25 0 0 0 0 4.5Z" />
