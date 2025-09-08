@@ -123,10 +123,12 @@ export default function MuseumCard({ museum }) {
           </svg>
           {[museum.city, museum.province].filter(Boolean).join(', ')}
         </p>
-        {(museum.free || museum.kids) && (
+        {museum.summary && (
+          <p className="museum-card-summary">{museum.summary}</p>
+        )}
+        {museum.free && (
           <div className="museum-card-tags">
-            {museum.free && <span className="tag">Gratis</span>}
-            {museum.kids && <span className="tag">Kids</span>}
+            <span className="tag">Gratis</span>
           </div>
         )}
       </div>
