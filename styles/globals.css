@@ -76,6 +76,14 @@ img { max-width: 100%; height: auto; display: block; }
 }
 .header-icon svg { width:20px; height:20px; }
 
+@media (max-width: 600px) {
+  .brand-title { display: none; }
+  .navbar { padding: 16px 12px; }
+  .header-actions { gap: 8px; }
+  .lang-select,
+  .contrast-toggle { display: none; }
+}
+
 .page-title { margin: 8px 0 4px; font-size: 28px; font-weight: 700; }
 .page-subtitle { margin: 0 0 16px; color: var(--muted); }
 
@@ -330,3 +338,24 @@ img { max-width: 100%; height: auto; display: block; }
   margin-left: auto;
 }
 
+@media (max-width: 600px) {
+  .event-card {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 12px;
+    gap: 12px;
+  }
+  .event-card-date {
+    width: 100%;
+    text-align: left;
+    margin-bottom: 8px;
+  }
+  .event-card-actions {
+    margin-left: 0;
+    width: 100%;
+    margin-top: 8px;
+  }
+  .event-card-actions .ticket-button {
+    width: 100%;
+  }
+}
