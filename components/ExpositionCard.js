@@ -102,7 +102,14 @@ export default function ExpositionCard({ exposition, status, periode }) {
         )}
         <div className="museum-card-actions">
           <button className="icon-button" aria-label="Deel" onClick={shareExposition}>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
               <path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7" />
               <path d="M16 6l-4-4-4 4" />
               <path d="M12 2v14" />
