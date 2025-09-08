@@ -31,10 +31,49 @@ img { max-width: 100%; height: auto; display: block; }
   backdrop-filter: blur(8px);
 }
 .navbar { display:flex; align-items:center; gap:16px; padding: 16px 24px; }
-.brand { font-weight:700; font-size: 20px; letter-spacing: .2px; }
-.brand-logo { display:block; height:32px; }
 .navspacer { flex:1 }
 .navlink { color: var(--muted); font-size: 14px; }
+
+/* Header brand */
+.brand-wrap { display:flex; align-items:center; gap:12px; }
+.brand-square {
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  width:48px;
+  height:48px;
+  border-radius:8px;
+  background:#f3efe5;
+  text-align:center;
+}
+.brand-text { font-size:10px; font-weight:700; line-height:1.1; }
+.brand-title { font-weight:700; font-size:24px; }
+
+/* Header actions */
+.header-actions { display:flex; align-items:center; gap:16px; }
+.lang-select,
+.contrast-toggle {
+  display:flex;
+  align-items:center;
+  gap:4px;
+  background:none;
+  border:none;
+  font-size:14px;
+  cursor:pointer;
+}
+.lang-select svg { width:12px; height:8px; }
+.header-icon {
+  background:none;
+  border:none;
+  padding:0;
+  width:32px;
+  height:32px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+}
+.header-icon svg { width:20px; height:20px; }
 
 .page-title { margin: 8px 0 4px; font-size: 28px; font-weight: 700; }
 .page-subtitle { margin: 0 0 16px; color: var(--muted); }
