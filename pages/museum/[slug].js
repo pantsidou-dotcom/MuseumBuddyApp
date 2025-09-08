@@ -3,6 +3,7 @@ import Image from 'next/image';
 import { createClient } from '@supabase/supabase-js';
 import museumImages from '../../lib/museumImages';
 import museumNames from '../../lib/museumNames';
+import ExpositionCard from '../../components/ExpositionCard';
 
 function formatDate(d) {
   if (!d) return '';
@@ -101,7 +102,7 @@ export default function MuseumDetail({ museum, exposities, error }) {
         {!exposities || exposities.length === 0 ? (
           <p>Geen lopende of komende exposities.</p>
         ) : (
-          <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+          <ul className="grid" style={{ listStyle: 'none', padding: 0, margin: 0 }}>
             {exposities.map((e) => {
               const start = e.start_datum ? new Date(e.start_datum + 'T00:00:00') : null;
               const end = e.eind_datum ? new Date(e.eind_datum + 'T00:00:00') : null;
@@ -114,29 +115,9 @@ export default function MuseumDetail({ museum, exposities, error }) {
                 .filter(Boolean)
                 .join(' – ');
 
-              const inhoud = (
-                <div>
-                  <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                    <div style={{ fontWeight: 600 }}>{e.titel}</div>
-                    {status && (
-                      <span style={{ border: '1px solid #ddd', borderRadius: 999, padding: '2px 8px', fontSize: 12 }}>
-                        {status}
-                      </span>
-                    )}
-                  </div>
-                  <div style={{ color: '#666', fontSize: 14 }}>{periode}</div>
-                </div>
-              );
-
               return (
-                <li key={e.id} style={{ borderBottom: '1px solid #eee', padding: '0.75rem 0' }}>
-                  {e.bron_url ? (
-                    <a href={e.bron_url} target="_blank" rel="noreferrer" style={{ color: 'inherit', textDecoration: 'none' }}>
-                      {inhoud}
-                    </a>
-                  ) : (
-                    inhoud
-                  )}
+                <li key={e.id}>
+                  <ExpositionCard exposition={e} status={status} periode={periode} />
                 </li>
               );
             })}
