@@ -4,6 +4,7 @@ export default function ExpositionCard({ exposition, status, periode }) {
   if (!exposition) return null;
 
   const [isFavorite, setIsFavorite] = useState(false);
+  const [imageSrc, setImageSrc] = useState(exposition.image_url || null);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -14,6 +15,25 @@ export default function ExpositionCard({ exposition, status, periode }) {
       // ignore
     }
   }, [exposition.id]);
+
+  useEffect(() => {
+    if (imageSrc || !exposition.bron_url) return;
+    let cancelled = false;
+    const url = exposition.bron_url.startsWith('http')
+      ? exposition.bron_url
+      : `https://${exposition.bron_url}`;
+    fetch(`https://r.jina.ai/${url}`)
+      .then((res) => res.text())
+      .then((html) => {
+        if (cancelled) return;
+        const match = html.match(/<meta[^>]+property=['"]og:image['"][^>]*content=['"]([^'"]+)['"]/i);
+        if (match) setImageSrc(match[1]);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [exposition.bron_url, imageSrc]);
 
   const toggleFavorite = () => {
     if (typeof window === 'undefined') return;
@@ -67,7 +87,7 @@ export default function ExpositionCard({ exposition, status, periode }) {
   return (
     <article className="museum-card exposition-card">
       <div className="museum-card-image">
-        {exposition.image_url ? (
+        {imageSrc ? (
           exposition.bron_url ? (
             <a
               href={exposition.bron_url}
@@ -76,14 +96,14 @@ export default function ExpositionCard({ exposition, status, periode }) {
               style={{ display: 'block', width: '100%', height: '100%' }}
             >
               <img
-                src={exposition.image_url}
+                src={imageSrc}
                 alt={exposition.titel}
                 style={{ width: '100%', height: '100%', objectFit: 'cover' }}
               />
             </a>
           ) : (
             <img
-              src={exposition.image_url}
+              src={imageSrc}
               alt={exposition.titel}
               style={{ width: '100%', height: '100%', objectFit: 'cover' }}
             />
