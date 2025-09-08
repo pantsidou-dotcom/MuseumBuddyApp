@@ -44,6 +44,10 @@ export default function MuseumDetail({ museum, exposities, error }) {
   const todayStr = todayYMD('Europe/Amsterdam');
   const today = new Date(todayStr + 'T00:00:00');
   const name = museum ? museumNames[museum.slug] || museum.naam : '';
+  let imgSrc = museum && (museum.image_url || museumImages[museum.slug]);
+  if (imgSrc && !(imgSrc.startsWith('http://') || imgSrc.startsWith('https://') || imgSrc.startsWith('/'))) {
+    imgSrc = `/${imgSrc}`;
+  }
 
   return (
     <>
@@ -62,10 +66,10 @@ export default function MuseumDetail({ museum, exposities, error }) {
           {[museum.stad, museum.provincie].filter(Boolean).join(', ')}
         </p>
 
-        {museumImages[museum.slug] && (
+        {imgSrc && (
           <div style={{ position: 'relative', width: '100%', height: 300, margin: '1rem 0' }}>
             <Image
-              src={museumImages[museum.slug]}
+              src={imgSrc}
               alt={name}
               fill
               sizes="(max-width: 800px) 100vw, 800px"
@@ -161,7 +165,7 @@ export async function getServerSideProps(context) {
 
   const { data: museum, error: museumError } = await supabase
     .from('musea')
-    .select('id, naam, stad, provincie, website_url, ticket_affiliate_url, slug')
+    .select('id, naam, stad, provincie, website_url, ticket_affiliate_url, slug, image_url')
     .eq('slug', slug)
     .single();
 

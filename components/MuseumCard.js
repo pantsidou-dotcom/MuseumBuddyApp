@@ -77,15 +77,26 @@ export default function MuseumCard({ museum }) {
           style={{ display: 'block', width: '100%', height: '100%', position: 'relative' }}
           aria-label={`Bekijk ${museum.title}`}
         >
-          {museum.image && (
-            <Image
-              src={museum.image.startsWith('/') ? museum.image : `/${museum.image}`}
-              alt={museum.title}
-              fill
-              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-              style={{ objectFit: 'cover' }}
-            />
-          )}
+          {(() => {
+            const src = museum.image
+              ? museum.image.startsWith('http://') || museum.image.startsWith('https://')
+                ? museum.image
+                : museum.image.startsWith('/')
+                ? museum.image
+                : `/${museum.image}`
+              : null;
+            return (
+              src && (
+                <Image
+                  src={src}
+                  alt={museum.title}
+                  fill
+                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                  style={{ objectFit: 'cover' }}
+                />
+              )
+            );
+          })()}
         </Link>
         <div className="museum-card-actions">
           <button className="icon-button" aria-label="Deel" onClick={shareMuseum}>
