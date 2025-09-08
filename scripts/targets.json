@@ -1,37 +1,27 @@
 [
   {
-    "slug": "rijksmuseum-amsterdam",
-    "urls": [
-      "https://www.rijksmuseum.nl/nl/tentoonstellingen",
-      "https://www.rijksmuseum.nl/en/whats-on/exhibitions"
-    ],
-    "item": ".teaser, .tile, .grid__item, article, .card, a:has(h2), a:has(h3)",
-    "maxItems": 15
+    "slug": "allard-pierson-amsterdam",
+    "url": "https://allardpierson.nl",
+    "item": ".card, .exhibition, article, a:has(h2), a:has(h3)"
   },
   {
-    "slug": "van-gogh-museum-amsterdam",
-    "url": "https://www.vangoghmuseum.nl",
-    "item": ".teaser, .card, .grid__item, article a:has(h2), article a:has(h3)",
-    "maxItems": 12
+    "slug": "amsterdam-museum-amsterdam",
+    "url": "https://www.amsterdam-museum.nl",
+    "item": ".card, .grid__item, article, a:has(h2), a:has(h3)"
   },
   {
-    "slug": "stedelijk-museum-amsterdam",
-    "url": "https://www.stedelijk.nl",
-    "item": ".exhibition-card, .card, article, .tile, a:has(h2), a:has(h3)"
+    "slug": "amsterdam-tulip-museum-amsterdam",
+    "url": "https://amsterdamtulipmuseum.com",
+    "item": ".card, .exhibition, article, a:has(h2), a:has(h3)"
   },
   {
-    "slug": "nemo-science-museum-amsterdam",
-    "url": "https://www.nemosciencemuseum.nl",
-    "item": ".agenda-item, .card, article, a:has(h2), a:has(h3)"
+    "slug": "anne-frank-huis-amsterdam",
+    "url": "https://www.annefrank.org",
+    "item": ".card, .exhibition, article, a:has(h2), a:has(h3)"
   },
   {
-    "slug": "joods-museum-amsterdam",
-    "url": "https://www.jck.nl",
-    "item": ".view-content .node, .card, article, a:has(h2), a:has(h3)"
-  },
-  {
-    "slug": "scheepvaartmuseum-amsterdam",
-    "url": "https://www.hetscheepvaartmuseum.nl",
+    "slug": "body-worlds-amsterdam",
+    "url": "https://bodyworlds.nl",
     "item": ".card, .exhibition, article, a:has(h2), a:has(h3)"
   },
   {
@@ -45,25 +35,19 @@
     "item": ".c-card, .card, article, a:has(h2), a:has(h3)"
   },
   {
-    "slug": "moco-museum-amsterdam",
-    "url": "https://mocomuseum.com",
-    "item": ".grid-item, .card, article, a:has(h2), a:has(h3)"
+    "slug": "hart-museum-amsterdam",
+    "url": "https://hartmuseum.nl",
+    "item": ".card, .exhibition, article, a:has(h2), a:has(h3)"
   },
   {
-    "slug": "straat-museum-amsterdam",
-    "url": "https://straatmuseum.com",
-    "item": ".exhibition, .card, article, a:has(h2), a:has(h3)"
+    "slug": "het-grachtenmuseum-amsterdam",
+    "url": "https://grachten.museum",
+    "item": ".card, .exhibition, article, a:has(h2), a:has(h3)"
   },
   {
-    "slug": "amsterdam-museum-amsterdam",
-    "url": "https://www.amsterdam-museum.nl",
-    "item": ".card, .grid__item, article, a:has(h2), a:has(h3)"
-  },
-
-  {
-    "slug": "wereldmuseum-amsterdam",
-    "url": "https://www.wereldmuseum.nl/nl/locatie/amsterdam",
-    "item": ".view-content .node, .card, article, a:has(h2), a:has(h3)"
+    "slug": "het-schip-amsterdam",
+    "url": "https://www.hetschip.nl",
+    "item": ".card, .exhibition, article, a:has(h2), a:has(h3)"
   },
   {
     "slug": "huis-marseille-amsterdam",
@@ -71,8 +55,93 @@
     "item": ".exhibitions-list .item, .card, article, a:has(h2), a:has(h3)"
   },
   {
+    "slug": "joods-museum-amsterdam",
+    "url": "https://www.jck.nl",
+    "item": ".view-content .node, .card, article, a:has(h2), a:has(h3)"
+  },
+  {
+    "slug": "kattenkabinet-amsterdam",
+    "url": "https://www.kattenkabinet.nl",
+    "item": ".card, .exhibition, article, a:has(h2), a:has(h3)"
+  },
+  {
+    "slug": "micropia-museum-amsterdam",
+    "url": "https://www.micropia.nl",
+    "item": ".card, .exhibition, article, a:has(h2), a:has(h3)"
+  },
+  {
+    "slug": "moco-museum-amsterdam",
+    "url": "https://mocomuseum.com",
+    "item": ".grid-item, .card, article, a:has(h2), a:has(h3)"
+  },
+  {
+    "slug": "museum-van-loon-amsterdam",
+    "url": "https://www.museumvanloon.nl",
+    "item": ".card, .exhibition, article, a:has(h2), a:has(h3)"
+  },
+  {
+    "slug": "nemo-science-museum-amsterdam",
+    "url": "https://www.nemosciencemuseum.nl",
+    "item": ".agenda-item, .card, article, a:has(h2), a:has(h3)"
+  },
+  {
+    "slug": "nxt-museum-amsterdam",
+    "url": "https://nxtmuseum.com",
+    "item": ".card, .exhibition, article, a:has(h2), a:has(h3)"
+  },
+  {
+    "slug": "ons-lieve-heer-op-solder-amsterdam",
+    "url": "https://www.opsolder.nl",
+    "item": ".card, .exhibition, article, a:has(h2), a:has(h3)"
+  },
+  {
     "slug": "rembrandthuis-amsterdam",
     "url": "https://www.rembrandthuis.nl",
     "item": ".card, article, .tile, a:has(h2), a:has(h3)"
+  },
+  {
+    "slug": "rijksmuseum-amsterdam",
+    "urls": [
+      "https://www.rijksmuseum.nl/nl/tentoonstellingen",
+      "https://www.rijksmuseum.nl/en/whats-on/exhibitions"
+    ],
+    "item": ".teaser, .tile, .grid__item, article, .card, a:has(h2), a:has(h3)",
+    "maxItems": 15
+  },
+  {
+    "slug": "scheepvaartmuseum-amsterdam",
+    "url": "https://www.hetscheepvaartmuseum.nl",
+    "item": ".card, .exhibition, article, a:has(h2), a:has(h3)"
+  },
+  {
+    "slug": "stedelijk-museum-amsterdam",
+    "url": "https://www.stedelijk.nl",
+    "item": ".exhibition-card, .card, article, .tile, a:has(h2), a:has(h3)"
+  },
+  {
+    "slug": "straat-museum-amsterdam",
+    "url": "https://straatmuseum.com",
+    "item": ".exhibition, .card, article, a:has(h2), a:has(h3)"
+  },
+  {
+    "slug": "tropenmuseum-amsterdam",
+    "url": "https://www.wereldmuseum.nl/nl/locatie/amsterdam",
+    "item": ".view-content .node, .card, article, a:has(h2), a:has(h3)"
+  },
+  {
+    "slug": "van-gogh-museum-amsterdam",
+    "url": "https://www.vangoghmuseum.nl",
+    "item": ".teaser, .card, .grid__item, article a:has(h2), article a:has(h3)",
+    "maxItems": 12
+  },
+  {
+    "slug": "wereldmuseum-amsterdam",
+    "url": "https://www.wereldmuseum.nl/nl/locatie/amsterdam",
+    "item": ".view-content .node, .card, article, a:has(h2), a:has(h3)"
+  },
+  {
+    "slug": "woonbootmuseum-amsterdam",
+    "url": "https://www.woonbootmuseum.nl",
+    "item": ".card, .exhibition, article, a:has(h2), a:has(h3)"
   }
 ]
