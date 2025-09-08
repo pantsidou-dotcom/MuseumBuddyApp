@@ -4,8 +4,9 @@ import { createClient } from '@supabase/supabase-js';
 import MuseumCard from '../components/MuseumCard';
 import museumImages from '../lib/museumImages';
 import museumNames from '../lib/museumNames';
+import museumSummaries from '../lib/museumSummaries';
 
-export default function Home({ items, q, gratis, kids }) {
+export default function Home({ items, q, gratis }) {
   const [showFilters, setShowFilters] = useState(false);
 
   return (
@@ -41,11 +42,7 @@ export default function Home({ items, q, gratis, kids }) {
               <input type="checkbox" name="gratis" value="1" defaultChecked={!!gratis} />
               Free
             </label>
-            <label className="checkbox">
-              <input type="checkbox" name="kids" value="1" defaultChecked={!!kids} />
-              Kid-friendly
-            </label>
-            {(q || gratis || kids) && (
+            {(q || gratis) && (
               <a href="/" className="btn-reset">
                 Reset
               </a>
@@ -70,7 +67,7 @@ export default function Home({ items, q, gratis, kids }) {
                   city: m.stad,
                   province: m.provincie,
                   free: m.gratis_toegankelijk,
-                  kids: m.kindvriendelijk,
+                  summary: museumSummaries[m.slug],
                   image: museumImages[m.slug],
                 }}
               />
@@ -89,11 +86,10 @@ export async function getServerSideProps({ query }) {
 
   const q = typeof query.q === 'string' ? query.q.trim() : '';
   const gratis = query.gratis === '1';
-  const kids = query.kids === '1';
 
   let db = supabase
     .from('musea')
-    .select('id, naam, stad, provincie, slug, gratis_toegankelijk, kindvriendelijk')
+    .select('id, naam, stad, provincie, slug, gratis_toegankelijk')
     .order('naam', { ascending: true });
 
   if (q) {
@@ -102,14 +98,11 @@ export async function getServerSideProps({ query }) {
   if (gratis) {
     db = db.eq('gratis_toegankelijk', true);
   }
-  if (kids) {
-    db = db.eq('kindvriendelijk', true);
-  }
 
   const { data, error } = await db;
 
   if (error) {
-    return { props: { items: [], q, gratis, kids } };
+    return { props: { items: [], q, gratis } };
   }
 
   return {
@@ -117,7 +110,6 @@ export async function getServerSideProps({ query }) {
       items: data || [],
       q,
       gratis,
-      kids,
     },
   };
 }
