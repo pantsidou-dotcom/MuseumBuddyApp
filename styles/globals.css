@@ -272,15 +272,75 @@ img { max-width: 100%; height: auto; display: block; }
   margin-top: 8px;
 }
 
-/* Smaller typography for exposition cards */
-.exposition-card .museum-card-title {
+/* Events list and cards */
+.events-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.event-card {
+  display: flex;
+  align-items: center;
+  background: #f3f4f6;
+  border-radius: 12px;
+  padding: 16px;
+  gap: 16px;
+}
+
+.event-card-date {
+  width: 80px;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.event-card-status {
+  display: block;
+  color: var(--muted);
+  font-size: 12px;
+  margin-bottom: 4px;
+}
+
+.event-card-range {
+  display: block;
+}
+
+.event-card-info {
+  flex: 1;
+}
+
+.event-card-title {
+  margin: 0;
   font-size: 16px;
+  font-weight: 600;
 }
 
-.exposition-card .museum-card-location {
-  font-size: 12px;
+.event-card-period {
+  margin: 4px 0 0;
+  font-size: 14px;
+  color: var(--muted);
 }
 
-.exposition-card .tag {
-  font-size: 12px;
+.event-card-actions {
+  margin-left: auto;
+}
+
+.add-calendar-button {
+  padding: 8px 12px;
+  border: none;
+  border-radius: 8px;
+  background: var(--accent);
+  color: var(--accent-ink);
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.add-calendar-button:hover {
+  background: var(--accent-ink);
+  color: var(--accent);
 }
