@@ -209,7 +209,7 @@ img { max-width: 100%; height: auto; display: block; }
 
 /* Smaller typography for exposition cards */
 .exposition-card .museum-card-title {
-  font-size: 18px;
+  font-size: 16px;
 }
 
 .exposition-card .museum-card-location {
