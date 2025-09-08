@@ -272,6 +272,16 @@ img { max-width: 100%; height: auto; display: block; }
   margin-top: 8px;
 }
 
+/* Exposition card hover border */
+.exposition-card {
+  border: 2px solid #ffffff;
+  transition: border-color 0.3s ease;
+}
+
+.exposition-card:hover {
+  border-color: #000000;
+}
+
 /* Smaller typography for exposition cards */
 .exposition-card .museum-card-title {
   font-size: 16px;

@@ -79,6 +79,17 @@ export default function ExpositionCard({ exposition, status, periode }) {
         ) : (
           <div style={{ width: '100%', height: '100%', background: '#ddd' }} />
         )}
+        <div className="museum-card-ticket">
+          <a
+            href={exposition.bron_url || '#'}
+            target="_blank"
+            rel="noreferrer"
+            className="ticket-button"
+            aria-disabled={!exposition.bron_url}
+          >
+            Ticket Kopen
+          </a>
+        </div>
         <div className="museum-card-actions">
           <button className="icon-button" aria-label="Deel" onClick={shareExposition}>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
