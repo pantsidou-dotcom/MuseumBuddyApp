@@ -1,127 +1,55 @@
-import { useEffect, useState } from 'react';
+function formatRange(start, end) {
+  if (!start) return '';
+  const opts = { day: '2-digit', month: 'short' };
+  const startFmt = start.toLocaleDateString('en-US', opts).toUpperCase();
+  if (!end) return startFmt;
+  const endFmt = end.toLocaleDateString('en-US', opts).toUpperCase();
+  const sameMonth = start.getMonth() === end.getMonth() && start.getFullYear() === end.getFullYear();
+  if (sameMonth) {
+    const month = startFmt.split(' ')[1];
+    return `${start.getDate().toString().padStart(2, '0')} - ${end
+      .getDate()
+      .toString()
+      .padStart(2, '0')} ${month}`;
+  }
+  return `${startFmt} - ${endFmt}`;
+}
 
-export default function ExpositionCard({ exposition, status, periode }) {
+export default function ExpositionCard({ exposition, periode }) {
   if (!exposition) return null;
 
-  const [isFavorite, setIsFavorite] = useState(false);
-
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    try {
-      const stored = JSON.parse(localStorage.getItem('favoriteExpositions') || '[]');
-      setIsFavorite(stored.includes(exposition.id));
-    } catch {
-      // ignore
-    }
-  }, [exposition.id]);
-
-  const toggleFavorite = () => {
-    if (typeof window === 'undefined') return;
-    try {
-      const stored = JSON.parse(localStorage.getItem('favoriteExpositions') || '[]');
-      const exists = stored.includes(exposition.id);
-      const next = exists ? stored.filter((id) => id !== exposition.id) : [...stored, exposition.id];
-      localStorage.setItem('favoriteExpositions', JSON.stringify(next));
-      setIsFavorite(!exists);
-    } catch {
-      // ignore
-    }
-  };
-
-  const shareExposition = async () => {
-    if (typeof window === 'undefined') return;
-
-    const url = exposition.bron_url || window.location.href;
-    const shareData = {
-      title: exposition.titel,
-      text: exposition.titel,
-      url,
-    };
-
-    if (navigator.share) {
-      try {
-        await navigator.share(shareData);
-        return;
-      } catch {
-        // ignore
-      }
-    }
-
-    if (navigator.clipboard) {
-      try {
-        await navigator.clipboard.writeText(url);
-        alert('Link gekopieerd naar klembord');
-        return;
-      } catch {
-        // ignore
-      }
-    }
-
-    try {
-      window.open(url, '_blank', 'noopener,noreferrer');
-    } catch {
-      window.prompt('Kopieer deze link', url);
-    }
-  };
+  const start = exposition.start_datum ? new Date(exposition.start_datum + 'T00:00:00') : null;
+  const end = exposition.eind_datum ? new Date(exposition.eind_datum + 'T00:00:00') : null;
+  const rangeLabel = formatRange(start, end);
 
   return (
-    <article className="museum-card exposition-card">
-      <div className="museum-card-image">
-        {exposition.bron_url ? (
-          <a
-            href={exposition.bron_url}
-            target="_blank"
-            rel="noreferrer"
-            style={{ display: 'block', width: '100%', height: '100%' }}
-          >
-            <div style={{ width: '100%', height: '100%', background: '#ddd' }} />
-          </a>
-        ) : (
-          <div style={{ width: '100%', height: '100%', background: '#ddd' }} />
-        )}
-        <div className="museum-card-actions">
-          <button className="icon-button" aria-label="Deel" onClick={shareExposition}>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7" />
-              <path d="M16 6l-4-4-4 4" />
-              <path d="M12 2v14" />
-            </svg>
-          </button>
-          <button
-            className={`icon-button${isFavorite ? ' favorited' : ''}`}
-            aria-label="Bewaar"
-            aria-pressed={isFavorite}
-            onClick={toggleFavorite}
-          >
-            <svg
-              viewBox="0 0 24 24"
-              fill={isFavorite ? 'currentColor' : 'none'}
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M21 8.25c0 4.556-9 11.25-9 11.25S3 12.806 3 8.25a5.25 5.25 0 0 1 9-3.676A5.25 5.25 0 0 1 21 8.25Z" />
-            </svg>
-          </button>
-        </div>
+    <article className="event-card exposition-card">
+      <div className="event-card-date">
+        {rangeLabel && <span className="event-card-status">Looptijd</span>}
+        {rangeLabel && <span className="event-card-range">{rangeLabel}</span>}
       </div>
-      <div className="museum-card-info">
-        <h3 className="museum-card-title">
+      <div className="event-card-info">
+        <h3 className="event-card-title">
           {exposition.bron_url ? (
-            <a href={exposition.bron_url} target="_blank" rel="noreferrer" style={{ color: 'inherit', textDecoration: 'none' }}>
+            <a href={exposition.bron_url} target="_blank" rel="noreferrer">
               {exposition.titel}
             </a>
           ) : (
             exposition.titel
           )}
         </h3>
-        {periode && <p className="museum-card-location">{periode}</p>}
-        {status && (
-          <div className="museum-card-tags">
-            <span className="tag">{status}</span>
-          </div>
-        )}
+        {periode && <p className="event-card-period">{periode}</p>}
+      </div>
+      <div className="event-card-actions">
+        <a
+          href={exposition.bron_url || '#'}
+          target="_blank"
+          rel="noreferrer"
+          className="ticket-button"
+          aria-disabled={!exposition.bron_url}
+        >
+          Ticket Kopen
+        </a>
       </div>
     </article>
   );
