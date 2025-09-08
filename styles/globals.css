@@ -166,6 +166,10 @@ img { max-width: 100%; height: auto; display: block; }
   cursor: pointer;
   box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 }
+.ticket-button:hover {
+  background: var(--accent-ink);
+  color: var(--accent);
+}
 .ticket-button[aria-disabled="true"] {
   opacity: 0.5;
   pointer-events: none;
