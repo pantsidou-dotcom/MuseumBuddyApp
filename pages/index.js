@@ -63,6 +63,7 @@ export default function Home({ items, q, hasExposities }) {
                   free: m.gratis_toegankelijk,
                   summary: museumSummaries[m.slug],
                   image: museumImages[m.slug],
+                  ticketUrl: m.ticket_affiliate_url || m.website_url,
                 }}
               />
             </li>
@@ -83,7 +84,7 @@ export async function getServerSideProps({ query }) {
 
   let db = supabase
     .from('musea')
-    .select('id, naam, stad, provincie, slug, gratis_toegankelijk')
+    .select('id, naam, stad, provincie, slug, gratis_toegankelijk, ticket_affiliate_url, website_url')
     .order('naam', { ascending: true });
 
   if (q) {
