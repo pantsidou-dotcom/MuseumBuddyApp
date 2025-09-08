@@ -53,18 +53,18 @@ export default function MuseumDetail({ museum, exposities, error }) {
         <meta name="description" content={`Informatie en exposities van ${name || 'museum'}.`} />
       </Head>
 
-      <main style={{ maxWidth: 800, margin: '2rem auto', padding: '0 1rem' }}>
-        <a href="/" style={{ display: 'inline-block', marginBottom: '1rem' }}>
+      <main className="container" style={{ maxWidth: 800 }}>
+        <a href="/" className="backlink" style={{ display: 'inline-block', marginBottom: 16 }}>
           &larr; Terug
         </a>
 
-        <h1 style={{ margin: '0 0 0.25rem' }}>{name}</h1>
-        <p style={{ marginTop: 0, color: '#666' }}>
+        <h1 className="detail-title">{name}</h1>
+        <p className="detail-sub">
           {[museum.stad, museum.provincie].filter(Boolean).join(', ')}
         </p>
 
         {museumImages[museum.slug] && (
-          <div style={{ position: 'relative', width: '100%', height: 300, margin: '1rem 0' }}>
+          <div style={{ position: 'relative', width: '100%', height: 300, margin: '16px 0' }}>
             <Image
               src={museumImages[museum.slug]}
               alt={name}
@@ -75,13 +75,13 @@ export default function MuseumDetail({ museum, exposities, error }) {
           </div>
         )}
 
-        <div style={{ display: 'flex', gap: '0.5rem', margin: '1rem 0' }}>
+        <div style={{ display: 'flex', gap: '8px', margin: '16px 0' }}>
           {museum.website_url && (
             <a
               href={museum.website_url}
               target="_blank"
               rel="noreferrer"
-              style={{ padding: '0.5rem 0.75rem', border: '1px solid #ddd', borderRadius: 8, textDecoration: 'none' }}
+              className="btn-reset"
             >
               Website
             </a>
@@ -91,14 +91,14 @@ export default function MuseumDetail({ museum, exposities, error }) {
               href={museum.ticket_affiliate_url}
               target="_blank"
               rel="noreferrer"
-              style={{ padding: '0.5rem 0.75rem', border: '1px solid #ddd', borderRadius: 8, textDecoration: 'none' }}
+              className="btn-reset"
             >
               Tickets (affiliate)
             </a>
           )}
         </div>
 
-        <h2>Exposities</h2>
+        <h2 className="page-title">Exposities</h2>
         {!exposities || exposities.length === 0 ? (
           <p>Geen lopende of komende exposities.</p>
         ) : (
