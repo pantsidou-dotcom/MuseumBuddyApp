@@ -91,6 +91,18 @@ export default function MuseumCard({ museum }) {
             />
           )}
         </Link>
+        {museum.ticketUrl && (
+          <div className="museum-card-ticket">
+            <a
+              href={museum.ticketUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="ticket-button"
+            >
+              Ticket Kopen
+            </a>
+          </div>
+        )}
         <div className="museum-card-actions">
           <button className="icon-button" aria-label="Deel" onClick={shareMuseum}>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
