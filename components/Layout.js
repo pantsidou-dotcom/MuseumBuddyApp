@@ -35,7 +35,7 @@ export default function Layout({ children }) {
             <button type="button" className="contrast-toggle">
               Contrast
             </button>
-            <button type="button" className="header-icon" aria-label="Document">
+            <Link href="/about" className="header-icon" aria-label="About MuseumBuddy">
               <svg
                 viewBox="0 0 24 24"
                 fill="none"
@@ -47,7 +47,7 @@ export default function Layout({ children }) {
                 <rect x="3" y="3" width="18" height="18" rx="2" />
                 <path d="M7 7h10M7 11h10M7 15h10" />
               </svg>
-            </button>
+            </Link>
             <Link href="/favorites" className="header-icon" aria-label="Favorieten">
               <svg
                 viewBox="0 0 24 24"
