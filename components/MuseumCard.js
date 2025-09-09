@@ -1,40 +1,20 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import { useEffect, useState, useMemo } from 'react';
+import { useMemo } from 'react';
+import { useFavorites } from './FavoritesContext';
 
 export default function MuseumCard({ museum }) {
   if (!museum) return null;
 
-  const [isFavorite, setIsFavorite] = useState(false);
+  const { favorites, toggleFavorite } = useFavorites();
+  const isFavorite = favorites.some((f) => f.id === museum.id);
   const hoverColor = useMemo(() => {
     const colors = ['#A7D8F0', '#77DDDD', '#F7C59F', '#D8BFD8', '#EAE0C8'];
     return colors[Math.floor(Math.random() * colors.length)];
   }, [museum.id]);
 
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    try {
-      const stored = JSON.parse(localStorage.getItem('favorites') || '[]');
-      setIsFavorite(stored.includes(museum.id));
-    } catch {
-      // ignore
-    }
-  }, [museum.id]);
-
-  const toggleFavorite = () => {
-    if (typeof window === 'undefined') return;
-    try {
-      const stored = JSON.parse(localStorage.getItem('favorites') || '[]');
-      const exists = stored.includes(museum.id);
-      const next = exists
-        ? stored.filter((id) => id !== museum.id)
-        : [...stored, museum.id];
-
-      localStorage.setItem('favorites', JSON.stringify(next));
-      setIsFavorite(!exists);
-    } catch {
-      // ignore
-    }
+  const handleFavorite = () => {
+    toggleFavorite(museum);
   };
 
   const shareMuseum = async () => {
@@ -114,7 +94,7 @@ export default function MuseumCard({ museum }) {
             className={`icon-button${isFavorite ? ' favorited' : ''}`}
             aria-label="Bewaar"
             aria-pressed={isFavorite}
-            onClick={toggleFavorite}
+            onClick={handleFavorite}
           >
             <svg
               viewBox="0 0 24 24"

@@ -1,9 +1,13 @@
 import '../styles/globals.css';
 import Layout from '../components/Layout';
+import { FavoritesProvider } from '../components/FavoritesContext';
+
 export default function MyApp({ Component, pageProps }) {
   return (
-    <Layout>
-      <Component {...pageProps} />
-    </Layout>
+    <FavoritesProvider>
+      <Layout>
+        <Component {...pageProps} />
+      </Layout>
+    </FavoritesProvider>
   );
 }
