@@ -1,9 +1,11 @@
 import Link from 'next/link';
 import Head from 'next/head';
 import { useFavorites } from './FavoritesContext';
+import { useLanguage } from './LanguageContext';
 
 export default function Layout({ children }) {
   const { favorites } = useFavorites();
+  const { lang, switchLang, t } = useLanguage();
   return (
     <>
       <Head>
@@ -19,8 +21,12 @@ export default function Layout({ children }) {
           </div>
           <div className="navspacer" />
           <div className="header-actions">
-            <button type="button" className="lang-select">
-              EN
+            <button
+              type="button"
+              className="lang-select"
+              onClick={() => switchLang(lang === 'en' ? 'nl' : 'en')}
+            >
+              {lang === 'en' ? 'EN' : 'NL'}
               <svg viewBox="0 0 12 8" aria-hidden="true">
                 <path
                   d="M1 1l5 5 5-5"
@@ -33,9 +39,9 @@ export default function Layout({ children }) {
               </svg>
             </button>
             <button type="button" className="contrast-toggle">
-              Contrast
+              {t('contrast')}
             </button>
-            <Link href="/about" className="header-icon" aria-label="About MuseumBuddy">
+            <Link href="/about" className="header-icon" aria-label={t('aboutLabel')}>
               <svg
                 viewBox="0 0 24 24"
                 fill="none"
@@ -48,7 +54,7 @@ export default function Layout({ children }) {
                 <path d="M7 7h10M7 11h10M7 15h10" />
               </svg>
             </Link>
-            <Link href="/favorites" className="header-icon" aria-label="Favorieten">
+            <Link href="/favorites" className="header-icon" aria-label={t('favoritesLabel')}>
               <svg
                 viewBox="0 0 24 24"
                 fill="none"

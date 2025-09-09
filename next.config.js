@@ -12,6 +12,10 @@ const nextConfig = {
       // { protocol: 'https', hostname: 'example-museum.nl' },
     ],
   },
+  i18n: {
+    locales: ['en', 'nl'],
+    defaultLocale: 'en',
+  },
 };
 
 module.exports = nextConfig;

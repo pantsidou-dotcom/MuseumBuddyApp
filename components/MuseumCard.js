@@ -2,11 +2,13 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useMemo } from 'react';
 import { useFavorites } from './FavoritesContext';
+import { useLanguage } from './LanguageContext';
 
 export default function MuseumCard({ museum }) {
   if (!museum) return null;
 
   const { favorites, toggleFavorite } = useFavorites();
+  const { t } = useLanguage();
   const isFavorite = favorites.some((f) => f.id === museum.id);
   const hoverColor = useMemo(() => {
     const colors = ['#A7D8F0', '#77DDDD', '#F7C59F', '#D8BFD8', '#EAE0C8'];
@@ -23,7 +25,7 @@ export default function MuseumCard({ museum }) {
     const url = `${window.location.origin}/museum/${museum.slug}`;
     const shareData = {
       title: museum.title,
-      text: `Bekijk ${museum.title}`,
+      text: `${t('view')} ${museum.title}`,
       url,
     };
 
@@ -39,7 +41,7 @@ export default function MuseumCard({ museum }) {
     if (navigator.clipboard) {
       try {
         await navigator.clipboard.writeText(url);
-        alert('Link gekopieerd naar klembord');
+        alert(t('linkCopied'));
         return;
       } catch {
         // ignore
@@ -49,7 +51,7 @@ export default function MuseumCard({ museum }) {
     try {
       window.open(url, '_blank', 'noopener,noreferrer');
     } catch {
-      window.prompt('Kopieer deze link', url);
+      window.prompt(t('copyThisLink'), url);
     }
   };
 
@@ -59,7 +61,7 @@ export default function MuseumCard({ museum }) {
         <Link
           href={{ pathname: '/museum/[slug]', query: { slug: museum.slug } }}
           style={{ display: 'block', width: '100%', height: '100%', position: 'relative' }}
-          aria-label={`Bekijk ${museum.title}`}
+          aria-label={`${t('view')} ${museum.title}`}
         >
           {museum.image && (
             <Image
@@ -79,11 +81,11 @@ export default function MuseumCard({ museum }) {
             className="ticket-button"
             aria-disabled={!museum.ticketUrl}
           >
-            Ticket Kopen
+            {t('buyTicket')}
           </a>
         </div>
         <div className="museum-card-actions">
-          <button className="icon-button" aria-label="Deel" onClick={shareMuseum}>
+          <button className="icon-button" aria-label={t('share')} onClick={shareMuseum}>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
               <path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7" />
               <path d="M16 6l-4-4-4 4" />
@@ -92,7 +94,7 @@ export default function MuseumCard({ museum }) {
           </button>
           <button
             className={`icon-button${isFavorite ? ' favorited' : ''}`}
-            aria-label="Bewaar"
+            aria-label={t('save')}
             aria-pressed={isFavorite}
             onClick={handleFavorite}
           >
@@ -130,7 +132,7 @@ export default function MuseumCard({ museum }) {
         )}
         {museum.free && (
           <div className="museum-card-tags">
-            <span className="tag">Gratis</span>
+            <span className="tag">{t('free')}</span>
           </div>
         )}
       </div>
