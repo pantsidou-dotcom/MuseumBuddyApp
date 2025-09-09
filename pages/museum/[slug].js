@@ -4,12 +4,13 @@ import { createClient } from '@supabase/supabase-js';
 import museumImages from '../../lib/museumImages';
 import museumNames from '../../lib/museumNames';
 import ExpositionCard from '../../components/ExpositionCard';
+import { useLanguage } from '../../components/LanguageContext';
 
-function formatDate(d) {
+function formatDate(d, locale) {
   if (!d) return '';
   try {
     const date = new Date(d + 'T00:00:00');
-    return date.toLocaleDateString('nl-NL', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    return date.toLocaleDateString(locale, { day: '2-digit', month: '2-digit', year: 'numeric' });
   } catch {
     return d;
   }
@@ -26,6 +27,9 @@ function todayYMD(tz = 'Europe/Amsterdam') {
 }
 
 export default function MuseumDetail({ museum, exposities, error }) {
+  const { lang, t } = useLanguage();
+  const locale = lang === 'en' ? 'en-GB' : 'nl-NL';
+
   if (error) {
     return (
       <>
@@ -33,9 +37,9 @@ export default function MuseumDetail({ museum, exposities, error }) {
           <title>Museum — MuseumBuddy</title>
         </Head>
         <main style={{ maxWidth: 800, margin: '2rem auto', padding: '0 1rem' }}>
-          <p>Er ging iets mis</p>
+          <p>{t('somethingWrong')}</p>
           <a href="/" style={{ display: 'inline-block', marginTop: '1rem' }}>
-            &larr; Terug
+            &larr; {t('back')}
           </a>
         </main>
       </>
@@ -48,12 +52,12 @@ export default function MuseumDetail({ museum, exposities, error }) {
     <>
       <Head>
         <title>{name ? `${name} — MuseumBuddy` : 'Museum — MuseumBuddy'}</title>
-        <meta name="description" content={`Informatie en exposities van ${name || 'museum'}.`} />
+        <meta name="description" content={t('museumDescription', { name: name || 'museum' })} />
       </Head>
 
       <main className="container" style={{ maxWidth: 800 }}>
         <a href="/" className="backlink" style={{ display: 'inline-block', marginBottom: 16 }}>
-          &larr; Terug
+          &larr; {t('back')}
         </a>
 
         <h1 className="detail-title">{name}</h1>
@@ -81,7 +85,7 @@ export default function MuseumDetail({ museum, exposities, error }) {
               rel="noreferrer"
               className="btn-reset"
             >
-              Website
+              {t('website')}
             </a>
           )}
           {museum.ticket_affiliate_url && (
@@ -91,18 +95,18 @@ export default function MuseumDetail({ museum, exposities, error }) {
               rel="noreferrer"
               className="btn-reset"
             >
-              Tickets (affiliate)
+              {t('tickets')}
             </a>
           )}
         </div>
 
-        <h2 className="page-title">Exposities</h2>
+        <h2 className="page-title">{t('expositionsTitle')}</h2>
         {!exposities || exposities.length === 0 ? (
-          <p>Geen lopende of komende exposities.</p>
+          <p>{t('noExpositions')}</p>
         ) : (
           <ul className="events-list">
             {exposities.map((e) => {
-              const periode = [formatDate(e.start_datum), formatDate(e.eind_datum)]
+              const periode = [formatDate(e.start_datum, locale), formatDate(e.eind_datum, locale)]
                 .filter(Boolean)
                 .join(' – ');
 

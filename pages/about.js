@@ -1,13 +1,15 @@
 import Head from 'next/head';
+import { useLanguage } from '../components/LanguageContext';
 
 export default function AboutPage() {
+  const { t } = useLanguage();
   return (
     <>
       <Head>
-        <title>About MuseumBuddy</title>
+        <title>{t('aboutTitle')}</title>
       </Head>
-      <h1 className="page-title">About MuseumBuddy</h1>
-      <p>This page will contain information about MuseumBuddy.</p>
+      <h1 className="page-title">{t('aboutTitle')}</h1>
+      <p>{t('aboutBody')}</p>
     </>
   );
 }

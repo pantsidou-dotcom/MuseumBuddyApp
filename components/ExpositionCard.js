@@ -1,9 +1,11 @@
-function formatRange(start, end) {
+import { useLanguage } from './LanguageContext';
+
+function formatRange(start, end, locale) {
   if (!start) return '';
   const opts = { day: '2-digit', month: 'short' };
-  const startFmt = start.toLocaleDateString('en-US', opts).toUpperCase();
+  const startFmt = start.toLocaleDateString(locale, opts).toUpperCase();
   if (!end) return startFmt;
-  const endFmt = end.toLocaleDateString('en-US', opts).toUpperCase();
+  const endFmt = end.toLocaleDateString(locale, opts).toUpperCase();
   const sameMonth = start.getMonth() === end.getMonth() && start.getFullYear() === end.getFullYear();
   if (sameMonth) {
     const month = startFmt.split(' ')[1];
@@ -20,12 +22,14 @@ export default function ExpositionCard({ exposition, periode }) {
 
   const start = exposition.start_datum ? new Date(exposition.start_datum + 'T00:00:00') : null;
   const end = exposition.eind_datum ? new Date(exposition.eind_datum + 'T00:00:00') : null;
-  const rangeLabel = formatRange(start, end);
+  const { lang, t } = useLanguage();
+  const locale = lang === 'en' ? 'en-US' : 'nl-NL';
+  const rangeLabel = formatRange(start, end, locale);
 
   return (
     <article className="event-card exposition-card">
       <div className="event-card-date">
-        {rangeLabel && <span className="event-card-status">Looptijd</span>}
+        {rangeLabel && <span className="event-card-status">{t('duration')}</span>}
         {rangeLabel && <span className="event-card-range">{rangeLabel}</span>}
       </div>
       <div className="event-card-info">
@@ -48,7 +52,7 @@ export default function ExpositionCard({ exposition, periode }) {
           className="ticket-button"
           aria-disabled={!exposition.bron_url}
         >
-          Ticket Kopen
+          {t('buyTicket')}
         </a>
       </div>
     </article>
