@@ -96,7 +96,6 @@ img { max-width: 100%; height: auto; display: block; }
   .brand-title { display: none; }
   .navbar { padding: 16px 12px; }
   .header-actions { gap: 8px; }
-  .lang-select,
   .contrast-toggle { display: none; }
 }
 
