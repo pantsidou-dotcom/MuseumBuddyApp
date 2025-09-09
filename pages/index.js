@@ -3,7 +3,7 @@ import { createClient } from '@supabase/supabase-js';
 import MuseumCard from '../components/MuseumCard';
 import museumImages from '../lib/museumImages';
 import museumNames from '../lib/museumNames';
-import museumSummaries from '../lib/museumSummaries';
+import { useLanguage } from '../components/LanguageContext';
 
 function todayYMD(tz = 'Europe/Amsterdam') {
   const fmt = new Intl.DateTimeFormat('sv-SE', {
@@ -16,13 +16,14 @@ function todayYMD(tz = 'Europe/Amsterdam') {
 }
 
 export default function Home({ items, q, hasExposities }) {
+  const { t } = useLanguage();
   const expositiesHref = q ? `/?q=${encodeURIComponent(q)}&exposities=1` : '/?exposities=1';
 
   return (
     <>
       <Head>
-        <title>MuseumBuddy — Museums</title>
-        <meta name="description" content="Search and filter museums in the Netherlands." />
+        <title>{t('homeTitle')}</title>
+        <meta name="description" content={t('homeDescription')} />
       </Head>
 
       <form method="get" className="controls">
@@ -31,24 +32,24 @@ export default function Home({ items, q, hasExposities }) {
             type="text"
             name="q"
             className="input"
-            placeholder="Search"
+            placeholder={t('searchPlaceholder')}
             defaultValue={q || ''}
           />
           <a href={expositiesHref} className="btn-reset">
-            Exposities
+            {t('expositions')}
           </a>
           {(q || hasExposities) && (
             <a href="/" className="btn-reset">
-              Reset
+              {t('reset')}
             </a>
           )}
         </div>
       </form>
 
-      <p className="count">{items.length} results</p>
+      <p className="count">{items.length} {t('results')}</p>
 
       {items.length === 0 ? (
-        <p>No results.</p>
+        <p>{t('noResults')}</p>
       ) : (
         <ul className="grid" style={{ listStyle: 'none', padding: 0, margin: 0 }}>
           {items.map((m) => (
@@ -61,7 +62,6 @@ export default function Home({ items, q, hasExposities }) {
                   city: m.stad,
                   province: m.provincie,
                   free: m.gratis_toegankelijk,
-                  summary: museumSummaries[m.slug],
                   image: museumImages[m.slug],
                   ticketUrl: m.ticket_affiliate_url || m.website_url,
                 }}
