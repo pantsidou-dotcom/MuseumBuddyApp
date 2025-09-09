@@ -5,12 +5,23 @@
   --border:#e5e7eb;      /* subtiele randen */
   --accent:#000000;      /* warme accentkleur */
   --accent-ink:#ffffff;
+  --surface:#f3f4f6;
+}
+
+[data-theme='dark']{
+  --bg:#0f172a;
+  --text:#f1f5f9;
+  --muted:#94a3b8;
+  --border:#1e293b;
+  --accent:#f1f5f9;
+  --accent-ink:#000000;
+  --surface:#1f2937;
 }
 
 *{ box-sizing:border-box }
 html, body { padding:0; margin:0; background:var(--bg); color:var(--text); }
 body {
-  background:#DED7B7;
+  background:var(--bg);
   font-family: system-ui, -apple-system, Segoe UI, Ubuntu, Cantarell, Noto Sans, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
   font-weight: 400;
   line-height: 1.6;
@@ -44,7 +55,7 @@ img { max-width: 100%; height: auto; display: block; }
   width:48px;
   height:48px;
   border-radius:8px;
-  background:#f3efe5;
+  background:var(--surface);
   text-align:center;
 }
 .brand-text { font-size:10px; font-weight:700; line-height:1.1; }
@@ -63,6 +74,7 @@ img { max-width: 100%; height: auto; display: block; }
   cursor:pointer;
 }
 .lang-select svg { width:12px; height:8px; }
+.contrast-toggle svg { width:20px; height:20px; }
 .header-icon {
   background:none;
   border:none;
@@ -96,7 +108,6 @@ img { max-width: 100%; height: auto; display: block; }
   .brand-title { display: none; }
   .navbar { padding: 16px 12px; }
   .header-actions { gap: 8px; }
-  .contrast-toggle { display: none; }
 }
 
 .page-title { margin: 8px 0 4px; font-size: 28px; font-weight: 700; }
@@ -109,14 +120,14 @@ img { max-width: 100%; height: auto; display: block; }
   border: 1px solid var(--border);
   border-radius: 10px;
   font-size: 14px;
-  background: #fff;
+  background: var(--bg);
 }
 .controls { display:grid; gap:12px; }
 .control-row { display:flex; gap:16px; flex-wrap:wrap; align-items:center; }
 .checkbox { display:flex; gap:8px; align-items:center; color:#222; font-size:14px; }
 .btn-reset {
   padding: 8px 12px; border:1px solid var(--border); border-radius:10px;
-  background:#f8fafc; cursor:pointer; font-size:14px;
+  background:var(--surface); cursor:pointer; font-size:14px;
 }
 
 /* Tags */
@@ -142,7 +153,7 @@ img { max-width: 100%; height: auto; display: block; }
   border-radius: 16px;
   overflow: hidden;
   transition: transform .15s ease;
-  background: #f3f4f6;
+  background: var(--surface);
 }
 .card:hover { transform: translateY(-1px); }
 .card-title { margin:0; font-size:18px; font-weight:600; color:inherit; }
@@ -180,7 +191,7 @@ img { max-width: 100%; height: auto; display: block; }
   border-radius: 16px;
   overflow: hidden;
   margin: 12px 0 16px;
-  background: #f3f4f6;
+  background: var(--surface);
 }
 
 .hero img {
@@ -192,7 +203,7 @@ img { max-width: 100%; height: auto; display: block; }
 
 /* MuseumCard component */
 .museum-card {
-  background: #f3f4f6;
+  background: var(--surface);
   border-radius: 12px;
   overflow: hidden;
   box-shadow: 0 1px 2px rgba(0,0,0,0.05);
@@ -264,11 +275,11 @@ img { max-width: 100%; height: auto; display: block; }
 
 .museum-card-info {
   padding: 16px;
-  background: #fff;
+  background: var(--surface);
   transition: background 0.3s ease;
 }
 .museum-card:hover .museum-card-info {
-  background: var(--hover-bg, #fff);
+  background: var(--hover-bg, var(--surface));
 }
 .museum-card-title {
   margin: 0 0 8px;
@@ -308,7 +319,7 @@ img { max-width: 100%; height: auto; display: block; }
 .event-card {
   display: flex;
   align-items: center;
-  background: #f3f4f6;
+  background: var(--surface);
   border-radius: 12px;
   padding: 16px;
   gap: 16px;
