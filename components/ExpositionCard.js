@@ -68,7 +68,7 @@ export default function ExpositionCard({ exposition }) {
           {t('buyTicket')}
         </a>
         <button
-          className={`icon-button${isFavorite ? ' favorited' : ''}`}
+          className={`icon-button large${isFavorite ? ' favorited' : ''}`}
           aria-label={t('save')}
           aria-pressed={isFavorite}
           onClick={handleFavorite}

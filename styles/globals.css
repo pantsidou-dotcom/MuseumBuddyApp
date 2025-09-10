@@ -276,6 +276,16 @@ img { max-width: 100%; height: auto; display: block; }
   height: 18px;
 }
 
+.icon-button.large {
+  width: 36px;
+  height: 36px;
+}
+
+.icon-button.large svg {
+  width: 20px;
+  height: 20px;
+}
+
 /* Favorited state */
 .icon-button.favorited {
   background: var(--accent);
@@ -375,6 +385,7 @@ img { max-width: 100%; height: auto; display: block; }
 .event-card-actions {
   margin-left: auto;
   display: flex;
+  align-items: center;
   gap: 8px;
 }
 
@@ -403,6 +414,7 @@ img { max-width: 100%; height: auto; display: block; }
     margin-left: 0;
     width: 100%;
     margin-top: 8px;
+    align-items: center;
     gap: 8px;
   }
   .event-card-actions .ticket-button {
