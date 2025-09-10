@@ -5,6 +5,7 @@ import museumImages from '../../lib/museumImages';
 import museumNames from '../../lib/museumNames';
 import ExpositionCard from '../../components/ExpositionCard';
 import { useLanguage } from '../../components/LanguageContext';
+import { useFavorites } from '../../components/FavoritesContext';
 
 function formatDate(d, locale) {
   if (!d) return '';
@@ -28,6 +29,7 @@ function todayYMD(tz = 'Europe/Amsterdam') {
 
 export default function MuseumDetail({ museum, exposities, error }) {
   const { lang, t } = useLanguage();
+  const { favorites, toggleFavorite } = useFavorites();
   const locale = lang === 'en' ? 'en-GB' : 'nl-NL';
 
   if (error) {
@@ -47,6 +49,19 @@ export default function MuseumDetail({ museum, exposities, error }) {
   }
 
   const name = museum ? museumNames[museum.slug] || museum.naam : '';
+  const museumItem =
+    museum && name
+      ? { id: museum.id, slug: museum.slug, title: name, image: museumImages[museum.slug] }
+      : null;
+  const isFavorite = museumItem
+    ? favorites.some((f) => f.id === museum.id && f.type === 'museum')
+    : false;
+
+  const handleFavorite = () => {
+    if (museumItem) {
+      toggleFavorite({ ...museumItem, type: 'museum' });
+    }
+  };
 
   return (
     <>
@@ -97,6 +112,25 @@ export default function MuseumDetail({ museum, exposities, error }) {
             >
               {t('tickets')}
             </a>
+          )}
+          {museumItem && (
+            <button
+              className={`icon-button${isFavorite ? ' favorited' : ''}`}
+              aria-label={t('save')}
+              aria-pressed={isFavorite}
+              onClick={handleFavorite}
+            >
+              <svg
+                viewBox="0 0 24 24"
+                fill={isFavorite ? 'currentColor' : 'none'}
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M21 8.25c0 4.556-9 11.25-9 11.25S3 12.806 3 8.25a5.25 5.25 0 0 1 9-3.676A5.25 5.25 0 0 1 21 8.25Z" />
+              </svg>
+            </button>
           )}
         </div>
 

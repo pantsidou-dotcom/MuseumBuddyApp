@@ -364,6 +364,8 @@ img { max-width: 100%; height: auto; display: block; }
 
 .event-card-actions {
   margin-left: auto;
+  display: flex;
+  gap: 8px;
 }
 
 @media (max-width: 600px) {
@@ -391,8 +393,9 @@ img { max-width: 100%; height: auto; display: block; }
     margin-left: 0;
     width: 100%;
     margin-top: 8px;
+    gap: 8px;
   }
   .event-card-actions .ticket-button {
-    width: 100%;
+    flex: 1;
   }
 }

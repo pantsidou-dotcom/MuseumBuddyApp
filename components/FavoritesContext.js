@@ -10,15 +10,9 @@ export function FavoritesProvider({ children }) {
     try {
       const stored = JSON.parse(localStorage.getItem('favorites') || '[]');
       if (Array.isArray(stored)) {
-        const valid = stored.filter(
-          (m) =>
-            m &&
-            typeof m === 'object' &&
-            'id' in m &&
-            'slug' in m &&
-            'image' in m &&
-            'title' in m
-        );
+        const valid = stored
+          .filter((m) => m && typeof m === 'object' && 'id' in m)
+          .map((m) => ({ type: m.type || 'museum', ...m }));
         setFavorites(valid);
       }
     } catch {
@@ -35,10 +29,10 @@ export function FavoritesProvider({ children }) {
     }
   }, [favorites]);
 
-  const toggleFavorite = (museum) => {
+  const toggleFavorite = (item) => {
     setFavorites((prev) => {
-      const exists = prev.some((m) => m.id === museum.id);
-      return exists ? prev.filter((m) => m.id !== museum.id) : [...prev, museum];
+      const exists = prev.some((m) => m.id === item.id && m.type === item.type);
+      return exists ? prev.filter((m) => !(m.id === item.id && m.type === item.type)) : [...prev, item];
     });
   };
 

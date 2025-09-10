@@ -1,4 +1,5 @@
 import { useLanguage } from './LanguageContext';
+import { useFavorites } from './FavoritesContext';
 
 function formatRange(start, end, locale) {
   if (!start) return '';
@@ -23,8 +24,21 @@ export default function ExpositionCard({ exposition }) {
   const start = exposition.start_datum ? new Date(exposition.start_datum + 'T00:00:00') : null;
   const end = exposition.eind_datum ? new Date(exposition.eind_datum + 'T00:00:00') : null;
   const { lang, t } = useLanguage();
+  const { favorites, toggleFavorite } = useFavorites();
   const locale = lang === 'en' ? 'en-US' : 'nl-NL';
   const rangeLabel = formatRange(start, end, locale);
+  const isFavorite = favorites.some((f) => f.id === exposition.id && f.type === 'exposition');
+
+  const handleFavorite = () => {
+    toggleFavorite({
+      id: exposition.id,
+      titel: exposition.titel,
+      start_datum: exposition.start_datum,
+      eind_datum: exposition.eind_datum,
+      bron_url: exposition.bron_url,
+      type: 'exposition',
+    });
+  };
 
   return (
     <article className="event-card exposition-card">
@@ -53,6 +67,23 @@ export default function ExpositionCard({ exposition }) {
         >
           {t('buyTicket')}
         </a>
+        <button
+          className={`icon-button${isFavorite ? ' favorited' : ''}`}
+          aria-label={t('save')}
+          aria-pressed={isFavorite}
+          onClick={handleFavorite}
+        >
+          <svg
+            viewBox="0 0 24 24"
+            fill={isFavorite ? 'currentColor' : 'none'}
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M21 8.25c0 4.556-9 11.25-9 11.25S3 12.806 3 8.25a5.25 5.25 0 0 1 9-3.676A5.25 5.25 0 0 1 21 8.25Z" />
+          </svg>
+        </button>
       </div>
     </article>
   );
