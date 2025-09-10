@@ -96,7 +96,7 @@ export default function MuseumDetail({ museum, exposities, error }) {
           </div>
         )}
 
-        <div style={{ display: 'flex', gap: '8px', margin: '16px 0' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', margin: '16px 0' }}>
           {museum.website_url && (
             <a
               href={museum.website_url}
@@ -119,7 +119,7 @@ export default function MuseumDetail({ museum, exposities, error }) {
           )}
           {museumItem && (
             <button
-              className={`icon-button${isFavorite ? ' favorited' : ''}`}
+              className={`icon-button large${isFavorite ? ' favorited' : ''}`}
               aria-label={t('save')}
               aria-pressed={isFavorite}
               onClick={handleFavorite}
