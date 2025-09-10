@@ -362,6 +362,12 @@ img { max-width: 100%; height: auto; display: block; }
   color: var(--muted);
 }
 
+.event-card-description {
+  margin: 4px 0 0;
+  font-size: 14px;
+  color: var(--muted);
+}
+
 .event-card-actions {
   margin-left: auto;
 }
