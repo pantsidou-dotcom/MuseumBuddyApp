@@ -328,7 +328,7 @@ img { max-width: 100%; height: auto; display: block; }
 }
 
 .event-card-date {
-  width: 80px;
+  width: 120px;
   text-align: center;
   font-size: 14px;
   font-weight: 600;
@@ -377,6 +377,15 @@ img { max-width: 100%; height: auto; display: block; }
     width: 100%;
     text-align: left;
     margin-bottom: 8px;
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+  }
+  .event-card-status {
+    margin-bottom: 0;
+  }
+  .event-card-range {
+    display: inline;
   }
   .event-card-actions {
     margin-left: 0;
