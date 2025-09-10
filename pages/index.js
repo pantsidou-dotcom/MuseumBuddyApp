@@ -3,6 +3,7 @@ import { createClient } from '@supabase/supabase-js';
 import MuseumCard from '../components/MuseumCard';
 import museumImages from '../lib/museumImages';
 import museumNames from '../lib/museumNames';
+import museumImageCredits from '../lib/museumImageCredits';
 import { useLanguage } from '../components/LanguageContext';
 
 function todayYMD(tz = 'Europe/Amsterdam') {
@@ -63,6 +64,7 @@ export default function Home({ items, q, hasExposities }) {
                   province: m.provincie,
                   free: m.gratis_toegankelijk,
                   image: museumImages[m.slug],
+                  photographer: museumImageCredits[m.slug],
                   ticketUrl: m.ticket_affiliate_url || m.website_url,
                 }}
               />
