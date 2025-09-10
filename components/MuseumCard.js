@@ -10,7 +10,7 @@ export default function MuseumCard({ museum }) {
 
   const { favorites, toggleFavorite } = useFavorites();
   const { t, lang } = useLanguage();
-  const isFavorite = favorites.some((f) => f.id === museum.id);
+  const isFavorite = favorites.some((f) => f.id === museum.id && f.type === 'museum');
   const hoverColor = useMemo(() => {
     const colors = ['#A7D8F0', '#77DDDD', '#F7C59F', '#D8BFD8', '#EAE0C8'];
     return colors[Math.floor(Math.random() * colors.length)];
@@ -19,7 +19,7 @@ export default function MuseumCard({ museum }) {
   const summary = museumSummaries[museum.slug]?.[lang] || museum.summary;
 
   const handleFavorite = () => {
-    toggleFavorite(museum);
+    toggleFavorite({ ...museum, type: 'museum' });
   };
 
   const shareMuseum = async () => {
