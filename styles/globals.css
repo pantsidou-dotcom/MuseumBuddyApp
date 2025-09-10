@@ -375,6 +375,7 @@ img { max-width: 100%; height: auto; display: block; }
 .event-card-actions {
   margin-left: auto;
   display: flex;
+  align-items: center;
   gap: 8px;
 }
 
@@ -403,6 +404,7 @@ img { max-width: 100%; height: auto; display: block; }
     margin-left: 0;
     width: 100%;
     margin-top: 8px;
+    align-items: center;
     gap: 8px;
   }
   .event-card-actions .ticket-button {
