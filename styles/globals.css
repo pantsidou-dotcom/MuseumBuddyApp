@@ -203,6 +203,17 @@ img { max-width: 100%; height: auto; display: block; }
   display: block;
 }
 
+.image-credit {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  padding: 4px 8px;
+  font-size: 12px;
+  color: #fff;
+  background: rgba(0,0,0,0.6);
+}
+
 /* MuseumCard component */
 .museum-card {
   background: var(--surface);

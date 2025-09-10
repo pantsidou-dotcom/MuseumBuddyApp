@@ -3,6 +3,7 @@ import Image from 'next/image';
 import { createClient } from '@supabase/supabase-js';
 import museumImages from '../../lib/museumImages';
 import museumNames from '../../lib/museumNames';
+import museumImageCredits from '../../lib/museumImageCredits';
 import ExpositionCard from '../../components/ExpositionCard';
 import { useLanguage } from '../../components/LanguageContext';
 import { useFavorites } from '../../components/FavoritesContext';
@@ -89,6 +90,9 @@ export default function MuseumDetail({ museum, exposities, error }) {
               sizes="(max-width: 800px) 100vw, 800px"
               style={{ objectFit: 'cover' }}
             />
+            <div className="image-credit">
+              {t('museumLabel')}: {name} — {t('photographerLabel')}: {museumImageCredits[museum.slug] || t('unknown')}
+            </div>
           </div>
         )}
 
