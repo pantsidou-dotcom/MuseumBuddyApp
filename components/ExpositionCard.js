@@ -43,6 +43,9 @@ export default function ExpositionCard({ exposition, periode }) {
           )}
         </h3>
         {periode && <p className="event-card-period">{periode}</p>}
+        {exposition.omschrijving && (
+          <p className="event-card-description">{exposition.omschrijving}</p>
+        )}
       </div>
       <div className="event-card-actions">
         <a

@@ -150,12 +150,23 @@ export async function getServerSideProps(context) {
   }
 
   const today = todayYMD('Europe/Amsterdam'); // "YYYY-MM-DD"
-  const { data: exposities, error: exError } = await supabase
+  let { data: exposities, error: exError } = await supabase
     .from('exposities')
-    .select('id, titel, start_datum, eind_datum, bron_url')
+    .select('id, titel, omschrijving, start_datum, eind_datum, bron_url')
     .eq('museum_id', museum.id)
     .or(`eind_datum.gte.${today},eind_datum.is.null`)
     .order('start_datum', { ascending: true, nullsFirst: false });
+
+  if (exError && exError.code === '42703') {
+    const retry = await supabase
+      .from('exposities')
+      .select('id, titel, start_datum, eind_datum, bron_url')
+      .eq('museum_id', museum.id)
+      .or(`eind_datum.gte.${today},eind_datum.is.null`)
+      .order('start_datum', { ascending: true, nullsFirst: false });
+    exposities = retry.data;
+    exError = retry.error;
+  }
 
   if (exError) {
     context.res.statusCode = 500;

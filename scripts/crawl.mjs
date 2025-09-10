@@ -209,19 +209,26 @@ async function crawlTarget(target) {
     }
     const bron_url = hrefCand || fetched.url;
 
+    const descCand = context.find('p').first().text();
+    const omschrijving = normalizeText(descCand).slice(0, 200);
+
     // Dedup op titel per museum
     if (existing.has(titel.toLowerCase())) {
       skippedDup++;
       return;
     }
 
-    rows.push({
+    const row = {
       museum_id: museum.id,
       titel,
       bron_url,
       is_tijdelijk: true,
       last_crawled_at: nowIso()
-    });
+    };
+
+    if (omschrijving) row.omschrijving = omschrijving;
+
+    rows.push(row);
   });
 
   let inserted = 0;
