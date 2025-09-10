@@ -105,17 +105,11 @@ export default function MuseumDetail({ museum, exposities, error }) {
           <p>{t('noExpositions')}</p>
         ) : (
           <ul className="events-list">
-            {exposities.map((e) => {
-              const periode = [formatDate(e.start_datum, locale), formatDate(e.eind_datum, locale)]
-                .filter(Boolean)
-                .join(' – ');
-
-              return (
-                <li key={e.id}>
-                  <ExpositionCard exposition={e} periode={periode} />
-                </li>
-              );
-            })}
+            {exposities.map((e) => (
+              <li key={e.id}>
+                <ExpositionCard exposition={e} />
+              </li>
+            ))}
           </ul>
         )}
       </main>

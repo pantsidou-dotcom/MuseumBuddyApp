@@ -17,7 +17,7 @@ function formatRange(start, end, locale) {
   return `${startFmt} - ${endFmt}`;
 }
 
-export default function ExpositionCard({ exposition, periode }) {
+export default function ExpositionCard({ exposition }) {
   if (!exposition) return null;
 
   const start = exposition.start_datum ? new Date(exposition.start_datum + 'T00:00:00') : null;
@@ -42,7 +42,6 @@ export default function ExpositionCard({ exposition, periode }) {
             exposition.titel
           )}
         </h3>
-        {periode && <p className="event-card-period">{periode}</p>}
       </div>
       <div className="event-card-actions">
         <a
