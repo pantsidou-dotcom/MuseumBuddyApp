@@ -88,6 +88,7 @@ export default function MuseumCard({ museum }) {
             rel="noreferrer"
             className="ticket-button"
             aria-disabled={!museum.ticketUrl}
+            title={museum.ticketUrl ? t('affiliateNotice') : undefined}
           >
             {t('buyTicket')}
           </a>

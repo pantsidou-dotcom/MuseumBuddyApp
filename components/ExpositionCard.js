@@ -66,6 +66,7 @@ export default function ExpositionCard({ exposition, ticketUrl }) {
           rel="noreferrer"
           className="ticket-button"
           aria-disabled={!buyUrl}
+          title={buyUrl ? t('affiliateNotice') : undefined}
         >
           {t('buyTicket')}
         </a>
