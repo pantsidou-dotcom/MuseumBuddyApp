@@ -1,10 +1,12 @@
 import Head from 'next/head';
 import { createClient } from '@supabase/supabase-js';
+import { useEffect, useState } from 'react';
 import MuseumCard from '../components/MuseumCard';
 import museumImages from '../lib/museumImages';
 import museumNames from '../lib/museumNames';
 import museumImageCredits from '../lib/museumImageCredits';
 import { useLanguage } from '../components/LanguageContext';
+import { supabase as supabaseClient } from '../lib/supabase';
 
 function todayYMD(tz = 'Europe/Amsterdam') {
   const fmt = new Intl.DateTimeFormat('sv-SE', {
@@ -18,7 +20,47 @@ function todayYMD(tz = 'Europe/Amsterdam') {
 
 export default function Home({ items, q, hasExposities }) {
   const { t } = useLanguage();
-  const expositiesHref = q ? `/?q=${encodeURIComponent(q)}&exposities=1` : '/?exposities=1';
+  const [query, setQuery] = useState(q || '');
+  const [results, setResults] = useState(items);
+  const expositiesHref = query ? `/?q=${encodeURIComponent(query)}&exposities=1` : '/?exposities=1';
+
+  useEffect(() => {
+    if (!supabaseClient) return;
+    const timer = setTimeout(async () => {
+      let db = supabaseClient
+        .from('musea')
+        .select('id, naam, stad, provincie, slug, gratis_toegankelijk, ticket_affiliate_url, website_url')
+        .order('naam', { ascending: true });
+
+      if (query) {
+        db = db.ilike('naam', `%${query}%`);
+      }
+
+      if (hasExposities) {
+        const today = todayYMD('Europe/Amsterdam');
+        const { data: exRows, error: exError } = await supabaseClient
+          .from('exposities')
+          .select('museum_id')
+          .or(`eind_datum.gte.${today},eind_datum.is.null`);
+
+        if (!exError) {
+          const ids = [...new Set((exRows || []).map((e) => e.museum_id))];
+          if (ids.length === 0) {
+            setResults([]);
+            return;
+          }
+          db = db.in('id', ids);
+        }
+      }
+
+      const { data, error } = await db;
+      if (!error) {
+        setResults(data || []);
+      }
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [query, hasExposities]);
 
   return (
     <>
@@ -27,19 +69,19 @@ export default function Home({ items, q, hasExposities }) {
         <meta name="description" content={t('homeDescription')} />
       </Head>
 
-      <form method="get" className="controls">
+      <form className="controls" onSubmit={(e) => e.preventDefault()}>
         <div className="control-row">
           <input
             type="text"
-            name="q"
             className="input"
             placeholder={t('searchPlaceholder')}
-            defaultValue={q || ''}
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
           />
           <a href={expositiesHref} className="btn-reset">
             {t('expositions')}
           </a>
-          {(q || hasExposities) && (
+          {(query || hasExposities) && (
             <a href="/" className="btn-reset">
               {t('reset')}
             </a>
@@ -47,13 +89,13 @@ export default function Home({ items, q, hasExposities }) {
         </div>
       </form>
 
-      <p className="count">{items.length} {t('results')}</p>
+      <p className="count">{results.length} {t('results')}</p>
 
-      {items.length === 0 ? (
+      {results.length === 0 ? (
         <p>{t('noResults')}</p>
       ) : (
         <ul className="grid" style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-          {items.map((m) => (
+          {results.map((m) => (
             <li key={m.id}>
               <MuseumCard
                 museum={{
