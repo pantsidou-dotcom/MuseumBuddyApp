@@ -11,9 +11,11 @@ const files = [
   'pages/museum/[slug].js',
 ];
 const tooltipPattern = /title={t\('affiliateLink'\)}/;
+const notePattern = /className="affiliate-note"/;
 for (const file of files) {
   const content = fs.readFileSync(file, 'utf8');
   assert(tooltipPattern.test(content), `Tooltip missing in ${file}`);
+  assert(notePattern.test(content), `Affiliate note missing in ${file}`);
 }
 
-console.log('Affiliate link tooltip tests passed.');
+console.log('Affiliate link tooltip and note tests passed.');

@@ -260,6 +260,17 @@ img { max-width: 100%; height: auto; display: block; }
   opacity: 0.5;
   pointer-events: none;
 }
+.affiliate-note {
+  display: none;
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 4px;
+}
+@media (max-width: 600px) {
+  .affiliate-note {
+    display: block;
+  }
+}
 .icon-button {
   width: 32px;
   height: 32px;
