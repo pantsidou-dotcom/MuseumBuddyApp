@@ -56,7 +56,10 @@ export default function Home({ items, q, hasExposities }) {
 
       const { data, error } = await db;
       if (!error) {
-        setResults(data || []);
+        const filtered = (data || []).filter(
+          (m) => m.slug !== 'amsterdam-tulip-museum-amsterdam'
+        );
+        setResults(filtered);
       }
     }, 300);
 
@@ -163,9 +166,13 @@ export async function getServerSideProps({ query }) {
     return { props: { items: [], q, hasExposities } };
   }
 
+  const filtered = (data || []).filter(
+    (m) => m.slug !== 'amsterdam-tulip-museum-amsterdam'
+  );
+
   return {
     props: {
-      items: data || [],
+      items: filtered,
       q,
       hasExposities,
     },
