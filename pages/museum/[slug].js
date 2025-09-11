@@ -120,6 +120,7 @@ export default function MuseumDetail({ museum, exposities, error }) {
               target="_blank"
               rel="noreferrer"
               className="btn-reset"
+              title={t('affiliateLink')}
             >
               {t('tickets')}
             </a>

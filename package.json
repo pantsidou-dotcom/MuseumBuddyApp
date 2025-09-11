@@ -5,7 +5,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "crawl": "node scripts/crawl.mjs"
+    "crawl": "node scripts/crawl.mjs",
+    "test": "node tests/affiliateLink.test.cjs"
   },
   "engines": {
     "node": "20.x"
