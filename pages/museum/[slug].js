@@ -5,6 +5,7 @@ import museumImages from '../../lib/museumImages';
 import museumNames from '../../lib/museumNames';
 import museumImageCredits from '../../lib/museumImageCredits';
 import museumOpeningHours from '../../lib/museumOpeningHours';
+import museumTicketUrls from '../../lib/museumTicketUrls';
 import ExpositionCard from '../../components/ExpositionCard';
 import { useLanguage } from '../../components/LanguageContext';
 import { useFavorites } from '../../components/FavoritesContext';
@@ -54,7 +55,13 @@ export default function MuseumDetail({ museum, exposities, error }) {
   const openingHours = museum ? museumOpeningHours[museum.slug]?.[lang] : null;
   const museumItem =
     museum && name
-      ? { id: museum.id, slug: museum.slug, title: name, image: museumImages[museum.slug] }
+      ? {
+          id: museum.id,
+          slug: museum.slug,
+          title: name,
+          image: museumImages[museum.slug],
+          ticketUrl: museum.ticket_affiliate_url || museum.website_url,
+        }
       : null;
   const isFavorite = museumItem
     ? favorites.some((f) => f.id === museum.id && f.type === 'museum')
@@ -120,7 +127,7 @@ export default function MuseumDetail({ museum, exposities, error }) {
               target="_blank"
               rel="noreferrer"
               className="btn-reset"
-              title={t('affiliateLink')}
+              title={t('affiliateNotice')}
             >
               {t('tickets')}
             </a>
@@ -153,7 +160,10 @@ export default function MuseumDetail({ museum, exposities, error }) {
           <ul className="events-list">
             {exposities.map((e) => (
               <li key={e.id}>
-                <ExpositionCard exposition={e} />
+                <ExpositionCard
+                  exposition={e}
+                  ticketUrl={museum.ticket_affiliate_url || museum.website_url}
+                />
               </li>
             ))}
           </ul>
@@ -188,6 +198,9 @@ export async function getServerSideProps(context) {
     context.res.statusCode = 500;
     return { props: { museum: null, exposities: [], error: true } };
   }
+
+  museum.ticket_affiliate_url =
+    museum.ticket_affiliate_url || museumTicketUrls[museum.slug];
 
   const today = todayYMD('Europe/Amsterdam'); // "YYYY-MM-DD"
   const { data: exposities, error: exError } = await supabase

@@ -5,6 +5,7 @@ import MuseumCard from '../components/MuseumCard';
 import museumImages from '../lib/museumImages';
 import museumNames from '../lib/museumNames';
 import museumImageCredits from '../lib/museumImageCredits';
+import museumTicketUrls from '../lib/museumTicketUrls';
 import { useLanguage } from '../components/LanguageContext';
 import { supabase as supabaseClient } from '../lib/supabase';
 
@@ -107,7 +108,8 @@ export default function Home({ items, q, hasExposities }) {
                   free: m.gratis_toegankelijk,
                   image: museumImages[m.slug],
                   photographer: museumImageCredits[m.slug],
-                  ticketUrl: m.ticket_affiliate_url || m.website_url,
+                  ticketUrl:
+                    m.ticket_affiliate_url || museumTicketUrls[m.slug] || m.website_url,
                 }}
               />
             </li>

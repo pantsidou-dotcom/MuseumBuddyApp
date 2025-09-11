@@ -18,7 +18,7 @@ function formatRange(start, end, locale) {
   return `${startFmt} - ${endFmt}`;
 }
 
-export default function ExpositionCard({ exposition }) {
+export default function ExpositionCard({ exposition, ticketUrl }) {
   if (!exposition) return null;
 
   const start = exposition.start_datum ? new Date(exposition.start_datum + 'T00:00:00') : null;
@@ -28,6 +28,7 @@ export default function ExpositionCard({ exposition }) {
   const locale = lang === 'en' ? 'en-US' : 'nl-NL';
   const rangeLabel = formatRange(start, end, locale);
   const isFavorite = favorites.some((f) => f.id === exposition.id && f.type === 'exposition');
+  const buyUrl = ticketUrl || exposition.ticketUrl || exposition.bron_url;
 
   const handleFavorite = () => {
     toggleFavorite({
@@ -36,6 +37,7 @@ export default function ExpositionCard({ exposition }) {
       start_datum: exposition.start_datum,
       eind_datum: exposition.eind_datum,
       bron_url: exposition.bron_url,
+      ticketUrl: buyUrl,
       type: 'exposition',
     });
   };
@@ -59,12 +61,12 @@ export default function ExpositionCard({ exposition }) {
       </div>
       <div className="event-card-actions">
         <a
-          href={exposition.bron_url || '#'}
+          href={buyUrl || '#'}
           target="_blank"
           rel="noreferrer"
           className="ticket-button"
-          aria-disabled={!exposition.bron_url}
-          title={t('affiliateLink')}
+          aria-disabled={!buyUrl}
+          title={buyUrl ? t('affiliateNotice') : undefined}
         >
           {t('buyTicket')}
         </a>
