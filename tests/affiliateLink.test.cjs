@@ -2,8 +2,8 @@ const fs = require('fs');
 const assert = require('assert');
 
 const translationsContent = fs.readFileSync('lib/translations.js', 'utf8');
-assert(/affiliateLink:\s*'This link goes to our Affiliate Partner.'/.test(translationsContent), 'English translation missing');
-assert(/affiliateLink:\s*'Deze link gaat naar onze Affiliate Partner.'/.test(translationsContent), 'Dutch translation missing');
+assert(/affiliateLink:\s*'This link goes to our Affiliate Partner\. Prices may vary\.'/.test(translationsContent), 'English translation missing');
+assert(/affiliateLink:\s*'Deze link gaat naar onze Affiliate Partner\. Prijzen kunnen afwijken\.'/.test(translationsContent), 'Dutch translation missing');
 
 const files = [
   'components/MuseumCard.js',
