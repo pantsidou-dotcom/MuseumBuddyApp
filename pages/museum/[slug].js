@@ -4,6 +4,7 @@ import { createClient } from '@supabase/supabase-js';
 import museumImages from '../../lib/museumImages';
 import museumNames from '../../lib/museumNames';
 import museumImageCredits from '../../lib/museumImageCredits';
+import museumOpeningHours from '../../lib/museumOpeningHours';
 import ExpositionCard from '../../components/ExpositionCard';
 import { useLanguage } from '../../components/LanguageContext';
 import { useFavorites } from '../../components/FavoritesContext';
@@ -50,6 +51,7 @@ export default function MuseumDetail({ museum, exposities, error }) {
   }
 
   const name = museum ? museumNames[museum.slug] || museum.naam : '';
+  const openingHours = museum ? museumOpeningHours[museum.slug]?.[lang] : null;
   const museumItem =
     museum && name
       ? { id: museum.id, slug: museum.slug, title: name, image: museumImages[museum.slug] }
@@ -80,6 +82,11 @@ export default function MuseumDetail({ museum, exposities, error }) {
         <p className="detail-sub">
           {[museum.stad, museum.provincie].filter(Boolean).join(', ')}
         </p>
+        {openingHours && (
+          <p style={{ marginTop: 8 }}>
+            {t('openingHours')}: {openingHours}
+          </p>
+        )}
 
         {museumImages[museum.slug] && (
           <div style={{ position: 'relative', width: '100%', height: 300, margin: '16px 0' }}>

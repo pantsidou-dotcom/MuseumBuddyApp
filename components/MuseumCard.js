@@ -4,6 +4,7 @@ import { useMemo } from 'react';
 import { useFavorites } from './FavoritesContext';
 import { useLanguage } from './LanguageContext';
 import museumSummaries from '../lib/museumSummaries';
+import museumOpeningHours from '../lib/museumOpeningHours';
 
 export default function MuseumCard({ museum }) {
   if (!museum) return null;
@@ -17,6 +18,7 @@ export default function MuseumCard({ museum }) {
   }, [museum.id]);
 
   const summary = museumSummaries[museum.slug]?.[lang] || museum.summary;
+  const hours = museumOpeningHours[museum.slug]?.[lang];
 
   const handleFavorite = () => {
     toggleFavorite({ ...museum, type: 'museum' });
@@ -134,6 +136,7 @@ export default function MuseumCard({ museum }) {
           {[museum.city, museum.province].filter(Boolean).join(', ')}
         </p>
         {summary && <p className="museum-card-summary">{summary}</p>}
+        {hours && <p className="museum-card-hours">{hours}</p>}
         {museum.free && (
           <div className="museum-card-tags">
             <span className="tag">{t('free')}</span>
