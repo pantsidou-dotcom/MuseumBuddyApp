@@ -127,7 +127,7 @@ export default function MuseumDetail({ museum, exposities, error }) {
               target="_blank"
               rel="noreferrer"
               className="btn-reset"
-              title={t('affiliateNotice')}
+              title={t('affiliateLink')}
             >
               {t('tickets')}
             </a>
@@ -175,6 +175,9 @@ export default function MuseumDetail({ museum, exposities, error }) {
 
 export async function getServerSideProps(context) {
   const { slug } = context.params || {};
+  if (slug === 'amsterdam-tulip-museum-amsterdam') {
+    return { notFound: true };
+  }
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
