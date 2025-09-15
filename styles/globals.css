@@ -92,13 +92,6 @@ img { max-width: 100%; height: auto; display: block; }
 }
 .lang-select svg { width:12px; height:8px; }
 .contrast-toggle svg { width:20px; height:20px; }
-.header-link {
-  display:flex;
-  align-items:center;
-  font-size:14px;
-  color: var(--text);
-  text-decoration:none;
-}
 .header-icon {
   background:none;
   border:none;

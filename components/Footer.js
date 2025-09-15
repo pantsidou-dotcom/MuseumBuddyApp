@@ -6,7 +6,7 @@ export default function Footer() {
   return (
     <footer className="footer">
       <div className="container footer-content">
-        <Link href="/privacy">{t('privacy')}</Link>
+        <Link href="/privacy">{t('privacyLabel')}</Link>
         <Link href="/disclaimer">{t('disclaimer')}</Link>
       </div>
     </footer>
