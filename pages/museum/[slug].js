@@ -143,10 +143,11 @@ export default function MuseumDetail({ museum, exposities, error }) {
               href={museum.ticket_affiliate_url}
               target="_blank"
               rel="noreferrer"
-              className="btn-reset"
+              className="ticket-button"
               title={t('affiliateLink')}
             >
-              {t('tickets')}
+              <span>{t('tickets')}</span>
+              <span className="affiliate-note">{t('affiliateLinkLabel')}</span>
             </a>
           )}
           {museumItem && (
@@ -169,9 +170,6 @@ export default function MuseumDetail({ museum, exposities, error }) {
             </button>
           )}
         </div>
-        {museum.ticket_affiliate_url && (
-          <p className="affiliate-note">{t('affiliateLink')}</p>
-        )}
 
         <h2 className="page-title">{t('expositionsTitle')}</h2>
         {!exposities || exposities.length === 0 ? (
