@@ -79,7 +79,24 @@ export default function MuseumCard({ museum }) {
           )}
         </Link>
         <div className="image-credit">
-          {t('museumLabel')}: {museum.title} — {t('photographerLabel')}: {museum.photographer || t('unknown')}
+          {t('museumLabel')}: {museum.title} — {t('imageCreditLabel')}: 
+          {museum.imageCredit ? (
+            <>
+              {museum.imageCredit.author}
+              {museum.imageCredit.license ? `, ${museum.imageCredit.license}` : ''}
+              {museum.imageCredit.source && (
+                <>
+                  {' '}
+                  {t('via')}{' '}
+                  <a href={museum.imageCredit.url} target="_blank" rel="noreferrer">
+                    {museum.imageCredit.source}
+                  </a>
+                </>
+              )}
+            </>
+          ) : (
+            t('unknown')
+          )}
         </div>
         <div className="museum-card-ticket">
           <a

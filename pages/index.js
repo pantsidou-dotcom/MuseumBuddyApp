@@ -109,10 +109,10 @@ export default function Home({ items, q, hasExposities }) {
                   city: m.stad,
                   province: m.provincie,
                   free: m.gratis_toegankelijk,
-                  image: museumImages[m.slug],
-                  photographer: museumImageCredits[m.slug],
-                  ticketUrl:
-                    m.ticket_affiliate_url || museumTicketUrls[m.slug] || m.website_url,
+                    image: museumImages[m.slug],
+                    imageCredit: museumImageCredits[m.slug],
+                    ticketUrl:
+                      m.ticket_affiliate_url || museumTicketUrls[m.slug] || m.website_url,
                 }}
               />
             </li>

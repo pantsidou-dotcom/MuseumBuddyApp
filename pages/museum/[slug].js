@@ -51,8 +51,9 @@ export default function MuseumDetail({ museum, exposities, error }) {
     );
   }
 
-  const name = museum ? museumNames[museum.slug] || museum.naam : '';
-  const openingHours = museum ? museumOpeningHours[museum.slug]?.[lang] : null;
+    const name = museum ? museumNames[museum.slug] || museum.naam : '';
+    const openingHours = museum ? museumOpeningHours[museum.slug]?.[lang] : null;
+    const credit = museum ? museumImageCredits[museum.slug] : null;
   const museumItem =
     museum && name
       ? {
@@ -95,20 +96,37 @@ export default function MuseumDetail({ museum, exposities, error }) {
           </p>
         )}
 
-        {museumImages[museum.slug] && (
-          <div style={{ position: 'relative', width: '100%', height: 300, margin: '16px 0' }}>
-            <Image
-              src={museumImages[museum.slug]}
-              alt={name}
-              fill
-              sizes="(max-width: 800px) 100vw, 800px"
-              style={{ objectFit: 'cover' }}
-            />
-            <div className="image-credit">
-              {t('museumLabel')}: {name} — {t('photographerLabel')}: {museumImageCredits[museum.slug] || t('unknown')}
+          {museumImages[museum.slug] && (
+            <div style={{ position: 'relative', width: '100%', height: 300, margin: '16px 0' }}>
+              <Image
+                src={museumImages[museum.slug]}
+                alt={name}
+                fill
+                sizes="(max-width: 800px) 100vw, 800px"
+                style={{ objectFit: 'cover' }}
+              />
+              <div className="image-credit">
+                {t('museumLabel')}: {name} — {t('imageCreditLabel')}:{' '}
+                {credit ? (
+                  <>
+                    {credit.author}
+                    {credit.license ? `, ${credit.license}` : ''}
+                    {credit.source && (
+                      <>
+                        {' '}
+                        {t('via')}{' '}
+                        <a href={credit.url} target="_blank" rel="noreferrer">
+                          {credit.source}
+                        </a>
+                      </>
+                    )}
+                  </>
+                ) : (
+                  t('unknown')
+                )}
+              </div>
             </div>
-          </div>
-        )}
+          )}
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', margin: '16px 0' }}>
           {museum.website_url && (
