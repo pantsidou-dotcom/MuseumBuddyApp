@@ -3,6 +3,7 @@ import Head from 'next/head';
 import { useFavorites } from './FavoritesContext';
 import { useLanguage } from './LanguageContext';
 import { useTheme } from './ThemeContext';
+import Footer from './Footer';
 
 export default function Layout({ children }) {
   const { favorites } = useFavorites();
@@ -113,6 +114,7 @@ export default function Layout({ children }) {
         </nav>
       </header>
       <main className="container">{children}</main>
+      <Footer />
     </>
   );
 }
