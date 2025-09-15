@@ -110,7 +110,7 @@ export default function MuseumCard({ museum }) {
             {t('buyTicket')}
           </a>
           {museum.ticketUrl && (
-            <p className="affiliate-note">{t('affiliateLink')}</p>
+            <p className="affiliate-note">{t('affiliateLinkLabel')}</p>
           )}
         </div>
         <div className="museum-card-actions">

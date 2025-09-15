@@ -88,7 +88,7 @@ export default function ExpositionCard({ exposition, ticketUrl }) {
           </svg>
         </button>
       </div>
-      {buyUrl && <p className="affiliate-note">{t('affiliateLink')}</p>}
+      {buyUrl && <p className="affiliate-note">{t('affiliateLinkLabel')}</p>}
     </article>
   );
 }

@@ -139,15 +139,18 @@ export default function MuseumDetail({ museum, exposities, error }) {
             </a>
           )}
           {museum.ticket_affiliate_url && (
-            <a
-              href={museum.ticket_affiliate_url}
-              target="_blank"
-              rel="noreferrer"
-              className="btn-reset"
-              title={t('affiliateLink')}
-            >
-              {t('tickets')}
-            </a>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+              <a
+                href={museum.ticket_affiliate_url}
+                target="_blank"
+                rel="noreferrer"
+                className="btn-reset"
+                title={t('affiliateLink')}
+              >
+                {t('tickets')}
+              </a>
+              <p className="affiliate-note">{t('affiliateLinkLabel')}</p>
+            </div>
           )}
           {museumItem && (
             <button
@@ -169,9 +172,6 @@ export default function MuseumDetail({ museum, exposities, error }) {
             </button>
           )}
         </div>
-        {museum.ticket_affiliate_url && (
-          <p className="affiliate-note">{t('affiliateLink')}</p>
-        )}
 
         <h2 className="page-title">{t('expositionsTitle')}</h2>
         {!exposities || exposities.length === 0 ? (
