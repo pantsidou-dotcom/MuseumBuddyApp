@@ -6,6 +6,7 @@
     "build": "next build",
     "start": "next start",
     "crawl": "node scripts/crawl.mjs",
+    "crawl:rollback": "node scripts/rollbackLastCrawl.mjs",
     "test": "node tests/affiliateLink.test.cjs"
   },
   "engines": {

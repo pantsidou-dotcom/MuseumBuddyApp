@@ -27,3 +27,15 @@ python scripts/supabase_dedup.py
 ```
 
 The script fetches all rows, keeps only unique `museum_id` values, writes the cleaned data back, and ensures the constraint exists to prevent future duplicates.
+
+## Remove latest crawler results
+
+If a crawl inserted incorrect data you can roll the changes back by deleting the rows created in the most recent run. Provide the Supabase service role credentials (`SUPABASE_SERVICE_ROLE_KEY` or `SUPABASE_SERVICE_KEY`) and run:
+
+```
+export SUPABASE_URL="<project-url>"
+export SUPABASE_SERVICE_ROLE_KEY="<service-role-key>"
+npm run crawl:rollback
+```
+
+The script finds the highest `last_crawled_at` value in the `exposities` table and removes every row that was created during that crawl.
