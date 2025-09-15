@@ -1,25 +1,19 @@
-import Head from 'next/head';
+import SEO from '../components/SEO';
 import { useLanguage } from '../components/LanguageContext';
 
 export default function DisclaimerPage() {
   const { lang } = useLanguage();
+  const title =
+    lang === 'en'
+      ? 'Terms & Disclaimer - MuseumBuddy'
+      : 'Algemene voorwaarden & Disclaimer - MuseumBuddy';
+  const description =
+    lang === 'en'
+      ? 'Read the terms and disclaimer of MuseumBuddy.'
+      : 'Lees de algemene voorwaarden en disclaimer van MuseumBuddy.';
   return (
     <>
-      <Head>
-        <title>
-          {lang === 'en'
-            ? 'Terms & Disclaimer - MuseumBuddy'
-            : 'Algemene voorwaarden & Disclaimer - MuseumBuddy'}
-        </title>
-        <meta
-          name="description"
-          content={
-            lang === 'en'
-              ? 'Read the terms and disclaimer of MuseumBuddy.'
-              : 'Lees de algemene voorwaarden en disclaimer van MuseumBuddy.'
-          }
-        />
-      </Head>
+      <SEO title={title} description={description} />
       {lang === 'en' ? (
         <>
           <h1 className="page-title">Terms & Disclaimer</h1>

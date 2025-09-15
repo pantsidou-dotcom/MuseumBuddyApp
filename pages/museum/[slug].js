@@ -1,4 +1,4 @@
-import Head from 'next/head';
+import SEO from '../../components/SEO';
 import Image from 'next/image';
 import { createClient } from '@supabase/supabase-js';
 import museumImages from '../../lib/museumImages';
@@ -36,11 +36,10 @@ export default function MuseumDetail({ museum, exposities, error }) {
   const locale = lang === 'en' ? 'en-GB' : 'nl-NL';
 
   if (error) {
+    const errorTitle = 'Museum — MuseumBuddy';
     return (
       <>
-        <Head>
-          <title>Museum — MuseumBuddy</title>
-        </Head>
+        <SEO title={errorTitle} />
         <main style={{ maxWidth: 800, margin: '2rem auto', padding: '0 1rem' }}>
           <p>{t('somethingWrong')}</p>
           <a href="/" style={{ display: 'inline-block', marginTop: '1rem' }}>
@@ -76,10 +75,10 @@ export default function MuseumDetail({ museum, exposities, error }) {
 
   return (
     <>
-      <Head>
-        <title>{name ? `${name} — MuseumBuddy` : 'Museum — MuseumBuddy'}</title>
-        <meta name="description" content={t('museumDescription', { name: name || 'museum' })} />
-      </Head>
+      <SEO
+        title={name ? `${name} — MuseumBuddy` : 'Museum — MuseumBuddy'}
+        description={t('museumDescription', { name: name || 'museum' })}
+      />
 
       <main className="container" style={{ maxWidth: 800 }}>
         <a href="/" className="backlink" style={{ display: 'inline-block', marginBottom: 16 }}>

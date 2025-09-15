@@ -1,4 +1,3 @@
-import Head from 'next/head';
 import { createClient } from '@supabase/supabase-js';
 import { useEffect, useState } from 'react';
 import MuseumCard from '../components/MuseumCard';
@@ -8,6 +7,7 @@ import museumImageCredits from '../lib/museumImageCredits';
 import museumTicketUrls from '../lib/museumTicketUrls';
 import { useLanguage } from '../components/LanguageContext';
 import { supabase as supabaseClient } from '../lib/supabase';
+import SEO from '../components/SEO';
 
 function todayYMD(tz = 'Europe/Amsterdam') {
   const fmt = new Intl.DateTimeFormat('sv-SE', {
@@ -68,10 +68,7 @@ export default function Home({ items, q, hasExposities }) {
 
   return (
     <>
-      <Head>
-        <title>{t('homeTitle')}</title>
-        <meta name="description" content={t('homeDescription')} />
-      </Head>
+      <SEO title={t('homeTitle')} description={t('homeDescription')} />
 
       <form className="controls" onSubmit={(e) => e.preventDefault()}>
         <div className="control-row">
