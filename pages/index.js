@@ -9,6 +9,37 @@ import { useLanguage } from '../components/LanguageContext';
 import { supabase as supabaseClient } from '../lib/supabase';
 import SEO from '../components/SEO';
 
+const FEATURED_SLUGS = [
+  'van-gogh-museum-amsterdam',
+  'rijksmuseum-amsterdam',
+  'anne-frank-huis-amsterdam',
+  'stedelijk-museum-amsterdam',
+  'moco-museum-amsterdam',
+  'scheepvaartmuseum-amsterdam',
+  'nemo-science-museum-amsterdam',
+  'hart-museum-amsterdam',
+  'rembrandthuis-amsterdam',
+];
+
+function sortMuseums(museums) {
+  return [...museums].sort((a, b) => {
+    const aIndex = FEATURED_SLUGS.indexOf(a.slug);
+    const bIndex = FEATURED_SLUGS.indexOf(b.slug);
+
+    const aFeatured = aIndex !== -1;
+    const bFeatured = bIndex !== -1;
+
+    if (aFeatured || bFeatured) {
+      if (aFeatured && bFeatured) {
+        return aIndex - bIndex;
+      }
+      return aFeatured ? -1 : 1;
+    }
+
+    return a.naam.localeCompare(b.naam);
+  });
+}
+
 function todayYMD(tz = 'Europe/Amsterdam') {
   const fmt = new Intl.DateTimeFormat('sv-SE', {
     timeZone: tz,
@@ -59,7 +90,7 @@ export default function Home({ items, q, hasExposities }) {
         const filtered = (data || []).filter(
           (m) => m.slug !== 'amsterdam-tulip-museum-amsterdam'
         );
-        setResults(filtered);
+        setResults(sortMuseums(filtered));
       }
     }, 300);
 
@@ -169,7 +200,7 @@ export async function getServerSideProps({ query }) {
 
   return {
     props: {
-      items: filtered,
+      items: sortMuseums(filtered),
       q,
       hasExposities,
     },
