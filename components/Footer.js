@@ -9,6 +9,9 @@ export default function Footer() {
         <Link href="/privacy">{t('privacyLabel')}</Link>
         <Link href="/disclaimer">{t('disclaimer')}</Link>
       </div>
+      <div className="container footer-disclaimer">
+        {t('affiliateDisclaimer')}
+      </div>
     </footer>
   );
 }
