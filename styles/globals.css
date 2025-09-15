@@ -105,6 +105,21 @@ img { max-width: 100%; height: auto; display: block; }
   justify-content:center;
   padding:0 4px;
 }
+.header-menu { position:relative; }
+.header-menu summary { list-style:none; }
+.header-menu summary::-webkit-details-marker { display:none; }
+.header-dropdown {
+  display:none;
+  position:absolute;
+  right:0;
+  top:calc(100% + 8px);
+  background:var(--bg);
+  border:1px solid var(--border);
+  border-radius:8px;
+  padding:8px;
+}
+.header-menu[open] .header-dropdown { display:block; }
+.header-dropdown a { display:block; padding:4px 8px; font-size:14px; color:var(--text); }
 
 @media (max-width: 600px) {
   .brand-title { display: none; }
