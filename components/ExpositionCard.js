@@ -68,7 +68,8 @@ export default function ExpositionCard({ exposition, ticketUrl }) {
           aria-disabled={!buyUrl}
           title={t('affiliateLink')}
         >
-          {t('buyTicket')}
+          <span>{t('buyTicket')}</span>
+          {buyUrl && <span className="affiliate-note">{t('affiliateLinkLabel')}</span>}
         </a>
         <button
           className={`icon-button large${isFavorite ? ' favorited' : ''}`}
@@ -88,7 +89,6 @@ export default function ExpositionCard({ exposition, ticketUrl }) {
           </svg>
         </button>
       </div>
-      {buyUrl && <p className="affiliate-note">{t('affiliateLink')}</p>}
     </article>
   );
 }
