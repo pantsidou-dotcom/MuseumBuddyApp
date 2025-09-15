@@ -9,6 +9,7 @@ import museumTicketUrls from '../../lib/museumTicketUrls';
 import ExpositionCard from '../../components/ExpositionCard';
 import { useLanguage } from '../../components/LanguageContext';
 import { useFavorites } from '../../components/FavoritesContext';
+import { shouldShowAffiliateNote } from '../../lib/nonAffiliateMuseums';
 
 function formatDate(d, locale) {
   if (!d) return '';
@@ -50,9 +51,11 @@ export default function MuseumDetail({ museum, exposities, error }) {
     );
   }
 
-    const name = museum ? museumNames[museum.slug] || museum.naam : '';
-    const openingHours = museum ? museumOpeningHours[museum.slug]?.[lang] : null;
-    const credit = museum ? museumImageCredits[museum.slug] : null;
+  const name = museum ? museumNames[museum.slug] || museum.naam : '';
+  const openingHours = museum ? museumOpeningHours[museum.slug]?.[lang] : null;
+  const credit = museum ? museumImageCredits[museum.slug] : null;
+  const ticketUrl = museum ? museum.ticket_affiliate_url || museum.website_url : null;
+  const showAffiliateNote = museum ? shouldShowAffiliateNote(museum.slug) : true;
   const museumItem =
     museum && name
       ? {
@@ -60,7 +63,7 @@ export default function MuseumDetail({ museum, exposities, error }) {
           slug: museum.slug,
           title: name,
           image: museumImages[museum.slug],
-          ticketUrl: museum.ticket_affiliate_url || museum.website_url,
+          ticketUrl,
         }
       : null;
   const isFavorite = museumItem
@@ -147,7 +150,9 @@ export default function MuseumDetail({ museum, exposities, error }) {
               title={t('affiliateLink')}
             >
               <span>{t('tickets')}</span>
-              <span className="affiliate-note">{t('affiliateLinkLabel')}</span>
+              {showAffiliateNote && (
+                <span className="affiliate-note">{t('affiliateLinkLabel')}</span>
+              )}
             </a>
           )}
           {museumItem && (
@@ -180,7 +185,8 @@ export default function MuseumDetail({ museum, exposities, error }) {
               <li key={e.id}>
                 <ExpositionCard
                   exposition={e}
-                  ticketUrl={museum.ticket_affiliate_url || museum.website_url}
+                  ticketUrl={ticketUrl}
+                  museumSlug={museum.slug}
                 />
               </li>
             ))}

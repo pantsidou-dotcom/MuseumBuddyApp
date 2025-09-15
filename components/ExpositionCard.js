@@ -1,5 +1,6 @@
 import { useLanguage } from './LanguageContext';
 import { useFavorites } from './FavoritesContext';
+import { shouldShowAffiliateNote } from '../lib/nonAffiliateMuseums';
 
 function formatRange(start, end, locale) {
   if (!start) return '';
@@ -18,7 +19,7 @@ function formatRange(start, end, locale) {
   return `${startFmt} - ${endFmt}`;
 }
 
-export default function ExpositionCard({ exposition, ticketUrl }) {
+export default function ExpositionCard({ exposition, ticketUrl, museumSlug }) {
   if (!exposition) return null;
 
   const start = exposition.start_datum ? new Date(exposition.start_datum + 'T00:00:00') : null;
@@ -29,6 +30,8 @@ export default function ExpositionCard({ exposition, ticketUrl }) {
   const rangeLabel = formatRange(start, end, locale);
   const isFavorite = favorites.some((f) => f.id === exposition.id && f.type === 'exposition');
   const buyUrl = ticketUrl || exposition.ticketUrl || exposition.bron_url;
+  const slug = museumSlug || exposition.museumSlug;
+  const showAffiliateNote = Boolean(buyUrl) && (!slug || shouldShowAffiliateNote(slug));
 
   const handleFavorite = () => {
     toggleFavorite({
@@ -38,6 +41,7 @@ export default function ExpositionCard({ exposition, ticketUrl }) {
       eind_datum: exposition.eind_datum,
       bron_url: exposition.bron_url,
       ticketUrl: buyUrl,
+      museumSlug: slug,
       type: 'exposition',
     });
   };
@@ -69,7 +73,7 @@ export default function ExpositionCard({ exposition, ticketUrl }) {
           title={t('affiliateLink')}
         >
           <span>{t('buyTicket')}</span>
-          {buyUrl && <span className="affiliate-note">{t('affiliateLinkLabel')}</span>}
+          {showAffiliateNote && <span className="affiliate-note">{t('affiliateLinkLabel')}</span>}
         </a>
         <button
           className={`icon-button large${isFavorite ? ' favorited' : ''}`}

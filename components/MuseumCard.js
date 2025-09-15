@@ -5,6 +5,7 @@ import { useFavorites } from './FavoritesContext';
 import { useLanguage } from './LanguageContext';
 import museumSummaries from '../lib/museumSummaries';
 import museumOpeningHours from '../lib/museumOpeningHours';
+import { shouldShowAffiliateNote } from '../lib/nonAffiliateMuseums';
 
 export default function MuseumCard({ museum }) {
   if (!museum) return null;
@@ -19,6 +20,7 @@ export default function MuseumCard({ museum }) {
 
   const summary = museumSummaries[museum.slug]?.[lang] || museum.summary;
   const hours = museumOpeningHours[museum.slug]?.[lang];
+  const showAffiliateNote = Boolean(museum.ticketUrl) && shouldShowAffiliateNote(museum.slug);
 
   const handleFavorite = () => {
     toggleFavorite({ ...museum, type: 'museum' });
@@ -108,7 +110,7 @@ export default function MuseumCard({ museum }) {
             title={t('affiliateLink')}
           >
             <span>{t('buyTicket')}</span>
-            {museum.ticketUrl && (
+            {showAffiliateNote && (
               <span className="affiliate-note">{t('affiliateLinkLabel')}</span>
             )}
           </a>
