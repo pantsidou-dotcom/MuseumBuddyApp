@@ -107,11 +107,11 @@ export default function MuseumCard({ museum }) {
             aria-disabled={!museum.ticketUrl}
             title={t('affiliateLink')}
           >
-            {t('buyTicket')}
+            <span>{t('buyTicket')}</span>
+            {museum.ticketUrl && (
+              <span className="affiliate-note">{t('affiliateLinkLabel')}</span>
+            )}
           </a>
-          {museum.ticketUrl && (
-            <p className="affiliate-note">{t('affiliateLink')}</p>
-          )}
         </div>
         <div className="museum-card-actions">
           <button className="icon-button" aria-label={t('share')} onClick={shareMuseum}>
