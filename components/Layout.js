@@ -78,6 +78,9 @@ export default function Layout({ children }) {
                 </svg>
               )}
             </button>
+            <Link href="/privacy" className="header-link">
+              {t('privacyLabel')}
+            </Link>
             <Link href="/about" className="header-icon" aria-label={t('aboutLabel')}>
               <svg
                 viewBox="0 0 24 24"
