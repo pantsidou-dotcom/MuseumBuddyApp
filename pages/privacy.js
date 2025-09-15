@@ -1,25 +1,19 @@
-import Head from 'next/head';
+import SEO from '../components/SEO';
 import { useLanguage } from '../components/LanguageContext';
 
 export default function PrivacyPage() {
   const { lang } = useLanguage();
+  const title =
+    lang === 'en'
+      ? 'Privacy Policy - MuseumBuddy'
+      : 'Privacyverklaring - MuseumBuddy';
+  const description =
+    lang === 'en'
+      ? 'Learn how MuseumBuddy handles your personal data.'
+      : 'Lees hoe MuseumBuddy met jouw persoonsgegevens omgaat.';
   return (
     <>
-      <Head>
-        <title>
-          {lang === 'en'
-            ? 'Privacy Policy - MuseumBuddy'
-            : 'Privacyverklaring - MuseumBuddy'}
-        </title>
-        <meta
-          name="description"
-          content={
-            lang === 'en'
-              ? 'Learn how MuseumBuddy handles your personal data.'
-              : 'Lees hoe MuseumBuddy met jouw persoonsgegevens omgaat.'
-          }
-        />
-      </Head>
+      <SEO title={title} description={description} />
       {lang === 'en' ? (
         <>
           <h1 className="page-title">Privacy Policy</h1>

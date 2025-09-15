@@ -1,4 +1,4 @@
-import Head from 'next/head';
+import SEO from '../components/SEO';
 import MuseumCard from '../components/MuseumCard';
 import ExpositionCard from '../components/ExpositionCard';
 import { useFavorites } from '../components/FavoritesContext';
@@ -13,9 +13,7 @@ export default function FavoritesPage() {
 
   return (
     <>
-      <Head>
-        <title>{t('favoritesTitle')}</title>
-      </Head>
+      <SEO title={t('favoritesTitle')} />
       <h1 className="page-title">{t('favoritesTitle')}</h1>
       {favorites.length === 0 ? (
         <p>{t('noFavorites')}</p>
