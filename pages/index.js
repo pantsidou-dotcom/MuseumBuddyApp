@@ -19,19 +19,21 @@ function todayYMD(tz = 'Europe/Amsterdam') {
   return fmt.format(new Date());
 }
 
-export default function Home({ items, q, hasExposities }) {
+export default function Home({ items, q, hasExposities, sort: initialSort }) {
   const { t } = useLanguage();
   const [query, setQuery] = useState(q || '');
+  const [sort, setSort] = useState(initialSort || 'popular');
   const [results, setResults] = useState(items);
-  const expositiesHref = query ? `/?q=${encodeURIComponent(query)}&exposities=1` : '/?exposities=1';
+  const expositiesHref = query
+    ? `/?q=${encodeURIComponent(query)}&sort=${sort}&exposities=1`
+    : `/?sort=${sort}&exposities=1`;
 
   useEffect(() => {
     if (!supabaseClient) return;
     const timer = setTimeout(async () => {
       let db = supabaseClient
         .from('musea')
-        .select('id, naam, stad, provincie, slug, gratis_toegankelijk, ticket_affiliate_url, website_url')
-        .order('naam', { ascending: true });
+        .select('id, naam, stad, provincie, slug, gratis_toegankelijk, ticket_affiliate_url, website_url');
 
       if (query) {
         db = db.ilike('naam', `%${query}%`);
@@ -54,6 +56,11 @@ export default function Home({ items, q, hasExposities }) {
         }
       }
 
+      db =
+        sort === 'alpha'
+          ? db.order('naam', { ascending: true })
+          : db.order('popularity', { ascending: false });
+
       const { data, error } = await db;
       if (!error) {
         const filtered = (data || []).filter(
@@ -64,7 +71,7 @@ export default function Home({ items, q, hasExposities }) {
     }, 300);
 
     return () => clearTimeout(timer);
-  }, [query, hasExposities]);
+  }, [query, hasExposities, sort]);
 
   return (
     <>
@@ -79,11 +86,20 @@ export default function Home({ items, q, hasExposities }) {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
           />
+          <select
+            className="input"
+            value={sort}
+            onChange={(e) => setSort(e.target.value)}
+            aria-label={t('sortBy')}
+          >
+            <option value="popular">{t('sortPopular')}</option>
+            <option value="alpha">{t('sortAlphabetical')}</option>
+          </select>
           <a href={expositiesHref} className="btn-reset">
             {t('expositions')}
           </a>
           {(query || hasExposities) && (
-            <a href="/" className="btn-reset">
+            <a href={`/?sort=${sort}`} className="btn-reset">
               {t('reset')}
             </a>
           )}
@@ -127,11 +143,11 @@ export async function getServerSideProps({ query }) {
 
   const q = typeof query.q === 'string' ? query.q.trim() : '';
   const hasExposities = Object.prototype.hasOwnProperty.call(query, 'exposities');
+  const sort = query.sort === 'alpha' ? 'alpha' : 'popular';
 
   let db = supabase
     .from('musea')
-    .select('id, naam, stad, provincie, slug, gratis_toegankelijk, ticket_affiliate_url, website_url')
-    .order('naam', { ascending: true });
+    .select('id, naam, stad, provincie, slug, gratis_toegankelijk, ticket_affiliate_url, website_url');
 
   if (q) {
     db = db.ilike('naam', `%${q}%`);
@@ -157,6 +173,11 @@ export async function getServerSideProps({ query }) {
     db = db.in('id', ids);
   }
 
+  db =
+    sort === 'alpha'
+      ? db.order('naam', { ascending: true })
+      : db.order('popularity', { ascending: false });
+
   const { data, error } = await db;
 
   if (error) {
@@ -172,6 +193,7 @@ export async function getServerSideProps({ query }) {
       items: filtered,
       q,
       hasExposities,
+      sort,
     },
   };
 }
