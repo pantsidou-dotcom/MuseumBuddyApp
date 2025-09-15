@@ -78,25 +78,23 @@ export default function Layout({ children }) {
                 </svg>
               )}
             </button>
-            <details className="header-menu">
-              <summary className="header-icon" aria-label={t('aboutLabel')}>
-                <svg
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <rect x="3" y="3" width="18" height="18" rx="2" />
-                  <path d="M7 7h10M7 11h10M7 15h10" />
-                </svg>
-              </summary>
-              <div className="header-dropdown">
-                <Link href="/about">{t('aboutLabel')}</Link>
-                <Link href="/disclaimer">{t('disclaimerLabel')}</Link>
-              </div>
-            </details>
+            <Link
+              href="/about"
+              className="header-icon"
+              aria-label={t('aboutLabel')}
+            >
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <rect x="3" y="3" width="18" height="18" rx="2" />
+                <path d="M7 7h10M7 11h10M7 15h10" />
+              </svg>
+            </Link>
             <Link href="/favorites" className="header-icon" aria-label={t('favoritesLabel')}>
               <svg
                 viewBox="0 0 24 24"
@@ -116,6 +114,9 @@ export default function Layout({ children }) {
         </nav>
       </header>
       <main className="container">{children}</main>
+      <footer className="footer container">
+        <Link href="/disclaimer">{t('disclaimerLabel')}</Link>
+      </footer>
     </>
   );
 }
