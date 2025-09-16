@@ -55,6 +55,11 @@ export default function MuseumDetail({ museum, exposities, error }) {
   const openingHours = museum ? museumOpeningHours[museum.slug]?.[lang] : null;
   const credit = museum ? museumImageCredits[museum.slug] : null;
   const ticketUrl = museum ? museum.ticket_affiliate_url || museum.website_url : null;
+  const heroImage = museum ? museumImages[museum.slug] : null;
+  const hasHeroImage = Boolean(heroImage);
+  const locationText = museum
+    ? [museum.stad, museum.provincie].filter(Boolean).join(', ')
+    : '';
   const showAffiliateNote = museum ? shouldShowAffiliateNote(museum.slug) : true;
   const museumItem =
     museum && name
@@ -62,7 +67,7 @@ export default function MuseumDetail({ museum, exposities, error }) {
           id: museum.id,
           slug: museum.slug,
           title: name,
-          image: museumImages[museum.slug],
+          image: heroImage,
           ticketUrl,
         }
       : null;
@@ -83,115 +88,150 @@ export default function MuseumDetail({ museum, exposities, error }) {
         description={t('museumDescription', { name: name || 'museum' })}
       />
 
-      <main className="container" style={{ maxWidth: 800 }}>
-        <a href="/" className="backlink" style={{ display: 'inline-block', marginBottom: 16 }}>
-          &larr; {t('back')}
-        </a>
-
-        <h1 className="detail-title">{name}</h1>
-        <p className="detail-sub">
-          {[museum.stad, museum.provincie].filter(Boolean).join(', ')}
-        </p>
-        {openingHours && (
-          <p style={{ marginTop: 8 }}>
-            {t('openingHours')}: {openingHours}
-          </p>
+      <main className={`museum-detail${hasHeroImage ? ' has-hero' : ''}`}>
+        {hasHeroImage && (
+          <section className="museum-detail-hero">
+            <Image
+              src={heroImage}
+              alt={name}
+              fill
+              priority
+              sizes="100vw"
+              className="museum-hero-image"
+            />
+          </section>
         )}
 
-          {museumImages[museum.slug] && (
-            <div style={{ position: 'relative', width: '100%', height: 300, margin: '16px 0' }}>
-              <Image
-                src={museumImages[museum.slug]}
-                alt={name}
-                fill
-                sizes="(max-width: 800px) 100vw, 800px"
-                style={{ objectFit: 'cover' }}
-              />
-              <div className="image-credit">
-                {t('museumLabel')}: {name} — {t('imageCreditLabel')}:{' '}
-                {credit ? (
-                  <>
-                    {credit.author}
-                    {credit.license ? `, ${credit.license}` : ''}
-                    {credit.source && (
-                      <>
-                        {' '}
-                        {t('via')}{' '}
-                        <a href={credit.url} target="_blank" rel="noreferrer">
-                          {credit.source}
-                        </a>
-                      </>
+        <div className="museum-detail-container container">
+          <a href="/" className="backlink museum-backlink">
+            &larr; {t('back')}
+          </a>
+
+          <div className="museum-detail-grid">
+            <section className="museum-expositions">
+              <div className="museum-expositions-card">
+                <div className="museum-detail-header">
+                  <div>
+                    <h1 className="detail-title">{name}</h1>
+                    {locationText && <p className="detail-sub">{locationText}</p>}
+                  </div>
+                  <div className="museum-detail-actions">
+                    {museumItem && (
+                      <button
+                        className={`icon-button large${isFavorite ? ' favorited' : ''}`}
+                        aria-label={t('save')}
+                        aria-pressed={isFavorite}
+                        onClick={handleFavorite}
+                      >
+                        <svg
+                          viewBox="0 0 24 24"
+                          fill={isFavorite ? 'currentColor' : 'none'}
+                          stroke="currentColor"
+                          strokeWidth="1.5"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <path d="M21 8.25c0 4.556-9 11.25-9 11.25S3 12.806 3 8.25a5.25 5.25 0 0 1 9-3.676A5.25 5.25 0 0 1 21 8.25Z" />
+                        </svg>
+                      </button>
                     )}
-                  </>
-                ) : (
-                  t('unknown')
+                  </div>
+                </div>
+
+                <div className="museum-expositions-body">
+                  <h2 className="museum-expositions-heading">{t('expositionsTitle')}</h2>
+                  {!exposities || exposities.length === 0 ? (
+                    <p className="museum-expositions-empty">{t('noExpositions')}</p>
+                  ) : (
+                    <ul className="events-list">
+                      {exposities.map((e) => (
+                        <li key={e.id}>
+                          <ExpositionCard
+                            exposition={e}
+                            ticketUrl={ticketUrl}
+                            museumSlug={museum.slug}
+                          />
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              </div>
+            </section>
+
+            <aside className="museum-sidebar">
+              <div className="museum-sidebar-card">
+                <h2 className="museum-sidebar-title">{t('visitorInformation')}</h2>
+                <div className="museum-info-links">
+                  {museum.website_url && (
+                    <a
+                      href={museum.website_url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="museum-info-link"
+                    >
+                      {t('website')}
+                    </a>
+                  )}
+                  {museum.ticket_affiliate_url && (
+                    <a
+                      href={ticketUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="museum-info-link primary"
+                      title={t('affiliateLink')}
+                    >
+                      {t('tickets')}
+                      {showAffiliateNote && (
+                        <span className="affiliate-note">{t('affiliateLinkLabel')}</span>
+                      )}
+                    </a>
+                  )}
+                </div>
+                <div className="museum-info-details">
+                  {locationText && (
+                    <div className="museum-info-item">
+                      <span className="museum-info-label">{t('location')}</span>
+                      <p className="museum-info-value">{locationText}</p>
+                    </div>
+                  )}
+                  {openingHours && (
+                    <div className="museum-info-item">
+                      <span className="museum-info-label">{t('openingHours')}</span>
+                      <p className="museum-info-value">{openingHours}</p>
+                    </div>
+                  )}
+                </div>
+                {hasHeroImage && (
+                  <p className="museum-info-credit">
+                    <span className="museum-info-credit-label">{t('imageCreditLabel')}:</span>{' '}
+                    {credit ? (
+                      <>
+                        {credit.author}
+                        {credit.license ? `, ${credit.license}` : ''}
+                        {credit.source && (
+                          <>
+                            {' '}
+                            {t('via')}{' '}
+                            {credit.url ? (
+                              <a href={credit.url} target="_blank" rel="noreferrer">
+                                {credit.source}
+                              </a>
+                            ) : (
+                              credit.source
+                            )}
+                          </>
+                        )}
+                      </>
+                    ) : (
+                      t('unknown')
+                    )}
+                  </p>
                 )}
               </div>
-            </div>
-          )}
-
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', margin: '16px 0' }}>
-          {museum.website_url && (
-            <a
-              href={museum.website_url}
-              target="_blank"
-              rel="noreferrer"
-              className="btn-reset"
-            >
-              {t('website')}
-            </a>
-          )}
-          {museum.ticket_affiliate_url && (
-            <a
-              href={museum.ticket_affiliate_url}
-              target="_blank"
-              rel="noreferrer"
-              className="ticket-button"
-              title={t('affiliateLink')}
-            >
-              <span>{t('tickets')}</span>
-              {showAffiliateNote && (
-                <span className="affiliate-note">{t('affiliateLinkLabel')}</span>
-              )}
-            </a>
-          )}
-          {museumItem && (
-            <button
-              className={`icon-button large${isFavorite ? ' favorited' : ''}`}
-              aria-label={t('save')}
-              aria-pressed={isFavorite}
-              onClick={handleFavorite}
-            >
-              <svg
-                viewBox="0 0 24 24"
-                fill={isFavorite ? 'currentColor' : 'none'}
-                stroke="currentColor"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M21 8.25c0 4.556-9 11.25-9 11.25S3 12.806 3 8.25a5.25 5.25 0 0 1 9-3.676A5.25 5.25 0 0 1 21 8.25Z" />
-              </svg>
-            </button>
-          )}
+            </aside>
+          </div>
         </div>
-
-        <h2 className="page-title">{t('expositionsTitle')}</h2>
-        {!exposities || exposities.length === 0 ? (
-          <p>{t('noExpositions')}</p>
-        ) : (
-          <ul className="events-list">
-            {exposities.map((e) => (
-              <li key={e.id}>
-                <ExpositionCard
-                  exposition={e}
-                  ticketUrl={ticketUrl}
-                  museumSlug={museum.slug}
-                />
-              </li>
-            ))}
-          </ul>
-        )}
       </main>
     </>
   );
