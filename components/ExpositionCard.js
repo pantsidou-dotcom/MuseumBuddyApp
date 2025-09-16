@@ -64,17 +64,22 @@ export default function ExpositionCard({ exposition, ticketUrl, museumSlug }) {
         </h3>
       </div>
       <div className="event-card-actions">
-        <a
-          href={buyUrl || '#'}
-          target="_blank"
-          rel="noreferrer"
-          className="ticket-button"
-          aria-disabled={!buyUrl}
-          title={t('affiliateLink')}
-        >
-          <span>{t('buyTicket')}</span>
-          {showAffiliateNote && <span className="affiliate-note">{t('affiliateLinkLabel')}</span>}
-        </a>
+        {buyUrl ? (
+          <a
+            href={buyUrl}
+            target="_blank"
+            rel="noreferrer"
+            className="ticket-button"
+            title={t('affiliateLink')}
+          >
+            <span>{t('buyTicket')}</span>
+            {showAffiliateNote && <span className="affiliate-note">{t('affiliateLinkLabel')}</span>}
+          </a>
+        ) : (
+          <button type="button" className="ticket-button" disabled aria-disabled="true">
+            <span>{t('buyTicket')}</span>
+          </button>
+        )}
         <button
           className={`icon-button large${isFavorite ? ' favorited' : ''}`}
           aria-label={t('save')}
