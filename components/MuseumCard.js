@@ -7,16 +7,38 @@ import museumSummaries from '../lib/museumSummaries';
 import museumOpeningHours from '../lib/museumOpeningHours';
 import { shouldShowAffiliateNote } from '../lib/nonAffiliateMuseums';
 
+const HOVER_COLORS = ['#A7D8F0', '#77DDDD', '#F7C59F', '#D8BFD8', '#EAE0C8'];
+
+function hashKey(value) {
+  if (!value) return 0;
+  const str = String(value);
+  let hash = 0;
+  for (let i = 0; i < str.length; i += 1) {
+    hash = (hash << 5) - hash + str.charCodeAt(i);
+    hash |= 0;
+  }
+  return Math.abs(hash);
+}
+
+function getHoverColor(slug, id) {
+  const key = slug || (typeof id !== 'undefined' ? String(id) : '');
+  if (!key) {
+    return HOVER_COLORS[0];
+  }
+  const index = hashKey(key) % HOVER_COLORS.length;
+  return HOVER_COLORS[index];
+}
+
 export default function MuseumCard({ museum }) {
   if (!museum) return null;
 
   const { favorites, toggleFavorite } = useFavorites();
   const { t, lang } = useLanguage();
   const isFavorite = favorites.some((f) => f.id === museum.id && f.type === 'museum');
-  const hoverColor = useMemo(() => {
-    const colors = ['#A7D8F0', '#77DDDD', '#F7C59F', '#D8BFD8', '#EAE0C8'];
-    return colors[Math.floor(Math.random() * colors.length)];
-  }, [museum.id]);
+  const hoverColor = useMemo(
+    () => getHoverColor(museum.slug, museum.id),
+    [museum.slug, museum.id]
+  );
 
   const summary = museumSummaries[museum.slug]?.[lang] || museum.summary;
   const hours = museumOpeningHours[museum.slug]?.[lang];
@@ -101,19 +123,24 @@ export default function MuseumCard({ museum }) {
           )}
         </div>
         <div className="museum-card-ticket">
-          <a
-            href={museum.ticketUrl || '#'}
-            target="_blank"
-            rel="noreferrer"
-            className="ticket-button"
-            aria-disabled={!museum.ticketUrl}
-            title={t('affiliateLink')}
-          >
-            <span>{t('buyTicket')}</span>
-            {showAffiliateNote && (
-              <span className="affiliate-note">{t('affiliateLinkLabel')}</span>
-            )}
-          </a>
+          {museum.ticketUrl ? (
+            <a
+              href={museum.ticketUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="ticket-button"
+              title={t('affiliateLink')}
+            >
+              <span>{t('buyTicket')}</span>
+              {showAffiliateNote && (
+                <span className="affiliate-note">{t('affiliateLinkLabel')}</span>
+              )}
+            </a>
+          ) : (
+            <button type="button" className="ticket-button" disabled aria-disabled="true">
+              <span>{t('buyTicket')}</span>
+            </button>
+          )}
         </div>
         <div className="museum-card-actions">
           <button className="icon-button" aria-label={t('share')} onClick={shareMuseum}>

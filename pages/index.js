@@ -50,14 +50,23 @@ function todayYMD(tz = 'Europe/Amsterdam') {
   return fmt.format(new Date());
 }
 
-export default function Home({ items, q, hasExposities }) {
+function ensureArray(value) {
+  return Array.isArray(value) ? value : [];
+}
+
+export default function Home({ items, q, hasExposities, error }) {
   const { t } = useLanguage();
   const [query, setQuery] = useState(q || '');
-  const [results, setResults] = useState(items);
+  const [results, setResults] = useState(() => ensureArray(items));
   const expositiesHref = query ? `/?q=${encodeURIComponent(query)}&exposities=1` : '/?exposities=1';
 
   useEffect(() => {
-    if (!supabaseClient) return;
+    if (error) return;
+    setResults(ensureArray(items));
+  }, [items, error]);
+
+  useEffect(() => {
+    if (!supabaseClient || error) return;
     const timer = setTimeout(async () => {
       let db = supabaseClient
         .from('musea')
@@ -95,7 +104,18 @@ export default function Home({ items, q, hasExposities }) {
     }, 300);
 
     return () => clearTimeout(timer);
-  }, [query, hasExposities]);
+  }, [query, hasExposities, error]);
+
+  if (error) {
+    return (
+      <>
+        <SEO title={t('homeTitle')} description={t('homeDescription')} />
+        <main className="container" style={{ maxWidth: 800 }}>
+          <p>{t('somethingWrong')}</p>
+        </main>
+      </>
+    );
+  }
 
   return (
     <>
@@ -137,10 +157,10 @@ export default function Home({ items, q, hasExposities }) {
                   city: m.stad,
                   province: m.provincie,
                   free: m.gratis_toegankelijk,
-                    image: museumImages[m.slug],
-                    imageCredit: museumImageCredits[m.slug],
-                    ticketUrl:
-                      m.ticket_affiliate_url || museumTicketUrls[m.slug] || m.website_url,
+                  image: museumImages[m.slug],
+                  imageCredit: museumImageCredits[m.slug],
+                  ticketUrl:
+                    m.ticket_affiliate_url || museumTicketUrls[m.slug] || m.website_url,
                 }}
               />
             </li>
@@ -151,13 +171,28 @@ export default function Home({ items, q, hasExposities }) {
   );
 }
 
-export async function getServerSideProps({ query }) {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  const supabase = createClient(url, anon);
-
+export async function getServerSideProps({ query, res }) {
   const q = typeof query.q === 'string' ? query.q.trim() : '';
   const hasExposities = Object.prototype.hasOwnProperty.call(query, 'exposities');
+
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+  if (!url || !anon) {
+    if (res) {
+      res.statusCode = 500;
+    }
+    return {
+      props: {
+        items: [],
+        q,
+        hasExposities,
+        error: 'missingSupabase',
+      },
+    };
+  }
+
+  const supabase = createClient(url, anon);
 
   let db = supabase
     .from('musea')
@@ -203,6 +238,7 @@ export async function getServerSideProps({ query }) {
       items: sortMuseums(filtered),
       q,
       hasExposities,
+      error: null,
     },
   };
 }

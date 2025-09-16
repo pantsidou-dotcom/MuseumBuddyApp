@@ -1,12 +1,37 @@
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 
-const SITE_URL = 'https://museumbuddy.nl';
+const RAW_SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://museumbuddy.nl';
+const SITE_URL = RAW_SITE_URL.replace(/\/+$/, '');
+
+function stripQueryAndHash(pathname = '/') {
+  if (!pathname) return '/';
+  const [withoutHash] = pathname.split('#');
+  const [cleanPath] = withoutHash.split('?');
+  return cleanPath || '/';
+}
+
+function toAbsoluteUrl(baseUrl, pathname = '/') {
+  const cleanPath = stripQueryAndHash(pathname);
+  const normalizedPath = cleanPath.startsWith('/') ? cleanPath : `/${cleanPath}`;
+  return `${baseUrl}${normalizedPath}`;
+}
+
+function resolveCanonical(customCanonical, baseUrl, fallbackPath) {
+  if (!customCanonical) {
+    return toAbsoluteUrl(baseUrl, fallbackPath);
+  }
+  if (/^https?:\/\//i.test(customCanonical)) {
+    return customCanonical;
+  }
+  return toAbsoluteUrl(baseUrl, customCanonical);
+}
 
 export default function SEO({ title, description, image, canonical }) {
   const { asPath } = useRouter();
-  const url = `${SITE_URL}${asPath}`;
-  const canonicalUrl = canonical || url;
+  const pathname = stripQueryAndHash(asPath || '/');
+  const url = toAbsoluteUrl(SITE_URL, pathname);
+  const canonicalUrl = resolveCanonical(canonical, SITE_URL, pathname);
 
   return (
     <Head>
