@@ -17,6 +17,50 @@ if (!SUPABASE_URL || !SERVICE_ROLE) {
 
 const supabase = createClient(SUPABASE_URL, SERVICE_ROLE);
 
+const DEFAULT_CRAWL_INTERVAL_DAYS = 30;
+const parsedInterval = parseInt(process.env.CRAWLER_INTERVAL_DAYS || '', 10);
+const CRAWLER_INTERVAL_DAYS = Number.isFinite(parsedInterval) && parsedInterval > 0 ? parsedInterval : DEFAULT_CRAWL_INTERVAL_DAYS;
+const CRAWLER_INTERVAL_MS = CRAWLER_INTERVAL_DAYS * 24 * 60 * 60 * 1000;
+
+const CRAWLER_META_TABLE = process.env.CRAWLER_META_TABLE || 'Crawler_Table';
+const CRAWLER_META_CONFLICT_KEY = process.env.CRAWLER_META_CONFLICT_KEY || 'slug';
+const CRAWLER_ITEMS_TABLE = process.env.CRAWLER_ITEMS_TABLE || 'tempcrawl.crawler.items';
+
+const OPTIONAL_FIELD_DISABLE_VALUES = new Set(['', 'false', '0', 'null']);
+
+const resolveRequiredFieldName = (value, fallback) => {
+  if (typeof value === 'string') {
+    const trimmed = value.trim();
+    if (trimmed) return trimmed;
+  }
+  return fallback;
+};
+
+const resolveOptionalFieldName = (value, fallback = null) => {
+  if (value === undefined || value === null) return fallback;
+  if (typeof value === 'string') {
+    const trimmed = value.trim();
+    if (!trimmed) return null;
+    if (OPTIONAL_FIELD_DISABLE_VALUES.has(trimmed.toLowerCase())) return null;
+    return trimmed;
+  }
+  return value;
+};
+
+const CRAWLER_META_LAST_CRAWLED_FIELD = resolveRequiredFieldName(
+  process.env.CRAWLER_META_LAST_CRAWLED_FIELD,
+  'last_crawled_at'
+);
+
+const ITEM_FIELD_MAP = {
+  museumId: resolveRequiredFieldName(process.env.CRAWLER_ITEMS_MUSEUM_ID_FIELD, 'museum_id'),
+  title: resolveRequiredFieldName(process.env.CRAWLER_ITEMS_TITLE_FIELD, 'titel'),
+  url: resolveRequiredFieldName(process.env.CRAWLER_ITEMS_URL_FIELD, 'bron_url'),
+  isTemporary: resolveOptionalFieldName(process.env.CRAWLER_ITEMS_IS_TEMP_FIELD, 'is_tijdelijk'),
+  crawledAt: resolveRequiredFieldName(process.env.CRAWLER_ITEMS_LAST_CRAWLED_FIELD, 'last_crawled_at'),
+  slug: resolveOptionalFieldName(process.env.CRAWLER_ITEMS_SLUG_FIELD)
+};
+
 // --- UTILS ---
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const nowIso = () => new Date().toISOString();
@@ -26,6 +70,58 @@ function normalizeText(s) {
     .replace(/\s+/g, ' ')
     .replace(/\u00A0/g, ' ')
     .trim();
+}
+
+function parseDate(value) {
+  if (!value) return null;
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? null : date;
+}
+
+async function getCrawlerState(slug) {
+  try {
+    const selectColumns = ['slug', CRAWLER_META_LAST_CRAWLED_FIELD].filter(Boolean).join(',');
+    const { data, error } = await supabase
+      .from(CRAWLER_META_TABLE)
+      .select(selectColumns)
+      .eq('slug', slug)
+      .maybeSingle();
+    if (error) {
+      console.warn(`⚠️  Kon crawler status niet ophalen voor ${slug}: ${error.message}`);
+      return null;
+    }
+    return data;
+  } catch (err) {
+    console.warn(`⚠️  Kon crawler status niet ophalen voor ${slug}: ${err.message}`);
+    return null;
+  }
+}
+
+async function updateCrawlerState(slug, fields = {}) {
+  try {
+    const payload = { slug, ...fields };
+    const { error } = await supabase
+      .from(CRAWLER_META_TABLE)
+      .upsert(payload, { onConflict: CRAWLER_META_CONFLICT_KEY });
+    if (error) {
+      console.warn(`⚠️  Kon crawler status niet bijwerken voor ${slug}: ${error.message}`);
+    }
+  } catch (err) {
+    console.warn(`⚠️  Kon crawler status niet bijwerken voor ${slug}: ${err.message}`);
+  }
+}
+
+function shouldSkipCrawl(meta) {
+  const lastValue = meta ? meta[CRAWLER_META_LAST_CRAWLED_FIELD] : null;
+  const last = parseDate(lastValue);
+  if (!last) {
+    return { skip: false, lastCrawledAt: null, msSinceLast: null };
+  }
+  const msSinceLast = Date.now() - last.getTime();
+  if (msSinceLast < CRAWLER_INTERVAL_MS) {
+    return { skip: true, lastCrawledAt: last, msSinceLast };
+  }
+  return { skip: false, lastCrawledAt: last, msSinceLast };
 }
 
 async function getMuseumBySlug(slug) {
@@ -38,18 +134,30 @@ async function getMuseumBySlug(slug) {
   return data;
 }
 
-async function existingTitlesForMuseum(museumId) {
-  const { data, error } = await supabase
-    .from('exposities')
-    .select('titel')
-    .eq('museum_id', museumId);
-  if (error) return new Set();
-  return new Set((data || []).map((r) => (r.titel || '').toLowerCase()));
+async function existingTitlesForMuseum(museumId, slug) {
+  try {
+    let query = supabase.from(CRAWLER_ITEMS_TABLE).select(ITEM_FIELD_MAP.title);
+    if (ITEM_FIELD_MAP.museumId) {
+      query = query.eq(ITEM_FIELD_MAP.museumId, museumId);
+    }
+    if (ITEM_FIELD_MAP.slug && slug) {
+      query = query.eq(ITEM_FIELD_MAP.slug, slug);
+    }
+    const { data, error } = await query;
+    if (error) {
+      console.warn(`⚠️  Kon bestaande titels niet ophalen voor museum ${museumId}: ${error.message}`);
+      return new Set();
+    }
+    return new Set((data || []).map((r) => ((r?.[ITEM_FIELD_MAP.title] || '')).toLowerCase()));
+  } catch (err) {
+    console.warn(`⚠️  Kon bestaande titels niet ophalen voor museum ${museumId}: ${err.message}`);
+    return new Set();
+  }
 }
 
-async function insertExpositions(rows) {
+async function insertCrawlerItems(rows) {
   if (!rows.length) return { inserted: 0 };
-  const { error } = await supabase.from('exposities').insert(rows);
+  const { error } = await supabase.from(CRAWLER_ITEMS_TABLE).insert(rows);
   if (error) throw error;
   return { inserted: rows.length };
 }
@@ -152,6 +260,26 @@ async function crawlTarget(target) {
     urlCandidates = [urlCandidates];
   }
 
+  const meta = await getCrawlerState(slug);
+  const skipInfo = shouldSkipCrawl(meta);
+  if (skipInfo.skip) {
+    const remainingMs = CRAWLER_INTERVAL_MS - (skipInfo.msSinceLast || 0);
+    const remainingDays = remainingMs > 0 ? Math.ceil(remainingMs / (24 * 60 * 60 * 1000)) : 0;
+    console.log(
+      `⏭️  Skip ${slug}: laatst gecrawld op ${skipInfo.lastCrawledAt.toISOString()} (nog ~${remainingDays} dag(en) wachten)`
+    );
+    return {
+      slug,
+      found: 0,
+      inserted: 0,
+      skippedDup: 0,
+      ok: true,
+      skipped: true,
+      reason: 'recently_crawled',
+      lastCrawledAt: skipInfo.lastCrawledAt.toISOString()
+    };
+  }
+
   const museum = await getMuseumBySlug(slug);
 
   // HTML ophalen (probeer meerdere URL-kandidaten + varianten)
@@ -178,10 +306,12 @@ async function crawlTarget(target) {
       .slice(0, maxItems);
   }
 
-  const existing = await existingTitlesForMuseum(museum.id);
+  const existing = await existingTitlesForMuseum(museum.id, slug);
 
   const rows = [];
   let skippedDup = 0;
+
+  const crawlTimestamp = nowIso();
 
   nodes.each((_, el) => {
     const context = $(el);
@@ -215,20 +345,28 @@ async function crawlTarget(target) {
       return;
     }
 
-    rows.push({
-      museum_id: museum.id,
-      titel,
-      bron_url,
-      is_tijdelijk: true,
-      last_crawled_at: nowIso()
-    });
+    const row = {
+      [ITEM_FIELD_MAP.museumId]: museum.id,
+      [ITEM_FIELD_MAP.title]: titel,
+      [ITEM_FIELD_MAP.url]: bron_url,
+      [ITEM_FIELD_MAP.crawledAt]: crawlTimestamp
+    };
+    if (ITEM_FIELD_MAP.isTemporary) {
+      row[ITEM_FIELD_MAP.isTemporary] = true;
+    }
+    if (ITEM_FIELD_MAP.slug) {
+      row[ITEM_FIELD_MAP.slug] = slug;
+    }
+    rows.push(row);
   });
 
   let inserted = 0;
   if (rows.length) {
-    const resInsert = await insertExpositions(rows);
+    const resInsert = await insertCrawlerItems(rows);
     inserted = resInsert.inserted || 0;
   }
+
+  await updateCrawlerState(slug, { [CRAWLER_META_LAST_CRAWLED_FIELD]: crawlTimestamp });
 
   return { slug, found: nodes.length, inserted, skippedDup, ok: true };
 }
@@ -261,8 +399,11 @@ async function main() {
 
   console.log('--- CRAWL SUMMARY ---');
   for (const s of summary) {
-    if (s.ok) {
-      console.log(`✅ ${s.slug} → found: ${s.found}, inserted: ${s.inserted}${typeof s.skippedDup === 'number' ? `, skippedDup: ${s.skippedDup}` : ''}`);
+    if (s.skipped) {
+      console.log(`⏭️ ${s.slug} → overgeslagen (laatste crawl: ${s.lastCrawledAt || 'onbekend'})`);
+    } else if (s.ok) {
+      const dupPart = typeof s.skippedDup === 'number' ? `, skippedDup: ${s.skippedDup}` : '';
+      console.log(`✅ ${s.slug} → found: ${s.found}, inserted: ${s.inserted}${dupPart}`);
     } else {
       console.log(`❌ ${s.slug} → ${s.error || 'unknown error'}`);
     }
