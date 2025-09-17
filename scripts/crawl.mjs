@@ -15,7 +15,117 @@ if (!SUPABASE_URL || !SERVICE_ROLE) {
   process.exit(1);
 }
 
-const supabase = createClient(SUPABASE_URL, SERVICE_ROLE);
+const SUPABASE_AUTH_OPTIONS = {
+  persistSession: false,
+  autoRefreshToken: false
+};
+
+const supabase = createClient(SUPABASE_URL, SERVICE_ROLE, {
+  auth: { ...SUPABASE_AUTH_OPTIONS },
+  db: { schema: 'public' }
+});
+
+const SUPABASE_SCHEMA_CLIENTS = new Map([
+  ['public', supabase]
+]);
+
+function getSupabaseClientForSchema(schema) {
+  const key = schema && schema.trim() ? schema.trim() : 'public';
+  const existing = SUPABASE_SCHEMA_CLIENTS.get(key);
+  if (existing) return existing;
+  const client = createClient(SUPABASE_URL, SERVICE_ROLE, {
+    auth: { ...SUPABASE_AUTH_OPTIONS },
+    db: { schema: key }
+  });
+  SUPABASE_SCHEMA_CLIENTS.set(key, client);
+  return client;
+}
+
+const DEFAULT_CRAWL_INTERVAL_DAYS = 30;
+const parsedInterval = parseInt(process.env.CRAWLER_INTERVAL_DAYS || '', 10);
+const CRAWLER_INTERVAL_DAYS = Number.isFinite(parsedInterval) && parsedInterval > 0 ? parsedInterval : DEFAULT_CRAWL_INTERVAL_DAYS;
+const CRAWLER_INTERVAL_MS = CRAWLER_INTERVAL_DAYS * 24 * 60 * 60 * 1000;
+
+const CRAWLER_META_TABLE = process.env.CRAWLER_META_TABLE || 'Crawler_Table';
+const CRAWLER_META_CONFLICT_KEY = process.env.CRAWLER_META_CONFLICT_KEY || 'slug';
+const CRAWLER_ITEMS_TABLE = process.env.CRAWLER_ITEMS_TABLE || 'tempcrawl.crawler.items';
+
+const OPTIONAL_FIELD_DISABLE_VALUES = new Set(['', 'false', '0', 'null']);
+
+const resolveRequiredFieldName = (value, fallback) => {
+  if (typeof value === 'string') {
+    const trimmed = value.trim();
+    if (trimmed) return trimmed;
+  }
+  return fallback;
+};
+
+const resolveOptionalFieldName = (value, fallback = null) => {
+  if (value === undefined || value === null) return fallback;
+  if (typeof value === 'string') {
+    const trimmed = value.trim();
+    if (!trimmed) return null;
+    if (OPTIONAL_FIELD_DISABLE_VALUES.has(trimmed.toLowerCase())) return null;
+    return trimmed;
+  }
+  return value;
+};
+
+const CRAWLER_META_LAST_CRAWLED_FIELD = resolveRequiredFieldName(
+  process.env.CRAWLER_META_LAST_CRAWLED_FIELD,
+  'last_crawled_at'
+);
+
+const ITEM_FIELD_MAP = {
+  museumId: resolveRequiredFieldName(process.env.CRAWLER_ITEMS_MUSEUM_ID_FIELD, 'museum_id'),
+  title: resolveRequiredFieldName(process.env.CRAWLER_ITEMS_TITLE_FIELD, 'titel'),
+  url: resolveRequiredFieldName(process.env.CRAWLER_ITEMS_URL_FIELD, 'bron_url'),
+  isTemporary: resolveOptionalFieldName(process.env.CRAWLER_ITEMS_IS_TEMP_FIELD, 'is_tijdelijk'),
+  crawledAt: resolveRequiredFieldName(process.env.CRAWLER_ITEMS_LAST_CRAWLED_FIELD, 'last_crawled_at'),
+  slug: resolveOptionalFieldName(process.env.CRAWLER_ITEMS_SLUG_FIELD)
+};
+
+function parseTableIdentifier(rawValue, label) {
+  const value = typeof rawValue === 'string' ? rawValue.trim() : '';
+  if (!value) {
+    throw new Error(`${label} heeft een lege of ontbrekende tabelnaam.`);
+  }
+  const segments = value.split('.').filter(Boolean);
+  if (!segments.length) {
+    throw new Error(`${label} bevat een ongeldige tabelnaam: ${rawValue}`);
+  }
+  if (segments.length === 1) {
+    return { raw: value, schema: null, name: segments[0] };
+  }
+  const [schema, ...rest] = segments;
+  return { raw: value, schema, name: rest.join('.') };
+}
+
+function parseTableOrExit(rawValue, label) {
+  try {
+    return parseTableIdentifier(rawValue, label);
+  } catch (err) {
+    console.error(`❌ ${err.message}`);
+    process.exit(1);
+  }
+}
+
+const META_TABLE = parseTableOrExit(CRAWLER_META_TABLE, 'CRAWLER_META_TABLE');
+const ITEMS_TABLE = parseTableOrExit(CRAWLER_ITEMS_TABLE, 'CRAWLER_ITEMS_TABLE');
+
+function fromTable(def) {
+  return getSupabaseClientForSchema(def.schema).from(def.name);
+}
+
+const fromMetaTable = () => fromTable(META_TABLE);
+const fromItemsTable = () => fromTable(ITEMS_TABLE);
+
+function describeTable(def) {
+  return `${def.raw} (schema: ${def.schema || 'public'})`;
+}
+
+console.log(`ℹ️  Gebruik crawler meta table: ${describeTable(META_TABLE)}`);
+console.log(`ℹ️  Gebruik crawler items table: ${describeTable(ITEMS_TABLE)}`);
 
 const DEFAULT_CRAWL_INTERVAL_DAYS = 30;
 const parsedInterval = parseInt(process.env.CRAWLER_INTERVAL_DAYS || '', 10);
@@ -81,8 +191,7 @@ function parseDate(value) {
 async function getCrawlerState(slug) {
   try {
     const selectColumns = ['slug', CRAWLER_META_LAST_CRAWLED_FIELD].filter(Boolean).join(',');
-    const { data, error } = await supabase
-      .from(CRAWLER_META_TABLE)
+    const { data, error } = await fromMetaTable()
       .select(selectColumns)
       .eq('slug', slug)
       .maybeSingle();
@@ -100,8 +209,7 @@ async function getCrawlerState(slug) {
 async function updateCrawlerState(slug, fields = {}) {
   try {
     const payload = { slug, ...fields };
-    const { error } = await supabase
-      .from(CRAWLER_META_TABLE)
+    const { error } = await fromMetaTable()
       .upsert(payload, { onConflict: CRAWLER_META_CONFLICT_KEY });
     if (error) {
       console.warn(`⚠️  Kon crawler status niet bijwerken voor ${slug}: ${error.message}`);
@@ -136,7 +244,7 @@ async function getMuseumBySlug(slug) {
 
 async function existingTitlesForMuseum(museumId, slug) {
   try {
-    let query = supabase.from(CRAWLER_ITEMS_TABLE).select(ITEM_FIELD_MAP.title);
+    let query = fromItemsTable().select(ITEM_FIELD_MAP.title);
     if (ITEM_FIELD_MAP.museumId) {
       query = query.eq(ITEM_FIELD_MAP.museumId, museumId);
     }
@@ -148,7 +256,15 @@ async function existingTitlesForMuseum(museumId, slug) {
       console.warn(`⚠️  Kon bestaande titels niet ophalen voor museum ${museumId}: ${error.message}`);
       return new Set();
     }
-    return new Set((data || []).map((r) => ((r?.[ITEM_FIELD_MAP.title] || '')).toLowerCase()));
+    const titleKey = ITEM_FIELD_MAP.title;
+    const existing = new Set();
+    for (const row of data || []) {
+      const value = row?.[titleKey];
+      if (value === undefined || value === null) continue;
+      const normalized = String(value).trim().toLowerCase();
+      if (normalized) existing.add(normalized);
+    }
+    return existing;
   } catch (err) {
     console.warn(`⚠️  Kon bestaande titels niet ophalen voor museum ${museumId}: ${err.message}`);
     return new Set();
@@ -157,7 +273,7 @@ async function existingTitlesForMuseum(museumId, slug) {
 
 async function insertCrawlerItems(rows) {
   if (!rows.length) return { inserted: 0 };
-  const { error } = await supabase.from(CRAWLER_ITEMS_TABLE).insert(rows);
+  const { error } = await fromItemsTable().insert(rows);
   if (error) throw error;
   return { inserted: rows.length };
 }
