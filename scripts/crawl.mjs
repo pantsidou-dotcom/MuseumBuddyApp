@@ -36,7 +36,7 @@ const CRAWLER_INTERVAL_MS = CRAWLER_INTERVAL_DAYS * 24 * 60 * 60 * 1000;
 
 const CRAWLER_META_TABLE = process.env.CRAWLER_META_TABLE || 'Crawler_Table';
 const CRAWLER_META_CONFLICT_KEY = process.env.CRAWLER_META_CONFLICT_KEY || 'slug';
-const CRAWLER_ITEMS_TABLE = process.env.CRAWLER_ITEMS_TABLE || 'tempcrawl.crawler.items';
+const CRAWLER_ITEMS_TABLE = process.env.CRAWLER_ITEMS_TABLE || 'tempcrawler.crawler_item';
 
 const OPTIONAL_FIELD_DISABLE_VALUES = new Set(['', 'false', '0', 'null']);
 
