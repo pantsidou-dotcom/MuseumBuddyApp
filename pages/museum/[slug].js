@@ -93,14 +93,3 @@ export default function MuseumDetail() {
               {exposities.map((e) => (
                 <li key={e.id}>
                   {e.titel} — {e.begin_datum} / {e.eind_datum || 'open eind'}
-                </li>
-              ))}
-            </ul>
-          </>
-        ) : (
-          <p>{t('noResults')}</p>
-        )}
-      </main>
-    </>
-  );
-}
