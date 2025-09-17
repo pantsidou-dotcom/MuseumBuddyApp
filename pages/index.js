@@ -1,5 +1,5 @@
-import { createClient } from '@supabase/supabase-js';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { useRouter } from 'next/router';
 import MuseumCard from '../components/MuseumCard';
 import museumImages from '../lib/museumImages';
 import museumNames from '../lib/museumNames';
@@ -25,17 +25,12 @@ function sortMuseums(museums) {
   return [...museums].sort((a, b) => {
     const aIndex = FEATURED_SLUGS.indexOf(a.slug);
     const bIndex = FEATURED_SLUGS.indexOf(b.slug);
-
     const aFeatured = aIndex !== -1;
     const bFeatured = bIndex !== -1;
-
     if (aFeatured || bFeatured) {
-      if (aFeatured && bFeatured) {
-        return aIndex - bIndex;
-      }
+      if (aFeatured && bFeatured) return aIndex - bIndex;
       return aFeatured ? -1 : 1;
     }
-
     return a.naam.localeCompare(b.naam);
   });
 }
@@ -50,61 +45,91 @@ function todayYMD(tz = 'Europe/Amsterdam') {
   return fmt.format(new Date());
 }
 
-function ensureArray(value) {
-  return Array.isArray(value) ? value : [];
-}
-
-export default function Home({ items, q, hasExposities, error }) {
+export default function Home() {
   const { t } = useLanguage();
-  const [query, setQuery] = useState(q || '');
-  const [results, setResults] = useState(() => ensureArray(items));
-  const expositiesHref = query ? `/?q=${encodeURIComponent(query)}&exposities=1` : '/?exposities=1';
+  const router = useRouter();
+
+  const qFromUrl = useMemo(() => {
+    const q = router.query?.q;
+    return typeof q === 'string' ? q.trim() : '';
+  }, [router.query]);
+
+  const hasExposities = useMemo(() => {
+    return Object.prototype.hasOwnProperty.call(router.query || {}, 'exposities');
+  }, [router.query]);
+
+  const [query, setQuery] = useState('');
+  const [results, setResults] = useState([]);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    if (error) return;
-    setResults(ensureArray(items));
-  }, [items, error]);
+    if (!router.isReady) return;
+    setQuery(qFromUrl);
+  }, [router.isReady, qFromUrl]);
+
+  const expositiesHref = useMemo(() => {
+    return query ? `/?q=${encodeURIComponent(query)}&exposities=1` : '/?exposities=1';
+  }, [query]);
 
   useEffect(() => {
-    if (!supabaseClient || error) return;
-    const timer = setTimeout(async () => {
-      let db = supabaseClient
-        .from('musea')
-        .select('id, naam, stad, provincie, slug, gratis_toegankelijk, ticket_affiliate_url, website_url')
-        .order('naam', { ascending: true });
+    if (!router.isReady) return;
+    if (!supabaseClient) {
+      setError('missingSupabase');
+      return;
+    }
+    let isCancelled = false;
 
-      if (query) {
-        db = db.ilike('naam', `%${query}%`);
-      }
+    const run = async () => {
+      try {
+        let db = supabaseClient
+          .from('musea')
+          .select('id, naam, stad, provincie, slug, gratis_toegankelijk, ticket_affiliate_url, website_url')
+          .order('naam', { ascending: true });
 
-      if (hasExposities) {
-        const today = todayYMD('Europe/Amsterdam');
-        const { data: exRows, error: exError } = await supabaseClient
-          .from('exposities')
-          .select('museum_id')
-          .or(`eind_datum.gte.${today},eind_datum.is.null`);
+        if (query) db = db.ilike('naam', `%${query}%`);
 
-        if (!exError) {
-          const ids = [...new Set((exRows || []).map((e) => e.museum_id))];
-          if (ids.length === 0) {
-            setResults([]);
-            return;
+        if (hasExposities) {
+          const today = todayYMD('Europe/Amsterdam');
+          const { data: exRows, error: exError } = await supabaseClient
+            .from('exposities')
+            .select('museum_id')
+            .or(`eind_datum.gte.${today},eind_datum.is.null`);
+
+          if (!exError) {
+            const ids = [...new Set((exRows || []).map((e) => e.museum_id))];
+            if (ids.length === 0) {
+              if (!isCancelled) setResults([]);
+              return;
+            }
+            db = db.in('id', ids);
           }
-          db = db.in('id', ids);
         }
-      }
 
-      const { data, error } = await db;
-      if (!error) {
+        const { data, error } = await db;
+        if (error) {
+          if (!isCancelled) setError('queryFailed');
+          return;
+        }
+
         const filtered = (data || []).filter(
           (m) => m.slug !== 'amsterdam-tulip-museum-amsterdam'
         );
-        setResults(sortMuseums(filtered));
-      }
-    }, 300);
 
-    return () => clearTimeout(timer);
-  }, [query, hasExposities, error]);
+        if (!isCancelled) {
+          setResults(sortMuseums(filtered));
+          setError(null);
+        }
+      } catch {
+        if (!isCancelled) setError('unknown');
+      }
+    };
+
+    const timer = setTimeout(run, 200);
+    return () => {
+      isCancelled = true;
+      clearTimeout(timer);
+    };
+  }, [router.isReady, query, hasExposities]);
 
   if (error) {
     return (
@@ -120,7 +145,6 @@ export default function Home({ items, q, hasExposities, error }) {
   return (
     <>
       <SEO title={t('homeTitle')} description={t('homeDescription')} />
-
       <form className="controls" onSubmit={(e) => e.preventDefault()}>
         <div className="control-row">
           <input
@@ -159,8 +183,7 @@ export default function Home({ items, q, hasExposities, error }) {
                   free: m.gratis_toegankelijk,
                   image: museumImages[m.slug],
                   imageCredit: museumImageCredits[m.slug],
-                  ticketUrl:
-                    m.ticket_affiliate_url || museumTicketUrls[m.slug] || m.website_url,
+                  ticketUrl: m.ticket_affiliate_url || museumTicketUrls[m.slug] || m.website_url,
                 }}
               />
             </li>
@@ -169,76 +192,4 @@ export default function Home({ items, q, hasExposities, error }) {
       )}
     </>
   );
-}
-
-export async function getServerSideProps({ query, res }) {
-  const q = typeof query.q === 'string' ? query.q.trim() : '';
-  const hasExposities = Object.prototype.hasOwnProperty.call(query, 'exposities');
-
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-  if (!url || !anon) {
-    if (res) {
-      res.statusCode = 500;
-    }
-    return {
-      props: {
-        items: [],
-        q,
-        hasExposities,
-        error: 'missingSupabase',
-      },
-    };
-  }
-
-  const supabase = createClient(url, anon);
-
-  let db = supabase
-    .from('musea')
-    .select('id, naam, stad, provincie, slug, gratis_toegankelijk, ticket_affiliate_url, website_url')
-    .order('naam', { ascending: true });
-
-  if (q) {
-    db = db.ilike('naam', `%${q}%`);
-  }
-
-  if (hasExposities) {
-    const today = todayYMD('Europe/Amsterdam');
-    const { data: exRows, error: exError } = await supabase
-      .from('exposities')
-      .select('museum_id')
-      .or(`eind_datum.gte.${today},eind_datum.is.null`);
-
-    if (exError) {
-      return { props: { items: [], q, hasExposities } };
-    }
-
-    const ids = [...new Set((exRows || []).map((e) => e.museum_id))];
-
-    if (ids.length === 0) {
-      return { props: { items: [], q, hasExposities } };
-    }
-
-    db = db.in('id', ids);
-  }
-
-  const { data, error } = await db;
-
-  if (error) {
-    return { props: { items: [], q, hasExposities } };
-  }
-
-  const filtered = (data || []).filter(
-    (m) => m.slug !== 'amsterdam-tulip-museum-amsterdam'
-  );
-
-  return {
-    props: {
-      items: sortMuseums(filtered),
-      q,
-      hasExposities,
-      error: null,
-    },
-  };
 }
