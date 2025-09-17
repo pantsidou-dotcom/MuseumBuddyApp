@@ -1,21 +1,20 @@
 // next.config.js
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Voor Capacitor hebben we een statische export nodig
+  output: 'export',
+
+  // Zet images op 'unoptimized' zodat Next/Image geen server nodig heeft
   images: {
-    // Gebruik remotePatterns voor externe bronnen zoals Wikimedia/Unsplash
+    unoptimized: true,
     remotePatterns: [
       { protocol: 'https', hostname: 'upload.wikimedia.org' },
       { protocol: 'https', hostname: 'images.unsplash.com' },
-      // Optioneel: vang extra subdomeinen van Wikimedia op
-      { protocol: 'https', hostname: '**.wikimedia.org' },
-      // Voeg hier later extra domeinen toe als je crawler die gebruikt
-      // { protocol: 'https', hostname: 'example-museum.nl' },
+      { protocol: 'https', hostname: '**.wikimedia.org' }
     ],
   },
-  i18n: {
-    locales: ['en', 'nl'],
-    defaultLocale: 'en',
-  },
+
+  // Let op: i18n is tijdelijk verwijderd omdat output: 'export' geen i18n ondersteunt
 };
 
 module.exports = nextConfig;

@@ -6,12 +6,19 @@
     "build": "next build",
     "start": "next start",
     "crawl": "node scripts/crawl.mjs",
-    "test": "node tests/affiliateLink.test.cjs"
+    "test": "node tests/affiliateLink.test.cjs",
+    "build:web": "next build",
+    "cap:copy": "npx cap copy",
+    "cap:sync": "npx cap sync"
   },
   "engines": {
     "node": "20.x"
   },
   "dependencies": {
+    "@capacitor/android": "7.4.3",
+    "@capacitor/cli": "7.4.3",
+    "@capacitor/core": "7.4.3",
+    "@capacitor/ios": "7.4.3",
     "@supabase/supabase-js": "^2.45.0",
     "axios": "^1.7.7",
     "cheerio": "^1.0.0-rc.12",

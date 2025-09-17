@@ -1,0 +1,8 @@
+{
+  "appId": "com.museumbuddy.app",
+  "appName": "MuseumBuddy",
+  "webDir": "out",
+  "server": {
+    "androidScheme": "https"
+  }
+}

@@ -16,3 +16,4 @@ components/Header.js
 components/MuseumCard.jsx
 components/MuseumCard.styles.js
 lib/museums.js
+out/

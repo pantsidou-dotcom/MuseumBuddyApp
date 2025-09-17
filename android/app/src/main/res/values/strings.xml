@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">MuseumBuddy</string>
+    <string name="title_activity_main">MuseumBuddy</string>
+    <string name="package_name">com.museumbuddy.app</string>
+    <string name="custom_url_scheme">com.museumbuddy.app</string>
+</resources>
