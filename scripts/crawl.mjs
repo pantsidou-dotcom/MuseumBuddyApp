@@ -127,6 +127,50 @@ function describeTable(def) {
 console.log(`ℹ️  Gebruik crawler meta table: ${describeTable(META_TABLE)}`);
 console.log(`ℹ️  Gebruik crawler items table: ${describeTable(ITEMS_TABLE)}`);
 
+const DEFAULT_CRAWL_INTERVAL_DAYS = 30;
+const parsedInterval = parseInt(process.env.CRAWLER_INTERVAL_DAYS || '', 10);
+const CRAWLER_INTERVAL_DAYS = Number.isFinite(parsedInterval) && parsedInterval > 0 ? parsedInterval : DEFAULT_CRAWL_INTERVAL_DAYS;
+const CRAWLER_INTERVAL_MS = CRAWLER_INTERVAL_DAYS * 24 * 60 * 60 * 1000;
+
+const CRAWLER_META_TABLE = process.env.CRAWLER_META_TABLE || 'Crawler_Table';
+const CRAWLER_META_CONFLICT_KEY = process.env.CRAWLER_META_CONFLICT_KEY || 'slug';
+const CRAWLER_ITEMS_TABLE = process.env.CRAWLER_ITEMS_TABLE || 'tempcrawl.crawler.items';
+
+const OPTIONAL_FIELD_DISABLE_VALUES = new Set(['', 'false', '0', 'null']);
+
+const resolveRequiredFieldName = (value, fallback) => {
+  if (typeof value === 'string') {
+    const trimmed = value.trim();
+    if (trimmed) return trimmed;
+  }
+  return fallback;
+};
+
+const resolveOptionalFieldName = (value, fallback = null) => {
+  if (value === undefined || value === null) return fallback;
+  if (typeof value === 'string') {
+    const trimmed = value.trim();
+    if (!trimmed) return null;
+    if (OPTIONAL_FIELD_DISABLE_VALUES.has(trimmed.toLowerCase())) return null;
+    return trimmed;
+  }
+  return value;
+};
+
+const CRAWLER_META_LAST_CRAWLED_FIELD = resolveRequiredFieldName(
+  process.env.CRAWLER_META_LAST_CRAWLED_FIELD,
+  'last_crawled_at'
+);
+
+const ITEM_FIELD_MAP = {
+  museumId: resolveRequiredFieldName(process.env.CRAWLER_ITEMS_MUSEUM_ID_FIELD, 'museum_id'),
+  title: resolveRequiredFieldName(process.env.CRAWLER_ITEMS_TITLE_FIELD, 'titel'),
+  url: resolveRequiredFieldName(process.env.CRAWLER_ITEMS_URL_FIELD, 'bron_url'),
+  isTemporary: resolveOptionalFieldName(process.env.CRAWLER_ITEMS_IS_TEMP_FIELD, 'is_tijdelijk'),
+  crawledAt: resolveRequiredFieldName(process.env.CRAWLER_ITEMS_LAST_CRAWLED_FIELD, 'last_crawled_at'),
+  slug: resolveOptionalFieldName(process.env.CRAWLER_ITEMS_SLUG_FIELD)
+};
+
 // --- UTILS ---
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const nowIso = () => new Date().toISOString();
