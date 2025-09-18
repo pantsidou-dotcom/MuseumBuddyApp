@@ -149,6 +149,10 @@ img { max-width: 100%; height: auto; display: block; }
   .brand-title { display: none; }
   .navbar { padding: 16px 12px; }
   .header-actions { gap: 8px; }
+  .header {
+    backdrop-filter: none;
+    background: var(--bg);
+  }
 }
 
 .page-title { margin: 8px 0 4px; font-size: 28px; font-weight: 700; }
@@ -526,18 +530,6 @@ img { max-width: 100%; height: auto; display: block; }
   display: flex;
   flex-direction: column;
   gap: 16px;
-}
-
-@supports (content-visibility: auto) {
-  .event-card {
-    content-visibility: auto;
-    contain-intrinsic-size: 280px;
-  }
-  .museum-expositions-card,
-  .museum-sidebar-card {
-    content-visibility: auto;
-    contain-intrinsic-size: 420px;
-  }
 }
 
 .event-card {

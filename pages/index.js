@@ -45,7 +45,7 @@ function todayYMD(tz = 'Europe/Amsterdam') {
   return fmt.format(new Date());
 }
 
-export default function Home() {
+export default function Home({ initialMuseums = [], initialError = null }) {
   const { t } = useLanguage();
   const router = useRouter();
 
@@ -58,9 +58,12 @@ export default function Home() {
     return Object.prototype.hasOwnProperty.call(router.query || {}, 'exposities');
   }, [router.query]);
 
+  const initialMuseumsSorted = useMemo(() => sortMuseums(initialMuseums || []), [initialMuseums]);
+  const shouldUseInitialData = !qFromUrl && !hasExposities && initialMuseumsSorted.length > 0;
+
   const [query, setQuery] = useState('');
-  const [results, setResults] = useState([]);
-  const [error, setError] = useState(null);
+  const [results, setResults] = useState(() => (shouldUseInitialData ? initialMuseumsSorted : []));
+  const [error, setError] = useState(() => (shouldUseInitialData ? initialError : null));
 
   useEffect(() => {
     if (!router.isReady) return;
@@ -73,10 +76,21 @@ export default function Home() {
 
   useEffect(() => {
     if (!router.isReady) return;
+
+    const usingDefaultFilters = !query && !hasExposities;
+
+    if (usingDefaultFilters && initialMuseumsSorted.length > 0) {
+      setResults(initialMuseumsSorted);
+      setError(initialError ?? null);
+      return;
+    }
+
     if (!supabaseClient) {
+      setResults([]);
       setError('missingSupabase');
       return;
     }
+
     let isCancelled = false;
 
     const run = async () => {
@@ -98,15 +112,18 @@ export default function Home() {
           if (!exError) {
             const ids = [...new Set((exRows || []).map((e) => e.museum_id))];
             if (ids.length === 0) {
-              if (!isCancelled) setResults([]);
+              if (!isCancelled) {
+                setResults([]);
+                setError(null);
+              }
               return;
             }
             db = db.in('id', ids);
           }
         }
 
-        const { data, error } = await db;
-        if (error) {
+        const { data, error: queryError } = await db;
+        if (queryError) {
           if (!isCancelled) setError('queryFailed');
           return;
         }
@@ -124,12 +141,21 @@ export default function Home() {
       }
     };
 
-    const timer = setTimeout(run, 200);
+    const delay = query || hasExposities ? 200 : 0;
+    const timer = setTimeout(run, delay);
     return () => {
       isCancelled = true;
       clearTimeout(timer);
     };
-  }, [router.isReady, query, hasExposities]);
+  }, [router.isReady, query, hasExposities, initialMuseumsSorted, initialError]);
+
+  useEffect(() => {
+    if (!router.isReady) return;
+    if (!query && !hasExposities && initialMuseumsSorted.length > 0) {
+      setResults(initialMuseumsSorted);
+      setError(initialError ?? null);
+    }
+  }, [router.isReady, query, hasExposities, initialMuseumsSorted, initialError]);
 
   if (error) {
     return (
@@ -192,4 +218,51 @@ export default function Home() {
       )}
     </>
   );
+}
+
+export async function getStaticProps() {
+  if (!supabaseClient) {
+    return {
+      props: {
+        initialMuseums: [],
+        initialError: 'missingSupabase',
+      },
+      revalidate: 600,
+    };
+  }
+
+  try {
+    const { data, error } = await supabaseClient
+      .from('musea')
+      .select('id, naam, stad, provincie, slug, gratis_toegankelijk, ticket_affiliate_url, website_url')
+      .order('naam', { ascending: true });
+
+    if (error) {
+      return {
+        props: {
+          initialMuseums: [],
+          initialError: 'queryFailed',
+        },
+        revalidate: 600,
+      };
+    }
+
+    const filtered = (data || []).filter((m) => m.slug !== 'amsterdam-tulip-museum-amsterdam');
+
+    return {
+      props: {
+        initialMuseums: sortMuseums(filtered),
+        initialError: null,
+      },
+      revalidate: 1800,
+    };
+  } catch (err) {
+    return {
+      props: {
+        initialMuseums: [],
+        initialError: 'unknown',
+      },
+      revalidate: 600,
+    };
+  }
 }
