@@ -19,7 +19,7 @@ function formatRange(start, end, locale) {
   return `${startFmt} - ${endFmt}`;
 }
 
-export default function ExpositionCard({ exposition, ticketUrl, museumSlug }) {
+export default function ExpositionCard({ exposition, ticketUrl, affiliateUrl, museumSlug }) {
   if (!exposition) return null;
 
   const start = exposition.start_datum ? new Date(exposition.start_datum + 'T00:00:00') : null;
@@ -29,9 +29,12 @@ export default function ExpositionCard({ exposition, ticketUrl, museumSlug }) {
   const locale = lang === 'en' ? 'en-US' : 'nl-NL';
   const rangeLabel = formatRange(start, end, locale);
   const isFavorite = favorites.some((f) => f.id === exposition.id && f.type === 'exposition');
-  const buyUrl = ticketUrl || exposition.ticketUrl || exposition.bron_url;
   const slug = museumSlug || exposition.museumSlug;
-  const showAffiliateNote = Boolean(buyUrl) && (!slug || shouldShowAffiliateNote(slug));
+  const primaryAffiliateUrl = exposition.ticketAffiliateUrl || affiliateUrl || null;
+  const fallbackTicketUrl = exposition.ticketUrl || ticketUrl || null;
+  const sourceUrl = exposition.bron_url || null;
+  const buyUrl = primaryAffiliateUrl || fallbackTicketUrl || sourceUrl;
+  const showAffiliateNote = Boolean(primaryAffiliateUrl) && (!slug || shouldShowAffiliateNote(slug));
 
   const handleFavorite = () => {
     toggleFavorite({
@@ -39,7 +42,8 @@ export default function ExpositionCard({ exposition, ticketUrl, museumSlug }) {
       titel: exposition.titel,
       start_datum: exposition.start_datum,
       eind_datum: exposition.eind_datum,
-      bron_url: exposition.bron_url,
+      bron_url: sourceUrl,
+      ticketAffiliateUrl: primaryAffiliateUrl,
       ticketUrl: buyUrl,
       museumSlug: slug,
       type: 'exposition',
