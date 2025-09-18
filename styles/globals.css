@@ -115,33 +115,35 @@ img { max-width: 100%; height: auto; display: block; }
   gap: 16px;
   min-width: 0;
 }
-.brand-logo {
+.brand-square {
   display: flex;
   align-items: center;
   justify-content: center;
   width: 56px;
   height: 56px;
-  border-radius: 18px;
-  background: linear-gradient(135deg, #111827, var(--accent));
-  color: var(--accent-ink);
-  font-weight: 800;
-  font-size: 20px;
-  letter-spacing: 0.08em;
+  border-radius: 12px;
+  background: var(--surface);
+  color: var(--text);
+  text-align: center;
   text-transform: uppercase;
+  font-weight: 800;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  line-height: 1.1;
   box-shadow: 0 16px 34px rgba(15,23,42,0.2);
-  border: 1px solid rgba(255,255,255,0.38);
+  border: 1px solid var(--panel-border);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
-[data-theme='dark'] .brand-logo {
-  background: linear-gradient(135deg, rgba(15,23,42,0.95), rgba(59,130,246,0.7));
+[data-theme='dark'] .brand-square {
+  background: rgba(15,23,42,0.85);
   color: var(--accent);
   border-color: rgba(148,163,184,0.32);
 }
-.brand-logo:hover {
-  transform: translateY(-2px) scale(1.01);
+.brand-square:hover {
+  transform: translateY(-2px);
   box-shadow: 0 24px 46px rgba(15,23,42,0.26);
 }
-.brand-logo-text { pointer-events: none; }
+.brand-text { pointer-events: none; }
 .brand-meta {
   display: flex;
   flex-direction: column;
@@ -149,8 +151,8 @@ img { max-width: 100%; height: auto; display: block; }
   min-width: 0;
 }
 .brand-title {
-  font-weight: 800;
-  font-size: 26px;
+  font-weight: 700;
+  font-size: 24px;
   letter-spacing: -0.01em;
   margin: 0;
 }
@@ -229,7 +231,7 @@ img { max-width: 100%; height: auto; display: block; }
 }
 
 @media (max-width: 600px) {
-  .brand-logo {
+  .brand-square {
     width: 48px;
     height: 48px;
     border-radius: 14px;
@@ -331,7 +333,6 @@ img { max-width: 100%; height: auto; display: block; }
   box-shadow: var(--chip-shadow);
   transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease, color 0.2s ease;
 }
-.filter-chip .filter-icon { font-size: 16px; }
 .filter-chip:hover {
   transform: translateY(-1px);
 }
@@ -357,7 +358,7 @@ img { max-width: 100%; height: auto; display: block; }
 }
 .filter-reset:hover { color: var(--text); }
 .filter-reset-icon svg { width: 18px; height: 18px; }
-.brand-logo:focus-visible,
+.brand-square:focus-visible,
 .lang-select:focus-visible,
 .contrast-toggle:focus-visible,
 .header-icon:focus-visible,

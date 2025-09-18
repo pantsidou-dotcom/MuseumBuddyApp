@@ -44,6 +44,17 @@ export default function MuseumCard({ museum }) {
 
   useEffect(() => {
     if (!cardRef.current) return;
+
+    const prefersHoverInteraction =
+      typeof window !== 'undefined' &&
+      typeof window.matchMedia === 'function' &&
+      window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+
+    if (prefersHoverInteraction) {
+      setIsActive(false);
+      return;
+    }
+
     if (typeof window === 'undefined' || typeof IntersectionObserver === 'undefined') {
       setIsActive(true);
       return;

@@ -23,11 +23,11 @@ const FEATURED_SLUGS = [
 ];
 
 const CATEGORY_FILTERS = [
-  { id: 'science', icon: '🔬', labelKey: 'filterScience' },
-  { id: 'history', icon: '🏛️', labelKey: 'filterHistory' },
-  { id: 'kids', icon: '🧒', labelKey: 'filterKids' },
-  { id: 'modernArt', icon: '🎨', labelKey: 'filterModernArt' },
-  { id: 'culture', icon: '🌍', labelKey: 'filterCulture' },
+  { id: 'science', labelKey: 'filterScience' },
+  { id: 'history', labelKey: 'filterHistory' },
+  { id: 'kids', labelKey: 'filterKids' },
+  { id: 'modernArt', labelKey: 'filterModernArt' },
+  { id: 'culture', labelKey: 'filterCulture' },
 ];
 
 function sortMuseums(museums) {
@@ -273,9 +273,6 @@ export default function Home({ initialMuseums = [], initialError = null }) {
                   onClick={() => toggleFilter(filter.id)}
                   aria-pressed={isActive}
                 >
-                  <span className="filter-icon" aria-hidden="true">
-                    {filter.icon}
-                  </span>
                   <span>{filter.label}</span>
                 </button>
               );
@@ -286,7 +283,6 @@ export default function Home({ initialMuseums = [], initialError = null }) {
               onClick={handleToggleExpositions}
               aria-pressed={hasExposities}
             >
-              <span className="filter-icon" aria-hidden="true">🗓</span>
               <span>{t('expositions')}</span>
             </button>
           </div>
