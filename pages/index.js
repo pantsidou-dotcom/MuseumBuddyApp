@@ -227,7 +227,6 @@ export async function getStaticProps() {
         initialMuseums: [],
         initialError: 'missingSupabase',
       },
-      revalidate: 600,
     };
   }
 
@@ -243,7 +242,6 @@ export async function getStaticProps() {
           initialMuseums: [],
           initialError: 'queryFailed',
         },
-        revalidate: 600,
       };
     }
 
@@ -254,7 +252,6 @@ export async function getStaticProps() {
         initialMuseums: sortMuseums(filtered),
         initialError: null,
       },
-      revalidate: 1800,
     };
   } catch (err) {
     return {
@@ -262,7 +259,6 @@ export async function getStaticProps() {
         initialMuseums: [],
         initialError: 'unknown',
       },
-      revalidate: 600,
     };
   }
 }
