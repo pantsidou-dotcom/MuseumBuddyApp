@@ -20,7 +20,13 @@ export default function Layout({ children }) {
             <Link href="/" className="brand-square" aria-label={t('homeLabel')}>
               <span className="brand-text">MUSEUM<br />BUDDY</span>
             </Link>
-            <span className="brand-title">MuseumBuddy</span>
+            <div className="brand-meta">
+              <span className="brand-title">MuseumBuddy</span>
+              <p className="brand-subtitle">
+                <span lang="en">Your guide to museums &amp; expositions</span>
+                <span lang="nl">Jouw gids voor musea en exposities</span>
+              </p>
+            </div>
           </div>
           <div className="navspacer" />
           <div className="header-actions">

@@ -5,6 +5,7 @@ import museumImages from '../lib/museumImages';
 import museumNames from '../lib/museumNames';
 import museumImageCredits from '../lib/museumImageCredits';
 import museumTicketUrls from '../lib/museumTicketUrls';
+import getMuseumCategories, { CATEGORY_FILTERS } from '../lib/museumCategories';
 import { useLanguage } from '../components/LanguageContext';
 import { supabase as supabaseClient } from '../lib/supabase';
 import SEO from '../components/SEO';
@@ -64,6 +65,13 @@ export default function Home({ initialMuseums = [], initialError = null }) {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState(() => (shouldUseInitialData ? initialMuseumsSorted : []));
   const [error, setError] = useState(() => (shouldUseInitialData ? initialError : null));
+  const [selectedFilters, setSelectedFilters] = useState([]);
+
+  const filterOptions = CATEGORY_FILTERS.map((filter) => ({
+    ...filter,
+    label: t(filter.labelKey),
+  }));
+  const hasActiveFilters = selectedFilters.length > 0;
 
   useEffect(() => {
     if (!router.isReady) return;
@@ -73,6 +81,35 @@ export default function Home({ initialMuseums = [], initialError = null }) {
   const expositiesHref = useMemo(() => {
     return query ? `/?q=${encodeURIComponent(query)}&exposities=1` : '/?exposities=1';
   }, [query]);
+
+  const displayResults = useMemo(() => {
+    if (!hasActiveFilters) return results;
+    return results.filter((m) => {
+      const categories = getMuseumCategories(m.slug);
+      if (!categories.length) return false;
+      return selectedFilters.some((filter) => categories.includes(filter));
+    });
+  }, [results, hasActiveFilters, selectedFilters]);
+
+  const toggleFilter = (key) => {
+    setSelectedFilters((prev) =>
+      prev.includes(key) ? prev.filter((item) => item !== key) : [...prev, key]
+    );
+  };
+
+  const handleReset = () => {
+    const hadQuery = Boolean(query);
+    const hadExpositions = hasExposities;
+    setSelectedFilters([]);
+    setQuery('');
+    if (initialMuseumsSorted.length > 0) {
+      setResults(initialMuseumsSorted);
+      setError(initialError ?? null);
+    }
+    if (router.isReady && (hadQuery || hadExpositions)) {
+      router.replace('/', undefined, { shallow: false });
+    }
+  };
 
   useEffect(() => {
     if (!router.isReady) return;
@@ -172,32 +209,67 @@ export default function Home({ initialMuseums = [], initialError = null }) {
     <>
       <SEO title={t('homeTitle')} description={t('homeDescription')} />
       <form className="controls" onSubmit={(e) => e.preventDefault()}>
-        <div className="control-row">
-          <input
-            type="text"
-            className="input"
-            placeholder={t('searchPlaceholder')}
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-          />
-          <a href={expositiesHref} className="btn-reset">
-            {t('expositions')}
-          </a>
-          {(query || hasExposities) && (
-            <a href="/" className="btn-reset">
-              {t('reset')}
+        <div className="search-panel">
+          <div className="control-row search-controls">
+            <div className="search-field">
+              <span className="search-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="11" cy="11" r="7" />
+                  <path d="m20 20-3.5-3.5" />
+                </svg>
+              </span>
+              <input
+                type="text"
+                className="search-input"
+                placeholder={t('searchPlaceholder')}
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+              />
+              {query && (
+                <button type="button" className="search-clear" onClick={() => setQuery('')}>
+                  <span className="sr-only">{t('clearSearch')}</span>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M18 6 6 18" />
+                    <path d="m6 6 12 12" />
+                  </svg>
+                </button>
+              )}
+            </div>
+            <a href={expositiesHref} className="btn-reset">
+              {t('expositions')}
             </a>
-          )}
+            {(query || hasExposities || hasActiveFilters) && (
+              <button type="button" className="btn-reset ghost" onClick={handleReset}>
+                {t('reset')}
+              </button>
+            )}
+          </div>
+          <fieldset className="filters-row">
+            <legend className="filters-label">{t('filterHeading')}</legend>
+            <div className="filter-chips">
+              {filterOptions.map((filter) => (
+                <button
+                  type="button"
+                  key={filter.key}
+                  className={`filter-chip${selectedFilters.includes(filter.key) ? ' active' : ''}`}
+                  onClick={() => toggleFilter(filter.key)}
+                  aria-pressed={selectedFilters.includes(filter.key)}
+                >
+                  {filter.label}
+                </button>
+              ))}
+            </div>
+          </fieldset>
         </div>
       </form>
 
-      <p className="count">{results.length} {t('results')}</p>
+      <p className="count">{displayResults.length} {t('results')}</p>
 
-      {results.length === 0 ? (
+      {displayResults.length === 0 ? (
         <p>{t('noResults')}</p>
       ) : (
         <ul className="grid" style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-          {results.map((m) => (
+          {displayResults.map((m) => (
             <li key={m.id}>
               <MuseumCard
                 museum={{
