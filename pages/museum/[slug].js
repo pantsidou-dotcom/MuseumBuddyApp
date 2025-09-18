@@ -71,7 +71,8 @@ function normaliseExpositionRow(row, museumSlug) {
     start_datum: row.start_datum,
     eind_datum: row.eind_datum,
     bron_url: row.bron_url,
-    ticketUrl: row.ticket_affiliate_url || row.ticket_url || null,
+    ticketAffiliateUrl: row.ticket_affiliate_url || null,
+    ticketUrl: row.ticket_url || null,
     museumSlug,
     description: row.beschrijving || row.omschrijving || null,
   };
@@ -180,9 +181,10 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
     resolvedMuseum.openingHours ||
     resolvedMuseum.raw?.openingstijden ||
     null;
-  const fallbackTicketUrl = museumTicketUrls[slug] || resolvedMuseum.websiteUrl || null;
-  const ticketUrl = resolvedMuseum.ticketAffiliateUrl || resolvedMuseum.ticketUrl || fallbackTicketUrl;
-  const showAffiliateNote = Boolean(ticketUrl) && shouldShowAffiliateNote(slug);
+  const affiliateTicketUrl = resolvedMuseum.ticketAffiliateUrl || museumTicketUrls[slug] || null;
+  const directTicketUrl = resolvedMuseum.ticketUrl || resolvedMuseum.websiteUrl || null;
+  const ticketUrl = affiliateTicketUrl || directTicketUrl;
+  const showAffiliateNote = Boolean(affiliateTicketUrl) && shouldShowAffiliateNote(slug);
   const locationLines = getLocationLines(resolvedMuseum);
 
   const heroImage = useMemo(() => {
@@ -316,6 +318,8 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
             strokeLinecap="round"
             strokeLinejoin="round"
             aria-hidden="true"
+            width="20"
+            height="20"
           >
             <path d="M15 18l-6-6 6-6" />
           </svg>
@@ -342,7 +346,12 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
                 <ul className="events-list">
                   {expositionItems.map((exposition) => (
                     <li key={exposition.id}>
-                      <ExpositionCard exposition={exposition} ticketUrl={exposition.ticketUrl} museumSlug={slug} />
+                      <ExpositionCard
+                        exposition={exposition}
+                        affiliateUrl={affiliateTicketUrl}
+                        ticketUrl={directTicketUrl}
+                        museumSlug={slug}
+                      />
                     </li>
                   ))}
                 </ul>

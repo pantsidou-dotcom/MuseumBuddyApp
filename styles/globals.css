@@ -242,6 +242,11 @@ img { max-width: 100%; height: auto; display: block; }
   backdrop-filter: blur(8px);
   transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
 }
+.museum-backlink svg {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
 [data-theme='dark'] .museum-backlink {
   color: var(--accent);
 }
@@ -303,10 +308,19 @@ img { max-width: 100%; height: auto; display: block; }
   .museum-detail.has-hero .museum-detail-container { margin-top: -48px; }
   .museum-detail-grid { gap: 24px; }
   .museum-expositions-card,
-  .museum-sidebar-card { padding: 20px; border-radius: 24px; }
+  .museum-sidebar-card {
+    padding: 20px;
+    border-radius: 24px;
+    box-shadow: 0 14px 28px rgba(15,23,42,0.16);
+    backdrop-filter: none;
+  }
+  .museum-backlink {
+    box-shadow: 0 12px 24px rgba(15,23,42,0.14);
+    backdrop-filter: none;
+  }
   .museum-detail-header { flex-direction: column; }
   .museum-detail-actions { align-self: flex-end; }
-  .museum-info-link { width: 100%; justify-content: center; box-shadow: 0 6px 16px rgba(15,23,42,0.12); }
+  .museum-info-link { width: 100%; justify-content: center; box-shadow: 0 8px 18px rgba(15,23,42,0.14); }
 }
 
 /* Footer space */
@@ -383,13 +397,25 @@ img { max-width: 100%; height: auto; display: block; }
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   text-align: center;
   text-decoration: none;
-  gap: 0;
+  gap: 6px;
+  min-width: 0;
 }
 .ticket-button:hover {
   background: var(--accent-ink);
   color: var(--accent);
+}
+.museum-info-links .ticket-button {
+  width: 100%;
+  padding: 12px 20px;
+  box-shadow: 0 12px 24px rgba(15,23,42,0.14);
+}
+@media (min-width: 601px) {
+  .museum-info-links .ticket-button {
+    width: auto;
+  }
 }
 .ticket-button[disabled],
 .ticket-button[aria-disabled="true"] {
@@ -500,6 +526,18 @@ img { max-width: 100%; height: auto; display: block; }
   display: flex;
   flex-direction: column;
   gap: 16px;
+}
+
+@supports (content-visibility: auto) {
+  .event-card {
+    content-visibility: auto;
+    contain-intrinsic-size: 280px;
+  }
+  .museum-expositions-card,
+  .museum-sidebar-card {
+    content-visibility: auto;
+    contain-intrinsic-size: 420px;
+  }
 }
 
 .event-card {
@@ -627,6 +665,8 @@ img { max-width: 100%; height: auto; display: block; }
 @media (max-width: 600px) {
   .event-card {
     gap: 16px;
+    padding: 18px;
+    box-shadow: 0 14px 28px rgba(15,23,42,0.16);
   }
   .event-card-date {
     flex-wrap: wrap;
@@ -636,6 +676,7 @@ img { max-width: 100%; height: auto; display: block; }
   }
   .event-card-actions .ticket-button {
     width: 100%;
+    box-shadow: 0 12px 24px rgba(15,23,42,0.16);
   }
   .exposition-card .icon-button.large {
     width: 38px;
