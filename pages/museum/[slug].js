@@ -477,7 +477,7 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
   );
 }
 
-export async function getServerSideProps({ params }) {
+export async function getStaticProps({ params }) {
   const rawSlug = Array.isArray(params?.slug) ? params.slug[0] : params?.slug;
   const slug = typeof rawSlug === 'string' ? rawSlug.toLowerCase() : null;
 
@@ -554,4 +554,40 @@ export async function getServerSideProps({ params }) {
       },
     };
   }
+}
+
+export async function getStaticPaths() {
+  const slugs = new Set();
+
+  if (supabaseClient) {
+    try {
+      const { data, error } = await supabaseClient.from('musea').select('slug');
+      if (!error && Array.isArray(data)) {
+        data.forEach((row) => {
+          if (row?.slug) {
+            slugs.add(row.slug);
+          }
+        });
+      }
+    } catch (err) {
+      // ignore and fall back to static keys
+    }
+  }
+
+  if (slugs.size === 0) {
+    [museumImages, museumSummaries, museumOpeningHours, museumTicketUrls].forEach((collection) => {
+      if (!collection) return;
+      Object.keys(collection).forEach((key) => {
+        if (key) {
+          slugs.add(key);
+        }
+      });
+    });
+  }
+
+  const paths = Array.from(slugs).map((slug) => ({
+    params: { slug },
+  }));
+
+  return { paths, fallback: false };
 }
