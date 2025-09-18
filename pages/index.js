@@ -5,6 +5,7 @@ import museumImages from '../lib/museumImages';
 import museumNames from '../lib/museumNames';
 import museumImageCredits from '../lib/museumImageCredits';
 import museumTicketUrls from '../lib/museumTicketUrls';
+import museumCategories from '../lib/museumCategories';
 import { useLanguage } from '../components/LanguageContext';
 import { supabase as supabaseClient } from '../lib/supabase';
 import SEO from '../components/SEO';
@@ -19,6 +20,14 @@ const FEATURED_SLUGS = [
   'nemo-science-museum-amsterdam',
   'hart-museum-amsterdam',
   'rembrandthuis-amsterdam',
+];
+
+const CATEGORY_FILTERS = [
+  { id: 'science', icon: '🔬', labelKey: 'filterScience' },
+  { id: 'history', icon: '🏛️', labelKey: 'filterHistory' },
+  { id: 'kids', icon: '🧒', labelKey: 'filterKids' },
+  { id: 'modernArt', icon: '🎨', labelKey: 'filterModernArt' },
+  { id: 'culture', icon: '🌍', labelKey: 'filterCulture' },
 ];
 
 function sortMuseums(museums) {
@@ -62,17 +71,63 @@ export default function Home({ initialMuseums = [], initialError = null }) {
   const shouldUseInitialData = !qFromUrl && !hasExposities && initialMuseumsSorted.length > 0;
 
   const [query, setQuery] = useState('');
-  const [results, setResults] = useState(() => (shouldUseInitialData ? initialMuseumsSorted : []));
+  const [allMuseums, setAllMuseums] = useState(() => (shouldUseInitialData ? initialMuseumsSorted : []));
   const [error, setError] = useState(() => (shouldUseInitialData ? initialError : null));
+  const [activeFilters, setActiveFilters] = useState([]);
+
+  const categoryFilters = useMemo(
+    () => CATEGORY_FILTERS.map((filter) => ({ ...filter, label: t(filter.labelKey) })),
+    [t]
+  );
+
+  const activeFilterSet = useMemo(() => new Set(activeFilters), [activeFilters]);
+
+  const filteredResults = useMemo(() => {
+    if (activeFilterSet.size === 0) return allMuseums;
+    return allMuseums.filter((museum) => {
+      const categories = museumCategories[museum.slug] || [];
+      return categories.some((category) => activeFilterSet.has(category));
+    });
+  }, [allMuseums, activeFilterSet]);
+
+  const hasActiveFilters = activeFilters.length > 0;
+  const showReset = Boolean(query || hasExposities || hasActiveFilters);
+
+  const toggleFilter = (filterId) => {
+    setActiveFilters((prev) => {
+      if (prev.includes(filterId)) {
+        return prev.filter((item) => item !== filterId);
+      }
+      return [...prev, filterId];
+    });
+  };
+
+  const handleToggleExpositions = () => {
+    if (!router.isReady) return;
+    const nextQuery = {};
+    if (query) nextQuery.q = query;
+    if (!hasExposities) {
+      nextQuery.exposities = '1';
+    }
+    router.push({ pathname: '/', query: nextQuery }, undefined, { shallow: true });
+  };
+
+  const handleResetFilters = () => {
+    setActiveFilters([]);
+    setQuery('');
+    if (initialMuseumsSorted.length > 0) {
+      setAllMuseums(initialMuseumsSorted);
+      setError(initialError ?? null);
+    }
+    if (router.isReady) {
+      router.push('/', undefined, { shallow: true });
+    }
+  };
 
   useEffect(() => {
     if (!router.isReady) return;
     setQuery(qFromUrl);
   }, [router.isReady, qFromUrl]);
-
-  const expositiesHref = useMemo(() => {
-    return query ? `/?q=${encodeURIComponent(query)}&exposities=1` : '/?exposities=1';
-  }, [query]);
 
   useEffect(() => {
     if (!router.isReady) return;
@@ -80,13 +135,13 @@ export default function Home({ initialMuseums = [], initialError = null }) {
     const usingDefaultFilters = !query && !hasExposities;
 
     if (usingDefaultFilters && initialMuseumsSorted.length > 0) {
-      setResults(initialMuseumsSorted);
+      setAllMuseums(initialMuseumsSorted);
       setError(initialError ?? null);
       return;
     }
 
     if (!supabaseClient) {
-      setResults([]);
+      setAllMuseums([]);
       setError('missingSupabase');
       return;
     }
@@ -113,7 +168,7 @@ export default function Home({ initialMuseums = [], initialError = null }) {
             const ids = [...new Set((exRows || []).map((e) => e.museum_id))];
             if (ids.length === 0) {
               if (!isCancelled) {
-                setResults([]);
+                setAllMuseums([]);
                 setError(null);
               }
               return;
@@ -133,7 +188,7 @@ export default function Home({ initialMuseums = [], initialError = null }) {
         );
 
         if (!isCancelled) {
-          setResults(sortMuseums(filtered));
+          setAllMuseums(sortMuseums(filtered));
           setError(null);
         }
       } catch {
@@ -152,7 +207,7 @@ export default function Home({ initialMuseums = [], initialError = null }) {
   useEffect(() => {
     if (!router.isReady) return;
     if (!query && !hasExposities && initialMuseumsSorted.length > 0) {
-      setResults(initialMuseumsSorted);
+      setAllMuseums(initialMuseumsSorted);
       setError(initialError ?? null);
     }
   }, [router.isReady, query, hasExposities, initialMuseumsSorted, initialError]);
@@ -172,32 +227,90 @@ export default function Home({ initialMuseums = [], initialError = null }) {
     <>
       <SEO title={t('homeTitle')} description={t('homeDescription')} />
       <form className="controls" onSubmit={(e) => e.preventDefault()}>
-        <div className="control-row">
-          <input
-            type="text"
-            className="input"
-            placeholder={t('searchPlaceholder')}
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-          />
-          <a href={expositiesHref} className="btn-reset">
-            {t('expositions')}
-          </a>
-          {(query || hasExposities) && (
-            <a href="/" className="btn-reset">
-              {t('reset')}
-            </a>
+        <label htmlFor="home-search" className="sr-only">
+          {t('searchMuseums')}
+        </label>
+        <div className="search-area">
+          <div className="search-bar">
+            <span className="search-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                <circle cx="11" cy="11" r="7" />
+                <line x1="20" y1="20" x2="16.65" y2="16.65" />
+              </svg>
+            </span>
+            <input
+              id="home-search"
+              type="text"
+              className="search-input"
+              placeholder={t('searchPlaceholder')}
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+            />
+            {query && (
+              <button
+                type="button"
+                className="search-clear"
+                onClick={() => setQuery('')}
+                aria-label={t('clearSearch')}
+              >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                  <line x1="6" y1="6" x2="18" y2="18" />
+                  <line x1="6" y1="18" x2="18" y2="6" />
+                </svg>
+              </button>
+            )}
+          </div>
+        </div>
+        <div className="filters-group">
+          <div className="filter-chips" role="group" aria-label={t('filterGroupLabel')}>
+            {categoryFilters.map((filter) => {
+              const isActive = activeFilterSet.has(filter.id);
+              return (
+                <button
+                  key={filter.id}
+                  type="button"
+                  className={`filter-chip${isActive ? ' active' : ''}`}
+                  onClick={() => toggleFilter(filter.id)}
+                  aria-pressed={isActive}
+                >
+                  <span className="filter-icon" aria-hidden="true">
+                    {filter.icon}
+                  </span>
+                  <span>{filter.label}</span>
+                </button>
+              );
+            })}
+            <button
+              type="button"
+              className={`filter-chip${hasExposities ? ' active' : ''}`}
+              onClick={handleToggleExpositions}
+              aria-pressed={hasExposities}
+            >
+              <span className="filter-icon" aria-hidden="true">🗓</span>
+              <span>{t('expositions')}</span>
+            </button>
+          </div>
+          {showReset && (
+            <button type="button" className="filter-reset" onClick={handleResetFilters}>
+              <span className="filter-reset-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                  <path d="M3 12a9 9 0 1 1 9 9" />
+                  <path d="M3 12h4M3 12V8" />
+                </svg>
+              </span>
+              <span>{t('reset')}</span>
+            </button>
           )}
         </div>
       </form>
 
-      <p className="count">{results.length} {t('results')}</p>
+      <p className="count">{filteredResults.length} {t('results')}</p>
 
-      {results.length === 0 ? (
+      {filteredResults.length === 0 ? (
         <p>{t('noResults')}</p>
       ) : (
         <ul className="grid" style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-          {results.map((m) => (
+          {filteredResults.map((m) => (
             <li key={m.id}>
               <MuseumCard
                 museum={{

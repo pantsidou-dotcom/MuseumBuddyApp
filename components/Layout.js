@@ -17,10 +17,13 @@ export default function Layout({ children }) {
       <header className="header">
         <nav className="navbar container">
           <div className="brand-wrap">
-            <Link href="/" className="brand-square" aria-label={t('homeLabel')}>
-              <span className="brand-text">MUSEUM<br />BUDDY</span>
+            <Link href="/" className="brand-logo" aria-label={t('homeLabel')}>
+              <span className="brand-logo-text">MB</span>
             </Link>
-            <span className="brand-title">MuseumBuddy</span>
+            <div className="brand-meta">
+              <span className="brand-title">MuseumBuddy</span>
+              <span className="brand-tagline">{t('headerTagline')}</span>
+            </div>
           </div>
           <div className="navspacer" />
           <div className="header-actions">

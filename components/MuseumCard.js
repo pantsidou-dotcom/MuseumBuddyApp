@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import { useMemo } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useFavorites } from './FavoritesContext';
 import { useLanguage } from './LanguageContext';
 import museumSummaries from '../lib/museumSummaries';
@@ -39,6 +39,31 @@ export default function MuseumCard({ museum }) {
     () => getHoverColor(museum.slug, museum.id),
     [museum.slug, museum.id]
   );
+  const cardRef = useRef(null);
+  const [isActive, setIsActive] = useState(false);
+
+  useEffect(() => {
+    if (!cardRef.current) return;
+    if (typeof window === 'undefined' || typeof IntersectionObserver === 'undefined') {
+      setIsActive(true);
+      return;
+    }
+
+    const element = cardRef.current;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.target === element) {
+            setIsActive(entry.isIntersecting);
+          }
+        });
+      },
+      { threshold: 0.35 }
+    );
+
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, []);
 
   const summary = museumSummaries[museum.slug]?.[lang] || museum.summary;
   const hours = museumOpeningHours[museum.slug]?.[lang];
@@ -85,7 +110,11 @@ export default function MuseumCard({ museum }) {
   };
 
   return (
-    <article className="museum-card" style={{ '--hover-bg': hoverColor }}>
+    <article
+      ref={cardRef}
+      className={`museum-card${isActive ? ' is-active' : ''}`}
+      style={{ '--hover-bg': hoverColor }}
+    >
       <div className="museum-card-image">
         <Link
           href={{ pathname: '/museum/[slug]', query: { slug: museum.slug } }}
