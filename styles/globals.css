@@ -917,19 +917,19 @@ button.hero-quick-link {
   right: 12px;
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 12px;
-  border-radius: 999px;
-  background: var(--panel-bg);
-  border: 1px solid var(--panel-border);
-  box-shadow: 0 16px 32px rgba(15,23,42,0.16);
-  backdrop-filter: blur(12px);
+  gap: 6px;
+  padding: 6px;
+  border-radius: 16px;
+  background: var(--chip-bg);
+  border: 1px solid var(--chip-border);
+  box-shadow: 0 12px 24px rgba(15,23,42,0.14);
+  backdrop-filter: blur(10px);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .museum-card:hover .museum-card-actions {
   transform: translateY(-2px);
-  box-shadow: 0 20px 40px rgba(15,23,42,0.18);
+  box-shadow: 0 16px 32px rgba(15,23,42,0.18);
 }
 
 .museum-card-ticket {
@@ -1070,40 +1070,37 @@ button.hero-quick-link {
 }
 
 .museum-card-actions .icon-button {
-  width: auto;
-  height: auto;
-  min-height: 36px;
-  padding: 6px 12px;
-  border-radius: 999px;
+  width: 34px;
+  height: 34px;
+  min-height: 0;
+  padding: 0;
+  border-radius: 12px;
+  gap: 0;
+  box-shadow: none;
+}
+
+.museum-card-actions .icon-button:not(.favorited) {
   background: transparent;
-  color: inherit;
-  gap: 8px;
+  border: 1px solid var(--panel-border);
+  color: var(--muted);
 }
 
-.museum-card-actions .icon-button:hover {
-  background: rgba(255,255,255,0.18);
+.museum-card-actions .icon-button:not(.favorited):hover {
+  background: rgba(255,255,255,0.85);
+  border-color: rgba(15,23,42,0.12);
+  color: var(--text);
 }
 
-[data-theme='dark'] .museum-card-actions .icon-button:hover {
-  background: rgba(148,163,184,0.18);
+[data-theme='dark'] .museum-card-actions .icon-button:not(.favorited) {
+  background: rgba(15,23,42,0.35);
+  border-color: rgba(148,163,184,0.28);
+  color: var(--muted);
 }
 
-.icon-button-text {
-  display: none;
-  font-size: 13px;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-}
-
-@media (min-width: 640px) {
-  .museum-card-actions .icon-button {
-    padding: 8px 14px;
-  }
-
-  .museum-card-actions .icon-button-text {
-    display: inline;
-  }
+[data-theme='dark'] .museum-card-actions .icon-button:not(.favorited):hover {
+  background: rgba(15,23,42,0.55);
+  border-color: rgba(148,163,184,0.32);
+  color: var(--text);
 }
 
 .museum-card-info {

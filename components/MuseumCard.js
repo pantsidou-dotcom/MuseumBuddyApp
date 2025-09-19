@@ -150,7 +150,6 @@ export default function MuseumCard({ museum }) {
               <path d="M16 6l-4-4-4 4" />
               <path d="M12 2v14" />
             </svg>
-            <span className="icon-button-text">{t('share')}</span>
           </button>
           <button
             className={`icon-button${isFavorite ? ' favorited' : ''}`}
@@ -169,7 +168,6 @@ export default function MuseumCard({ museum }) {
             >
               <path d="M21 8.25c0 4.556-9 11.25-9 11.25S3 12.806 3 8.25a5.25 5.25 0 0 1 9-3.676A5.25 5.25 0 0 1 21 8.25Z" />
             </svg>
-            <span className="icon-button-text">{t('save')}</span>
           </button>
         </div>
       </div>
