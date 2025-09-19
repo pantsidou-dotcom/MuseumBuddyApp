@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import { useMemo } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useFavorites } from './FavoritesContext';
 import { useLanguage } from './LanguageContext';
 import museumSummaries from '../lib/museumSummaries';
@@ -45,8 +45,31 @@ export default function MuseumCard({ museum }) {
   const locationText = [museum.city, museum.province].filter(Boolean).join(', ');
   const showAffiliateNote = Boolean(museum.ticketUrl) && shouldShowAffiliateNote(museum.slug);
 
+  const [isFavoriteBouncing, setIsFavoriteBouncing] = useState(false);
+  const bounceTimeoutRef = useRef(null);
+
+  useEffect(() => {
+    return () => {
+      if (bounceTimeoutRef.current) {
+        clearTimeout(bounceTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  const triggerFavoriteBounce = () => {
+    if (bounceTimeoutRef.current) {
+      clearTimeout(bounceTimeoutRef.current);
+    }
+    setIsFavoriteBouncing(true);
+    bounceTimeoutRef.current = setTimeout(() => {
+      setIsFavoriteBouncing(false);
+      bounceTimeoutRef.current = null;
+    }, 420);
+  };
+
   const handleFavorite = () => {
     toggleFavorite({ ...museum, type: 'museum' });
+    triggerFavoriteBounce();
   };
 
   const shareMuseum = async () => {
@@ -152,7 +175,9 @@ export default function MuseumCard({ museum }) {
             </svg>
           </button>
           <button
-            className={`icon-button${isFavorite ? ' favorited' : ''}`}
+            className={`icon-button${isFavorite ? ' favorited' : ''}${
+              isFavoriteBouncing ? ' icon-button--bounce' : ''
+            }`}
             aria-label={t('save')}
             aria-pressed={isFavorite}
             onClick={handleFavorite}

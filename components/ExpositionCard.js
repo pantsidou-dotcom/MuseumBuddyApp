@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from 'react';
 import { useLanguage } from './LanguageContext';
 import { useFavorites } from './FavoritesContext';
 import { shouldShowAffiliateNote } from '../lib/nonAffiliateMuseums';
@@ -36,6 +37,28 @@ export default function ExpositionCard({ exposition, ticketUrl, affiliateUrl, mu
   const buyUrl = primaryAffiliateUrl || fallbackTicketUrl || sourceUrl;
   const showAffiliateNote = Boolean(primaryAffiliateUrl) && (!slug || shouldShowAffiliateNote(slug));
 
+  const [isFavoriteBouncing, setIsFavoriteBouncing] = useState(false);
+  const bounceTimeoutRef = useRef(null);
+
+  useEffect(() => {
+    return () => {
+      if (bounceTimeoutRef.current) {
+        clearTimeout(bounceTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  const triggerFavoriteBounce = () => {
+    if (bounceTimeoutRef.current) {
+      clearTimeout(bounceTimeoutRef.current);
+    }
+    setIsFavoriteBouncing(true);
+    bounceTimeoutRef.current = setTimeout(() => {
+      setIsFavoriteBouncing(false);
+      bounceTimeoutRef.current = null;
+    }, 420);
+  };
+
   const handleFavorite = () => {
     toggleFavorite({
       id: exposition.id,
@@ -48,6 +71,7 @@ export default function ExpositionCard({ exposition, ticketUrl, affiliateUrl, mu
       museumSlug: slug,
       type: 'exposition',
     });
+    triggerFavoriteBounce();
   };
 
   return (
@@ -85,7 +109,9 @@ export default function ExpositionCard({ exposition, ticketUrl, affiliateUrl, mu
           </button>
         )}
         <button
-          className={`icon-button large${isFavorite ? ' favorited' : ''}`}
+          className={`icon-button large${isFavorite ? ' favorited' : ''}${
+            isFavoriteBouncing ? ' icon-button--bounce' : ''
+          }`}
           aria-label={t('save')}
           aria-pressed={isFavorite}
           onClick={handleFavorite}
