@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
 import MuseumCard from '../components/MuseumCard';
 import museumImages from '../lib/museumImages';
@@ -114,6 +114,7 @@ export default function Home({ initialMuseums = [], initialError = null }) {
   const [filtersSheetOpen, setFiltersSheetOpen] = useState(false);
   const [activeFilters, setActiveFilters] = useState(filtersFromUrl);
   const [sheetFilters, setSheetFilters] = useState(filtersFromUrl);
+  const skipNextUrlSync = useRef(false);
 
   useEffect(() => {
     if (!router.isReady) return;
@@ -122,6 +123,14 @@ export default function Home({ initialMuseums = [], initialError = null }) {
 
   useEffect(() => {
     if (!router.isReady) return;
+
+    if (skipNextUrlSync.current) {
+      if (!filtersSheetOpen) {
+        skipNextUrlSync.current = false;
+      }
+      return;
+    }
+
     setActiveFilters(filtersFromUrl);
     if (!filtersSheetOpen) {
       setSheetFilters(filtersFromUrl);
@@ -149,6 +158,7 @@ export default function Home({ initialMuseums = [], initialError = null }) {
   );
 
   const handleQuickShowExhibitions = useCallback(() => {
+    skipNextUrlSync.current = true;
     setActiveFilters((prev) => ({ ...DEFAULT_FILTERS, ...prev, exhibitions: true }));
     setSheetFilters((prev) => ({ ...DEFAULT_FILTERS, ...prev, exhibitions: true }));
     setFiltersSheetOpen(false);
@@ -325,6 +335,7 @@ export default function Home({ initialMuseums = [], initialError = null }) {
   }, []);
 
   const handleApplyFilters = useCallback(() => {
+    skipNextUrlSync.current = true;
     setActiveFilters({ ...DEFAULT_FILTERS, ...sheetFilters });
     setFiltersSheetOpen(false);
   }, [sheetFilters]);
@@ -332,6 +343,7 @@ export default function Home({ initialMuseums = [], initialError = null }) {
   const handleResetFilters = useCallback(() => {
     const nextFilters = { ...DEFAULT_FILTERS };
     setSheetFilters(nextFilters);
+    skipNextUrlSync.current = true;
     setActiveFilters(nextFilters);
     setFiltersSheetOpen(false);
   }, []);

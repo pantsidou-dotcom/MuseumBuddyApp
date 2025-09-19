@@ -404,6 +404,18 @@ button.hero-quick-link {
   color: var(--muted);
   border-color: var(--panel-border);
 }
+.hero-quick-link--filters {
+  background: rgba(255, 255, 255, 0.95);
+  color: var(--text);
+  border-color: rgba(31, 41, 55, 0.15);
+  box-shadow: 0 14px 28px rgba(15, 23, 42, 0.14);
+}
+[data-theme='dark'] .hero-quick-link--filters {
+  background: rgba(15, 23, 42, 0.85);
+  color: var(--text);
+  border-color: rgba(148, 163, 184, 0.35);
+  box-shadow: 0 18px 32px rgba(2, 6, 23, 0.55);
+}
 .hero-quick-link--filters svg {
   width: 18px;
   height: 18px;
