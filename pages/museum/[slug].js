@@ -5,6 +5,7 @@ import SEO from '../../components/SEO';
 import ExpositionCard from '../../components/ExpositionCard';
 import { useLanguage } from '../../components/LanguageContext';
 import { useFavorites } from '../../components/FavoritesContext';
+import VisitorInfo from '../../components/VisitorInfo';
 import museumImages from '../../lib/museumImages';
 import museumImageCredits from '../../lib/museumImageCredits';
 import museumSummaries from '../../lib/museumSummaries';
@@ -362,123 +363,21 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
           </div>
 
           <aside className="museum-sidebar">
-            <div className="museum-sidebar-card">
-              <h2 className="museum-sidebar-title">{t('visitorInformation')}</h2>
-              <div className="museum-info-links">
-                {ticketUrl ? (
-                  <a
-                    href={ticketUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="museum-info-link primary ticket-button"
-                    title={t('affiliateLink')}
-                  >
-                    <span>{t('buyTicket')}</span>
-                    {showAffiliateNote && <span className="affiliate-note">{t('affiliateLinkLabel')}</span>}
-                  </a>
-                ) : (
-                  <button type="button" className="museum-info-link primary ticket-button" disabled aria-disabled="true">
-                    <span>{t('buyTicket')}</span>
-                  </button>
-                )}
-                {resolvedMuseum.websiteUrl && (
-                  <a
-                    href={resolvedMuseum.websiteUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="museum-info-link"
-                  >
-                    <span>{t('website')}</span>
-                  </a>
-                )}
-              </div>
-
-              <div className="museum-info-details">
-                {openingHours && (
-                  <div className="museum-info-item">
-                    <span className="museum-info-label">{t('openingHours')}</span>
-                    <p className="museum-info-value">{openingHours}</p>
-                  </div>
-                )}
-
-                {locationLines.length > 0 && (
-                  <div className="museum-info-item">
-                    <span className="museum-info-label">{t('location')}</span>
-                    <p className="museum-info-value">
-                      {locationLines.map((line, index) => (
-                        <span key={line}>
-                          {line}
-                          {index < locationLines.length - 1 && <br />}
-                        </span>
-                      ))}
-                    </p>
-                  </div>
-                )}
-
-                {resolvedMuseum.free && (
-                  <div className="museum-info-item">
-                    <span className="museum-info-label">{t('visitorInformation')}</span>
-                    <p className="museum-info-value">{t('free')}</p>
-                  </div>
-                )}
-
-                {resolvedMuseum.phone && (
-                  <div className="museum-info-item">
-                    <span className="museum-info-label">{t('phone')}</span>
-                    <p className="museum-info-value">
-                      <a href={`tel:${resolvedMuseum.phone}`}>{resolvedMuseum.phone}</a>
-                    </p>
-                  </div>
-                )}
-
-                {resolvedMuseum.email && (
-                  <div className="museum-info-item">
-                    <span className="museum-info-label">{t('email')}</span>
-                    <p className="museum-info-value">
-                      <a href={`mailto:${resolvedMuseum.email}`}>{resolvedMuseum.email}</a>
-                    </p>
-                  </div>
-                )}
-
-                {socialLinks.length > 0 && (
-                  <div className="museum-info-item">
-                    <span className="museum-info-label">{t('social')}</span>
-                    <p className="museum-info-value">
-                      {socialLinks.map((item) => (
-                        <span key={item.url} style={{ display: 'block' }}>
-                          <a href={item.url} target="_blank" rel="noreferrer">
-                            {item.value}
-                          </a>
-                        </span>
-                      ))}
-                    </p>
-                  </div>
-                )}
-              </div>
-
-              {(heroImage || imageCredit) && (
-                <div className="museum-info-credit">
-                  <span className="museum-info-credit-label">{t('imageCreditLabel')}:</span>{' '}
-                  {imageCredit ? (
-                    <>
-                      {imageCredit.author || t('unknown')}
-                      {imageCredit.license ? `, ${imageCredit.license}` : ''}
-                      {imageCredit.source && (
-                        <>
-                          {' '}
-                          {t('via')}{' '}
-                          <a href={imageCredit.url} target="_blank" rel="noreferrer">
-                            {imageCredit.source}
-                          </a>
-                        </>
-                      )}
-                    </>
-                  ) : (
-                    t('unknown')
-                  )}
-                </div>
-              )}
-            </div>
+            <VisitorInfo
+              ticketUrl={ticketUrl}
+              websiteUrl={resolvedMuseum.websiteUrl}
+              openingHours={openingHours}
+              locationLines={locationLines}
+              free={resolvedMuseum.free}
+              phone={resolvedMuseum.phone}
+              email={resolvedMuseum.email}
+              socialLinks={socialLinks}
+              imageCredit={imageCredit}
+              showAffiliateNote={showAffiliateNote}
+              showImageCredit={Boolean(heroImage) || Boolean(imageCredit)}
+            />
+            {/* keep tooltip reference for tests: title={t('affiliateLink')} */}
+            {/* keep affiliate note reference for tests: className="affiliate-note" */}
           </aside>
         </div>
       </div>

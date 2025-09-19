@@ -171,6 +171,11 @@ export default function Home({ initialMuseums = [], initialError = null }) {
   return (
     <>
       <SEO title={t('homeTitle')} description={t('homeDescription')} />
+      <div className="page-header">
+        <div className="eyebrow">{t('homeEyebrow')}</div>
+        <h1>{t('homeHeading')}</h1>
+        <p>{t('homeSubheading')}</p>
+      </div>
       <form className="controls" onSubmit={(e) => e.preventDefault()}>
         <div className="control-row">
           <input
@@ -191,31 +196,33 @@ export default function Home({ initialMuseums = [], initialError = null }) {
         </div>
       </form>
 
-      <p className="count">{results.length} {t('results')}</p>
+      <section className="results-section">
+        <p className="count">{results.length} {t('results')}</p>
 
-      {results.length === 0 ? (
-        <p>{t('noResults')}</p>
-      ) : (
-        <ul className="grid" style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-          {results.map((m) => (
-            <li key={m.id}>
-              <MuseumCard
-                museum={{
-                  id: m.id,
-                  slug: m.slug,
-                  title: museumNames[m.slug] || m.naam,
-                  city: m.stad,
-                  province: m.provincie,
-                  free: m.gratis_toegankelijk,
-                  image: museumImages[m.slug],
-                  imageCredit: museumImageCredits[m.slug],
-                  ticketUrl: m.ticket_affiliate_url || museumTicketUrls[m.slug] || m.website_url,
-                }}
-              />
-            </li>
-          ))}
-        </ul>
-      )}
+        {results.length === 0 ? (
+          <p>{t('noResults')}</p>
+        ) : (
+          <ul className="grid" style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+            {results.map((m) => (
+              <li key={m.id}>
+                <MuseumCard
+                  museum={{
+                    id: m.id,
+                    slug: m.slug,
+                    title: museumNames[m.slug] || m.naam,
+                    city: m.stad,
+                    province: m.provincie,
+                    free: m.gratis_toegankelijk,
+                    image: museumImages[m.slug],
+                    imageCredit: museumImageCredits[m.slug],
+                    ticketUrl: m.ticket_affiliate_url || museumTicketUrls[m.slug] || m.website_url,
+                  }}
+                />
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
     </>
   );
 }
