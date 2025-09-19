@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
 import MuseumCard from '../components/MuseumCard';
+import SkeletonMuseumCard from '../components/SkeletonMuseumCard';
 import museumImages from '../lib/museumImages';
 import museumNames from '../lib/museumNames';
 import museumImageCredits from '../lib/museumImageCredits';
@@ -114,6 +115,7 @@ export default function Home({ initialMuseums = [], initialError = null }) {
   const [filtersSheetOpen, setFiltersSheetOpen] = useState(false);
   const [activeFilters, setActiveFilters] = useState(filtersFromUrl);
   const [sheetFilters, setSheetFilters] = useState(filtersFromUrl);
+  const [isLoading, setIsLoading] = useState(false);
   const skipNextUrlSync = useRef(false);
 
   useEffect(() => {
@@ -219,16 +221,20 @@ export default function Home({ initialMuseums = [], initialError = null }) {
     if (usingDefaultFilters && initialMuseumsSorted.length > 0) {
       setResults(initialMuseumsSorted);
       setError(initialError ?? null);
+      setIsLoading(false);
       return;
     }
 
     if (!supabaseClient) {
       setResults([]);
       setError('missingSupabase');
+      setIsLoading(false);
       return;
     }
 
     let isCancelled = false;
+    setIsLoading(true);
+    setResults([]);
 
     const run = async () => {
       try {
@@ -252,7 +258,10 @@ export default function Home({ initialMuseums = [], initialError = null }) {
             .or(`eind_datum.gte.${today},eind_datum.is.null`);
 
           if (exError) {
-            if (!isCancelled) setError('queryFailed');
+            if (!isCancelled) {
+              setError('queryFailed');
+              setIsLoading(false);
+            }
             return;
           }
 
@@ -261,6 +270,7 @@ export default function Home({ initialMuseums = [], initialError = null }) {
             if (!isCancelled) {
               setResults([]);
               setError(null);
+              setIsLoading(false);
             }
             return;
           }
@@ -280,7 +290,10 @@ export default function Home({ initialMuseums = [], initialError = null }) {
         }
 
         if (queryError) {
-          if (!isCancelled) setError('queryFailed');
+          if (!isCancelled) {
+            setError('queryFailed');
+            setIsLoading(false);
+          }
           return;
         }
 
@@ -291,9 +304,13 @@ export default function Home({ initialMuseums = [], initialError = null }) {
         if (!isCancelled) {
           setResults(sortMuseums(filtered));
           setError(null);
+          setIsLoading(false);
         }
       } catch {
-        if (!isCancelled) setError('unknown');
+        if (!isCancelled) {
+          setError('unknown');
+          setIsLoading(false);
+        }
       }
     };
 
@@ -317,6 +334,7 @@ export default function Home({ initialMuseums = [], initialError = null }) {
     if (!query && !activeFilters.free && !activeFilters.exhibitions && initialMuseumsSorted.length > 0) {
       setResults(initialMuseumsSorted);
       setError(initialError ?? null);
+      setIsLoading(false);
     }
   }, [
     router.isReady,
@@ -445,7 +463,15 @@ export default function Home({ initialMuseums = [], initialError = null }) {
 
       <p className="count">{results.length} {t('results')}</p>
 
-      {results.length === 0 ? (
+      {isLoading ? (
+        <ul className="grid" style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+          {Array.from({ length: 6 }).map((_, index) => (
+            <li key={`skeleton-${index}`}>
+              <SkeletonMuseumCard />
+            </li>
+          ))}
+        </ul>
+      ) : results.length === 0 ? (
         <p>{t('noResults')}</p>
       ) : (
         <ul className="grid" style={{ listStyle: 'none', padding: 0, margin: 0 }}>
