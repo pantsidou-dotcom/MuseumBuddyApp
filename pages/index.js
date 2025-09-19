@@ -148,10 +148,11 @@ export default function Home({ initialMuseums = [], initialError = null }) {
     []
   );
 
-  const expositiesHref = useMemo(() => {
-    const params = buildQueryParams(query, { ...activeFilters, exhibitions: true });
-    return params ? `/?${params}` : '/';
-  }, [activeFilters, buildQueryParams, query]);
+  const handleQuickShowExhibitions = useCallback(() => {
+    setActiveFilters((prev) => ({ ...DEFAULT_FILTERS, ...prev, exhibitions: true }));
+    setSheetFilters((prev) => ({ ...DEFAULT_FILTERS, ...prev, exhibitions: true }));
+    setFiltersSheetOpen(false);
+  }, [setActiveFilters, setSheetFilters, setFiltersSheetOpen]);
 
   useEffect(() => {
     if (!router.isReady) return;
@@ -413,9 +414,14 @@ export default function Home({ initialMuseums = [], initialError = null }) {
               </svg>
               <span>{t('filtersButton')}</span>
             </button>
-            <a href={expositiesHref} className="hero-quick-link hero-quick-link--primary">
+            <button
+              type="button"
+              className="hero-quick-link hero-quick-link--primary"
+              onClick={handleQuickShowExhibitions}
+              aria-pressed={activeFilters.exhibitions}
+            >
               {t('expositions')}
-            </a>
+            </button>
             {(query || activeFilters.free || activeFilters.exhibitions) && (
               <a href="/" className="hero-quick-link hero-quick-link--ghost">
                 {t('reset')}
