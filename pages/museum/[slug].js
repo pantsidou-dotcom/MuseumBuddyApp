@@ -1,10 +1,10 @@
-import { useMemo } from 'react';
-import Image from 'next/image';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
 import SEO from '../../components/SEO';
-import ExpositionCard from '../../components/ExpositionCard';
 import { useLanguage } from '../../components/LanguageContext';
 import { useFavorites } from '../../components/FavoritesContext';
+import { useTheme } from '../../components/ThemeContext';
 import museumImages from '../../lib/museumImages';
 import museumImageCredits from '../../lib/museumImageCredits';
 import museumSummaries from '../../lib/museumSummaries';
@@ -12,6 +12,51 @@ import museumOpeningHours from '../../lib/museumOpeningHours';
 import museumTicketUrls from '../../lib/museumTicketUrls';
 import { supabase as supabaseClient } from '../../lib/supabase';
 import { shouldShowAffiliateNote } from '../../lib/nonAffiliateMuseums';
+import {
+  Topbar,
+  TopbarInner,
+  Logo,
+  IconRow,
+  IconBtn,
+  FavoriteBadge,
+  SearchRow,
+  SearchInput,
+  FilterBtn,
+  PageHeader as HeaderBlock,
+  SectionHeader,
+  ChipIcon,
+  ExpositionList,
+  ExpoCard,
+  Fab,
+  ExpoMeta,
+  ExpoTitle,
+  CTA,
+  VisitorCard,
+  VisitorTitle,
+  ButtonRow,
+  PrimaryLink,
+  GhostLink,
+  Label,
+  Value,
+  Credit,
+  PageSurface,
+  PageContainer,
+  SectionSpacing,
+  FooterText,
+  FilterBackdrop,
+  FilterSheet,
+  FilterHeader,
+  FilterTitle,
+  FilterClose,
+  FilterBody,
+  FilterOption,
+  FilterActions,
+  SheetPrimaryButton,
+  SheetSecondaryButton,
+  EmptyState,
+  fabActiveClass,
+  ctaDisabledClass,
+} from '../../components/ui';
 
 function todayYMD(tz = 'Europe/Amsterdam') {
   try {
@@ -95,73 +140,236 @@ function getLocationLines(museum) {
   return lines;
 }
 
-function ShareButton({ onShare, label }) {
+function formatRange(start, end, locale) {
+  if (!start) return '';
+  const opts = { day: '2-digit', month: 'short' };
+  const startFmt = start.toLocaleDateString(locale, opts).toUpperCase();
+  if (!end) return startFmt;
+  const endFmt = end.toLocaleDateString(locale, opts).toUpperCase();
+  const sameMonth = start.getMonth() === end.getMonth() && start.getFullYear() === end.getFullYear();
+  if (sameMonth) {
+    const month = startFmt.split(' ')[1];
+    return `${start.getDate().toString().padStart(2, '0')} - ${end
+      .getDate()
+      .toString()
+      .padStart(2, '0')} ${month}`;
+  }
+  return `${startFmt} - ${endFmt}`;
+}
+
+function joinClasses(...classes) {
+  return classes.filter(Boolean).join(' ');
+}
+
+function FilterBottomSheet({
+  open,
+  onClose,
+  filters,
+  onToggle,
+  onReset,
+  onApply,
+  lang,
+}) {
+  const sheetRef = useRef(null);
+
+  useEffect(() => {
+    if (!open) return undefined;
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = originalOverflow;
+    };
+  }, [open]);
+
+  useEffect(() => {
+    if (!open) return undefined;
+    const node = sheetRef.current;
+    if (!node) return undefined;
+    const focusableSelector =
+      'a[href], button:not([disabled]), input:not([disabled]), textarea, select, [tabindex]:not([tabindex="-1"])';
+
+    const getFocusable = () =>
+      Array.from(node.querySelectorAll(focusableSelector)).filter(
+        (el) => !el.hasAttribute('data-focus-guard') && !el.getAttribute('aria-hidden')
+      );
+
+    const firstFocus = getFocusable()[0];
+    if (firstFocus) firstFocus.focus();
+
+    const handleKeyDown = (event) => {
+      if (event.key === 'Tab') {
+        const items = getFocusable();
+        if (!items.length) {
+          event.preventDefault();
+          return;
+        }
+        const first = items[0];
+        const last = items[items.length - 1];
+        if (event.shiftKey) {
+          if (document.activeElement === first) {
+            event.preventDefault();
+            last.focus();
+          }
+        } else if (document.activeElement === last) {
+          event.preventDefault();
+          first.focus();
+        }
+      } else if (event.key === 'Escape') {
+        event.preventDefault();
+        onClose();
+      }
+    };
+
+    node.addEventListener('keydown', handleKeyDown);
+    return () => {
+      node.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [open, onClose]);
+
+  if (!open) return null;
+
+  const copy = {
+    filters: lang === 'nl' ? 'Filters' : 'Filters',
+    reset: lang === 'nl' ? 'Reset' : 'Reset',
+    apply: lang === 'nl' ? 'Toepassen' : 'Apply',
+    close: lang === 'nl' ? 'Sluit filters' : 'Close filters',
+    futureOnly: lang === 'nl' ? 'Alleen lopende exposities' : 'Upcoming only',
+    affiliateOnly: lang === 'nl' ? 'Alleen met affiliate-link' : 'Affiliate links only',
+    favoritesOnly: lang === 'nl' ? 'Alleen favorieten' : 'Favorites only',
+  };
+
   return (
-    <button type="button" className="icon-button large" aria-label={label} onClick={onShare}>
-      <svg
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
+    <FilterBackdrop
+      onClick={(event) => {
+        if (event.target === event.currentTarget) onClose();
+      }}
+    >
+      <FilterSheet
+        ref={sheetRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="filters-title"
       >
-        <path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7" />
-        <path d="M16 6l-4-4-4 4" />
-        <path d="M12 2v14" />
-      </svg>
-    </button>
+        <FilterHeader>
+          <FilterTitle id="filters-title">{copy.filters}</FilterTitle>
+          <FilterClose aria-label={copy.close} onClick={onClose}>
+            <svg
+              viewBox="0 0 24 24"
+              width="20"
+              height="20"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M18 6 6 18" />
+              <path d="m6 6 12 12" />
+            </svg>
+          </FilterClose>
+        </FilterHeader>
+        <FilterBody>
+          <FilterOption>
+            <input
+              type="checkbox"
+              checked={Boolean(filters.futureOnly)}
+              onChange={() => onToggle('futureOnly')}
+            />
+            <span>{copy.futureOnly}</span>
+          </FilterOption>
+          <FilterOption>
+            <input
+              type="checkbox"
+              checked={Boolean(filters.affiliateOnly)}
+              onChange={() => onToggle('affiliateOnly')}
+            />
+            <span>{copy.affiliateOnly}</span>
+          </FilterOption>
+          <FilterOption>
+            <input
+              type="checkbox"
+              checked={Boolean(filters.favoritesOnly)}
+              onChange={() => onToggle('favoritesOnly')}
+            />
+            <span>{copy.favoritesOnly}</span>
+          </FilterOption>
+        </FilterBody>
+        <FilterActions>
+          <SheetSecondaryButton
+            onClick={() => {
+              onReset();
+              onClose();
+            }}
+          >
+            {copy.reset}
+          </SheetSecondaryButton>
+          <SheetPrimaryButton
+            onClick={() => {
+              onApply();
+              onClose();
+            }}
+          >
+            {copy.apply}
+          </SheetPrimaryButton>
+        </FilterActions>
+      </FilterSheet>
+    </FilterBackdrop>
   );
 }
 
-function FavoriteButton({ active, onToggle, label }) {
-  return (
-    <button
-      type="button"
-      className={`icon-button large${active ? ' favorited' : ''}`}
-      aria-label={label}
-      aria-pressed={active}
-      onClick={onToggle}
-    >
-      <svg
-        viewBox="0 0 24 24"
-        fill={active ? 'currentColor' : 'none'}
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      >
-        <path d="M21 8.25c0 4.556-9 11.25-9 11.25S3 12.806 3 8.25a5.25 5.25 0 0 1 9-3.676A5.25 5.25 0 0 1 21 8.25Z" />
-      </svg>
-    </button>
+function resolveFavoriteExpositionIds(favorites) {
+  return new Set(
+    (favorites || [])
+      .filter((item) => item?.type === 'exposition' && item.id)
+      .map((item) => item.id)
   );
+}
+
+function prepareOpeningHours(raw) {
+  if (!raw) return null;
+  if (Array.isArray(raw)) return raw.join('\n');
+  return String(raw);
 }
 
 export default function MuseumDetailPage({ museum, expositions, error }) {
-  const { lang, t } = useLanguage();
+  const { lang, t, switchLang } = useLanguage();
   const { favorites, toggleFavorite } = useFavorites();
+  const { theme, toggleTheme } = useTheme();
+  const router = useRouter();
+  const [searchValue, setSearchValue] = useState('');
+  const [filtersOpen, setFiltersOpen] = useState(false);
+  const [filters, setFilters] = useState({ futureOnly: false, affiliateOnly: false, favoritesOnly: false });
+  const filterButtonRef = useRef(null);
 
   const resolvedMuseum = useMemo(() => (museum ? { ...museum } : null), [museum]);
+  const languageLabel = lang === 'en' ? 'Switch language to Dutch' : 'Wissel taal naar Engels';
+  const filterLabel = lang === 'en' ? 'Filters' : 'Filters';
+
+  useEffect(() => {
+    if (!filtersOpen && filterButtonRef.current) {
+      filterButtonRef.current.focus();
+    }
+  }, [filtersOpen]);
 
   if (error) {
     return (
-      <section className="museum-detail">
-        <SEO title="MuseumBuddy" description={t('somethingWrong')} />
-        <div className="museum-detail-container">
-          <p>{t('somethingWrong')}</p>
-        </div>
-      </section>
+      <PageSurface>
+        <PageContainer>
+          <SEO title="MuseumBuddy" description={t('somethingWrong')} />
+          <EmptyState>{t('somethingWrong')}</EmptyState>
+        </PageContainer>
+      </PageSurface>
     );
   }
 
   if (!resolvedMuseum) {
     return (
-      <section className="museum-detail">
-        <SEO title="MuseumBuddy" description={t('somethingWrong')} />
-        <div className="museum-detail-container">
-          <p>{t('somethingWrong')}</p>
-        </div>
-      </section>
+      <PageSurface>
+        <PageContainer>
+          <SEO title="MuseumBuddy" description={t('somethingWrong')} />
+          <EmptyState>{t('somethingWrong')}</EmptyState>
+        </PageContainer>
+      </PageSurface>
     );
   }
 
@@ -186,15 +394,9 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
   const ticketUrl = affiliateTicketUrl || directTicketUrl;
   const showAffiliateNote = Boolean(affiliateTicketUrl) && shouldShowAffiliateNote(slug);
   const locationLines = getLocationLines(resolvedMuseum);
+  const openingText = prepareOpeningHours(openingHours);
 
-  const heroImage = useMemo(() => {
-    if (!rawImage) return null;
-    if (rawImage.startsWith('http://') || rawImage.startsWith('https://')) return rawImage;
-    if (rawImage.startsWith('/')) return rawImage;
-    return `/${rawImage}`;
-  }, [rawImage]);
-
-  const favoritePayload = useMemo(
+  const favoriteMuseumPayload = useMemo(
     () => ({
       id: resolvedMuseum.id,
       slug,
@@ -202,7 +404,7 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
       city: resolvedMuseum.city,
       province: resolvedMuseum.province,
       free: resolvedMuseum.free,
-      image: heroImage || rawImage,
+      image: rawImage,
       imageCredit,
       ticketUrl,
       type: 'museum',
@@ -214,20 +416,19 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
       resolvedMuseum.city,
       resolvedMuseum.province,
       resolvedMuseum.free,
-      heroImage,
       rawImage,
       imageCredit,
       ticketUrl,
     ]
   );
 
-  const isFavorite = favorites.some((fav) => fav.id === resolvedMuseum.id && fav.type === 'museum');
+  const museumIsFavorite = favorites.some((item) => item.id === resolvedMuseum.id && item.type === 'museum');
 
-  const handleFavorite = () => {
-    toggleFavorite(favoritePayload);
+  const handleMuseumFavorite = () => {
+    toggleFavorite(favoriteMuseumPayload);
   };
 
-  const handleShare = async () => {
+  const handleMuseumShare = useCallback(async () => {
     if (typeof window === 'undefined') return;
     const url = `${window.location.origin}/museum/${slug}`;
     const shareData = {
@@ -260,231 +461,369 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
     } catch (err) {
       window.prompt(t('copyThisLink'), url);
     }
-  };
+  }, [displayName, slug, t]);
+
+  const expositionItems = useMemo(() => {
+    if (!Array.isArray(expositions)) return [];
+    return expositions
+      .map((row) => normaliseExpositionRow(row, slug))
+      .filter(Boolean);
+  }, [expositions, slug]);
+
+  const favoriteExpositionIds = useMemo(() => resolveFavoriteExpositionIds(favorites), [favorites]);
+
+  const filteredExpositions = useMemo(() => {
+    const now = new Date();
+    return expositionItems.filter((expo) => {
+      if (!expo) return false;
+      if (filters.affiliateOnly && !expo.ticketAffiliateUrl && !expo.ticketUrl) {
+        return false;
+      }
+      if (filters.favoritesOnly && !favoriteExpositionIds.has(expo.id)) {
+        return false;
+      }
+      if (filters.futureOnly) {
+        const end = expo.eind_datum ? new Date(`${expo.eind_datum}T00:00:00`) : null;
+        if (end && end < now) {
+          return false;
+        }
+      }
+      return true;
+    });
+  }, [expositionItems, filters, favoriteExpositionIds]);
 
   const seoDescription = summary || t('museumDescription', { name: displayName });
   const canonical = `/museum/${slug}`;
 
-  const expositionItems = Array.isArray(expositions)
-    ? expositions
-        .map((row) => normaliseExpositionRow(row, slug))
-        .filter(Boolean)
-    : [];
+  const handleSearchSubmit = (event) => {
+    event.preventDefault();
+    const value = searchValue.trim();
+    if (!value) return;
+    router.push(`/?q=${encodeURIComponent(value)}`);
+  };
 
-  const socialLinks = useMemo(() => {
-    const links = [];
-    if (resolvedMuseum.instagram) {
-      const value = resolvedMuseum.instagram;
-      const url = value.startsWith('http') ? value : `https://instagram.com/${value.replace(/^@/, '')}`;
-      links.push({ label: 'Instagram', value, url });
-    }
-    if (resolvedMuseum.facebook) {
-      const value = resolvedMuseum.facebook;
-      const url = value.startsWith('http') ? value : `https://facebook.com/${value.replace(/^@/, '')}`;
-      links.push({ label: 'Facebook', value, url });
-    }
-    if (resolvedMuseum.twitter) {
-      const value = resolvedMuseum.twitter;
-      const url = value.startsWith('http') ? value : `https://twitter.com/${value.replace(/^@/, '')}`;
-      links.push({ label: 'Twitter', value, url });
-    }
-    return links;
-  }, [resolvedMuseum.instagram, resolvedMuseum.facebook, resolvedMuseum.twitter]);
+  const toggleFilter = (key) => {
+    setFilters((prev) => ({ ...prev, [key]: !prev[key] }));
+  };
 
   return (
-    <section className={`museum-detail${heroImage ? ' has-hero' : ''}`}>
-      <SEO title={`${displayName} — MuseumBuddy`} description={seoDescription} image={heroImage} canonical={canonical} />
+    <PageSurface>
+      <SEO title={`${displayName} — MuseumBuddy`} description={seoDescription} image={rawImage} canonical={canonical} />
 
-      {heroImage && (
-        <div className="museum-detail-hero">
-          <Image
-            src={heroImage}
-            alt={displayName}
-            fill
-            className="museum-hero-image"
-            sizes="(max-width: 768px) 100vw, 100vw"
-            priority
-          />
-        </div>
-      )}
-
-      <div className="museum-detail-container">
-        <Link href="/" className="museum-backlink">
-          <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            aria-hidden="true"
-            width="20"
-            height="20"
-          >
-            <path d="M15 18l-6-6 6-6" />
-          </svg>
-          <span>{t('back')}</span>
-        </Link>
-
-        <div className="museum-detail-grid">
-          <div className="museum-expositions-card">
-            <header className="museum-detail-header">
-              <div>
-                <p className="detail-sub">{[resolvedMuseum.city, resolvedMuseum.province].filter(Boolean).join(', ')}</p>
-                <h1 className="detail-title">{displayName}</h1>
-                {summary && <p className="detail-sub">{summary}</p>}
-              </div>
-              <div className="museum-detail-actions">
-                <ShareButton onShare={handleShare} label={t('share')} />
-                <FavoriteButton active={isFavorite} onToggle={handleFavorite} label={t('save')} />
-              </div>
-            </header>
-
-            <div className="museum-expositions-body">
-              <h2 className="museum-expositions-heading">{t('expositionsTitle')}</h2>
-              {expositionItems.length > 0 ? (
-                <ul className="events-list">
-                  {expositionItems.map((exposition) => (
-                    <li key={exposition.id}>
-                      <ExpositionCard
-                        exposition={exposition}
-                        affiliateUrl={affiliateTicketUrl}
-                        ticketUrl={directTicketUrl}
-                        museumSlug={slug}
-                      />
-                    </li>
-                  ))}
-                </ul>
+      <Topbar>
+        <TopbarInner>
+          <Logo>MUSEUM BUDDY</Logo>
+          <IconRow>
+            <IconBtn onClick={() => switchLang(lang === 'en' ? 'nl' : 'en')} aria-label={languageLabel}>
+              {lang === 'en' ? 'EN' : 'NL'}
+            </IconBtn>
+            <IconBtn onClick={toggleTheme} aria-label={t('contrast')}>
+              {theme === 'dark' ? (
+                <svg
+                  viewBox="0 0 24 24"
+                  width="20"
+                  height="20"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+                </svg>
               ) : (
-                <p className="museum-expositions-empty">{t('noExpositions')}</p>
+                <svg
+                  viewBox="0 0 24 24"
+                  width="20"
+                  height="20"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <circle cx="12" cy="12" r="5" />
+                  <line x1="12" y1="1" x2="12" y2="3" />
+                  <line x1="12" y1="21" x2="12" y2="23" />
+                  <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+                  <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+                  <line x1="1" y1="12" x2="3" y2="12" />
+                  <line x1="21" y1="12" x2="23" y2="12" />
+                  <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+                  <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+                </svg>
               )}
-            </div>
-          </div>
+            </IconBtn>
+            <Link href="/favorites" passHref legacyBehavior>
+              <IconBtn as="a" aria-label={t('favoritesLabel')}>
+                <svg
+                  viewBox="0 0 24 24"
+                  width="20"
+                  height="20"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M21 8.25c0 4.556-9 11.25-9 11.25S3 12.806 3 8.25a5.25 5.25 0 0 1 9-3.676A5.25 5.25 0 0 1 21 8.25Z" />
+                </svg>
+                {favorites.length > 0 && <FavoriteBadge>{favorites.length}</FavoriteBadge>}
+              </IconBtn>
+            </Link>
+          </IconRow>
+        </TopbarInner>
+      </Topbar>
 
-          <aside className="museum-sidebar">
-            <div className="museum-sidebar-card">
-              <h2 className="museum-sidebar-title">{t('visitorInformation')}</h2>
-              <div className="museum-info-links">
-                {ticketUrl ? (
-                  <a
-                    href={ticketUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="museum-info-link primary ticket-button"
-                    title={t('affiliateLink')}
+      <PageContainer>
+        <SearchRow as="form" onSubmit={handleSearchSubmit} role="search">
+          <SearchInput
+            type="search"
+            value={searchValue}
+            onChange={(event) => setSearchValue(event.target.value)}
+            placeholder={t('searchPlaceholder')}
+            aria-label={t('searchPlaceholder')}
+          />
+          <FilterBtn
+            ref={filterButtonRef}
+            onClick={() => setFiltersOpen(true)}
+            aria-haspopup="dialog"
+            aria-expanded={filtersOpen}
+            aria-label={filterLabel}
+          >
+            {filterLabel}
+          </FilterBtn>
+        </SearchRow>
+
+        <HeaderBlock>
+          <div className="eyebrow">{[resolvedMuseum.city, resolvedMuseum.province].filter(Boolean).join(', ')}</div>
+          <h1>{displayName}</h1>
+          {summary && <p>{summary}</p>}
+        </HeaderBlock>
+
+        <SectionHeader>
+          <h2>{t('expositionsTitle')}</h2>
+          <IconRow>
+            <ChipIcon onClick={handleMuseumShare} aria-label={t('share')}>
+              <svg
+                viewBox="0 0 24 24"
+                width="22"
+                height="22"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7" />
+                <path d="M16 6l-4-4-4 4" />
+                <path d="M12 2v14" />
+              </svg>
+            </ChipIcon>
+            <ChipIcon onClick={handleMuseumFavorite} aria-label={t('save')}>
+              <svg
+                viewBox="0 0 24 24"
+                width="22"
+                height="22"
+                fill={museumIsFavorite ? 'currentColor' : 'none'}
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M21 8.25c0 4.556-9 11.25-9 11.25S3 12.806 3 8.25a5.25 5.25 0 0 1 9-3.676A5.25 5.25 0 0 1 21 8.25Z" />
+              </svg>
+            </ChipIcon>
+          </IconRow>
+        </SectionHeader>
+
+        {filteredExpositions.length > 0 ? (
+          <ExpositionList>
+            {filteredExpositions.map((exposition) => {
+              const start = exposition.start_datum ? new Date(`${exposition.start_datum}T00:00:00`) : null;
+              const end = exposition.eind_datum ? new Date(`${exposition.eind_datum}T00:00:00`) : null;
+              const locale = lang === 'en' ? 'en-US' : 'nl-NL';
+              const rangeLabel = formatRange(start, end, locale);
+              const buyUrl =
+                exposition.ticketAffiliateUrl || exposition.ticketUrl || exposition.bron_url || affiliateTicketUrl || directTicketUrl;
+              const showNote = Boolean(exposition.ticketAffiliateUrl || affiliateTicketUrl) && shouldShowAffiliateNote(slug);
+              const isFavorite = favoriteExpositionIds.has(exposition.id);
+
+              const handleFavoriteToggle = () => {
+                toggleFavorite({
+                  id: exposition.id,
+                  titel: exposition.titel,
+                  start_datum: exposition.start_datum,
+                  eind_datum: exposition.eind_datum,
+                  bron_url: exposition.bron_url,
+                  ticketAffiliateUrl: exposition.ticketAffiliateUrl,
+                  ticketUrl: exposition.ticketUrl,
+                  museumSlug: exposition.museumSlug,
+                  type: 'exposition',
+                });
+              };
+
+              return (
+                <ExpoCard key={exposition.id}>
+                  <Fab
+                    onClick={handleFavoriteToggle}
+                    className={joinClasses(isFavorite && fabActiveClass)}
+                    aria-label={t('save')}
+                    aria-pressed={isFavorite}
                   >
-                    <span>{t('buyTicket')}</span>
-                    {showAffiliateNote && <span className="affiliate-note">{t('affiliateLinkLabel')}</span>}
-                  </a>
-                ) : (
-                  <button type="button" className="museum-info-link primary ticket-button" disabled aria-disabled="true">
-                    <span>{t('buyTicket')}</span>
-                  </button>
-                )}
-                {resolvedMuseum.websiteUrl && (
-                  <a
-                    href={resolvedMuseum.websiteUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="museum-info-link"
-                  >
-                    <span>{t('website')}</span>
-                  </a>
-                )}
-              </div>
+                    <svg
+                      viewBox="0 0 24 24"
+                      width="22"
+                      height="22"
+                      fill={isFavorite ? 'currentColor' : 'none'}
+                      stroke="currentColor"
+                      strokeWidth="1.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M21 8.25c0 4.556-9 11.25-9 11.25S3 12.806 3 8.25a5.25 5.25 0 0 1 9-3.676A5.25 5.25 0 0 1 21 8.25Z" />
+                    </svg>
+                  </Fab>
+                  <ExpoMeta>
+                    {rangeLabel ? (
+                      <>
+                        <span>{t('duration')}</span>
+                        <span>{rangeLabel}</span>
+                      </>
+                    ) : (
+                      <span>{t('duration')}</span>
+                    )}
+                  </ExpoMeta>
+                  <ExpoTitle>{exposition.titel}</ExpoTitle>
+                  {buyUrl ? (
+                    <CTA
+                      as="a"
+                      href={buyUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      title={t('affiliateLink')}
+                      aria-label={`${t('buyTicket')} - ${exposition.titel}`}
+                    >
+                      <span>{t('buyTicket')}</span>
+                      {showNote && <small className="affiliate-note">{t('affiliateLinkLabel')}</small>}
+                    </CTA>
+                  ) : (
+                    <CTA className={ctaDisabledClass} disabled aria-disabled="true">
+                      <span>{t('buyTicket')}</span>
+                    </CTA>
+                  )}
+                </ExpoCard>
+              );
+            })}
+          </ExpositionList>
+        ) : (
+          <EmptyState>{t('noExpositions')}</EmptyState>
+        )}
 
-              <div className="museum-info-details">
-                {openingHours && (
-                  <div className="museum-info-item">
-                    <span className="museum-info-label">{t('openingHours')}</span>
-                    <p className="museum-info-value">{openingHours}</p>
-                  </div>
-                )}
+        <SectionSpacing />
 
-                {locationLines.length > 0 && (
-                  <div className="museum-info-item">
-                    <span className="museum-info-label">{t('location')}</span>
-                    <p className="museum-info-value">
-                      {locationLines.map((line, index) => (
-                        <span key={line}>
-                          {line}
-                          {index < locationLines.length - 1 && <br />}
-                        </span>
-                      ))}
-                    </p>
-                  </div>
-                )}
+        <VisitorCard>
+          <VisitorTitle>{t('visitorInformation')}</VisitorTitle>
+          <ButtonRow>
+            {ticketUrl ? (
+              <PrimaryLink
+                href={ticketUrl}
+                target="_blank"
+                rel="noreferrer"
+                title={showAffiliateNote ? t('affiliateLink') : undefined}
+                aria-label={`${t('buyTicket')} - ${displayName}`}
+              >
+                {t('buyTicket')}
+              </PrimaryLink>
+            ) : (
+              <PrimaryLink as="span" className={ctaDisabledClass} aria-disabled="true">
+                {t('buyTicket')}
+              </PrimaryLink>
+            )}
+            {resolvedMuseum.websiteUrl ? (
+              <GhostLink href={resolvedMuseum.websiteUrl} target="_blank" rel="noreferrer">
+                {t('website')}
+              </GhostLink>
+            ) : (
+              <GhostLink as="span" className={ctaDisabledClass} aria-disabled="true">
+                {t('website')}
+              </GhostLink>
+            )}
+          </ButtonRow>
 
-                {resolvedMuseum.free && (
-                  <div className="museum-info-item">
-                    <span className="museum-info-label">{t('visitorInformation')}</span>
-                    <p className="museum-info-value">{t('free')}</p>
-                  </div>
-                )}
+          {openingText && (
+            <>
+              <Label>{t('openingHours')}</Label>
+              <Value>
+                {openingText.split('\n').map((line, index, arr) => (
+                  <span key={`${line}-${index}`}>
+                    {line}
+                    {index < arr.length - 1 && <br />}
+                  </span>
+                ))}
+              </Value>
+            </>
+          )}
 
-                {resolvedMuseum.phone && (
-                  <div className="museum-info-item">
-                    <span className="museum-info-label">{t('phone')}</span>
-                    <p className="museum-info-value">
-                      <a href={`tel:${resolvedMuseum.phone}`}>{resolvedMuseum.phone}</a>
-                    </p>
-                  </div>
-                )}
+          {locationLines.length > 0 && (
+            <>
+              <Label>{t('location')}</Label>
+              <Value>
+                {locationLines.map((line, index) => (
+                  <span key={`${line}-${index}`}>
+                    {line}
+                    {index < locationLines.length - 1 && <br />}
+                  </span>
+                ))}
+              </Value>
+            </>
+          )}
 
-                {resolvedMuseum.email && (
-                  <div className="museum-info-item">
-                    <span className="museum-info-label">{t('email')}</span>
-                    <p className="museum-info-value">
-                      <a href={`mailto:${resolvedMuseum.email}`}>{resolvedMuseum.email}</a>
-                    </p>
-                  </div>
-                )}
-
-                {socialLinks.length > 0 && (
-                  <div className="museum-info-item">
-                    <span className="museum-info-label">{t('social')}</span>
-                    <p className="museum-info-value">
-                      {socialLinks.map((item) => (
-                        <span key={item.url} style={{ display: 'block' }}>
-                          <a href={item.url} target="_blank" rel="noreferrer">
-                            {item.value}
-                          </a>
-                        </span>
-                      ))}
-                    </p>
-                  </div>
-                )}
-              </div>
-
-              {(heroImage || imageCredit) && (
-                <div className="museum-info-credit">
-                  <span className="museum-info-credit-label">{t('imageCreditLabel')}:</span>{' '}
-                  {imageCredit ? (
+          {(rawImage || imageCredit) && (
+            <Credit>
+              {t('imageCreditLabel')}{' '}
+              {imageCredit ? (
+                <>
+                  {imageCredit.author || t('unknown')}
+                  {imageCredit.license ? `, ${imageCredit.license}` : ''}
+                  {imageCredit.source && (
                     <>
-                      {imageCredit.author || t('unknown')}
-                      {imageCredit.license ? `, ${imageCredit.license}` : ''}
-                      {imageCredit.source && (
-                        <>
-                          {' '}
-                          {t('via')}{' '}
-                          <a href={imageCredit.url} target="_blank" rel="noreferrer">
-                            {imageCredit.source}
-                          </a>
-                        </>
+                      {' '}
+                      {t('via')}{' '}
+                      {imageCredit.url ? (
+                        <a href={imageCredit.url} target="_blank" rel="noreferrer">
+                          {imageCredit.source}
+                        </a>
+                      ) : (
+                        imageCredit.source
                       )}
                     </>
-                  ) : (
-                    t('unknown')
                   )}
-                </div>
+                </>
+              ) : (
+                t('unknown')
               )}
-            </div>
-          </aside>
-        </div>
-      </div>
-    </section>
+            </Credit>
+          )}
+        </VisitorCard>
+
+        <FooterText>{t('affiliateLink')}</FooterText>
+      </PageContainer>
+
+      <FilterBottomSheet
+        open={filtersOpen}
+        onClose={() => setFiltersOpen(false)}
+        filters={filters}
+        onToggle={toggleFilter}
+        onReset={() => setFilters({ futureOnly: false, affiliateOnly: false, favoritesOnly: false })}
+        onApply={() => {}}
+        lang={lang}
+      />
+    </PageSurface>
   );
 }
+
+MuseumDetailPage.getLayout = (page) => page;
 
 export async function getStaticProps({ params }) {
   const rawSlug = Array.isArray(params?.slug) ? params.slug[0] : params?.slug;
