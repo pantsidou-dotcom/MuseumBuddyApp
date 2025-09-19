@@ -103,7 +103,7 @@ export default function MuseumCard({ museum }) {
           )}
         </Link>
         <div className="image-credit">
-          {t('museumLabel')}: {museum.title} — {t('imageCreditLabel')}: 
+          {t('museumLabel')}: {museum.title} — {t('imageCreditLabel')}:
           {museum.imageCredit ? (
             <>
               {museum.imageCredit.author}
@@ -120,26 +120,6 @@ export default function MuseumCard({ museum }) {
             </>
           ) : (
             t('unknown')
-          )}
-        </div>
-        <div className="museum-card-ticket">
-          {museum.ticketUrl ? (
-            <a
-              href={museum.ticketUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="ticket-button"
-              title={t('affiliateLink')}
-            >
-              <span>{t('buyTicket')}</span>
-              {showAffiliateNote && (
-                <span className="affiliate-note">{t('affiliateLinkLabel')}</span>
-              )}
-            </a>
-          ) : (
-            <button type="button" className="ticket-button" disabled aria-disabled="true">
-              <span>{t('buyTicket')}</span>
-            </button>
           )}
         </div>
         <div className="museum-card-actions">
@@ -178,19 +158,54 @@ export default function MuseumCard({ museum }) {
             {museum.title}
           </Link>
         </h3>
-        <p className="museum-card-location">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-            <path d="M12 11.25a2.25 2.25 0 1 0 0-4.5 2.25 2.25 0 0 0 0 4.5Z" />
-            <path d="M12 21s-7.5-7.048-7.5-11.25a7.5 7.5 0 1 1 15 0C19.5 13.952 12 21 12 21Z" />
-          </svg>
-          {[museum.city, museum.province].filter(Boolean).join(', ')}
-        </p>
+        <div className="museum-card-meta">
+          <p className="museum-card-location">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M12 11.25a2.25 2.25 0 1 0 0-4.5 2.25 2.25 0 0 0 0 4.5Z" />
+              <path d="M12 21s-7.5-7.048-7.5-11.25a7.5 7.5 0 1 1 15 0C19.5 13.952 12 21 12 21Z" />
+            </svg>
+            {[museum.city, museum.province].filter(Boolean).join(', ')}
+          </p>
+          {hours && (
+            <p className="museum-card-hours">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="7.25" />
+                <path d="M12 8v4l2.5 2.5" />
+              </svg>
+              {hours}
+            </p>
+          )}
+        </div>
         {summary && <p className="museum-card-summary">{summary}</p>}
-        {hours && <p className="museum-card-hours">{hours}</p>}
         {museum.free && (
           <div className="museum-card-tags">
             <span className="tag">{t('free')}</span>
           </div>
+        )}
+      </div>
+      <div className={`museum-card-cta${museum.ticketUrl ? '' : ' is-disabled'}`}>
+        {museum.ticketUrl ? (
+          <a
+            href={museum.ticketUrl}
+            target="_blank"
+            rel="noreferrer"
+            className="ticket-button ticket-button--bar"
+            title={t('affiliateLink')}
+          >
+            <span className="ticket-label">{t('buyTicket')}</span>
+            {showAffiliateNote && (
+              <span className="affiliate-note">{t('affiliateLinkLabel')}</span>
+            )}
+          </a>
+        ) : (
+          <button
+            type="button"
+            className="ticket-button ticket-button--bar is-disabled"
+            disabled
+            aria-disabled="true"
+          >
+            <span className="ticket-label">{t('buyTicket')}</span>
+          </button>
         )}
       </div>
     </article>
