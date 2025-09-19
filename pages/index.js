@@ -171,25 +171,32 @@ export default function Home({ initialMuseums = [], initialError = null }) {
   return (
     <>
       <SEO title={t('homeTitle')} description={t('homeDescription')} />
-      <form className="controls" onSubmit={(e) => e.preventDefault()}>
-        <div className="control-row">
+      <section className="hero">
+        <div className="hero-content">
+          <span className="hero-tagline">{t('heroTagline')}</span>
+          <h1 className="hero-title">{t('heroTitle')}</h1>
+          <p className="hero-subtext">{t('heroSubtitle')}</p>
+        </div>
+        <form className="hero-card hero-search" onSubmit={(e) => e.preventDefault()}>
           <input
             type="text"
-            className="input"
+            className="input hero-input"
             placeholder={t('searchPlaceholder')}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
           />
-          <a href={expositiesHref} className="btn-reset">
-            {t('expositions')}
-          </a>
-          {(query || hasExposities) && (
-            <a href="/" className="btn-reset">
-              {t('reset')}
+          <div className="hero-actions">
+            <a href={expositiesHref} className="hero-quick-link hero-quick-link--primary">
+              {t('expositions')}
             </a>
-          )}
-        </div>
-      </form>
+            {(query || hasExposities) && (
+              <a href="/" className="hero-quick-link hero-quick-link--ghost">
+                {t('reset')}
+              </a>
+            )}
+          </div>
+        </form>
+      </section>
 
       <p className="count">{results.length} {t('results')}</p>
 
