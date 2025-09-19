@@ -394,10 +394,10 @@ button.hero-quick-link {
 }
 .hero-quick-link:hover { transform: translateY(-1px); box-shadow: 0 16px 28px rgba(15, 23, 42, 0.16); }
 .hero-quick-link--primary {
-  background: var(--accent);
-  color: var(--accent-ink);
+  background: linear-gradient(135deg, #ff7a45 0%, #ff4f64 100%);
+  color: #fff;
   border-color: transparent;
-  box-shadow: 0 16px 28px rgba(255, 90, 60, 0.3);
+  box-shadow: 0 18px 34px rgba(255, 79, 100, 0.32);
 }
 .hero-quick-link--ghost {
   background: transparent;
