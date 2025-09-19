@@ -86,42 +86,19 @@ export default function MuseumCard({ museum }) {
 
   return (
     <article className="museum-card" style={{ '--hover-bg': hoverColor }}>
-      <div className="museum-card-image">
-        <Link
-          href={{ pathname: '/museum/[slug]', query: { slug: museum.slug } }}
-          style={{ display: 'block', width: '100%', height: '100%', position: 'relative' }}
-          aria-label={`${t('view')} ${museum.title}`}
-        >
-          {museum.image && (
-            <Image
-              src={museum.image.startsWith('/') ? museum.image : `/${museum.image}`}
-              alt={museum.title}
-              fill
-              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-              style={{ objectFit: 'cover' }}
-            />
-          )}
-        </Link>
-        <div className="image-credit">
-          {t('museumLabel')}: {museum.title} — {t('imageCreditLabel')}: 
-          {museum.imageCredit ? (
-            <>
-              {museum.imageCredit.author}
-              {museum.imageCredit.license ? `, ${museum.imageCredit.license}` : ''}
-              {museum.imageCredit.source && (
-                <>
-                  {' '}
-                  {t('via')}{' '}
-                  <a href={museum.imageCredit.url} target="_blank" rel="noreferrer">
-                    {museum.imageCredit.source}
-                  </a>
-                </>
-              )}
-            </>
-          ) : (
-            t('unknown')
-          )}
-        </div>
+      <div className="museum-card-media">
+        {museum.image && (
+          <Image
+            src={museum.image.startsWith('/') ? museum.image : `/${museum.image}`}
+            alt={museum.title}
+            fill
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+            style={{ objectFit: 'cover' }}
+          />
+        )}
+      </div>
+      <div className="museum-card-overlay" aria-hidden="true" />
+      <div className="museum-card-header">
         <div className="museum-card-ticket">
           {museum.ticketUrl ? (
             <a
@@ -143,7 +120,7 @@ export default function MuseumCard({ museum }) {
           )}
         </div>
         <div className="museum-card-actions">
-          <button className="icon-button" aria-label={t('share')} onClick={shareMuseum}>
+          <button type="button" className="icon-button" aria-label={t('share')} onClick={shareMuseum}>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
               <path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7" />
               <path d="M16 6l-4-4-4 4" />
@@ -151,6 +128,7 @@ export default function MuseumCard({ museum }) {
             </svg>
           </button>
           <button
+            type="button"
             className={`icon-button${isFavorite ? ' favorited' : ''}`}
             aria-label={t('save')}
             aria-pressed={isFavorite}
@@ -186,13 +164,42 @@ export default function MuseumCard({ museum }) {
           {[museum.city, museum.province].filter(Boolean).join(', ')}
         </p>
         {summary && <p className="museum-card-summary">{summary}</p>}
-        {hours && <p className="museum-card-hours">{hours}</p>}
+        {hours && (
+          <p className="museum-card-hours">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="7.25" />
+              <path d="M12 8v4l2.5 1.5" />
+            </svg>
+            {hours}
+          </p>
+        )}
         {museum.free && (
           <div className="museum-card-tags">
             <span className="tag">{t('free')}</span>
           </div>
         )}
       </div>
+      <p className="museum-card-credit">
+        <span className="museum-card-credit-label">{t('museumLabel')}:</span> {museum.title} —{' '}
+        <span className="museum-card-credit-label">{t('imageCreditLabel')}:</span>{' '}
+        {museum.imageCredit ? (
+          <>
+            {museum.imageCredit.author}
+            {museum.imageCredit.license ? `, ${museum.imageCredit.license}` : ''}
+            {museum.imageCredit.source && (
+              <>
+                {' '}
+                {t('via')}{' '}
+                <a href={museum.imageCredit.url} target="_blank" rel="noreferrer">
+                  {museum.imageCredit.source}
+                </a>
+              </>
+            )}
+          </>
+        ) : (
+          t('unknown')
+        )}
+      </p>
     </article>
   );
 }
