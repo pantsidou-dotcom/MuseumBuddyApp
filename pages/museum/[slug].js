@@ -186,6 +186,8 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
   const ticketUrl = affiliateTicketUrl || directTicketUrl;
   const showAffiliateNote = Boolean(affiliateTicketUrl) && shouldShowAffiliateNote(slug);
   const locationLines = getLocationLines(resolvedMuseum);
+  const hasWebsite = Boolean(resolvedMuseum.websiteUrl);
+  const hasTicketLink = Boolean(ticketUrl);
 
   const heroImage = useMemo(() => {
     if (!rawImage) return null;
@@ -326,6 +328,43 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
           <span>{t('back')}</span>
         </Link>
 
+        <div className="museum-primary-action-bar">
+          <div className="museum-primary-action-group">
+            {hasTicketLink ? (
+              <a
+                href={ticketUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="museum-primary-action primary"
+                title={t('affiliateLink')}
+              >
+                <span>{t('buyTicket')}</span>
+                {showAffiliateNote && <span className="affiliate-note">{t('affiliateLinkLabel')}</span>}
+              </a>
+            ) : (
+              <button type="button" className="museum-primary-action primary" disabled aria-disabled="true">
+                <span>{t('buyTicket')}</span>
+              </button>
+            )}
+
+            {hasWebsite && (
+              <a
+                href={resolvedMuseum.websiteUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="museum-primary-action secondary"
+              >
+                <span>{t('website')}</span>
+              </a>
+            )}
+          </div>
+
+          <div className="museum-primary-action-utility">
+            <ShareButton onShare={handleShare} label={t('share')} />
+            <FavoriteButton active={isFavorite} onToggle={handleFavorite} label={t('save')} />
+          </div>
+        </div>
+
         <div className="museum-detail-grid">
           <div className="museum-expositions-card">
             <header className="museum-detail-header">
@@ -333,10 +372,6 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
                 <p className="detail-sub">{[resolvedMuseum.city, resolvedMuseum.province].filter(Boolean).join(', ')}</p>
                 <h1 className="detail-title">{displayName}</h1>
                 {summary && <p className="detail-sub">{summary}</p>}
-              </div>
-              <div className="museum-detail-actions">
-                <ShareButton onShare={handleShare} label={t('share')} />
-                <FavoriteButton active={isFavorite} onToggle={handleFavorite} label={t('save')} />
               </div>
             </header>
 
@@ -362,36 +397,8 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
           </div>
 
           <aside className="museum-sidebar">
-            <div className="museum-sidebar-card">
+            <div className="museum-sidebar-card support-card">
               <h2 className="museum-sidebar-title">{t('visitorInformation')}</h2>
-              <div className="museum-info-links">
-                {ticketUrl ? (
-                  <a
-                    href={ticketUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="museum-info-link primary ticket-button"
-                    title={t('affiliateLink')}
-                  >
-                    <span>{t('buyTicket')}</span>
-                    {showAffiliateNote && <span className="affiliate-note">{t('affiliateLinkLabel')}</span>}
-                  </a>
-                ) : (
-                  <button type="button" className="museum-info-link primary ticket-button" disabled aria-disabled="true">
-                    <span>{t('buyTicket')}</span>
-                  </button>
-                )}
-                {resolvedMuseum.websiteUrl && (
-                  <a
-                    href={resolvedMuseum.websiteUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="museum-info-link"
-                  >
-                    <span>{t('website')}</span>
-                  </a>
-                )}
-              </div>
 
               <div className="museum-info-details">
                 {openingHours && (
