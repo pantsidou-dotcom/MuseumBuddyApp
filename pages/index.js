@@ -179,11 +179,12 @@ export default function Home({ initialMuseums = [], initialError = null }) {
         </div>
         <form className="hero-card hero-search" onSubmit={(e) => e.preventDefault()}>
           <input
-            type="text"
+            type="search"
             className="input hero-input"
             placeholder={t('searchPlaceholder')}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
+            aria-label={t('searchPlaceholder')}
           />
           <div className="hero-actions">
             <a href={expositiesHref} className="hero-quick-link hero-quick-link--primary">
