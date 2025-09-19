@@ -982,21 +982,18 @@ button.hero-quick-link {
 
 @media (max-width: 720px) {
   .museum-primary-action-bar {
-    position: fixed;
-    left: 50%;
-    bottom: 20px;
-    bottom: calc(20px + env(safe-area-inset-bottom));
-    transform: translateX(-50%);
-    width: min(560px, calc(100% - 32px));
-    margin: 0;
-    z-index: 30;
-    box-shadow: 0 32px 60px rgba(15,23,42,0.28);
+    position: sticky;
+    top: clamp(16px, 5vw, 32px);
+    top: calc(clamp(16px, 5vw, 32px) + env(safe-area-inset-top, 0px));
+    margin: 0 0 32px;
+    left: auto;
+    bottom: auto;
+    transform: none;
+    width: 100%;
+    max-width: none;
+    z-index: 20;
+    box-shadow: 0 22px 44px rgba(15,23,42,0.22);
     padding: 18px 20px;
-    padding-bottom: 18px;
-    padding-bottom: calc(18px + env(safe-area-inset-bottom));
-  }
-  .museum-detail {
-    padding-bottom: 200px;
   }
   .museum-primary-action {
     min-height: 50px;
@@ -1008,7 +1005,7 @@ button.hero-quick-link {
 }
 
 @media (max-width: 600px) {
-  .museum-detail { padding-bottom: 200px; }
+  .museum-detail { padding-bottom: 72px; }
   .museum-detail.has-hero .museum-detail-container { margin-top: -48px; }
   .museum-detail-grid { gap: 24px; }
   .museum-expositions-card,
@@ -1026,7 +1023,7 @@ button.hero-quick-link {
     backdrop-filter: none;
   }
   .museum-primary-action-bar {
-    width: min(520px, calc(100% - 28px));
+    width: 100%;
     padding: 16px 18px;
   }
   .museum-primary-action-group {
