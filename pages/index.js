@@ -64,15 +64,48 @@ export default function Home({ initialMuseums = [], initialError = null }) {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState(() => (shouldUseInitialData ? initialMuseumsSorted : []));
   const [error, setError] = useState(() => (shouldUseInitialData ? initialError : null));
+  const [filtersOpen, setFiltersOpen] = useState(false);
+  const [expositionsOnly, setExpositionsOnly] = useState(hasExposities);
 
   useEffect(() => {
     if (!router.isReady) return;
     setQuery(qFromUrl);
   }, [router.isReady, qFromUrl]);
 
-  const expositiesHref = useMemo(() => {
-    return query ? `/?q=${encodeURIComponent(query)}&exposities=1` : '/?exposities=1';
-  }, [query]);
+  useEffect(() => {
+    setExpositionsOnly(hasExposities);
+  }, [hasExposities]);
+
+  const hasActiveFilters = useMemo(() => hasExposities, [hasExposities]);
+  const hasQuery = useMemo(() => query.trim().length > 0, [query]);
+
+  const applyFilters = () => {
+    if (!router.isReady) return;
+    const trimmedQuery = query.trim();
+    const params = {};
+    if (trimmedQuery) params.q = trimmedQuery;
+    if (expositionsOnly) params.exposities = '1';
+
+    if (trimmedQuery !== query) {
+      setQuery(trimmedQuery);
+    }
+
+    if (Object.keys(params).length > 0) {
+      router.push({ pathname: '/', query: params }, undefined, { shallow: true });
+    } else {
+      router.push('/', undefined, { shallow: true });
+    }
+
+    setFiltersOpen(false);
+  };
+
+  const resetFilters = () => {
+    if (!router.isReady) return;
+    setQuery('');
+    setExpositionsOnly(false);
+    router.push('/', undefined, { shallow: true });
+    setFiltersOpen(false);
+  };
 
   useEffect(() => {
     if (!router.isReady) return;
@@ -171,51 +204,115 @@ export default function Home({ initialMuseums = [], initialError = null }) {
   return (
     <>
       <SEO title={t('homeTitle')} description={t('homeDescription')} />
-      <form className="controls" onSubmit={(e) => e.preventDefault()}>
-        <div className="control-row">
-          <input
-            type="text"
-            className="input"
-            placeholder={t('searchPlaceholder')}
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-          />
-          <a href={expositiesHref} className="btn-reset">
-            {t('expositions')}
-          </a>
-          {(query || hasExposities) && (
-            <a href="/" className="btn-reset">
-              {t('reset')}
-            </a>
-          )}
+      <div className="home-wrapper">
+        <div className="home-page">
+          <section className="home-hero">
+            <div className="home-hero__copy">
+              <p className="home-hero__eyebrow">MuseumBuddy</p>
+              <h1 className="home-hero__title">{t('heroTitle')}</h1>
+              <p className="home-hero__subtitle">{t('heroSubtitle')}</p>
+            </div>
+            <form
+              className="home-search"
+              onSubmit={(e) => {
+                e.preventDefault();
+                applyFilters();
+              }}
+            >
+              <div className="home-search-field">
+                <span className="home-search-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="11" cy="11" r="7" />
+                    <path d="m20 20-3.5-3.5" />
+                  </svg>
+                </span>
+                <input
+                  id="search"
+                  type="text"
+                  aria-label={t('searchPlaceholder')}
+                  placeholder={t('searchPlaceholder')}
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                />
+              </div>
+              <button
+                type="button"
+                className={`home-filter-button${hasActiveFilters || expositionsOnly ? ' is-active' : ''}`}
+                onClick={() => setFiltersOpen((prev) => !prev)}
+                aria-expanded={filtersOpen}
+                aria-controls="filters-panel"
+              >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M4 5h16" />
+                  <path d="M6 12h12" />
+                  <path d="M10 19h4" />
+                </svg>
+                <span>{t('filters')}</span>
+              </button>
+            </form>
+            {filtersOpen && (
+              <div id="filters-panel" className="home-filter-panel">
+                <p className="home-filter-title">{t('filtersTitle')}</p>
+                <label className="home-filter-option">
+                  <input
+                    type="checkbox"
+                    checked={expositionsOnly}
+                    onChange={(e) => setExpositionsOnly(e.target.checked)}
+                  />
+                  <span>{t('filterExpositions')}</span>
+                </label>
+                <div className="home-filter-actions">
+                  <button type="button" className="home-filter-apply" onClick={applyFilters}>
+                    {t('applyFilters')}
+                  </button>
+                  {(hasQuery || hasActiveFilters || expositionsOnly) && (
+                    <button type="button" className="home-filter-reset" onClick={resetFilters}>
+                      {t('reset')}
+                    </button>
+                  )}
+                </div>
+              </div>
+            )}
+          </section>
+
+          <section className="home-results">
+            <div className="home-results-header">
+              <p className="home-results-count">
+                {results.length} {t('results')}
+              </p>
+              {(hasActiveFilters || hasQuery) && (
+                <button type="button" className="home-results-reset" onClick={resetFilters}>
+                  {t('reset')}
+                </button>
+              )}
+            </div>
+
+            {results.length === 0 ? (
+              <p className="home-results-empty">{t('noResults')}</p>
+            ) : (
+              <ul className="home-results-list">
+                {results.map((m) => (
+                  <li key={m.id}>
+                    <MuseumCard
+                      museum={{
+                        id: m.id,
+                        slug: m.slug,
+                        title: museumNames[m.slug] || m.naam,
+                        city: m.stad,
+                        province: m.provincie,
+                        free: m.gratis_toegankelijk,
+                        image: museumImages[m.slug],
+                        imageCredit: museumImageCredits[m.slug],
+                        ticketUrl: m.ticket_affiliate_url || museumTicketUrls[m.slug] || m.website_url,
+                      }}
+                    />
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
         </div>
-      </form>
-
-      <p className="count">{results.length} {t('results')}</p>
-
-      {results.length === 0 ? (
-        <p>{t('noResults')}</p>
-      ) : (
-        <ul className="grid" style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-          {results.map((m) => (
-            <li key={m.id}>
-              <MuseumCard
-                museum={{
-                  id: m.id,
-                  slug: m.slug,
-                  title: museumNames[m.slug] || m.naam,
-                  city: m.stad,
-                  province: m.provincie,
-                  free: m.gratis_toegankelijk,
-                  image: museumImages[m.slug],
-                  imageCredit: museumImageCredits[m.slug],
-                  ticketUrl: m.ticket_affiliate_url || museumTicketUrls[m.slug] || m.website_url,
-                }}
-              />
-            </li>
-          ))}
-        </ul>
-      )}
+      </div>
     </>
   );
 }

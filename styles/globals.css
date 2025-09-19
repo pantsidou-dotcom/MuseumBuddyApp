@@ -158,6 +158,272 @@ img { max-width: 100%; height: auto; display: block; }
 .page-title { margin: 8px 0 4px; font-size: 28px; font-weight: 700; }
 .page-subtitle { margin: 0 0 16px; color: var(--muted); }
 
+/* Home page */
+.home-wrapper {
+  position: relative;
+  width: min(100%, 520px);
+  margin: 0 auto;
+  padding: clamp(24px, 6vw, 40px);
+  border-radius: 40px;
+  background: radial-gradient(140% 120% at 50% 0%, rgba(34, 108, 96, 0.68) 0%, rgba(5, 25, 25, 0.94) 60%, rgba(3, 14, 14, 1) 100%);
+  box-shadow: 0 36px 80px rgba(3, 18, 18, 0.5);
+  overflow: hidden;
+  color: #f6fffc;
+}
+.home-wrapper::before {
+  content: "";
+  position: absolute;
+  top: -120px;
+  right: -80px;
+  width: 280px;
+  height: 280px;
+  background: radial-gradient(circle at center, rgba(112, 255, 216, 0.28) 0%, transparent 70%);
+  pointer-events: none;
+}
+.home-wrapper::after {
+  content: "";
+  position: absolute;
+  bottom: -160px;
+  left: -100px;
+  width: 320px;
+  height: 320px;
+  background: radial-gradient(circle at center, rgba(48, 152, 133, 0.22) 0%, transparent 70%);
+  pointer-events: none;
+}
+.home-page {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(24px, 5vw, 36px);
+  z-index: 1;
+}
+.home-hero {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(24px, 5vw, 32px);
+  padding: clamp(26px, 6vw, 38px);
+  border-radius: 32px;
+  background: linear-gradient(160deg, rgba(18, 90, 81, 0.86) 0%, rgba(6, 40, 36, 0.95) 70%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.03);
+  overflow: hidden;
+}
+.home-hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(130% 160% at 50% -30%, rgba(142, 255, 221, 0.32) 0%, transparent 70%);
+  opacity: 0.8;
+  pointer-events: none;
+}
+.home-hero__copy {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  z-index: 1;
+}
+.home-hero__eyebrow {
+  margin: 0;
+  font-size: 12px;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: rgba(212, 242, 233, 0.7);
+}
+.home-hero__title {
+  margin: 0;
+  font-size: clamp(32px, 8vw, 38px);
+  line-height: 1.1;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: #f9fffd;
+}
+.home-hero__subtitle {
+  margin: 0;
+  max-width: 34ch;
+  font-size: 16px;
+  line-height: 1.6;
+  color: rgba(224, 248, 241, 0.8);
+}
+.home-search {
+  position: relative;
+  display: flex;
+  align-items: stretch;
+  gap: 12px;
+  z-index: 1;
+  flex-wrap: nowrap;
+}
+.home-search-field {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 18px;
+  border-radius: 999px;
+  background: rgba(4, 24, 24, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+.home-search-field input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  color: #f9fffd;
+  font-size: 16px;
+  outline: none;
+}
+.home-search-field input::placeholder { color: rgba(231, 247, 242, 0.6); }
+.home-search-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(224, 248, 241, 0.65);
+}
+.home-search-icon svg { width: 20px; height: 20px; }
+.home-filter-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 20px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(6, 34, 32, 0.7);
+  color: #f6fffc;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+}
+.home-filter-button svg { width: 20px; height: 20px; }
+.home-filter-button:hover { transform: translateY(-1px); background: rgba(8, 46, 43, 0.85); }
+.home-filter-button.is-active {
+  background: #f6fffc;
+  color: #0d3b33;
+  border-color: transparent;
+}
+.home-filter-button.is-active svg { color: currentColor; }
+.home-filter-panel {
+  position: relative;
+  margin-top: 18px;
+  padding: 20px;
+  border-radius: 28px;
+  background: rgba(4, 28, 27, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 18px 40px rgba(2, 12, 12, 0.45);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  z-index: 1;
+}
+.home-filter-title {
+  margin: 0;
+  font-size: 13px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(216, 242, 235, 0.7);
+}
+.home-filter-option {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 15px;
+  color: #e8fbf3;
+}
+.home-filter-option input {
+  width: 18px;
+  height: 18px;
+  accent-color: #5ff2bf;
+}
+.home-filter-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.home-filter-apply {
+  padding: 10px 22px;
+  border-radius: 999px;
+  border: none;
+  background: linear-gradient(135deg, #62f5c4 0%, #35c99b 100%);
+  color: #043630;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: 0 16px 36px rgba(53, 201, 155, 0.4);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.home-filter-apply:hover { transform: translateY(-1px); box-shadow: 0 22px 44px rgba(53, 201, 155, 0.5); }
+.home-filter-reset {
+  padding: 8px 16px;
+  border-radius: 999px;
+  border: none;
+  background: transparent;
+  color: rgba(226, 249, 242, 0.76);
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: underline;
+}
+.home-filter-reset:hover { color: #f6fffc; }
+.home-results {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(18px, 4vw, 28px);
+}
+.home-results-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.home-results-count {
+  margin: 0;
+  font-size: 13px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(218, 244, 237, 0.72);
+}
+.home-results-reset {
+  border: none;
+  background: none;
+  color: rgba(229, 249, 243, 0.78);
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: underline;
+  cursor: pointer;
+}
+.home-results-reset:hover { color: #f6fffc; }
+.home-results-empty {
+  margin: 0;
+  font-size: 16px;
+  color: rgba(233, 249, 244, 0.85);
+}
+.home-results-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(18px, 5vw, 28px);
+}
+.home-search-field input:focus-visible,
+.home-filter-button:focus-visible,
+.home-filter-apply:focus-visible,
+.home-filter-reset:focus-visible,
+.home-results-reset:focus-visible {
+  outline: 2px solid rgba(98, 245, 196, 0.9);
+  outline-offset: 3px;
+}
+
+@media (min-width: 768px) {
+  .home-wrapper {
+    width: min(100%, 560px);
+  }
+}
+
 /* Controls */
 .input {
   width: 100%;
@@ -350,71 +616,224 @@ img { max-width: 100%; height: auto; display: block; }
   display: block;
 }
 
-.image-credit {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  padding: 4px 8px;
-  font-size: 12px;
-  color: var(--muted);
-}
-
 /* MuseumCard component */
 .museum-card {
-  background: var(--surface);
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+  position: relative;
   display: flex;
   flex-direction: column;
-  width: 100%;
+  justify-content: flex-end;
+  gap: 20px;
+  min-height: 320px;
+  padding: clamp(24px, 5vw, 32px);
+  border-radius: 32px;
+  background: linear-gradient(190deg, rgba(5, 22, 22, 0.7) 0%, rgba(5, 18, 18, 0.92) 65%, rgba(3, 12, 12, 0.96) 100%);
+  color: #f8fffd;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow: 0 28px 60px rgba(3, 18, 18, 0.5);
+  isolation: isolate;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
-.museum-card-image {
+.museum-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% -10%, var(--hover-bg, rgba(100, 221, 198, 0.6)) 0%, transparent 65%);
+  opacity: 0.35;
+  mix-blend-mode: screen;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+  z-index: -1;
+}
+.museum-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 36px 76px rgba(3, 18, 18, 0.6);
+}
+.museum-card:hover::after {
+  opacity: 0.55;
+}
+.museum-card-media {
+  position: absolute;
+  inset: 0;
+  z-index: -3;
+}
+.museum-card-media > span {
+  position: absolute !important;
+  inset: 0;
+}
+.museum-card-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: saturate(1.08) brightness(0.78);
+}
+.museum-card-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(195deg, rgba(5, 15, 15, 0.1) 0%, rgba(5, 15, 15, 0.85) 65%, rgba(3, 10, 10, 0.95) 100%);
+  z-index: -2;
+}
+.museum-card-header {
   position: relative;
-  width: 100%;
-  aspect-ratio: 4 / 3;
-}
-.museum-card-actions {
-  position: absolute;
-  top: 8px;
-  right: 8px;
   display: flex;
-  gap: 8px;
-}
-.museum-card-ticket {
-  position: absolute;
-  top: 8px;
-  left: 8px;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
   z-index: 1;
 }
-.ticket-button {
-  padding: 6px 12px;
-  border: none;
-  border-radius: 8px;
-  background: var(--accent);
-  color: var(--accent-ink);
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+.museum-card-ticket {
   display: flex;
   flex-direction: column;
+  gap: 6px;
+}
+.museum-card-actions {
+  display: flex;
+  gap: 10px;
+}
+.museum-card-info {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  z-index: 1;
+}
+.museum-card-title {
+  margin: 0;
+  font-size: clamp(20px, 5vw, 24px);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+.museum-card-location {
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: rgba(220, 243, 238, 0.75);
+}
+.museum-card-location svg {
+  width: 18px;
+  height: 18px;
+}
+.museum-card-summary {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.6;
+  color: rgba(246, 255, 252, 0.86);
+}
+.museum-card-hours {
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  letter-spacing: 0.02em;
+  color: rgba(200, 236, 228, 0.9);
+}
+.museum-card-hours svg {
+  width: 18px;
+  height: 18px;
+}
+.museum-card-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 4px;
+}
+.museum-card-tags .tag {
+  margin: 0;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(245, 255, 250, 0.92);
+  color: #063a33;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.museum-card-credit {
+  margin: 0;
+  font-size: 11px;
+  line-height: 1.6;
+  color: rgba(226, 245, 240, 0.6);
+  z-index: 1;
+}
+.museum-card-credit a {
+  color: inherit;
+  text-decoration: underline;
+}
+.museum-card-credit-label {
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-right: 4px;
+  color: rgba(226, 245, 240, 0.74);
+}
+.museum-card .ticket-button {
+  background: linear-gradient(135deg, #62f5c4 0%, #30c595 100%);
+  color: #043a30;
+  box-shadow: 0 18px 40px rgba(48, 197, 149, 0.45);
+  letter-spacing: 0.08em;
+}
+.museum-card .ticket-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 24px 48px rgba(48, 197, 149, 0.52);
+}
+.museum-card .ticket-button[disabled],
+.museum-card .ticket-button[aria-disabled="true"] {
+  background: rgba(4, 28, 27, 0.5);
+  color: rgba(224, 248, 241, 0.6);
+  border: 1px solid rgba(224, 248, 241, 0.2);
+  box-shadow: none;
+}
+.museum-card .icon-button {
+  background: rgba(6, 34, 32, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: #f7fffd;
+  backdrop-filter: blur(6px);
+  box-shadow: 0 12px 28px rgba(3, 20, 20, 0.35);
+  transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+}
+.museum-card .icon-button:hover {
+  transform: translateY(-1px);
+  background: rgba(9, 46, 43, 0.9);
+  border-color: rgba(255, 255, 255, 0.35);
+}
+.museum-card .icon-button.favorited {
+  background: linear-gradient(135deg, rgba(255, 207, 112, 0.95), rgba(255, 170, 70, 0.95));
+  color: #4b2402;
+  border-color: transparent;
+  box-shadow: 0 16px 34px rgba(255, 180, 72, 0.35);
+}
+
+/* Ticket buttons */
+.ticket-button {
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  text-align: center;
-  text-decoration: none;
   gap: 6px;
+  padding: 10px 22px;
+  border-radius: 999px;
+  border: none;
+  background: linear-gradient(135deg, #5ff2bf 0%, #2fbf91 100%);
+  color: #053932;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  text-decoration: none;
   min-width: 0;
+  box-shadow: 0 16px 36px rgba(47, 191, 145, 0.35);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
 }
 .ticket-button:hover {
-  background: var(--accent-ink);
-  color: var(--accent);
+  transform: translateY(-1px);
+  box-shadow: 0 22px 46px rgba(47, 191, 145, 0.45);
 }
 .museum-info-links .ticket-button {
   width: 100%;
-  padding: 12px 20px;
-  box-shadow: 0 12px 24px rgba(15,23,42,0.14);
+  padding: 12px 24px;
 }
 @media (min-width: 601px) {
   .museum-info-links .ticket-button {
@@ -423,9 +842,11 @@ img { max-width: 100%; height: auto; display: block; }
 }
 .ticket-button[disabled],
 .ticket-button[aria-disabled="true"] {
-  opacity: 0.5;
-  pointer-events: none;
+  background: rgba(5, 25, 25, 0.15);
+  color: rgba(5, 25, 25, 0.45);
+  box-shadow: none;
   cursor: not-allowed;
+  opacity: 0.6;
 }
 .affiliate-note {
   border: 0;
@@ -454,6 +875,7 @@ img { max-width: 100%; height: auto; display: block; }
     line-height: 1;
   }
 }
+
 .icon-button {
   width: 32px;
   height: 32px;
@@ -464,6 +886,7 @@ img { max-width: 100%; height: auto; display: block; }
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  transition: transform 0.2s ease, background 0.2s ease;
 }
 .icon-button svg {
   width: 18px;
@@ -487,39 +910,6 @@ img { max-width: 100%; height: auto; display: block; }
 }
 .icon-button.favorited svg path {
   fill: currentColor;
-}
-
-.museum-card-info {
-  padding: 16px;
-  background: var(--surface);
-  transition: background 0.3s ease;
-}
-.museum-card:hover .museum-card-info {
-  background: var(--hover-bg, var(--surface));
-}
-.museum-card-title {
-  margin: 0 0 8px;
-  font-size: 20px;
-  font-weight: 600;
-}
-.museum-card-location {
-  margin: 0;
-  display: flex;
-  align-items: center;
-  font-size: 14px;
-  color: var(--muted);
-}
-.museum-card-location svg {
-  width: 16px;
-  height: 16px;
-  margin-right: 4px;
-}
-
-.museum-card-tags {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-  margin-top: 8px;
 }
 
 /* Events list and cards */
