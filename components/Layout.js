@@ -24,27 +24,17 @@ export default function Layout({ children }) {
               <span className="brand-title">MuseumBuddy</span>
             </div>
             <div className="navspacer" />
-            <div className="header-actions">
+            <div className="icon-row topbar-actions">
               <button
                 type="button"
-                className="lang-select"
+                className="icon-chip icon-chip--text"
                 onClick={() => switchLang(lang === 'en' ? 'nl' : 'en')}
               >
                 {lang === 'en' ? 'EN' : 'NL'}
-                <svg viewBox="0 0 12 8" aria-hidden="true">
-                  <path
-                    d="M1 1l5 5 5-5"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
               </button>
               <button
                 type="button"
-                className="contrast-toggle"
+                className="icon-chip"
                 onClick={toggleTheme}
                 aria-label={t('contrast')}
               >
@@ -80,7 +70,7 @@ export default function Layout({ children }) {
                   </svg>
                 )}
               </button>
-              <Link href="/about" className="header-icon" aria-label={t('aboutLabel')}>
+              <Link href="/about" className="icon-chip icon-link" aria-label={t('aboutLabel')}>
                 <svg
                   viewBox="0 0 24 24"
                   fill="none"
@@ -93,10 +83,14 @@ export default function Layout({ children }) {
                   <path d="M7 7h10M7 11h10M7 15h10" />
                 </svg>
               </Link>
-              <Link href="/favorites" className="header-icon" aria-label={t('favoritesLabel')}>
+              <Link
+                href="/favorites"
+                className={`icon-chip icon-link favorites-chip${favorites.length > 0 ? ' is-active' : ''}`}
+                aria-label={t('favoritesLabel')}
+              >
                 <svg
                   viewBox="0 0 24 24"
-                  fill="none"
+                  fill={favorites.length > 0 ? 'currentColor' : 'none'}
                   stroke="currentColor"
                   strokeWidth="1.5"
                   strokeLinecap="round"

@@ -96,48 +96,6 @@ function getLocationLines(museum) {
   return lines;
 }
 
-function ShareButton({ onShare, label }) {
-  return (
-    <button type="button" className="icon-button large" aria-label={label} onClick={onShare}>
-      <svg
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      >
-        <path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7" />
-        <path d="M16 6l-4-4-4 4" />
-        <path d="M12 2v14" />
-      </svg>
-    </button>
-  );
-}
-
-function FavoriteButton({ active, onToggle, label }) {
-  return (
-    <button
-      type="button"
-      className={`icon-button large${active ? ' favorited' : ''}`}
-      aria-label={label}
-      aria-pressed={active}
-      onClick={onToggle}
-    >
-      <svg
-        viewBox="0 0 24 24"
-        fill={active ? 'currentColor' : 'none'}
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      >
-        <path d="M21 8.25c0 4.556-9 11.25-9 11.25S3 12.806 3 8.25a5.25 5.25 0 0 1 9-3.676A5.25 5.25 0 0 1 21 8.25Z" />
-      </svg>
-    </button>
-  );
-}
-
 export default function MuseumDetailPage({ museum, expositions, error }) {
   const { lang, t } = useLanguage();
   const { favorites, toggleFavorite } = useFavorites();
@@ -293,24 +251,11 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
   }, [resolvedMuseum.instagram, resolvedMuseum.facebook, resolvedMuseum.twitter]);
 
   return (
-    <section className={`museum-detail${heroImage ? ' has-hero' : ''}`}>
+    <section className="museum-page">
       <SEO title={`${displayName} — MuseumBuddy`} description={seoDescription} image={heroImage} canonical={canonical} />
 
-      {heroImage && (
-        <div className="museum-detail-hero">
-          <Image
-            src={heroImage}
-            alt={displayName}
-            fill
-            className="museum-hero-image"
-            sizes="(max-width: 768px) 100vw, 100vw"
-            priority
-          />
-        </div>
-      )}
-
-      <div className="museum-detail-container">
-        <Link href="/" className="museum-backlink">
+      <div className="container museum-page-inner">
+        <Link href="/" className="chip-link back-chip">
           <svg
             viewBox="0 0 24 24"
             fill="none"
@@ -327,59 +272,96 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
           <span>{t('back')}</span>
         </Link>
 
-        <div className="museum-detail-grid">
-          <div className="museum-expositions-card">
-            <header className="museum-detail-header">
-              <div>
-                <p className="detail-sub">{[resolvedMuseum.city, resolvedMuseum.province].filter(Boolean).join(', ')}</p>
-                <h1 className="detail-title">{displayName}</h1>
-                {summary && <p className="detail-sub">{summary}</p>}
-              </div>
-              <div className="museum-detail-actions">
-                <ShareButton onShare={handleShare} label={t('share')} />
-                <FavoriteButton active={isFavorite} onToggle={handleFavorite} label={t('save')} />
-              </div>
-            </header>
-
-            <div className="museum-expositions-body">
-              <h2 className="museum-expositions-heading">{t('expositionsTitle')}</h2>
-              {expositionItems.length > 0 ? (
-                <ul className="events-list">
-                  {expositionItems.map((exposition) => (
-                    <li key={exposition.id}>
-                      <ExpositionCard
-                        exposition={exposition}
-                        affiliateUrl={affiliateTicketUrl}
-                        ticketUrl={directTicketUrl}
-                        museumSlug={slug}
-                      />
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p className="museum-expositions-empty">{t('noExpositions')}</p>
-              )}
-            </div>
-          </div>
-
-          <aside className="museum-sidebar">
-            <VisitorInfo
-              ticketUrl={ticketUrl}
-              websiteUrl={resolvedMuseum.websiteUrl}
-              openingHours={openingHours}
-              locationLines={locationLines}
-              free={resolvedMuseum.free}
-              phone={resolvedMuseum.phone}
-              email={resolvedMuseum.email}
-              socialLinks={socialLinks}
-              imageCredit={imageCredit}
-              showAffiliateNote={showAffiliateNote}
-              showImageCredit={Boolean(heroImage) || Boolean(imageCredit)}
+        {heroImage && (
+          <div className="museum-hero">
+            <Image
+              src={heroImage}
+              alt={displayName}
+              fill
+              sizes="(max-width: 640px) 100vw, 640px"
+              className="museum-hero-image"
+              priority
             />
-            {/* keep tooltip reference for tests: title={t('affiliateLink')} */}
-            {/* keep affiliate note reference for tests: className="affiliate-note" */}
-          </aside>
+          </div>
+        )}
+
+        <header className="museum-page-header">
+          <div className="eyebrow">{[resolvedMuseum.city, resolvedMuseum.province].filter(Boolean).join(', ')}</div>
+          <h1>{displayName}</h1>
+          {summary && <p>{summary}</p>}
+        </header>
+
+        <div className="section-header">
+          <h2>{t('expositionsTitle')}</h2>
+          <div className="icon-row">
+            <button type="button" className="icon-chip" onClick={handleShare} aria-label={t('share')}>
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7" />
+                <path d="M16 6l-4-4-4 4" />
+                <path d="M12 2v14" />
+              </svg>
+            </button>
+            <button
+              type="button"
+              className={`icon-chip${isFavorite ? ' is-active' : ''}`}
+              aria-label={t('save')}
+              aria-pressed={isFavorite}
+              onClick={handleFavorite}
+            >
+              <svg
+                viewBox="0 0 24 24"
+                fill={isFavorite ? 'currentColor' : 'none'}
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M21 8.25c0 4.556-9 11.25-9 11.25S3 12.806 3 8.25a5.25 5.25 0 0 1 9-3.676A5.25 5.25 0 0 1 21 8.25Z" />
+              </svg>
+            </button>
+          </div>
         </div>
+
+        {expositionItems.length > 0 ? (
+          <div className="expo-stack">
+            {expositionItems.map((exposition) => (
+              <ExpositionCard
+                key={exposition.id}
+                exposition={exposition}
+                affiliateUrl={affiliateTicketUrl}
+                ticketUrl={directTicketUrl}
+                museumSlug={slug}
+              />
+            ))}
+          </div>
+        ) : (
+          <p className="museum-expositions-empty">{t('noExpositions')}</p>
+        )}
+
+        <VisitorInfo
+          ticketUrl={ticketUrl}
+          websiteUrl={resolvedMuseum.websiteUrl}
+          openingHours={openingHours}
+          locationLines={locationLines}
+          free={resolvedMuseum.free}
+          phone={resolvedMuseum.phone}
+          email={resolvedMuseum.email}
+          socialLinks={socialLinks}
+          imageCredit={imageCredit}
+          showAffiliateNote={showAffiliateNote}
+          showImageCredit={Boolean(heroImage) || Boolean(imageCredit)}
+        />
+        {/* keep tooltip reference for tests: title={t('affiliateLink')} */}
+        {/* keep affiliate note reference for tests: className="affiliate-note" */}
       </div>
     </section>
   );

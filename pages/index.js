@@ -64,15 +64,51 @@ export default function Home({ initialMuseums = [], initialError = null }) {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState(() => (shouldUseInitialData ? initialMuseumsSorted : []));
   const [error, setError] = useState(() => (shouldUseInitialData ? initialError : null));
+  const [sheetOpen, setSheetOpen] = useState(false);
+  const appliedFilters = useMemo(
+    () => ({
+      inRegion: false,
+      temporarily: hasExposities,
+      childFriendly: false,
+      free: false,
+    }),
+    [hasExposities]
+  );
+  const [draftFilters, setDraftFilters] = useState(appliedFilters);
+
+  useEffect(() => {
+    setDraftFilters(appliedFilters);
+  }, [appliedFilters]);
 
   useEffect(() => {
     if (!router.isReady) return;
     setQuery(qFromUrl);
   }, [router.isReady, qFromUrl]);
 
-  const expositiesHref = useMemo(() => {
-    return query ? `/?q=${encodeURIComponent(query)}&exposities=1` : '/?exposities=1';
-  }, [query]);
+  const openSheet = () => {
+    setDraftFilters(appliedFilters);
+    setSheetOpen(true);
+  };
+
+  const closeSheet = () => {
+    setSheetOpen(false);
+    setDraftFilters(appliedFilters);
+  };
+
+  const applyFilters = () => {
+    const nextQuery = {};
+    if (query) nextQuery.q = query;
+    if (draftFilters.temporarily) nextQuery.exposities = '1';
+    router.push({ pathname: '/', query: nextQuery }, undefined, { shallow: false });
+    setSheetOpen(false);
+  };
+
+  const hasActiveFilters = appliedFilters.temporarily;
+
+  const resetAll = () => {
+    setQuery('');
+    router.push('/', undefined, { shallow: false });
+  };
 
   useEffect(() => {
     if (!router.isReady) return;
@@ -176,24 +212,27 @@ export default function Home({ initialMuseums = [], initialError = null }) {
         <h1>{t('homeHeading')}</h1>
         <p>{t('homeSubheading')}</p>
       </div>
-      <form className="controls" onSubmit={(e) => e.preventDefault()}>
-        <div className="control-row">
-          <input
-            type="text"
-            className="input"
-            placeholder={t('searchPlaceholder')}
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-          />
-          <a href={expositiesHref} className="btn-reset">
-            {t('expositions')}
-          </a>
-          {(query || hasExposities) && (
-            <a href="/" className="btn-reset">
-              {t('reset')}
-            </a>
-          )}
-        </div>
+      <form className="search-row" onSubmit={(e) => e.preventDefault()}>
+        <input
+          type="text"
+          className="search-input"
+          placeholder={t('searchPlaceholder')}
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          aria-label={t('searchPlaceholder')}
+        />
+        <button
+          type="button"
+          className={`filter-btn${hasActiveFilters ? ' is-active' : ''}`}
+          onClick={openSheet}
+        >
+          {t('filters')}
+        </button>
+        {(query || hasExposities) && (
+          <button type="button" className="clear-btn" onClick={resetAll}>
+            {t('reset')}
+          </button>
+        )}
       </form>
 
       <section className="results-section">
@@ -223,6 +262,53 @@ export default function Home({ initialMuseums = [], initialError = null }) {
           </ul>
         )}
       </section>
+
+      <div className={`filter-sheet${sheetOpen ? ' is-open' : ''}`} aria-hidden={!sheetOpen}>
+        <button type="button" className="filter-backdrop" onClick={closeSheet} aria-label={t('filtersCancel')} />
+        <div className="filter-panel" role="dialog" aria-modal="true" aria-labelledby="filters-title">
+          <h3 id="filters-title">{t('filtersTitle')}</h3>
+          <label className="filter-check">
+            <input
+              type="checkbox"
+              checked={draftFilters.inRegion}
+              onChange={(e) => setDraftFilters((prev) => ({ ...prev, inRegion: e.target.checked }))}
+            />
+            <span>{t('filterRegion')}</span>
+          </label>
+          <label className="filter-check">
+            <input
+              type="checkbox"
+              checked={draftFilters.temporarily}
+              onChange={(e) => setDraftFilters((prev) => ({ ...prev, temporarily: e.target.checked }))}
+            />
+            <span>{t('filterTemporary')}</span>
+          </label>
+          <label className="filter-check">
+            <input
+              type="checkbox"
+              checked={draftFilters.childFriendly}
+              onChange={(e) => setDraftFilters((prev) => ({ ...prev, childFriendly: e.target.checked }))}
+            />
+            <span>{t('filterChildFriendly')}</span>
+          </label>
+          <label className="filter-check">
+            <input
+              type="checkbox"
+              checked={draftFilters.free}
+              onChange={(e) => setDraftFilters((prev) => ({ ...prev, free: e.target.checked }))}
+            />
+            <span>{t('filterFree')}</span>
+          </label>
+          <div className="filter-actions">
+            <button type="button" className="btn ghost" onClick={closeSheet}>
+              {t('filtersCancel')}
+            </button>
+            <button type="button" className="btn primary" onClick={applyFilters}>
+              {t('filtersDone')}
+            </button>
+          </div>
+        </div>
+      </div>
     </>
   );
 }

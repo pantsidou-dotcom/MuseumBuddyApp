@@ -51,56 +51,55 @@ export default function ExpositionCard({ exposition, ticketUrl, affiliateUrl, mu
   };
 
   return (
-    <article className="event-card exposition-card">
-      <div className="event-card-date">
-        {rangeLabel && <span className="event-card-status">{t('duration')}</span>}
-        {rangeLabel && <span className="event-card-range">{rangeLabel}</span>}
+    <article className={`expo-card${isFavorite ? ' favorited' : ''}`}>
+      <button
+        type="button"
+        className="expo-fab"
+        aria-label={t('save')}
+        aria-pressed={isFavorite}
+        onClick={handleFavorite}
+      >
+        <svg
+          viewBox="0 0 24 24"
+          fill={isFavorite ? 'currentColor' : 'none'}
+          stroke="currentColor"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path d="M21 8.25c0 4.556-9 11.25-9 11.25S3 12.806 3 8.25a5.25 5.25 0 0 1 9-3.676A5.25 5.25 0 0 1 21 8.25Z" />
+        </svg>
+      </button>
+      <div className="expo-meta">
+        {rangeLabel && <span className="expo-label">{t('duration')}</span>}
+        {rangeLabel && <span className="expo-range">{rangeLabel}</span>}
       </div>
-      <div className="event-card-info">
-        <h3 className="event-card-title">
-          {exposition.bron_url ? (
-            <a href={exposition.bron_url} target="_blank" rel="noreferrer">
-              {exposition.titel}
-            </a>
-          ) : (
-            exposition.titel
-          )}
-        </h3>
-      </div>
-      <div className="event-card-actions">
+      <h3 className="expo-title">
+        {exposition.bron_url ? (
+          <a href={exposition.bron_url} target="_blank" rel="noreferrer">
+            {exposition.titel}
+          </a>
+        ) : (
+          exposition.titel
+        )}
+      </h3>
+      <div className="expo-actions">
         {buyUrl ? (
           <a
             href={buyUrl}
             target="_blank"
             rel="noreferrer"
-            className="ticket-button"
+            className="expo-cta"
             title={t('affiliateLink')}
           >
             <span>{t('buyTicket')}</span>
-            {showAffiliateNote && <span className="affiliate-note">{t('affiliateLinkLabel')}</span>}
+            {showAffiliateNote && <small className="affiliate-note">{t('affiliateLinkLabel')}</small>}
           </a>
         ) : (
-          <button type="button" className="ticket-button" disabled aria-disabled="true">
+          <button type="button" className="expo-cta" disabled aria-disabled="true">
             <span>{t('buyTicket')}</span>
           </button>
         )}
-        <button
-          className={`icon-button large${isFavorite ? ' favorited' : ''}`}
-          aria-label={t('save')}
-          aria-pressed={isFavorite}
-          onClick={handleFavorite}
-        >
-          <svg
-            viewBox="0 0 24 24"
-            fill={isFavorite ? 'currentColor' : 'none'}
-            stroke="currentColor"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path d="M21 8.25c0 4.556-9 11.25-9 11.25S3 12.806 3 8.25a5.25 5.25 0 0 1 9-3.676A5.25 5.25 0 0 1 21 8.25Z" />
-          </svg>
-        </button>
       </div>
     </article>
   );
