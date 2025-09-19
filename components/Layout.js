@@ -16,14 +16,38 @@ export default function Layout({ children }) {
       </Head>
       <header className="header">
         <nav className="navbar container">
-          <div className="brand-wrap">
+          <div className="brand-wrap header-brand">
             <Link href="/" className="brand-square" aria-label={t('homeLabel')}>
-              <span className="brand-text">MUSEUM<br />BUDDY</span>
+              <span className="brand-letter">MB</span>
             </Link>
-            <span className="brand-title">MuseumBuddy</span>
+            <div className="brand-wordmark">
+              <span className="brand-title">MuseumBuddy</span>
+              <span className="brand-tagline">{t('heroTagline')}</span>
+            </div>
           </div>
           <div className="navspacer" />
           <div className="header-actions">
+            <button
+              type="button"
+              className="filters-trigger"
+              aria-label={t('filtersButton')}
+              aria-haspopup="dialog"
+            >
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M4 4h16" />
+                <path d="M7 12h10" />
+                <path d="M10 20h4" />
+              </svg>
+              <span>{t('filtersButton')}</span>
+            </button>
             <button
               type="button"
               className="lang-select"
