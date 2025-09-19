@@ -42,6 +42,7 @@ export default function MuseumCard({ museum }) {
 
   const summary = museumSummaries[museum.slug]?.[lang] || museum.summary;
   const hours = museumOpeningHours[museum.slug]?.[lang];
+  const locationText = [museum.city, museum.province].filter(Boolean).join(', ');
   const showAffiliateNote = Boolean(museum.ticketUrl) && shouldShowAffiliateNote(museum.slug);
 
   const handleFavorite = () => {
@@ -144,11 +145,12 @@ export default function MuseumCard({ museum }) {
         </div>
         <div className="museum-card-actions">
           <button className="icon-button" aria-label={t('share')} onClick={shareMuseum}>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
               <path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7" />
               <path d="M16 6l-4-4-4 4" />
               <path d="M12 2v14" />
             </svg>
+            <span className="icon-button-text">{t('share')}</span>
           </button>
           <button
             className={`icon-button${isFavorite ? ' favorited' : ''}`}
@@ -163,9 +165,11 @@ export default function MuseumCard({ museum }) {
               strokeWidth="1.5"
               strokeLinecap="round"
               strokeLinejoin="round"
+              aria-hidden="true"
             >
               <path d="M21 8.25c0 4.556-9 11.25-9 11.25S3 12.806 3 8.25a5.25 5.25 0 0 1 9-3.676A5.25 5.25 0 0 1 21 8.25Z" />
             </svg>
+            <span className="icon-button-text">{t('save')}</span>
           </button>
         </div>
       </div>
@@ -178,15 +182,31 @@ export default function MuseumCard({ museum }) {
             {museum.title}
           </Link>
         </h3>
-        <p className="museum-card-location">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-            <path d="M12 11.25a2.25 2.25 0 1 0 0-4.5 2.25 2.25 0 0 0 0 4.5Z" />
-            <path d="M12 21s-7.5-7.048-7.5-11.25a7.5 7.5 0 1 1 15 0C19.5 13.952 12 21 12 21Z" />
-          </svg>
-          {[museum.city, museum.province].filter(Boolean).join(', ')}
-        </p>
+        <div className="museum-card-meta">
+          {locationText && (
+            <p className="museum-card-meta-item">
+              <span className="museum-card-meta-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M12 11.25a2.25 2.25 0 1 0 0-4.5 2.25 2.25 0 0 0 0 4.5Z" />
+                  <path d="M12 21s-7.5-7.048-7.5-11.25a7.5 7.5 0 1 1 15 0C19.5 13.952 12 21 12 21Z" />
+                </svg>
+              </span>
+              <span className="museum-card-meta-text">{locationText}</span>
+            </p>
+          )}
+          {hours && (
+            <p className="museum-card-meta-item">
+              <span className="museum-card-meta-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="12" r="8.25" />
+                  <path d="M12 7.5v4.5l2.5 1.5" />
+                </svg>
+              </span>
+              <span className="museum-card-meta-text">{hours}</span>
+            </p>
+          )}
+        </div>
         {summary && <p className="museum-card-summary">{summary}</p>}
-        {hours && <p className="museum-card-hours">{hours}</p>}
         {museum.free && (
           <div className="museum-card-tags">
             <span className="tag">{t('free')}</span>

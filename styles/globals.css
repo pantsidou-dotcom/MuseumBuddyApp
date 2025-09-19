@@ -842,11 +842,24 @@ button.hero-quick-link {
 .hero {
   position: relative;
   width: 100%;
-  aspect-ratio: 4 / 3;
+  --hero-aspect: 4 / 3;
+  aspect-ratio: var(--hero-aspect);
   border-radius: 16px;
   overflow: hidden;
   margin: 12px 0 16px;
   background: var(--surface);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.hero:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 18px 36px rgba(15,23,42,0.14);
+}
+
+@media (min-width: 768px) {
+  .hero {
+    --hero-aspect: 16 / 9;
+  }
 }
 
 .hero img {
@@ -868,30 +881,61 @@ button.hero-quick-link {
 
 /* MuseumCard component */
 .museum-card {
+  --card-aspect-ratio: 4 / 3;
   background: var(--surface);
-  border-radius: 12px;
+  border-radius: 16px;
+  border: 1px solid var(--panel-border);
   overflow: hidden;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+  box-shadow: 0 10px 24px rgba(15,23,42,0.08);
   display: flex;
   flex-direction: column;
   width: 100%;
+  transition: transform 0.35s cubic-bezier(0.21, 0.61, 0.35, 1), box-shadow 0.35s ease;
 }
+
+.museum-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 24px 48px rgba(15,23,42,0.16);
+}
+
+@media (min-width: 768px) {
+  .museum-card {
+    --card-aspect-ratio: 16 / 9;
+  }
+}
+
 .museum-card-image {
   position: relative;
   width: 100%;
-  aspect-ratio: 4 / 3;
+  aspect-ratio: var(--card-aspect-ratio);
+  overflow: hidden;
 }
+
 .museum-card-actions {
   position: absolute;
-  top: 8px;
-  right: 8px;
-  display: flex;
+  top: 12px;
+  right: 12px;
+  display: inline-flex;
+  align-items: center;
   gap: 8px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  box-shadow: 0 16px 32px rgba(15,23,42,0.16);
+  backdrop-filter: blur(12px);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
+
+.museum-card:hover .museum-card-actions {
+  transform: translateY(-2px);
+  box-shadow: 0 20px 40px rgba(15,23,42,0.18);
+}
+
 .museum-card-ticket {
   position: absolute;
-  top: 8px;
-  left: 8px;
+  top: 12px;
+  left: 12px;
   z-index: 1;
 }
 .ticket-button {
@@ -902,8 +946,9 @@ button.hero-quick-link {
   color: var(--accent-ink);
   font-size: 14px;
   font-weight: 600;
+  letter-spacing: 0.025em;
   cursor: pointer;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  box-shadow: 0 12px 24px rgba(15,23,42,0.14);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -912,10 +957,13 @@ button.hero-quick-link {
   text-decoration: none;
   gap: 6px;
   min-width: 0;
+  transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease, color 0.3s ease;
 }
 .ticket-button:hover {
   background: var(--accent-ink);
   color: var(--accent);
+  transform: translateY(-2px);
+  box-shadow: 0 18px 30px rgba(15,23,42,0.18);
 }
 .museum-info-links .ticket-button {
   width: 100%;
@@ -954,26 +1002,51 @@ button.hero-quick-link {
     clip: auto;
     white-space: normal;
     display: block;
-    font-size: 10px;
-    color: inherit;
+    font-size: 11px;
+    color: var(--accent-ink);
     font-weight: 400;
     line-height: 1;
   }
 }
+
+.ticket-button .affiliate-note {
+  color: var(--accent-ink);
+}
+
+[data-theme='dark'] .ticket-button .affiliate-note {
+  color: #ffffff;
+  opacity: 0.92;
+}
+
 .icon-button {
   width: 32px;
   height: 32px;
   border: none;
   border-radius: 50%;
   background: rgba(255,255,255,0.9);
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  color: var(--text);
+  transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease;
 }
 .icon-button svg {
   width: 18px;
   height: 18px;
+}
+
+.icon-button:hover {
+  transform: translateY(-1px);
+  background: rgba(255,255,255,0.98);
+}
+
+[data-theme='dark'] .icon-button {
+  background: rgba(15,23,42,0.9);
+}
+
+[data-theme='dark'] .icon-button:hover {
+  background: rgba(15,23,42,0.98);
 }
 
 .icon-button.large {
@@ -990,42 +1063,120 @@ button.hero-quick-link {
 .icon-button.favorited {
   background: var(--accent);
   color: var(--accent-ink);
+  box-shadow: 0 10px 18px rgba(255,90,60,0.35);
 }
 .icon-button.favorited svg path {
   fill: currentColor;
 }
 
+.museum-card-actions .icon-button {
+  width: auto;
+  height: auto;
+  min-height: 36px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: transparent;
+  color: inherit;
+  gap: 8px;
+}
+
+.museum-card-actions .icon-button:hover {
+  background: rgba(255,255,255,0.18);
+}
+
+[data-theme='dark'] .museum-card-actions .icon-button:hover {
+  background: rgba(148,163,184,0.18);
+}
+
+.icon-button-text {
+  display: none;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+@media (min-width: 640px) {
+  .museum-card-actions .icon-button {
+    padding: 8px 14px;
+  }
+
+  .museum-card-actions .icon-button-text {
+    display: inline;
+  }
+}
+
 .museum-card-info {
-  padding: 16px;
+  padding: 20px;
   background: var(--surface);
   transition: background 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
 }
+
 .museum-card:hover .museum-card-info {
   background: var(--hover-bg, var(--surface));
 }
+
 .museum-card-title {
-  margin: 0 0 8px;
-  font-size: 20px;
+  margin: 0;
+  font-size: clamp(1.2rem, 0.6vw + 1.1rem, 1.5rem);
   font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1.25;
 }
-.museum-card-location {
+
+.museum-card-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.museum-card-meta-item {
   margin: 0;
   display: flex;
-  align-items: center;
-  font-size: 14px;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 0.95rem;
+  line-height: 1.5;
   color: var(--muted);
+  letter-spacing: 0.01em;
 }
-.museum-card-location svg {
-  width: 16px;
-  height: 16px;
-  margin-right: 4px;
+
+.museum-card-meta-icon {
+  display: inline-flex;
+  width: 18px;
+  height: 18px;
+  align-items: center;
+  justify-content: center;
+  margin-top: 2px;
+  color: var(--accent);
+}
+
+.museum-card-meta-icon svg {
+  width: 18px;
+  height: 18px;
+}
+
+.museum-card-meta-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.museum-card-summary {
+  margin: 0;
+  font-size: 0.98rem;
+  line-height: 1.6;
+  color: var(--text);
+  letter-spacing: 0.005em;
 }
 
 .museum-card-tags {
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
-  margin-top: 8px;
+  margin-top: 4px;
 }
 
 /* Events list and cards */
