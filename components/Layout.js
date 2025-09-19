@@ -4,11 +4,20 @@ import { useFavorites } from './FavoritesContext';
 import { useLanguage } from './LanguageContext';
 import { useTheme } from './ThemeContext';
 import Footer from './Footer';
+import { FILTERS_SHEET_ID } from './FiltersSheet';
+
+const FILTERS_EVENT = 'museumBuddy:openFilters';
 
 export default function Layout({ children }) {
   const { favorites } = useFavorites();
   const { lang, switchLang, t } = useLanguage();
   const { theme, toggleTheme } = useTheme();
+
+  const handleFiltersClick = () => {
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent(FILTERS_EVENT));
+    }
+  };
   return (
     <>
       <Head>
@@ -31,7 +40,9 @@ export default function Layout({ children }) {
               type="button"
               className="filters-trigger"
               aria-label={t('filtersButton')}
+              aria-controls={FILTERS_SHEET_ID}
               aria-haspopup="dialog"
+              onClick={handleFiltersClick}
             >
               <svg
                 viewBox="0 0 24 24"
