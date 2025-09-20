@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { useLanguage } from './LanguageContext';
 
 export default function Footer() {
@@ -7,8 +8,14 @@ export default function Footer() {
     <footer className="footer">
       <div className="container footer-inner">
         <div className="footer-brand">
-          <Link href="/" className="brand-square footer-logo" aria-label={t('homeLabel')}>
-            <span className="brand-letter">MB</span>
+          <Link href="/" className="brand-logo footer-logo" aria-label={t('homeLabel')}>
+            <Image
+              src="/logo.svg"
+              alt="Museum Buddy logo"
+              width={184}
+              height={70}
+              className="brand-logo-image"
+            />
           </Link>
           <div className="footer-claim">
             <span className="footer-title">MuseumBuddy</span>

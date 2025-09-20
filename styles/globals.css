@@ -164,6 +164,9 @@ img { max-width: 100%; height: auto; display: block; }
 .footer-logo {
   box-shadow: none;
 }
+.footer-logo .brand-logo-image {
+  box-shadow: none;
+}
 
 .footer-claim {
   display: flex;
@@ -256,23 +259,17 @@ img { max-width: 100%; height: auto; display: block; }
   border: 1px solid var(--panel-border);
   box-shadow: var(--panel-shadow);
 }
-.brand-square {
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  width:52px;
-  height:52px;
-  border-radius:14px;
-  background:var(--accent);
-  color:var(--accent-ink);
-  font-weight:700;
-  letter-spacing:0.08em;
-  text-transform:uppercase;
-  font-size:16px;
+.brand-logo {
+  display:inline-flex;
+  line-height:0;
 }
-.brand-letter { line-height:1; }
-.brand-wordmark { display:flex; flex-direction:column; gap:4px; }
-.brand-title { font-weight:700; font-size:22px; letter-spacing:-0.01em; }
+.brand-logo-image {
+  display:block;
+  width:100%;
+  height:auto;
+  border-radius:18px;
+  box-shadow:0 20px 48px rgba(9, 28, 30, 0.35);
+}
 .brand-tagline {
   font-size:0.75rem;
   font-weight:600;
@@ -349,7 +346,6 @@ img { max-width: 100%; height: auto; display: block; }
     padding: 8px 12px;
     flex: 1 1 100%;
   }
-  .brand-title { font-size: 20px; }
   .brand-tagline { display: none; }
   .navbar {
     padding: 16px 12px;
