@@ -1,4 +1,15 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <rect width="64" height="64" rx="8" fill="#000"/>
-  <text x="50%" y="52%" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-size="32" font-weight="700" fill="#fff">MB</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 120" role="img" aria-labelledby="logoTitle logoDesc">
+  <title id="logoTitle">Museum Buddy logo</title>
+  <desc id="logoDesc">Three bold green pillars forming the initials MB with the words Museum Buddy set in two lines.</desc>
+  <g fill="#123B32">
+    <rect x="0" y="18" width="56" height="84" rx="10" />
+    <rect x="72" y="18" width="56" height="84" rx="10" />
+    <rect x="144" y="18" width="24" height="84" rx="10" />
+    <rect x="144" y="18" width="56" height="38" rx="10" />
+    <rect x="144" y="64" width="56" height="38" rx="10" />
+  </g>
+  <g fill="#123B32" font-family="'Manrope', 'Helvetica Neue', Arial, sans-serif" font-weight="600" letter-spacing="0.02em">
+    <text x="228" y="58" font-size="40">Museum</text>
+    <text x="228" y="100" font-size="40">Buddy</text>
+  </g>
 </svg>
