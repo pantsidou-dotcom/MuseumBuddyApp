@@ -256,21 +256,18 @@ img { max-width: 100%; height: auto; display: block; }
   border: 1px solid var(--panel-border);
   box-shadow: var(--panel-shadow);
 }
-.brand-square {
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  width:52px;
-  height:52px;
-  border-radius:14px;
-  background:var(--accent);
-  color:var(--accent-ink);
-  font-weight:700;
-  letter-spacing:0.08em;
-  text-transform:uppercase;
-  font-size:16px;
+.brand-logo {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 0;
 }
-.brand-letter { line-height:1; }
+
+.brand-logo-image {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-width: 180px;
+}
 .brand-wordmark { display:flex; flex-direction:column; gap:4px; }
 .brand-title { font-weight:700; font-size:22px; letter-spacing:-0.01em; }
 .brand-tagline {
