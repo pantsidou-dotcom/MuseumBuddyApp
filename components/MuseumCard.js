@@ -113,7 +113,7 @@ export default function MuseumCard({ museum }) {
       <div className="museum-card-image">
         <Link
           href={{ pathname: '/museum/[slug]', query: { slug: museum.slug } }}
-          style={{ display: 'block', width: '100%', height: '100%', position: 'relative' }}
+          className="museum-card-media-link"
           aria-label={`${t('view')} ${museum.title}`}
         >
           {museum.image && (
@@ -122,30 +122,20 @@ export default function MuseumCard({ museum }) {
               alt={museum.title}
               fill
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+              className="museum-card-media"
               style={{ objectFit: 'cover' }}
             />
           )}
+          <div className="museum-card-overlay" aria-hidden="true">
+            <span className="museum-card-overlay-label">{t('view')}</span>
+            <span className="museum-card-overlay-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M5 12h14" />
+                <path d="M13 6l6 6-6 6" />
+              </svg>
+            </span>
+          </div>
         </Link>
-        <div className="image-credit">
-          {t('museumLabel')}: {museum.title} — {t('imageCreditLabel')}: 
-          {museum.imageCredit ? (
-            <>
-              {museum.imageCredit.author}
-              {museum.imageCredit.license ? `, ${museum.imageCredit.license}` : ''}
-              {museum.imageCredit.source && (
-                <>
-                  {' '}
-                  {t('via')}{' '}
-                  <a href={museum.imageCredit.url} target="_blank" rel="noreferrer">
-                    {museum.imageCredit.source}
-                  </a>
-                </>
-              )}
-            </>
-          ) : (
-            t('unknown')
-          )}
-        </div>
         <div className="museum-card-ticket">
           {museum.ticketUrl ? (
             <a
@@ -196,6 +186,37 @@ export default function MuseumCard({ museum }) {
           </button>
         </div>
       </div>
+      <p className="image-credit">
+        <span className="image-credit-label">{t('imageCreditLabel')}</span>
+        <span aria-hidden="true" className="image-credit-separator">•</span>
+        {museum.imageCredit ? (
+          <>
+            <span className="image-credit-definition">
+              {museum.imageCredit.author}
+              {museum.imageCredit.license ? `, ${museum.imageCredit.license}` : ''}
+            </span>
+            {museum.imageCredit.source && (
+              <>
+                <span aria-hidden="true" className="image-credit-divider">•</span>
+                {museum.imageCredit.url ? (
+                  <a
+                    className="image-credit-link"
+                    href={museum.imageCredit.url}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    {museum.imageCredit.source}
+                  </a>
+                ) : (
+                  <span className="image-credit-definition">{museum.imageCredit.source}</span>
+                )}
+              </>
+            )}
+          </>
+        ) : (
+          <span className="image-credit-definition">{t('unknown')}</span>
+        )}
+      </p>
       <div className="museum-card-info">
         <h3 className="museum-card-title">
           <Link
