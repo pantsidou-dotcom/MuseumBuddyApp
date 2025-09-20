@@ -1,4 +1,16 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <rect width="64" height="64" rx="8" fill="#000"/>
-  <text x="50%" y="52%" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-size="32" font-weight="700" fill="#fff">MB</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 120" role="img" aria-labelledby="logo-title">
+  <title id="logo-title">Museum Buddy</title>
+  <g fill="none" stroke="none" stroke-width="1" fill-rule="evenodd">
+    <g transform="translate(16 14)">
+      <path fill="#0F3D33" d="M64 0 0 36h128L64 0Zm-40 48c-4.418 0-8 3.582-8 8v36c0 4.418 3.582 8 8 8h8c4.418 0 8-3.582 8-8V56c0-4.418-3.582-8-8-8h-8Zm32 0c-4.418 0-8 3.582-8 8v36c0 4.418 3.582 8 8 8h8c4.418 0 8-3.582 8-8V56c0-4.418-3.582-8-8-8h-8Zm32 0c-4.418 0-8 3.582-8 8v36c0 4.418 3.582 8 8 8h8c4.418 0 8-3.582 8-8V56c0-4.418-3.582-8-8-8h-8ZM16 104c0-4.418 3.582-8 8-8h80c4.418 0 8 3.582 8 8v4H16v-4Z"/>
+      <path fill="#FF784F" d="M8 36h112c4.418 0 8 3.582 8 8v4H0v-4c0-4.418 3.582-8 8-8Z"/>
+      <circle cx="64" cy="30" r="7" fill="#FF784F"/>
+    </g>
+  </g>
+  <g fill="#0F3D33" font-family="'Poppins', 'Inter', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-weight="600">
+    <text font-size="34" x="152" y="58" letter-spacing="0.08em">MUSEUM</text>
+    <text font-size="34" x="152" y="100" letter-spacing="0.08em">
+      <tspan font-weight="700">BUDDY</tspan>
+    </text>
+  </g>
 </svg>

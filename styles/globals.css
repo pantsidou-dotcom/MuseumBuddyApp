@@ -171,13 +171,6 @@ img { max-width: 100%; height: auto; display: block; }
   gap: 8px;
 }
 
-.footer-title {
-  font-size: 1.35rem;
-  font-weight: 700;
-  letter-spacing: -0.01em;
-  color: var(--text);
-}
-
 .footer-tagline {
   font-size: 0.75rem;
   font-weight: 600;
@@ -248,86 +241,75 @@ img { max-width: 100%; height: auto; display: block; }
 }
 
 /* Header brand */
-.brand-wrap { display:flex; align-items:center; gap:12px; }
+.brand-wrap { display:flex; align-items:center; }
 .header-brand {
-  padding: 10px 16px;
+  padding: 6px 10px;
   background: var(--surface);
-  border-radius: 18px;
+  border-radius: 12px;
   border: 1px solid var(--panel-border);
-  box-shadow: var(--panel-shadow);
+  box-shadow: 0 18px 32px rgba(15, 23, 42, 0.16);
 }
-.brand-square {
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  width:52px;
-  height:52px;
-  border-radius:14px;
-  background:var(--accent);
-  color:var(--accent-ink);
-  font-weight:700;
-  letter-spacing:0.08em;
-  text-transform:uppercase;
-  font-size:16px;
-}
-.brand-letter { line-height:1; }
-.brand-wordmark { display:flex; flex-direction:column; gap:4px; }
-.brand-title { font-weight:700; font-size:22px; letter-spacing:-0.01em; }
-.brand-tagline {
-  font-size:0.75rem;
-  font-weight:600;
-  letter-spacing:0.24em;
-  text-transform:uppercase;
-  color:var(--muted);
+.brand-logo {
+  display: inline-flex;
+  align-items: center;
 }
 
+.brand-logo-image {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.brand-logo-wordmark { max-width: 100%; }
+.header-brand .brand-logo-wordmark { max-width: min(52vw, 224px); }
+.footer-logo .brand-logo-wordmark { max-width: min(60vw, 260px); }
+
 /* Header actions */
-.header-actions { display:flex; align-items:center; gap:14px; }
+.header-actions { display:flex; align-items:center; gap:12px; }
 .lang-select,
 .contrast-toggle {
   display:flex;
   align-items:center;
-  gap:4px;
+  gap:3px;
   background:none;
   border:none;
-  font-size:14px;
+  font-size:13px;
   cursor:pointer;
   color: var(--text);
 }
-.lang-select svg { width:12px; height:8px; }
-.contrast-toggle svg { width:20px; height:20px; }
+.lang-select svg { width:10px; height:6px; }
+.contrast-toggle svg { width:18px; height:18px; }
 .filters-trigger {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 10px 18px;
-  border-radius: 999px;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 12px;
   border: none;
   background: var(--accent);
   color: var(--accent-ink);
   font-weight: 600;
-  font-size: 14px;
+  font-size: 13px;
   cursor: pointer;
-  box-shadow: 0 14px 28px rgba(255, 90, 60, 0.28);
+  box-shadow: 0 12px 26px rgba(255, 90, 60, 0.24);
   transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
-.filters-trigger svg { width: 18px; height: 18px; }
-.filters-trigger:hover { transform: translateY(-1px); box-shadow: 0 18px 32px rgba(255, 90, 60, 0.34); }
+.filters-trigger svg { width: 16px; height: 16px; }
+.filters-trigger:hover { transform: translateY(-1px); box-shadow: 0 16px 30px rgba(255, 90, 60, 0.3); }
 .filters-trigger:focus-visible { outline: 2px solid var(--accent-ink); outline-offset: 3px; }
 .filters-trigger span { white-space: nowrap; }
 .header-icon {
   background:none;
   border:none;
   padding:0;
-  width:32px;
-  height:32px;
+  width:28px;
+  height:28px;
   display:flex;
   align-items:center;
   justify-content:center;
   cursor:pointer;
   position:relative;
 }
-.header-icon svg { width:20px; height:20px; }
+.header-icon svg { width:18px; height:18px; }
 .header-icon .favorite-count {
   position:absolute;
   top:-4px;
@@ -335,9 +317,9 @@ img { max-width: 100%; height: auto; display: block; }
   background:var(--accent);
   color:var(--accent-ink);
   border-radius:9999px;
-  min-width:16px;
-  height:16px;
-  font-size:12px;
+  min-width:14px;
+  height:14px;
+  font-size:11px;
   display:flex;
   align-items:center;
   justify-content:center;
@@ -346,11 +328,9 @@ img { max-width: 100%; height: auto; display: block; }
 
 @media (max-width: 600px) {
   .header-brand {
-    padding: 8px 12px;
-    flex: 1 1 100%;
+    padding: 6px 10px;
+    flex: 0 0 auto;
   }
-  .brand-title { font-size: 20px; }
-  .brand-tagline { display: none; }
   .navbar {
     padding: 16px 12px;
     gap: 12px;
