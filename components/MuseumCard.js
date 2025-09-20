@@ -186,34 +186,37 @@ export default function MuseumCard({ museum }) {
           </button>
         </div>
       </div>
-      <dl className="image-credit">
-        <div className="image-credit-row">
-          <dt className="image-credit-term">{t('museumLabel')}</dt>
-          <dd className="image-credit-definition">{museum.title}</dd>
-        </div>
-        <div className="image-credit-row">
-          <dt className="image-credit-term">{t('imageCreditLabel')}</dt>
-          <dd className="image-credit-definition">
-            {museum.imageCredit ? (
+      <p className="image-credit">
+        <span className="image-credit-label">{t('imageCreditLabel')}</span>
+        <span aria-hidden="true" className="image-credit-separator">•</span>
+        {museum.imageCredit ? (
+          <>
+            <span className="image-credit-definition">
+              {museum.imageCredit.author}
+              {museum.imageCredit.license ? `, ${museum.imageCredit.license}` : ''}
+            </span>
+            {museum.imageCredit.source && (
               <>
-                {museum.imageCredit.author}
-                {museum.imageCredit.license ? `, ${museum.imageCredit.license}` : ''}
-                {museum.imageCredit.source && (
-                  <>
-                    {' '}
-                    {t('via')}{' '}
-                    <a href={museum.imageCredit.url} target="_blank" rel="noreferrer">
-                      {museum.imageCredit.source}
-                    </a>
-                  </>
+                <span aria-hidden="true" className="image-credit-divider">•</span>
+                {museum.imageCredit.url ? (
+                  <a
+                    className="image-credit-link"
+                    href={museum.imageCredit.url}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    {museum.imageCredit.source}
+                  </a>
+                ) : (
+                  <span className="image-credit-definition">{museum.imageCredit.source}</span>
                 )}
               </>
-            ) : (
-              t('unknown')
             )}
-          </dd>
-        </div>
-      </dl>
+          </>
+        ) : (
+          <span className="image-credit-definition">{t('unknown')}</span>
+        )}
+      </p>
       <div className="museum-card-info">
         <h3 className="museum-card-title">
           <Link

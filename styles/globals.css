@@ -1206,45 +1206,51 @@ button.hero-quick-link {
 }
 
 .image-credit {
-  margin: 8px 20px 0;
+  margin: 10px 20px 0;
   padding: 0;
-  color: var(--muted);
-  display: grid;
-  row-gap: 2px;
-  font-size: 0.64rem;
-  line-height: 1.35;
+  color: rgba(15, 23, 42, 0.6);
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  flex-wrap: wrap;
+  font-size: 0.75rem;
+  line-height: 1.45;
+  letter-spacing: 0.01em;
 }
 
 [data-theme='dark'] .image-credit {
   color: rgba(203, 213, 225, 0.75);
 }
 
-.image-credit-row {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  column-gap: 8px;
-  align-items: baseline;
-}
-
-.image-credit-term {
-  margin: 0;
+.image-credit-label {
+  font-size: 0.68rem;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
-  font-weight: 500;
-  color: rgba(15, 23, 42, 0.45);
+  letter-spacing: 0.16em;
+  font-weight: 600;
+  color: rgba(15, 23, 42, 0.5);
 }
 
-[data-theme='dark'] .image-credit-term {
-  color: rgba(203, 213, 225, 0.55);
+[data-theme='dark'] .image-credit-label {
+  color: rgba(203, 213, 225, 0.6);
+}
+
+.image-credit-separator,
+.image-credit-divider {
+  color: rgba(15, 23, 42, 0.4);
+  font-size: 0.65rem;
+}
+
+[data-theme='dark'] .image-credit-separator,
+[data-theme='dark'] .image-credit-divider {
+  color: rgba(148, 163, 184, 0.6);
 }
 
 .image-credit-definition {
   margin: 0;
-  letter-spacing: 0.01em;
   color: inherit;
 }
 
-.image-credit-definition a {
+.image-credit-link {
   color: inherit;
   text-decoration: underline;
   text-decoration-thickness: 1px;
@@ -1252,8 +1258,8 @@ button.hero-quick-link {
   text-decoration-skip-ink: auto;
 }
 
-.image-credit-definition a:hover,
-.image-credit-definition a:focus-visible {
+.image-credit-link:hover,
+.image-credit-link:focus-visible {
   color: var(--accent);
 }
 
