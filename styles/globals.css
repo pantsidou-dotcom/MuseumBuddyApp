@@ -16,6 +16,7 @@
   --chip-border:rgba(31,41,55,0.08);
   --chip-active-bg:var(--accent);
   --chip-active-text:var(--accent-ink);
+  --footer-bg:#e7ebf3;
   --hero-overlay-start:rgba(12,10,9,0.28);
   --hero-overlay-mid:rgba(12,10,9,0.6);
   --hero-overlay-end:rgba(12,10,9,0.9);
@@ -46,6 +47,7 @@
   --chip-border:rgba(148,163,184,0.24);
   --chip-active-bg:var(--accent);
   --chip-active-text:var(--accent-ink);
+  --footer-bg:#0f172a;
   --hero-overlay-start:rgba(2,6,23,0.42);
   --hero-overlay-mid:rgba(2,6,23,0.7);
   --hero-overlay-end:rgba(2,6,23,0.9);
@@ -139,23 +141,110 @@ img { max-width: 100%; height: auto; display: block; }
 
 /* Footer */
 .footer {
+  margin-top: 64px;
+  background: var(--footer-bg);
   border-top: 1px solid var(--border);
-  background: var(--bg);
-  margin-top: 48px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.18);
 }
 
-.footer-content {
+.footer-inner {
   display: flex;
-  gap: 16px;
-  padding: 16px 24px;
-  font-size: 14px;
+  flex-direction: column;
+  gap: 32px;
+  padding: 48px 0;
   color: var(--muted);
 }
 
-.footer-disclaimer {
-  padding: 0 24px 16px;
-  font-size: 14px;
+.footer-brand {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.footer-logo {
+  box-shadow: none;
+}
+
+.footer-claim {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.footer-title {
+  font-size: 1.35rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--text);
+}
+
+.footer-tagline {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
   color: var(--muted);
+}
+
+.footer-claim-text {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.7;
+  color: var(--muted);
+  max-width: 420px;
+}
+
+.footer-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 520px;
+  align-items: flex-start;
+}
+
+.footer-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px 24px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.footer-links a {
+  font-size: 0.95rem;
+  color: inherit;
+}
+
+.footer-links a:hover,
+.footer-links a:focus-visible {
+  text-decoration: underline;
+}
+
+.footer-smallprint {
+  margin: 0;
+  font-size: 0.85rem;
+  line-height: 1.7;
+}
+
+@media (min-width: 768px) {
+  .footer-inner {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+
+  .footer-meta {
+    text-align: right;
+    align-items: flex-end;
+  }
+
+  .footer-links {
+    justify-content: flex-end;
+  }
+
+  .footer-smallprint {
+    max-width: 440px;
+  }
 }
 
 /* Header brand */
