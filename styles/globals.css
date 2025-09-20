@@ -789,6 +789,13 @@ button.hero-quick-link {
   .hero { grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr); }
 }
 
+@media (max-width: 900px) {
+  .hero {
+    aspect-ratio: auto;
+    --hero-aspect: auto;
+  }
+}
+
 @media (max-width: 768px) {
   .hero { margin-top: 20px; padding: clamp(24px, 6vw, 40px); border-radius: 28px; }
   .hero-card { border-radius: 20px; }
