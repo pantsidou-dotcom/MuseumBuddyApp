@@ -136,26 +136,6 @@ export default function MuseumCard({ museum }) {
             </span>
           </div>
         </Link>
-        <div className="image-credit">
-          {t('museumLabel')}: {museum.title} — {t('imageCreditLabel')}:
-          {museum.imageCredit ? (
-            <>
-              {museum.imageCredit.author}
-              {museum.imageCredit.license ? `, ${museum.imageCredit.license}` : ''}
-              {museum.imageCredit.source && (
-                <>
-                  {' '}
-                  {t('via')}{' '}
-                  <a href={museum.imageCredit.url} target="_blank" rel="noreferrer">
-                    {museum.imageCredit.source}
-                  </a>
-                </>
-              )}
-            </>
-          ) : (
-            t('unknown')
-          )}
-        </div>
         <div className="museum-card-ticket">
           {museum.ticketUrl ? (
             <a
@@ -206,6 +186,34 @@ export default function MuseumCard({ museum }) {
           </button>
         </div>
       </div>
+      <dl className="image-credit">
+        <div className="image-credit-row">
+          <dt className="image-credit-term">{t('museumLabel')}</dt>
+          <dd className="image-credit-definition">{museum.title}</dd>
+        </div>
+        <div className="image-credit-row">
+          <dt className="image-credit-term">{t('imageCreditLabel')}</dt>
+          <dd className="image-credit-definition">
+            {museum.imageCredit ? (
+              <>
+                {museum.imageCredit.author}
+                {museum.imageCredit.license ? `, ${museum.imageCredit.license}` : ''}
+                {museum.imageCredit.source && (
+                  <>
+                    {' '}
+                    {t('via')}{' '}
+                    <a href={museum.imageCredit.url} target="_blank" rel="noreferrer">
+                      {museum.imageCredit.source}
+                    </a>
+                  </>
+                )}
+              </>
+            ) : (
+              t('unknown')
+            )}
+          </dd>
+        </div>
+      </dl>
       <div className="museum-card-info">
         <h3 className="museum-card-title">
           <Link

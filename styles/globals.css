@@ -1206,13 +1206,63 @@ button.hero-quick-link {
 }
 
 .image-credit {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  padding: 4px 8px;
-  font-size: 12px;
+  margin: 16px 20px 0;
+  padding: 12px 16px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.92), rgba(248, 250, 252, 0.65));
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.08);
   color: var(--muted);
+  display: grid;
+  gap: 10px;
+  font-size: 0.75rem;
+  line-height: 1.45;
+}
+
+[data-theme='dark'] .image-credit {
+  background: linear-gradient(135deg, rgba(30, 41, 59, 0.85), rgba(15, 23, 42, 0.72));
+  border-color: rgba(148, 163, 184, 0.18);
+  box-shadow: 0 14px 32px rgba(2, 6, 23, 0.35);
+  color: rgba(226, 232, 240, 0.82);
+}
+
+.image-credit-row {
+  display: grid;
+  grid-template-columns: minmax(0, auto) minmax(0, 1fr);
+  gap: 4px 12px;
+}
+
+.image-credit-term {
+  margin: 0;
+  font-size: 0.65rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: rgba(15, 23, 42, 0.6);
+}
+
+[data-theme='dark'] .image-credit-term {
+  color: rgba(226, 232, 240, 0.7);
+}
+
+.image-credit-definition {
+  margin: 0;
+  font-size: 0.75rem;
+  letter-spacing: 0.01em;
+  color: inherit;
+}
+
+.image-credit-definition a {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: rgba(102, 112, 133, 0.4);
+  transition: color 0.2s ease;
+}
+
+.image-credit-definition a:hover,
+.image-credit-definition a:focus-visible {
+  color: var(--accent);
+  text-decoration-color: rgba(255, 90, 60, 0.65);
 }
 
 /* MuseumCard component */
