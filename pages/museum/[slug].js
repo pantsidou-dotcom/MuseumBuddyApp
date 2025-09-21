@@ -3,6 +3,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import SEO from '../../components/SEO';
 import ExpositionCard from '../../components/ExpositionCard';
+import ExpositionCarousel from '../../components/ExpositionCarousel';
 import { useLanguage } from '../../components/LanguageContext';
 import { useFavorites } from '../../components/FavoritesContext';
 import museumImages from '../../lib/museumImages';
@@ -302,6 +303,25 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
         .map((row) => normaliseExpositionRow(row, slug))
         .filter(Boolean)
     : [];
+  const [activeExpositionSlide, setActiveExpositionSlide] = useState(0);
+
+  useEffect(() => {
+    setActiveExpositionSlide((prev) => {
+      if (!expositionItems.length) return 0;
+      return prev >= expositionItems.length ? expositionItems.length - 1 : prev;
+    });
+  }, [expositionItems.length]);
+
+  const expositionCarouselLabels = useMemo(
+    () => ({
+      previous: t('carouselPrevious'),
+      next: t('carouselNext'),
+      pagination: t('carouselPagination'),
+      goToSlide: (target) => t('carouselGoTo', { target }),
+      slide: (current, total) => t('carouselSlide', { current, total }),
+    }),
+    [t]
+  );
 
   const socialLinks = useMemo(() => {
     const links = [];
@@ -621,18 +641,35 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
                 <div className="museum-expositions-body">
                   <h2 className="museum-expositions-heading">{t('expositionsTitle')}</h2>
                   {expositionItems.length > 0 ? (
-                    <ul className="events-list">
-                      {expositionItems.map((exposition) => (
-                        <li key={exposition.id}>
-                          <ExpositionCard
-                            exposition={exposition}
-                            affiliateUrl={affiliateTicketUrl}
-                            ticketUrl={directTicketUrl}
-                            museumSlug={slug}
-                          />
-                        </li>
-                      ))}
-                    </ul>
+                    <ExpositionCarousel
+                      items={expositionItems}
+                      ariaLabel={t('expositionsTitle')}
+                      activeSlide={activeExpositionSlide}
+                      onActiveSlideChange={setActiveExpositionSlide}
+                      getItemKey={(exposition) => exposition.id}
+                      labels={expositionCarouselLabels}
+                      renderItem={(exposition) => (
+                        <ExpositionCard
+                          exposition={exposition}
+                          affiliateUrl={affiliateTicketUrl}
+                          ticketUrl={directTicketUrl}
+                          museumSlug={slug}
+                          tags={{
+                            childFriendly:
+                              exposition?.kindvriendelijk ??
+                              exposition?.childFriendly ??
+                              exposition?.familievriendelijk ??
+                              exposition?.familyFriendly,
+                            free: exposition?.gratis ?? exposition?.free ?? exposition?.kosteloos,
+                            temporary:
+                              exposition?.tijdelijk ??
+                              exposition?.temporary ??
+                              exposition?.tijdelijkeTentoonstelling ??
+                              undefined,
+                          }}
+                        />
+                      )}
+                    />
                   ) : (
                     <p className="museum-expositions-empty">{t('noExpositions')}</p>
                   )}

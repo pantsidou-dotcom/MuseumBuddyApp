@@ -1,0 +1,22 @@
+<svg width="800" height="560" viewBox="0 0 800 560" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Tentoonstelling plaatsaanduiding</title>
+  <desc id="desc">Gestileerde poster met abstracte vormen als tijdelijke afbeelding voor een tentoonstelling.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f1f5f9" />
+      <stop offset="50%" stop-color="#e2e8f0" />
+      <stop offset="100%" stop-color="#cbd5f5" />
+    </linearGradient>
+    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#ff784f" stop-opacity="0.9" />
+      <stop offset="100%" stop-color="#ff5a3c" stop-opacity="0.95" />
+    </linearGradient>
+  </defs>
+  <rect width="800" height="560" fill="url(#bg)" rx="36" />
+  <circle cx="640" cy="130" r="96" fill="rgba(255, 255, 255, 0.55)" />
+  <circle cx="168" cy="168" r="132" fill="rgba(255, 255, 255, 0.32)" />
+  <path d="M120 420H680L560 220L460 340L360 180L120 420Z" fill="url(#accent)" opacity="0.88" />
+  <rect x="140" y="100" width="220" height="22" rx="11" fill="rgba(15, 23, 42, 0.55)" />
+  <rect x="140" y="140" width="320" height="18" rx="9" fill="rgba(15, 23, 42, 0.35)" />
+  <rect x="140" y="176" width="280" height="18" rx="9" fill="rgba(15, 23, 42, 0.2)" />
+</svg>
