@@ -33,7 +33,7 @@ export default function FavoritesPage() {
           )}
           {expositionFavorites.length > 0 && (
             <>
-              <h2 className="page-title">{t('favoriteExpositions')}</h2>
+              <h2 className="page-title">{t('favoriteExhibitions')}</h2>
               <ul className="events-list">
                 {expositionFavorites.map((e) => (
                   <li key={`e-${e.id}`}>

@@ -1345,7 +1345,7 @@ button.hero-quick-link {
 .museum-info-link { display: inline-flex; align-items: center; gap: 8px; padding: 10px 18px; border-radius: 999px; font-size: 14px; font-weight: 600; background: var(--chip-bg); color: var(--info-card-text); border: 1px solid var(--chip-border); text-transform: none; transition: transform 0.15s ease, box-shadow 0.15s ease; box-shadow: 0 6px 14px rgba(15,23,42,0.08); }
 .museum-info-link:hover { transform: translateY(-1px); box-shadow: 0 12px 22px rgba(15,23,42,0.12); }
 .museum-info-link.primary { background: var(--chip-active-bg); color: var(--chip-active-text); border-color: transparent; box-shadow: 0 10px 20px rgba(15,23,42,0.16); }
-.museum-info-link .affiliate-note { color: inherit; }
+.museum-info-link .ticket-button__note { color: inherit; }
 .museum-info-details { display: flex; flex-direction: column; gap: 16px; }
 .museum-info-item { display: flex; flex-direction: column; gap: 4px; }
 .museum-info-label { font-size: 12px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(0,0,0,0.55); }
@@ -1469,7 +1469,7 @@ button.hero-quick-link {
     width: 100%;
     justify-content: space-between;
   }
-  .museum-primary-action .affiliate-note {
+  .museum-primary-action .ticket-button__note {
     font-size: 11px;
     opacity: 0.8;
   }
@@ -1816,7 +1816,7 @@ button.hero-quick-link {
   pointer-events: none;
   cursor: not-allowed;
 }
-.affiliate-note {
+.ticket-button__note {
   border: 0;
   clip: rect(0 0 0 0);
   height: 1px;
@@ -1828,7 +1828,7 @@ button.hero-quick-link {
   white-space: nowrap;
 }
 @media (max-width: 600px) {
-  .affiliate-note {
+  .ticket-button__note {
     position: static;
     width: auto;
     height: auto;
@@ -1844,11 +1844,11 @@ button.hero-quick-link {
   }
 }
 
-.ticket-button .affiliate-note {
+.ticket-button .ticket-button__note {
   color: var(--accent-ink);
 }
 
-[data-theme='dark'] .ticket-button .affiliate-note {
+[data-theme='dark'] .ticket-button .ticket-button__note {
   color: #ffffff;
   opacity: 0.92;
 }

@@ -208,6 +208,12 @@ const TAB_LABEL_KEYS = {
   info: 'tabVisitorInfo',
   map: 'tabMap',
 };
+const TAB_TITLE_KEYS = {
+  overview: 'tabTitleOverview',
+  exhibitions: 'tabTitleExhibitions',
+  info: 'tabTitleVisitorInfo',
+  map: 'tabTitleMap',
+};
 const HASH_TO_TAB = Object.entries(TAB_HASHES).reduce((acc, [id, hash]) => {
   acc[hash] = id;
   return acc;
@@ -337,6 +343,7 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
   const directTicketUrl = resolvedMuseum.ticketUrl || resolvedMuseum.websiteUrl || null;
   const ticketUrl = affiliateTicketUrl || directTicketUrl;
   const showAffiliateNote = Boolean(affiliateTicketUrl) && shouldShowAffiliateNote(slug);
+  const ticketContext = t(showAffiliateNote ? 'ticketsViaPartner' : 'ticketsViaOfficialSite');
   const locationLines = getLocationLines(resolvedMuseum);
   const locationLabel = [resolvedMuseum.city, resolvedMuseum.province].filter(Boolean).join(', ');
   const hasWebsite = Boolean(resolvedMuseum.websiteUrl);
@@ -535,6 +542,7 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
         id,
         hash: TAB_HASHES[id],
         label: t(TAB_LABEL_KEYS[id]),
+        title: t(TAB_TITLE_KEYS[id]),
       })),
     [t]
   );
@@ -660,7 +668,7 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
     () => [
       {
         id: 'exposition-filters',
-        title: t('expositionFiltersGroupTitle'),
+        title: t('exhibitionFiltersGroupTitle'),
         options: [
           { name: 'free', label: t('tagFree') },
           { name: 'childFriendly', label: t('tagChildFriendly') },
@@ -673,8 +681,8 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
 
   const expositionFilterLabels = useMemo(
     () => ({
-      title: t('expositionFiltersTitle'),
-      description: t('expositionFiltersDescription'),
+      title: t('exhibitionFiltersTitle'),
+      description: t('exhibitionFiltersDescription'),
       apply: t('filtersApply'),
       reset: t('filtersReset'),
       close: t('filtersClose'),
@@ -682,7 +690,7 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
     [t]
   );
 
-  const expositionFiltersButtonLabel = t('expositionFiltersButton');
+  const expositionFiltersButtonLabel = t('exhibitionFiltersButton');
 
   useEffect(() => {
     if (typeof window === 'undefined') return undefined;
@@ -785,10 +793,10 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
   if (hasTicketLink) {
     overviewDetails.push({
       key: 'tickets',
-      label: t('buyTicket'),
+      label: t('buyTickets'),
       value: ticketUrl,
       href: ticketUrl,
-      note: showAffiliateNote ? t('affiliateLinkLabel') : null,
+      note: ticketContext,
     });
   }
 
@@ -817,22 +825,24 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
 
       <div className="museum-detail-container museum-hero-heading-container">
         <div className="museum-hero-heading">
-          <Link href="/" className="museum-backlink">
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              aria-hidden="true"
-              width="20"
-              height="20"
-            >
-              <path d="M15 18l-6-6 6-6" />
-            </svg>
-            <span>{t('back')}</span>
-          </Link>
+          <nav className="museum-breadcrumbs" aria-label={t('breadcrumbsLabel')}>
+            <Link href="/" className="museum-backlink">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+                width="20"
+                height="20"
+              >
+                <path d="M15 18l-6-6 6-6" />
+              </svg>
+              <span>{t('breadcrumbMuseums')}</span>
+            </Link>
+          </nav>
 
           <div className="museum-hero-text">
             {locationLabel && <p className="detail-sub museum-hero-location">{locationLabel}</p>}
@@ -858,35 +868,34 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
       <div className="museum-detail-container">
 
         <div className="museum-primary-action-bar">
-          <div className="museum-primary-action-group">
-            {hasTicketLink ? (
-              <a
-                href={ticketUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="museum-primary-action primary"
-                title={t('affiliateLink')}
-              >
-                <span>{t('buyTicket')}</span>
-                {showAffiliateNote && <span className="affiliate-note">{t('affiliateLinkLabel')}</span>}
-              </a>
-            ) : (
-              <button type="button" className="museum-primary-action primary" disabled aria-disabled="true">
-                <span>{t('buyTicket')}</span>
-              </button>
-            )}
+        <div className="museum-primary-action-group">
+          {hasTicketLink ? (
+            <a
+              href={ticketUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="museum-primary-action primary"
+            >
+              <span className="ticket-button__label">{t('buyTickets')}</span>
+              <span className="ticket-button__note">{ticketContext}</span>
+            </a>
+          ) : (
+            <button type="button" className="museum-primary-action primary" disabled aria-disabled="true">
+              <span className="ticket-button__label">{t('buyTickets')}</span>
+            </button>
+          )}
 
-            {hasWebsite && (
-              <a
-                href={resolvedMuseum.websiteUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="museum-primary-action secondary"
-              >
-                <span>{t('website')}</span>
-              </a>
-            )}
-          </div>
+          {hasWebsite && (
+            <a
+              href={resolvedMuseum.websiteUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="museum-primary-action secondary"
+            >
+              <span>{t('website')}</span>
+            </a>
+          )}
+        </div>
 
           <div className="museum-primary-action-utility">
             <ShareButton onShare={handleShare} label={t('share')} />
@@ -907,6 +916,7 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
                     id={`museum-tab-${tab.id}`}
                     aria-controls={tab.hash}
                     aria-selected={isActive}
+                    aria-label={tab.title}
                     tabIndex={isActive ? 0 : -1}
                     className={`museum-tab${isActive ? ' is-active' : ''}`}
                     onClick={() => handleTabSelect(tab.id)}
@@ -971,7 +981,7 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
             >
               <div className="museum-expositions-card">
                 <div className="museum-expositions-body">
-                  <h2 className="museum-expositions-heading">{t('expositionsTitle')}</h2>
+                  <h2 className="museum-expositions-heading">{t('exhibitionsTitle')}</h2>
                   <div className="museum-expositions-filters">
                     <div className="museum-expositions-chips">
                       {filterChipDefinitions.map((chip) => {
@@ -1051,7 +1061,7 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
                   {filteredExpositionItems.length > 0 ? (
                     <ExpositionCarousel
                       items={filteredExpositionItems}
-                      ariaLabel={t('expositionsTitle')}
+                      ariaLabel={t('exhibitionsTitle')}
                       activeSlide={activeExpositionSlide}
                       onActiveSlideChange={setActiveExpositionSlide}
                       getItemKey={(exposition) => exposition.id}
@@ -1068,7 +1078,7 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
                     />
                   ) : (
                     <p className="museum-expositions-empty">
-                      {hasActiveExpositionFilter ? t('noFilteredExpositions') : t('noExpositions')}
+                      {hasActiveExpositionFilter ? t('noFilteredExhibitions') : t('noExhibitions')}
                     </p>
                   )}
                 </div>

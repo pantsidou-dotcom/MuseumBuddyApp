@@ -99,6 +99,7 @@ export default function ExpositionCard({ exposition, ticketUrl, affiliateUrl, mu
   const sourceUrl = exposition.bron_url || null;
   const buyUrl = primaryAffiliateUrl || fallbackTicketUrl || sourceUrl;
   const showAffiliateNote = Boolean(primaryAffiliateUrl) && (!slug || shouldShowAffiliateNote(slug));
+  const ticketContext = t(showAffiliateNote ? 'ticketsViaPartner' : 'ticketsViaOfficialSite');
 
   const [isFavoriteBouncing, setIsFavoriteBouncing] = useState(false);
   const [hasImageError, setHasImageError] = useState(false);
@@ -177,7 +178,7 @@ export default function ExpositionCard({ exposition, ticketUrl, affiliateUrl, mu
       <div className={mediaClassName}>
         <Image
           src={resolvedImage}
-          alt={exposition.titel || t('expositionsTitle')}
+          alt={exposition.titel || t('exhibitionsTitle')}
           width={630}
           height={300}
           className="exposition-card__image"
@@ -245,14 +246,13 @@ export default function ExpositionCard({ exposition, ticketUrl, affiliateUrl, mu
             target="_blank"
             rel="noreferrer"
             className="ticket-button exposition-card__cta"
-            title={t('affiliateLink')}
           >
-            <span>{t('buyTicket')}</span>
-            {showAffiliateNote && <span className="affiliate-note">{t('affiliateLinkLabel')}</span>}
+            <span className="ticket-button__label">{t('buyTickets')}</span>
+            <span className="ticket-button__note">{ticketContext}</span>
           </a>
         ) : (
           <button type="button" className="ticket-button exposition-card__cta" disabled aria-disabled="true">
-            <span>{t('buyTicket')}</span>
+            <span className="ticket-button__label">{t('buyTickets')}</span>
           </button>
         )}
       </div>
