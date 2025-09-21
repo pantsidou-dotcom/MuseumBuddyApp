@@ -352,10 +352,10 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
     : [resolvedMuseum.address, resolvedMuseum.city, resolvedMuseum.province].filter(Boolean).join(', ');
   const mapQuery = mapQuerySource.trim();
   const mapEmbedUrl = mapQuery ? `https://www.google.com/maps?q=${encodeURIComponent(mapQuery)}&output=embed` : null;
-  const mapDirectionsUrl = mapQuery ? `https://www.google.com/maps?q=${encodeURIComponent(mapQuery)}` : null;
+  const mapDirectionsUrl = mapQuery ? `https://www.google.com/maps?q=${encodeURIComponent(mapQuery)}` : null
+  const locationLabel = [resolvedMuseum.city, resolvedMuseum.province].filter(Boolean).join(', ');
   const hasWebsite = Boolean(resolvedMuseum.websiteUrl);
   const hasTicketLink = Boolean(ticketUrl);
-
   const heroImage = useMemo(() => {
     if (!rawImage) return null;
     if (rawImage.startsWith('http://') || rawImage.startsWith('https://')) return rawImage;
@@ -532,6 +532,33 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
     <section className={`museum-detail${heroImage ? ' has-hero' : ''}`}>
       <SEO title={`${displayName} — MuseumBuddy`} description={seoDescription} image={heroImage} canonical={canonical} />
 
+      <div className="museum-detail-container museum-hero-heading-container">
+        <div className="museum-hero-heading">
+          <Link href="/" className="museum-backlink">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+              width="20"
+              height="20"
+            >
+              <path d="M15 18l-6-6 6-6" />
+            </svg>
+            <span>{t('back')}</span>
+          </Link>
+
+          <div className="museum-hero-text">
+            {locationLabel && <p className="detail-sub museum-hero-location">{locationLabel}</p>}
+            <h1 className="detail-title museum-hero-title">{displayName}</h1>
+            {summary && <p className="detail-sub museum-hero-tagline">{summary}</p>}
+          </div>
+        </div>
+      </div>
+
       {heroImage && (
         <div className="museum-detail-hero">
           <Image
@@ -546,22 +573,6 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
       )}
 
       <div className="museum-detail-container">
-        <Link href="/" className="museum-backlink">
-          <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            aria-hidden="true"
-            width="20"
-            height="20"
-          >
-            <path d="M15 18l-6-6 6-6" />
-          </svg>
-          <span>{t('back')}</span>
-        </Link>
 
         <div className="museum-primary-action-bar">
           <div className="museum-primary-action-group">
@@ -626,6 +637,53 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
                   );
                 })}
               </div>
+              
+            <div className="museum-expositions-body">
+              <h2 className="museum-expositions-heading">{t('expositionsTitle')}</h2>
+              {expositionItems.length > 0 ? (
+                <ul className="events-list">
+                  {expositionItems.map((exposition) => (
+                    <li key={exposition.id}>
+                      <ExpositionCard
+                        exposition={exposition}
+                        affiliateUrl={affiliateTicketUrl}
+                        ticketUrl={directTicketUrl}
+                        museumSlug={slug}
+                      />
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="museum-expositions-empty">{t('noExpositions')}</p>
+              )}
+            </div>
+          </div>
+
+          <aside className="museum-sidebar">
+            <div className="museum-sidebar-card support-card">
+              <h2 className="museum-sidebar-title">{t('visitorInformation')}</h2>
+
+              <div className="museum-info-details">
+                {openingHours && (
+                  <div className="museum-info-item">
+                    <span className="museum-info-label">{t('openingHours')}</span>
+                    <p className="museum-info-value">{openingHours}</p>
+                  </div>
+                )}
+
+                {locationLines.length > 0 && (
+                  <div className="museum-info-item">
+                    <span className="museum-info-label">{t('location')}</span>
+                    <p className="museum-info-value">
+                      {locationLines.map((line, index) => (
+                        <span key={line}>
+                          {line}
+                          {index < locationLines.length - 1 && <br />}
+                        </span>
+                      ))}
+                    </p>
+                  </div>
+                )}
 
               <div className="museum-tabpanels">
                 <section
