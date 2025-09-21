@@ -1,4 +1,6 @@
 :root{
+  --font-title:'Manrope';
+  --font-body:'Inter';
   --bg:#f8f9fb;
   --body-bg:#eef1f6;
   --text:#111827;
