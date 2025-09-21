@@ -1,5 +1,5 @@
 import Image from 'next/image';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useId, useMemo, useRef, useState } from 'react';
 import { useLanguage } from './LanguageContext';
 import { useFavorites } from './FavoritesContext';
 import { shouldShowAffiliateNote } from '../lib/nonAffiliateMuseums';
@@ -75,6 +75,44 @@ function resolveMediaUrl(exposition) {
   return null;
 }
 
+function resolveMediaAlt(exposition, translate) {
+  if (!exposition || typeof exposition !== 'object') {
+    return typeof translate === 'function' ? translate('exhibitionsTitle') : '';
+  }
+  const altKeys = [
+    'image_alt',
+    'imageAlt',
+    'image_alt_text',
+    'imageAltText',
+    'afbeelding_alt',
+    'afbeeldingAlt',
+    'afbeelding_omschrijving',
+    'afbeeldingOmschrijving',
+    'media_alt',
+    'mediaAlt',
+    'poster_alt',
+    'posterAlt',
+    'hero_image_alt',
+    'heroImageAlt',
+    'cover_image_alt',
+    'coverImageAlt',
+    'alt',
+  ];
+  for (const key of altKeys) {
+    const value = exposition[key];
+    if (typeof value === 'string') {
+      const trimmed = value.trim();
+      if (trimmed) {
+        return trimmed;
+      }
+    }
+  }
+  if (typeof exposition.titel === 'string' && exposition.titel.trim()) {
+    return exposition.titel.trim();
+  }
+  return typeof translate === 'function' ? translate('exhibitionsTitle') : '';
+}
+
 function pickBoolean(...values) {
   for (const value of values) {
     if (typeof value === 'boolean') return value;
@@ -100,6 +138,8 @@ export default function ExpositionCard({ exposition, ticketUrl, affiliateUrl, mu
   const buyUrl = primaryAffiliateUrl || fallbackTicketUrl || sourceUrl;
   const showAffiliateNote = Boolean(primaryAffiliateUrl) && (!slug || shouldShowAffiliateNote(slug));
   const ticketContext = t(showAffiliateNote ? 'ticketsViaPartner' : 'ticketsViaOfficialSite');
+  const ticketNoteId = useId();
+  const ctaDescribedBy = ticketContext ? ticketNoteId : undefined;
 
   const [isFavoriteBouncing, setIsFavoriteBouncing] = useState(false);
   const [hasImageError, setHasImageError] = useState(false);
@@ -129,6 +169,7 @@ export default function ExpositionCard({ exposition, ticketUrl, affiliateUrl, mu
   const hasMedia = Boolean(mediaUrl) && !hasImageError;
   const resolvedImage = hasMedia ? mediaUrl : FALLBACK_IMAGE;
   const favoriteImage = hasMedia ? mediaUrl : FALLBACK_IMAGE;
+  const resolvedAltText = useMemo(() => resolveMediaAlt(exposition, t), [exposition, t]);
 
   useEffect(() => {
     setHasImageError(false);
@@ -188,7 +229,7 @@ export default function ExpositionCard({ exposition, ticketUrl, affiliateUrl, mu
         )}
         <Image
           src={resolvedImage}
-          alt={exposition.titel || t('exhibitionsTitle')}
+          alt={resolvedAltText}
           width={630}
           height={300}
           className="exposition-card__image"
@@ -256,9 +297,14 @@ export default function ExpositionCard({ exposition, ticketUrl, affiliateUrl, mu
             target="_blank"
             rel="noreferrer"
             className="ticket-button exposition-card__cta"
+            aria-describedby={ctaDescribedBy}
           >
             <span className="ticket-button__label">{t('buyTickets')}</span>
-            <span className="ticket-button__note">{ticketContext}</span>
+            {ticketContext ? (
+              <span className="ticket-button__note" id={ticketNoteId}>
+                {ticketContext}
+              </span>
+            ) : null}
           </a>
         ) : (
           <button type="button" className="ticket-button exposition-card__cta" disabled aria-disabled="true">
