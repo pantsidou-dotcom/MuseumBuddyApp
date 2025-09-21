@@ -178,11 +178,11 @@ export default function ExpositionCard({ exposition, ticketUrl, affiliateUrl, mu
         <Image
           src={resolvedImage}
           alt={exposition.titel || t('expositionsTitle')}
-          width={640}
-          height={420}
+          width={630}
+          height={300}
           className="exposition-card__image"
           loading="lazy"
-          sizes="(max-width: 600px) 100vw, (max-width: 1024px) 80vw, 420px"
+          sizes="(max-width: 600px) 100vw, (max-width: 1024px) 70vw, 300px"
           onLoadingComplete={() => setIsImageLoaded(true)}
           onError={() => {
             setHasImageError(true);

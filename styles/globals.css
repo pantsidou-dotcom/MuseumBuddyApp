@@ -2011,12 +2011,12 @@ button.hero-quick-link {
   position: relative;
   overflow-x: auto;
   scroll-snap-type: x mandatory;
-  scroll-padding-inline: clamp(12px, 4vw, 28px);
+  scroll-padding-inline: clamp(10px, 3.5vw, 24px);
   scrollbar-width: none;
   -webkit-overflow-scrolling: touch;
-  padding: 4px clamp(12px, 4vw, 28px) 16px;
-  margin: 0 calc(-1 * clamp(12px, 4vw, 28px));
-  border-radius: 24px;
+  padding: 4px clamp(10px, 3.5vw, 24px) 12px;
+  margin: 0 calc(-1 * clamp(10px, 3.5vw, 24px));
+  border-radius: 22px;
 }
 
 .exposition-carousel__viewport:focus-visible {
@@ -2031,8 +2031,8 @@ button.hero-quick-link {
 .exposition-carousel__track {
   display: grid;
   grid-auto-flow: column;
-  grid-auto-columns: minmax(220px, clamp(240px, 45vw, 320px));
-  gap: clamp(12px, 3.5vw, 20px);
+  grid-auto-columns: minmax(200px, clamp(220px, 38vw, 280px));
+  gap: clamp(10px, 3vw, 16px);
   list-style: none;
   margin: 0;
   padding: 0;
@@ -2141,16 +2141,16 @@ button.hero-quick-link {
   flex-direction: column;
   min-height: 100%;
   background: var(--surface);
-  border-radius: 24px;
+  border-radius: 22px;
   overflow: hidden;
   border: 1px solid var(--panel-border);
-  box-shadow: 0 14px 32px rgba(15,23,42,0.14);
+  box-shadow: 0 12px 28px rgba(15,23,42,0.14);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .exposition-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 20px 48px rgba(15,23,42,0.18);
+  transform: translateY(-2px);
+  box-shadow: 0 18px 40px rgba(15,23,42,0.18);
 }
 
 [data-theme='dark'] .exposition-card {
@@ -2162,7 +2162,7 @@ button.hero-quick-link {
 .exposition-card__media {
   position: relative;
   overflow: hidden;
-  aspect-ratio: 16 / 9;
+  aspect-ratio: 21 / 10;
   background: linear-gradient(135deg, rgba(255,90,60,0.14), rgba(14,116,144,0.14));
 }
 
@@ -2207,8 +2207,8 @@ button.hero-quick-link {
 .exposition-card__body {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  padding: 18px 20px 0;
+  gap: 10px;
+  padding: 14px 16px 0;
   min-height: 0;
 }
 
@@ -2216,31 +2216,31 @@ button.hero-quick-link {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 12px;
+  gap: 8px;
 }
 
 
 .exposition-card__date {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  font-size: 11px;
-  letter-spacing: 0.1em;
+  gap: 3px;
+  font-size: 10px;
+  letter-spacing: 0.09em;
   text-transform: uppercase;
   color: var(--muted);
 }
 
 .exposition-card__date-value {
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 700;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.05em;
   color: var(--text);
 }
 
 
 .exposition-card__title {
   margin: 0;
-  font-size: clamp(18px, 1.6vw, 21px);
+  font-size: clamp(16px, 1.4vw, 19px);
   letter-spacing: -0.01em;
 }
 
@@ -2258,15 +2258,15 @@ button.hero-quick-link {
 .exposition-card__summary {
   margin: 0;
   color: var(--muted);
-  font-size: 14px;
-  line-height: 1.5;
+  font-size: 13px;
+  line-height: 1.45;
 }
 
 
 .exposition-card__tags {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 6px;
   list-style: none;
   margin: 0;
   padding: 0;
@@ -2277,9 +2277,9 @@ button.hero-quick-link {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 4px 12px;
+  padding: 3px 10px;
   border-radius: 999px;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 600;
   letter-spacing: 0.02em;
   background: var(--chip-bg);
@@ -2304,19 +2304,19 @@ button.hero-quick-link {
 
 .exposition-card__footer {
   margin-top: auto;
-  padding: 16px 20px 20px;
+  padding: 12px 16px 16px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
 }
 
 
 .exposition-card__cta {
   width: 100%;
   justify-content: center;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
-  box-shadow: 0 12px 24px rgba(15,23,42,0.16);
+  box-shadow: 0 10px 22px rgba(15,23,42,0.14);
 }
 
 .exposition-card__cta[disabled],
@@ -2326,8 +2326,8 @@ button.hero-quick-link {
 
 
 .exposition-card .icon-button.large {
-  width: 36px;
-  height: 36px;
+  width: 32px;
+  height: 32px;
   background: rgba(255,255,255,0.92);
   border: 1px solid var(--panel-border);
   box-shadow: none;
@@ -2376,19 +2376,19 @@ button.hero-quick-link {
 
 @media (min-width: 1200px) {
   .exposition-carousel__track {
-    grid-auto-columns: minmax(260px, 300px);
+    grid-auto-columns: minmax(220px, 260px);
   }
 }
 
 @media (max-width: 900px) {
   .exposition-carousel__track {
-    grid-auto-columns: minmax(220px, 65vw);
+    grid-auto-columns: minmax(190px, 58vw);
   }
   .exposition-card__body {
-    padding: 16px 16px 0;
+    padding: 12px 14px 0;
   }
   .exposition-card__footer {
-    padding: 16px;
+    padding: 12px 14px 14px;
   }
   .exposition-card__topline {
     align-items: center;
@@ -2403,21 +2403,21 @@ button.hero-quick-link {
 
 @media (max-width: 600px) {
   .exposition-carousel__viewport {
-    margin-inline: calc(-1 * clamp(10px, 3vw, 16px));
-    padding-inline: clamp(10px, 3vw, 16px);
+    margin-inline: calc(-1 * clamp(8px, 2.75vw, 14px));
+    padding-inline: clamp(8px, 2.75vw, 14px);
   }
   .exposition-carousel__track {
-    grid-auto-columns: calc(100% - clamp(20px, 6vw, 28px));
+    grid-auto-columns: calc(100% - clamp(16px, 6vw, 24px));
   }
   .exposition-card {
-    border-radius: 20px;
-    box-shadow: 0 16px 32px rgba(15,23,42,0.2);
+    border-radius: 18px;
+    box-shadow: 0 14px 28px rgba(15,23,42,0.2);
   }
   .exposition-card__body {
-    padding: 16px 16px 0;
+    padding: 12px 14px 0;
   }
   .exposition-card__footer {
-    padding: 16px;
+    padding: 12px 14px 14px;
   }
 }
 
