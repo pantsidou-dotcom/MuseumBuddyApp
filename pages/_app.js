@@ -1,12 +1,12 @@
 import { useEffect } from 'react';
-import { Inter, Montserrat } from 'next/font/google';
+import { Inter, Manrope } from 'next/font/google';
 import '../styles/globals.css';
 import Layout from '../components/Layout';
 import { FavoritesProvider } from '../components/FavoritesContext';
 import { LanguageProvider } from '../components/LanguageContext';
 import { ThemeProvider } from '../components/ThemeContext';
 
-const titleFont = Montserrat({
+const titleFont = Manrope({
   subsets: ['latin'],
   weight: ['400', '500', '600', '700'],
   display: 'swap',
