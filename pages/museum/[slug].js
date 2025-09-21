@@ -219,6 +219,13 @@ const HASH_TO_TAB = Object.entries(TAB_HASHES).reduce((acc, [id, hash]) => {
   return acc;
 }, {});
 
+const DEFAULT_LANDING_MUSEUM_SLUG = 'van-gogh-museum-amsterdam';
+const CONFIGURED_LANDING_SLUG =
+  typeof process.env.NEXT_PUBLIC_LANDING_MUSEUM_SLUG === 'string'
+    ? process.env.NEXT_PUBLIC_LANDING_MUSEUM_SLUG.trim().toLowerCase()
+    : '';
+const LANDING_MUSEUM_SLUG = CONFIGURED_LANDING_SLUG || DEFAULT_LANDING_MUSEUM_SLUG;
+
 function formatLinkLabel(url) {
   if (!url) return '';
   try {
@@ -324,6 +331,7 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
   }
 
   const slug = resolvedMuseum.slug;
+  const isLandingMuseum = typeof slug === 'string' && slug.toLowerCase() === LANDING_MUSEUM_SLUG;
   const displayName = resolvedMuseum.name;
   const rawImage = museumImages[slug] || resolvedMuseum.raw?.image_url || null;
   const imageCredit = museumImageCredits[slug];
@@ -859,8 +867,9 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
             alt={displayName}
             fill
             className="museum-hero-image"
-            sizes="(max-width: 768px) 100vw, 100vw"
-            priority
+            sizes="(max-width: 640px) 100vw, (max-width: 1200px) 90vw, 1200px"
+            priority={isLandingMuseum}
+            loading={isLandingMuseum ? 'eager' : 'lazy'}
           />
         </div>
       )}
