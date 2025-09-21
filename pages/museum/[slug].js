@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import SEO from '../../components/SEO';
@@ -137,11 +137,24 @@ function FavoriteButton({ active, onToggle, label }) {
   );
 }
 
+const TAB_HASHES = {
+  overview: 'overzicht',
+  exhibitions: 'tentoonstellingen',
+  visitorInfo: 'bezoekersinfo',
+  map: 'kaart',
+};
+
+const HASH_TO_TAB = Object.entries(TAB_HASHES).reduce((acc, [tab, hash]) => {
+  acc[hash] = tab;
+  return acc;
+}, {});
+
 export default function MuseumDetailPage({ museum, expositions, error }) {
   const { lang, t } = useLanguage();
   const { favorites, toggleFavorite } = useFavorites();
 
   const resolvedMuseum = useMemo(() => (museum ? { ...museum } : null), [museum]);
+  const [activeTab, setActiveTab] = useState('overview');
 
   if (error) {
     return (
@@ -294,6 +307,92 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
     return links;
   }, [resolvedMuseum.instagram, resolvedMuseum.facebook, resolvedMuseum.twitter]);
 
+  useEffect(() => {
+    if (typeof window === 'undefined') return undefined;
+
+    const applyHash = () => {
+      const rawHash = window.location.hash.replace('#', '').toLowerCase();
+      if (!rawHash) {
+        setActiveTab('overview');
+        return;
+      }
+      const matched = HASH_TO_TAB[rawHash];
+      if (matched) {
+        setActiveTab(matched);
+      }
+    };
+
+    applyHash();
+
+    window.addEventListener('hashchange', applyHash);
+    return () => {
+      window.removeEventListener('hashchange', applyHash);
+    };
+  }, []);
+
+  const handleTabSelect = (tabId) => {
+    setActiveTab(tabId);
+    if (typeof window !== 'undefined') {
+      const hash = TAB_HASHES[tabId];
+      if (hash) {
+        const { pathname, search } = window.location;
+        const nextUrl = `${pathname}${search || ''}#${hash}`;
+        if (window.location.hash !== `#${hash}`) {
+          window.history.replaceState(null, '', nextUrl);
+        }
+      }
+    }
+  };
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const rawHash = window.location.hash.replace('#', '').toLowerCase();
+    if (!rawHash) return;
+    const matched = HASH_TO_TAB[rawHash];
+    if (matched !== activeTab) return;
+    const target = window.document.getElementById(rawHash);
+    if (target) {
+      window.requestAnimationFrame(() => {
+        target.scrollIntoView({ block: 'start', behavior: 'smooth' });
+      });
+    }
+  }, [activeTab]);
+
+  const tabs = useMemo(
+    () => [
+      { id: 'overview', hash: TAB_HASHES.overview, label: t('tabOverview') },
+      { id: 'exhibitions', hash: TAB_HASHES.exhibitions, label: t('tabExhibitions') },
+      { id: 'visitorInfo', hash: TAB_HASHES.visitorInfo, label: t('tabVisitorInfo') },
+      { id: 'map', hash: TAB_HASHES.map, label: t('tabMap') },
+    ],
+    [t]
+  );
+
+  const mapQuerySource = useMemo(() => {
+    if (locationLines.length > 0) {
+      return locationLines.join(', ');
+    }
+    if (resolvedMuseum.address) {
+      return [resolvedMuseum.address, resolvedMuseum.city, resolvedMuseum.province].filter(Boolean).join(', ');
+    }
+    if (resolvedMuseum.city || resolvedMuseum.province) {
+      return [resolvedMuseum.city, resolvedMuseum.province].filter(Boolean).join(', ');
+    }
+    return displayName;
+  }, [locationLines, resolvedMuseum.address, resolvedMuseum.city, resolvedMuseum.province, displayName]);
+
+  const mapEmbedUrl = useMemo(() => {
+    if (!mapQuerySource) return null;
+    const encoded = encodeURIComponent(mapQuerySource);
+    return `https://www.google.com/maps?q=${encoded}&output=embed`;
+  }, [mapQuerySource]);
+
+  const mapOpenUrl = useMemo(() => {
+    if (!mapQuerySource) return null;
+    const encoded = encodeURIComponent(mapQuerySource);
+    return `https://www.google.com/maps/search/?api=1&query=${encoded}`;
+  }, [mapQuerySource]);
+
   return (
     <section className={`museum-detail${heroImage ? ' has-hero' : ''}`}>
       <SEO title={`${displayName} — MuseumBuddy`} description={seoDescription} image={heroImage} canonical={canonical} />
@@ -377,30 +476,119 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
           </div>
         </div>
 
-        <div className="museum-detail-grid">
-          <div className="museum-expositions-card">
-            <div className="museum-expositions-body">
-              <h2 className="museum-expositions-heading">{t('expositionsTitle')}</h2>
-              {expositionItems.length > 0 ? (
-                <ul className="events-list">
-                  {expositionItems.map((exposition) => (
-                    <li key={exposition.id}>
-                      <ExpositionCard
-                        exposition={exposition}
-                        affiliateUrl={affiliateTicketUrl}
-                        ticketUrl={directTicketUrl}
-                        museumSlug={slug}
-                      />
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p className="museum-expositions-empty">{t('noExpositions')}</p>
-              )}
+        <div className={`museum-detail-grid${activeTab === 'visitorInfo' ? ' has-sidebar' : ''}`}>
+          <div className="museum-detail-main">
+            <div className="museum-detail-tabs" role="tablist" aria-label={t('museumSections')}>
+              {tabs.map((tab) => {
+                const isActive = activeTab === tab.id;
+                const tabId = `tab-${tab.hash}`;
+                return (
+                  <button
+                    key={tab.id}
+                    type="button"
+                    role="tab"
+                    id={tabId}
+                    className={`museum-tab${isActive ? ' is-active' : ''}`}
+                    aria-selected={isActive}
+                    aria-controls={tab.hash}
+                    onClick={() => handleTabSelect(tab.id)}
+                  >
+                    {tab.label}
+                  </button>
+                );
+              })}
             </div>
+
+            <section
+              id={TAB_HASHES.overview}
+              role="tabpanel"
+              aria-labelledby={`tab-${TAB_HASHES.overview}`}
+              className={`museum-tabpanel${activeTab === 'overview' ? ' is-active' : ''}`}
+              hidden={activeTab !== 'overview'}
+            >
+              <div className="museum-overview-panel">
+                {summary && <p className="museum-overview-summary">{summary}</p>}
+                <div className="museum-overview-links">
+                  {hasTicketLink && (
+                    <a className="museum-overview-link" href={ticketUrl} target="_blank" rel="noreferrer">
+                      {t('buyTicket')}
+                    </a>
+                  )}
+                  {hasWebsite && (
+                    <a className="museum-overview-link" href={resolvedMuseum.websiteUrl} target="_blank" rel="noreferrer">
+                      {t('website')}
+                    </a>
+                  )}
+                  {mapOpenUrl && (
+                    <a className="museum-overview-link" href={mapOpenUrl} target="_blank" rel="noreferrer">
+                      {t('openInMaps')}
+                    </a>
+                  )}
+                </div>
+              </div>
+            </section>
+
+            <section
+              id={TAB_HASHES.exhibitions}
+              role="tabpanel"
+              aria-labelledby={`tab-${TAB_HASHES.exhibitions}`}
+              className={`museum-tabpanel${activeTab === 'exhibitions' ? ' is-active' : ''}`}
+              hidden={activeTab !== 'exhibitions'}
+            >
+              <div className="museum-expositions-card">
+                <div className="museum-expositions-body">
+                  <h2 className="museum-expositions-heading">{t('expositionsTitle')}</h2>
+                  {expositionItems.length > 0 ? (
+                    <ul className="events-list">
+                      {expositionItems.map((exposition) => (
+                        <li key={exposition.id}>
+                          <ExpositionCard
+                            exposition={exposition}
+                            affiliateUrl={affiliateTicketUrl}
+                            ticketUrl={directTicketUrl}
+                            museumSlug={slug}
+                          />
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p className="museum-expositions-empty">{t('noExpositions')}</p>
+                  )}
+                </div>
+              </div>
+            </section>
+
+            <section
+              id={TAB_HASHES.map}
+              role="tabpanel"
+              aria-labelledby={`tab-${TAB_HASHES.map}`}
+              className={`museum-tabpanel${activeTab === 'map' ? ' is-active' : ''}`}
+              hidden={activeTab !== 'map'}
+            >
+              <div className="museum-map-panel">
+                {mapEmbedUrl ? (
+                  <div className="museum-map-frame">
+                    <iframe title={t('tabMap')} src={mapEmbedUrl} loading="lazy" allowFullScreen />
+                  </div>
+                ) : (
+                  <p className="museum-map-empty">{t('mapUnavailable')}</p>
+                )}
+                {mapOpenUrl && (
+                  <a className="museum-overview-link" href={mapOpenUrl} target="_blank" rel="noreferrer">
+                    {t('openInMaps')}
+                  </a>
+                )}
+              </div>
+            </section>
           </div>
 
-          <aside className="museum-sidebar">
+          <aside
+            id={TAB_HASHES.visitorInfo}
+            role="tabpanel"
+            aria-labelledby={`tab-${TAB_HASHES.visitorInfo}`}
+            className={`museum-sidebar museum-tabpanel${activeTab === 'visitorInfo' ? ' is-active' : ''}`}
+            hidden={activeTab !== 'visitorInfo'}
+          >
             <div className="museum-sidebar-card support-card">
               <h2 className="museum-sidebar-title">{t('visitorInformation')}</h2>
 
