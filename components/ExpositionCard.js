@@ -130,6 +130,11 @@ export default function ExpositionCard({ exposition, ticketUrl, affiliateUrl, mu
   const resolvedImage = hasMedia ? mediaUrl : FALLBACK_IMAGE;
   const favoriteImage = hasMedia ? mediaUrl : FALLBACK_IMAGE;
 
+  useEffect(() => {
+    setHasImageError(false);
+    setIsImageLoaded(false);
+  }, [mediaUrl]);
+
   const handleFavorite = () => {
     toggleFavorite({
       id: exposition.id,
@@ -175,7 +180,12 @@ export default function ExpositionCard({ exposition, ticketUrl, affiliateUrl, mu
 
   return (
     <article className={`exposition-card${isFavoriteBouncing ? ' is-bouncing' : ''}`}>
-      <div className={mediaClassName}>
+      <div className={mediaClassName} aria-busy={!isImageLoaded}>
+        {!isImageLoaded && (
+          <div className="exposition-card__skeleton" aria-hidden="true">
+            <div className="exposition-card__skeleton-shimmer" />
+          </div>
+        )}
         <Image
           src={resolvedImage}
           alt={exposition.titel || t('exhibitionsTitle')}

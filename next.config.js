@@ -14,6 +14,10 @@ const nextConfig = {
     ],
   },
 
+  experimental: {
+    optimizeCss: true,
+  },
+
   // Let op: i18n is tijdelijk verwijderd omdat output: 'export' geen i18n ondersteunt
 };
 

@@ -2235,22 +2235,26 @@ button.hero-quick-link {
   background: linear-gradient(135deg, rgba(255,90,60,0.1), rgba(59,130,246,0.12));
 }
 
-.exposition-card__media.is-loading::before,
-.exposition-card__media.is-loading::after {
-  content: '';
+.exposition-card__skeleton {
   position: absolute;
   inset: 0;
   border-radius: inherit;
-}
-
-.exposition-card__media.is-loading::before {
   background: var(--skeleton-base);
+  overflow: hidden;
+  opacity: 0;
+  transition: opacity 0.25s ease;
 }
 
-.exposition-card__media.is-loading::after {
+.exposition-card__skeleton-shimmer {
+  position: absolute;
+  inset: 0;
   transform: translateX(-100%);
   background: linear-gradient(90deg, transparent 0%, var(--skeleton-highlight) 50%, transparent 100%);
   animation: skeleton-shimmer 1.6s ease-in-out infinite;
+}
+
+.exposition-card__media.is-loading .exposition-card__skeleton {
+  opacity: 1;
 }
 
 .exposition-card__image {
@@ -2501,7 +2505,7 @@ button.hero-quick-link {
   .exposition-card.is-bouncing .icon-button.large {
     animation: none;
   }
-  .exposition-card__media.is-loading::after,
+  .exposition-card__skeleton-shimmer,
   .exposition-card--loading .exposition-card__summary::after,
   .exposition-card--loading .exposition-card__title::after,
   .exposition-card--loading .exposition-card__tag::after,

@@ -1,30 +1,36 @@
-import Head from 'next/head';
+import { Inter, Manrope } from 'next/font/google';
 import '../styles/globals.css';
 import Layout from '../components/Layout';
 import { FavoritesProvider } from '../components/FavoritesContext';
 import { LanguageProvider } from '../components/LanguageContext';
 import { ThemeProvider } from '../components/ThemeContext';
 
+const inter = Inter({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+  display: 'swap',
+  variable: '--font-body',
+  preload: true,
+});
+
+const manrope = Manrope({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+  display: 'swap',
+  variable: '--font-title',
+  preload: true,
+});
+
 export default function MyApp({ Component, pageProps }) {
   return (
     <LanguageProvider>
       <FavoritesProvider>
         <ThemeProvider>
-          <Head>
-            <link rel="preconnect" href="https://fonts.googleapis.com" />
-            <link
-              rel="preconnect"
-              href="https://fonts.gstatic.com"
-              crossOrigin="anonymous"
-            />
-            <link
-              rel="stylesheet"
-              href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@400;500;600;700&display=swap"
-            />
-          </Head>
-          <Layout>
-            <Component {...pageProps} />
-          </Layout>
+          <div className={`${inter.variable} ${manrope.variable}`}>
+            <Layout>
+              <Component {...pageProps} />
+            </Layout>
+          </div>
         </ThemeProvider>
       </FavoritesProvider>
     </LanguageProvider>
