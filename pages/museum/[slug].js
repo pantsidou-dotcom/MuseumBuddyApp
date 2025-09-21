@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
@@ -352,6 +352,8 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
   const ticketUrl = affiliateTicketUrl || directTicketUrl;
   const showAffiliateNote = Boolean(affiliateTicketUrl) && shouldShowAffiliateNote(slug);
   const ticketContext = t(showAffiliateNote ? 'ticketsViaPartner' : 'ticketsViaOfficialSite');
+  const primaryTicketNoteId = useId();
+  const overviewTicketNoteId = useId();
   const locationLines = getLocationLines(resolvedMuseum);
   const locationLabel = [resolvedMuseum.city, resolvedMuseum.province].filter(Boolean).join(', ');
   const hasWebsite = Boolean(resolvedMuseum.websiteUrl);
@@ -520,6 +522,7 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
       pagination: t('carouselPagination'),
       goToSlide: (target) => t('carouselGoTo', { target }),
       slide: (current, total) => t('carouselSlide', { current, total }),
+      instructions: t('carouselInstructions'),
     }),
     [t]
   );
@@ -805,6 +808,7 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
       value: ticketUrl,
       href: ticketUrl,
       note: ticketContext,
+      noteId: overviewTicketNoteId,
     });
   }
 
@@ -884,9 +888,14 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
               target="_blank"
               rel="noreferrer"
               className="museum-primary-action primary"
+              aria-describedby={ticketContext ? primaryTicketNoteId : undefined}
             >
               <span className="ticket-button__label">{t('buyTickets')}</span>
-              <span className="ticket-button__note">{ticketContext}</span>
+              {ticketContext ? (
+                <span className="ticket-button__note" id={primaryTicketNoteId}>
+                  {ticketContext}
+                </span>
+              ) : null}
             </a>
           ) : (
             <button type="button" className="museum-primary-action primary" disabled aria-disabled="true">
@@ -957,10 +966,19 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
                         <span className="museum-overview-value">
                           {detail.href ? (
                             <>
-                              <a href={detail.href} target="_blank" rel="noreferrer">
-                                {formatLinkLabel(detail.href) || detail.value}
-                              </a>
-                              {detail.note && <span className="museum-overview-note">{detail.note}</span>}
+                            <a
+                              href={detail.href}
+                              target="_blank"
+                              rel="noreferrer"
+                              aria-describedby={detail.note && detail.noteId ? detail.noteId : undefined}
+                            >
+                              {formatLinkLabel(detail.href) || detail.value}
+                            </a>
+                            {detail.note ? (
+                              <span className="museum-overview-note" id={detail.noteId}>
+                                {detail.note}
+                              </span>
+                            ) : null}
                             </>
                           ) : detail.lines ? (
                             detail.lines.map((line, index) => (

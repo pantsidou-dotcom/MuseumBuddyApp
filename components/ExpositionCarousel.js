@@ -27,11 +27,20 @@ export default function ExpositionCarousel({
     [totalSlides]
   );
   const [uncontrolledActive, setUncontrolledActive] = useState(() => getSafeIndex(initialActiveSlide));
-  const { previous, next, pagination, goToSlide: gotoSlideLabel, slide: slideLabel } = useMemo(
+  const {
+    previous,
+    next,
+    pagination,
+    goToSlide: gotoSlideLabel,
+    slide: slideLabel,
+    instructions,
+  } = useMemo(
     () => ({
       previous: 'Scroll to previous slide',
       next: 'Scroll to next slide',
       pagination: 'Slides',
+      instructions:
+        'Use the arrow keys to browse slides. Press Home to jump to the first slide and End to go to the last slide.',
       ...labels,
     }),
     [labels]
@@ -169,6 +178,12 @@ export default function ExpositionCarousel({
       } else if (event.key === 'ArrowLeft') {
         event.preventDefault();
         updateActiveSlide(activeSlide - 1);
+      } else if (event.key === 'Home') {
+        event.preventDefault();
+        updateActiveSlide(0);
+      } else if (event.key === 'End') {
+        event.preventDefault();
+        updateActiveSlide(totalSlides - 1);
       }
     },
     [activeSlide, totalSlides, updateActiveSlide]
@@ -176,22 +191,77 @@ export default function ExpositionCarousel({
 
   const carouselId = useId();
   const viewportId = `${carouselId}-viewport`;
+  const trackId = `${carouselId}-track`;
+  const instructionsId = `${carouselId}-instructions`;
+  const liveRegionId = `${carouselId}-live-region`;
+  const instructionsText = useMemo(() => {
+    if (typeof instructions === 'function') {
+      return instructions(totalSlides);
+    }
+    return instructions;
+  }, [instructions, totalSlides]);
+  const describedBy = useMemo(() => {
+    const ids = [];
+    if (instructionsText) ids.push(instructionsId);
+    if (totalSlides > 1) ids.push(liveRegionId);
+    return ids.join(' ');
+  }, [instructionsId, instructionsText, liveRegionId, totalSlides]);
+  const controlledIds = useMemo(
+    () =>
+      [viewportId, trackId]
+        .filter(Boolean)
+        .join(' ') || undefined,
+    [trackId, viewportId]
+  );
+  const [liveAnnouncement, setLiveAnnouncement] = useState(() => {
+    if (totalSlides <= 0) {
+      return '';
+    }
+    return getSlideLabel(activeSlide);
+  });
+
+  useEffect(() => {
+    if (totalSlides <= 1) {
+      setLiveAnnouncement('');
+      return;
+    }
+    const nextAnnouncement = getSlideLabel(activeSlide);
+    setLiveAnnouncement((previous) => (previous === nextAnnouncement ? previous : nextAnnouncement));
+  }, [activeSlide, getSlideLabel, totalSlides]);
+
+  const regionLabel = typeof ariaLabel === 'string' && ariaLabel.trim() ? ariaLabel : 'Carousel';
 
   if (!totalSlides) {
     return null;
   }
 
   return (
-    <div className="exposition-carousel" role="region" aria-label={ariaLabel}>
+    <div
+      className="exposition-carousel"
+      role="region"
+      aria-label={regionLabel}
+      aria-roledescription="carousel"
+      aria-controls={controlledIds}
+    >
+      {instructionsText ? (
+        <p id={instructionsId} className="sr-only">
+          {instructionsText}
+        </p>
+      ) : null}
+      {totalSlides > 1 ? (
+        <p id={liveRegionId} className="sr-only" role="status" aria-live="polite" aria-atomic="true">
+          {liveAnnouncement}
+        </p>
+      ) : null}
       <div
         className="exposition-carousel__viewport"
         ref={viewportRef}
         id={viewportId}
         tabIndex={0}
         onKeyDown={handleViewportKeyDown}
-        aria-roledescription="carousel"
+        aria-describedby={describedBy || undefined}
       >
-        <ul className="exposition-carousel__track" role="list">
+        <ul className="exposition-carousel__track" role="list" id={trackId}>
           {slides.map((item, index) => {
             const key = typeof getItemKey === 'function' ? getItemKey(item, index) : item?.id ?? index;
             const isActive = index === activeSlide;
@@ -218,7 +288,7 @@ export default function ExpositionCarousel({
               type="button"
               className="exposition-carousel__arrow exposition-carousel__arrow--prev"
               onClick={handlePrev}
-              aria-controls={viewportId}
+              aria-controls={controlledIds}
               aria-label={previous}
               disabled={activeSlide === 0}
             >
@@ -228,7 +298,7 @@ export default function ExpositionCarousel({
               type="button"
               className="exposition-carousel__arrow exposition-carousel__arrow--next"
               onClick={handleNext}
-              aria-controls={viewportId}
+              aria-controls={controlledIds}
               aria-label={next}
               disabled={activeSlide === totalSlides - 1}
             >
@@ -245,7 +315,7 @@ export default function ExpositionCarousel({
                   type="button"
                   role="tab"
                   aria-selected={isActive}
-                  aria-controls={viewportId}
+                  aria-controls={controlledIds}
                   className={`exposition-carousel__dot${isActive ? ' is-active' : ''}`}
                   onClick={() => updateActiveSlide(index)}
                   aria-label={getGotoSlideLabel(index)}
