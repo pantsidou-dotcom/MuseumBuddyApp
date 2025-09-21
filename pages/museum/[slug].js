@@ -469,24 +469,25 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
 
               {(heroImage || imageCredit) && (
                 <div className="museum-info-credit">
-                  <span className="museum-info-credit-label">{t('imageCreditLabel')}:</span>{' '}
-                  {imageCredit ? (
-                    <>
-                      {imageCredit.author || t('unknown')}
-                      {imageCredit.license ? `, ${imageCredit.license}` : ''}
-                      {imageCredit.source && (
-                        <>
-                          {' '}
-                          {t('via')}{' '}
-                          <a href={imageCredit.url} target="_blank" rel="noreferrer">
-                            {imageCredit.source}
-                          </a>
-                        </>
-                      )}
-                    </>
-                  ) : (
-                    t('unknown')
-                  )}
+                  <span className="museum-info-credit-label">{t('imageCreditLabel')}:</span>
+                  <span className="museum-info-credit-value">
+                    {imageCredit ? (
+                      <span className="museum-info-credit-content">
+                        <span>{imageCredit.author || t('unknown')}</span>
+                        {imageCredit.license && <span>, {imageCredit.license}</span>}
+                        {imageCredit.source && (
+                          <span className="museum-info-credit-source">
+                            {t('via')}
+                            <a href={imageCredit.url} target="_blank" rel="noreferrer">
+                              {imageCredit.source}
+                            </a>
+                          </span>
+                        )}
+                      </span>
+                    ) : (
+                      t('unknown')
+                    )}
+                  </span>
                 </div>
               )}
             </div>
