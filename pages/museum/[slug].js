@@ -154,7 +154,27 @@ function FavoriteButton({ active, onToggle, label }) {
 export default function MuseumDetailPage({ museum, expositions, error }) {
   const { lang, t } = useLanguage();
   const { favorites, toggleFavorite } = useFavorites();
-  const [activeTab, setActiveTab] = useState('overview');
+  const resolvedMuseum = useMemo(() => (museum ? { ...museum } : null), [museum]);
+  const slug = resolvedMuseum?.slug || null;
+
+  const expositionItems = useMemo(
+    () =>
+      Array.isArray(expositions)
+        ? expositions.map((row) => normaliseExpositionRow(row, slug)).filter(Boolean)
+        : [],
+    [expositions, slug]
+  );
+
+  const [activeTab, setActiveTab] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const current = normaliseHash(window.location.hash);
+      const matchedTab = TAB_ORDER.find((key) => TAB_HASHES[key] === current);
+      if (matchedTab) {
+        return matchedTab;
+      }
+    }
+    return expositionItems.length > 0 ? 'exhibitions' : 'overview';
+  });
 
   const tabLabels = useMemo(
     () => ({
@@ -165,8 +185,6 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
     }),
     [t]
   );
-
-  const resolvedMuseum = useMemo(() => (museum ? { ...museum } : null), [museum]);
 
   if (error) {
     return (
@@ -190,7 +208,6 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
     );
   }
 
-  const slug = resolvedMuseum.slug;
   const displayName = resolvedMuseum.name;
   const rawImage = museumImages[slug] || resolvedMuseum.raw?.image_url || null;
   const imageCredit = museumImageCredits[slug];
@@ -328,12 +345,6 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
 
   const seoDescription = summary || t('museumDescription', { name: displayName });
   const canonical = `/museum/${slug}`;
-
-  const expositionItems = Array.isArray(expositions)
-    ? expositions
-        .map((row) => normaliseExpositionRow(row, slug))
-        .filter(Boolean)
-    : [];
 
   const socialLinks = useMemo(() => {
     const links = [];
