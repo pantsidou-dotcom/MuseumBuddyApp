@@ -7,6 +7,107 @@ function normalizeFilters(filters) {
   return filters || {};
 }
 
+function resolveSections(sections, labels) {
+  if (Array.isArray(sections) && sections.length > 0) {
+    return sections;
+  }
+
+  return [
+    {
+      id: 'availability',
+      title: labels?.availability,
+      options: [
+        { name: 'free', label: labels?.free },
+        { name: 'exhibitions', label: labels?.exhibitions },
+      ],
+    },
+    {
+      id: 'comingsoon',
+      title: labels?.future,
+      options: [
+        { name: 'kidFriendly', label: labels?.kidFriendly, disabled: true, badge: labels?.comingSoon },
+        { name: 'nearby', label: labels?.distance, disabled: true, badge: labels?.comingSoon },
+      ],
+      note: labels?.todo,
+    },
+  ];
+}
+
+export function FiltersForm({
+  filters,
+  onChange,
+  onApply,
+  onReset,
+  labels,
+  sections,
+  idPrefix = 'filters-sheet',
+}) {
+  const normalizedFilters = useMemo(() => normalizeFilters(filters), [filters]);
+  const computedSections = useMemo(() => resolveSections(sections, labels), [sections, labels]);
+
+  return (
+    <>
+      <div className="filters-sheet__content">
+        {computedSections.map((section) => {
+          if (!section) return null;
+          const sectionId = `${idPrefix}-${section.id}`;
+          const options = Array.isArray(section.options) ? section.options : [];
+          return (
+            <section key={section.id || sectionId} className="filters-sheet__group" aria-labelledby={sectionId}>
+              {section.title && (
+                <h3 id={sectionId} className="filters-sheet__group-title">
+                  {section.title}
+                </h3>
+              )}
+              {options.map((option) => {
+                if (!option) return null;
+                const optionId = `${sectionId}-${option.name}`;
+                const isDisabled = Boolean(option.disabled);
+                const className = [
+                  'filters-sheet__option',
+                  isDisabled ? 'filters-sheet__option--disabled' : '',
+                  option.className || '',
+                ]
+                  .filter(Boolean)
+                  .join(' ');
+
+                return (
+                  <label key={option.name || optionId} className={className} htmlFor={optionId}>
+                    <input
+                      id={optionId}
+                      type="checkbox"
+                      checked={Boolean(normalizedFilters[option.name])}
+                      disabled={isDisabled}
+                      onChange={(event) => onChange?.(option.name, event.target.checked)}
+                    />
+                    {option.badge ? (
+                      <div className="filters-sheet__option-text">
+                        <span>{option.label}</span>
+                        {option.badge && <span className="filters-sheet__badge">{option.badge}</span>}
+                      </div>
+                    ) : (
+                      <span>{option.label}</span>
+                    )}
+                  </label>
+                );
+              })}
+              {section.note && <p className="filters-sheet__todo">{section.note}</p>}
+            </section>
+          );
+        })}
+      </div>
+      <footer className="filters-sheet__footer">
+        <button type="button" className="filters-sheet__reset" onClick={onReset}>
+          {labels?.reset}
+        </button>
+        <button type="button" className="filters-sheet__apply" onClick={onApply}>
+          {labels?.apply}
+        </button>
+      </footer>
+    </>
+  );
+}
+
 export default function FiltersSheet({
   open = false,
   filters,
@@ -15,11 +116,12 @@ export default function FiltersSheet({
   onReset,
   onClose,
   labels,
+  sections,
+  idPrefix = 'filters-sheet',
 }) {
   const [mounted, setMounted] = useState(false);
   const previousOverflow = useRef(null);
   const closeButtonRef = useRef(null);
-  const normalizedFilters = useMemo(() => normalizeFilters(filters), [filters]);
 
   useEffect(() => {
     setMounted(true);
@@ -29,6 +131,7 @@ export default function FiltersSheet({
   useEffect(() => {
     if (!mounted) return undefined;
     if (!open) return undefined;
+    if (typeof document === 'undefined') return undefined;
 
     previousOverflow.current = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
@@ -48,6 +151,8 @@ export default function FiltersSheet({
       }
     };
 
+    if (typeof document === 'undefined') return undefined;
+
     document.addEventListener('keydown', handleKeyDown);
 
     return () => {
@@ -57,6 +162,7 @@ export default function FiltersSheet({
 
   useEffect(() => {
     if (!open) return;
+    if (typeof window === 'undefined') return undefined;
     const timer = window.setTimeout(() => {
       closeButtonRef.current?.focus();
     }, 150);
@@ -64,12 +170,16 @@ export default function FiltersSheet({
   }, [open]);
 
   if (!mounted) return null;
+  if (typeof document === 'undefined') return null;
 
   const handleBackdropClick = (event) => {
     if (event.target === event.currentTarget) {
       onClose?.();
     }
   };
+
+  const headingId = `${idPrefix}-title`;
+  const descriptionId = labels?.description ? `${idPrefix}-description` : undefined;
 
   const renderContent = () => (
     <div className={`filters-sheet${open ? ' filters-sheet--open' : ''}`} role="presentation">
@@ -79,16 +189,16 @@ export default function FiltersSheet({
         className="filters-sheet__panel"
         role="dialog"
         aria-modal="true"
-        aria-labelledby="filters-sheet-title"
-        aria-describedby="filters-sheet-description"
+        aria-labelledby={headingId}
+        aria-describedby={descriptionId}
       >
         <header className="filters-sheet__header">
           <div className="filters-sheet__heading">
-            <h2 id="filters-sheet-title" className="filters-sheet__title">
+            <h2 id={headingId} className="filters-sheet__title">
               {labels?.title}
             </h2>
             {labels?.description && (
-              <p id="filters-sheet-description" className="filters-sheet__description">
+              <p id={descriptionId} className="filters-sheet__description">
                 {labels.description}
               </p>
             )}
@@ -112,57 +222,15 @@ export default function FiltersSheet({
             </svg>
           </button>
         </header>
-        <div className="filters-sheet__content">
-          <section className="filters-sheet__group" aria-labelledby="filters-section-availability">
-            <h3 id="filters-section-availability" className="filters-sheet__group-title">
-              {labels?.availability}
-            </h3>
-            <label className="filters-sheet__option">
-              <input
-                type="checkbox"
-                checked={Boolean(normalizedFilters.free)}
-                onChange={(event) => onChange?.('free', event.target.checked)}
-              />
-              <span>{labels?.free}</span>
-            </label>
-            <label className="filters-sheet__option">
-              <input
-                type="checkbox"
-                checked={Boolean(normalizedFilters.exhibitions)}
-                onChange={(event) => onChange?.('exhibitions', event.target.checked)}
-              />
-              <span>{labels?.exhibitions}</span>
-            </label>
-          </section>
-          <section className="filters-sheet__group" aria-labelledby="filters-section-comingsoon">
-            <h3 id="filters-section-comingsoon" className="filters-sheet__group-title">
-              {labels?.future}
-            </h3>
-            <label className="filters-sheet__option filters-sheet__option--disabled">
-              <input type="checkbox" checked={Boolean(normalizedFilters.kidFriendly)} disabled />
-              <div className="filters-sheet__option-text">
-                <span>{labels?.kidFriendly}</span>
-                {labels?.comingSoon && <span className="filters-sheet__badge">{labels.comingSoon}</span>}
-              </div>
-            </label>
-            <label className="filters-sheet__option filters-sheet__option--disabled">
-              <input type="checkbox" checked={Boolean(normalizedFilters.nearby)} disabled />
-              <div className="filters-sheet__option-text">
-                <span>{labels?.distance}</span>
-                {labels?.comingSoon && <span className="filters-sheet__badge">{labels.comingSoon}</span>}
-              </div>
-            </label>
-            {labels?.todo && <p className="filters-sheet__todo">{labels.todo}</p>}
-          </section>
-        </div>
-        <footer className="filters-sheet__footer">
-          <button type="button" className="filters-sheet__reset" onClick={onReset}>
-            {labels?.reset}
-          </button>
-          <button type="button" className="filters-sheet__apply" onClick={onApply}>
-            {labels?.apply}
-          </button>
-        </footer>
+        <FiltersForm
+          filters={filters}
+          onChange={onChange}
+          onApply={onApply}
+          onReset={onReset}
+          labels={labels}
+          sections={sections}
+          idPrefix={idPrefix}
+        />
       </div>
     </div>
   );
