@@ -16,8 +16,11 @@
   },
   "dependencies": {
     "@capacitor/android": "7.4.3",
+    "@capacitor/app": "7.0.2",
+    "@capacitor/browser": "7.0.2",
     "@capacitor/cli": "7.4.3",
     "@capacitor/core": "7.4.3",
+    "@capacitor/haptics": "7.0.2",
     "@capacitor/ios": "7.4.3",
     "@supabase/supabase-js": "^2.45.0",
     "axios": "^1.7.7",

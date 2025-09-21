@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
+import { Capacitor } from '@capacitor/core';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
@@ -354,6 +355,9 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
   const ticketContext = t(showAffiliateNote ? 'ticketsViaPartner' : 'ticketsViaOfficialSite');
   const primaryTicketNoteId = useId();
   const overviewTicketNoteId = useId();
+  const mobileTicketNoteId = useId();
+  const mobileActionSheetId = useId();
+  const mobileActionSheetTitleId = useId();
   const locationLines = getLocationLines(resolvedMuseum);
   const locationLabel = [resolvedMuseum.city, resolvedMuseum.province].filter(Boolean).join(', ');
   const hasWebsite = Boolean(resolvedMuseum.websiteUrl);
@@ -368,6 +372,7 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
   );
   const [filtersSheetOpen, setFiltersSheetOpen] = useState(false);
   const [filtersPopoverOpen, setFiltersPopoverOpen] = useState(false);
+  const [mobileActionsOpen, setMobileActionsOpen] = useState(false);
 
   const syncExpositionFiltersToUrl = useCallback(
     (nextFilters) => {
@@ -431,13 +436,82 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
     ]
   );
 
+  const triggerHapticFeedback = useCallback(
+    async (intensity = 'medium') => {
+      if (typeof window === 'undefined') return;
+      try {
+        if (Capacitor?.isNativePlatform?.()) {
+          const haptics = Capacitor.Plugins?.Haptics;
+          if (haptics?.impact) {
+            const style =
+              intensity === 'heavy'
+                ? 'HEAVY'
+                : intensity === 'light'
+                ? 'LIGHT'
+                : 'MEDIUM';
+            await haptics.impact({ style });
+            return;
+          }
+        }
+        if (window.navigator?.vibrate) {
+          window.navigator.vibrate(intensity === 'light' ? 18 : 32);
+        }
+      } catch (err) {
+        if (window.navigator?.vibrate) {
+          window.navigator.vibrate(20);
+        }
+      }
+    },
+    []
+  );
+
+  const openExternalLink = useCallback(
+    async (url, event, { preferApp = false } = {}) => {
+      if (!url || typeof window === 'undefined') return false;
+      try {
+        if (Capacitor?.isNativePlatform?.()) {
+          event?.preventDefault();
+          event?.stopPropagation();
+          const plugins = Capacitor.Plugins || {};
+          if (preferApp && plugins.App?.openUrl) {
+            try {
+              await plugins.App.openUrl({ url });
+              return true;
+            } catch (appError) {
+              // fall through to browser fallback
+            }
+          }
+          if (plugins.Browser?.open) {
+            await plugins.Browser.open({ url, presentationStyle: 'fullscreen' });
+            return true;
+          }
+        }
+      } catch (err) {
+        // ignore and fall back to default navigation
+      }
+
+      if (!event) {
+        try {
+          window.open(url, '_blank', 'noopener');
+        } catch (err) {
+          window.location.href = url;
+        }
+        return true;
+      }
+
+      return false;
+    },
+    []
+  );
+
   const isFavorite = favorites.some((fav) => fav.id === resolvedMuseum.id && fav.type === 'museum');
 
-  const handleFavorite = () => {
+  const handleFavorite = useCallback(() => {
     toggleFavorite(favoritePayload);
-  };
+    triggerHapticFeedback(isFavorite ? 'light' : 'medium');
+  }, [favoritePayload, isFavorite, toggleFavorite, triggerHapticFeedback]);
 
-  const handleShare = async () => {
+  const handleShare = useCallback(async () => {
     if (typeof window === 'undefined') return;
     const url = `${window.location.origin}/museum/${slug}`;
     const shareData = {
@@ -470,7 +544,78 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
     } catch (err) {
       window.prompt(t('copyThisLink'), url);
     }
-  };
+  }, [displayName, slug, t]);
+
+  const handleShareFromSheet = useCallback(() => {
+    setMobileActionsOpen(false);
+    handleShare();
+  }, [handleShare]);
+
+  const handleTicketLinkClick = useCallback(
+    (event) => {
+      if (!ticketUrl) return;
+      openExternalLink(ticketUrl, event);
+    },
+    [openExternalLink, ticketUrl]
+  );
+
+  const handleWebsiteLinkClick = useCallback(
+    (event) => {
+      if (!resolvedMuseum.websiteUrl) return;
+      openExternalLink(resolvedMuseum.websiteUrl, event);
+    },
+    [openExternalLink, resolvedMuseum.websiteUrl]
+  );
+
+  const hasMobilePrimaryActions = hasTicketLink || hasWebsite;
+
+  const handleToggleMobileActions = useCallback(() => {
+    setMobileActionsOpen((prev) => !prev);
+  }, []);
+
+  const handleCloseMobileActions = useCallback(() => {
+    setMobileActionsOpen(false);
+  }, []);
+
+  const handleMobileTicketAction = useCallback(async () => {
+    setMobileActionsOpen(false);
+    if (!ticketUrl) return;
+    await openExternalLink(ticketUrl);
+  }, [openExternalLink, ticketUrl]);
+
+  const handleMobileWebsiteAction = useCallback(async () => {
+    setMobileActionsOpen(false);
+    if (!resolvedMuseum.websiteUrl) return;
+    await openExternalLink(resolvedMuseum.websiteUrl);
+  }, [openExternalLink, resolvedMuseum.websiteUrl]);
+
+  useEffect(() => {
+    if (!hasMobilePrimaryActions) {
+      setMobileActionsOpen(false);
+    }
+  }, [hasMobilePrimaryActions]);
+
+  useEffect(() => {
+    if (!mobileActionsOpen || typeof document === 'undefined') return undefined;
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape') {
+        setMobileActionsOpen(false);
+      }
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [mobileActionsOpen]);
+
+  useEffect(() => {
+    if (!mobileActionsOpen || typeof document === 'undefined') return undefined;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [mobileActionsOpen]);
 
   const seoDescription = summary || t('museumDescription', { name: displayName });
   const canonical = `/museum/${slug}`;
@@ -820,6 +965,19 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
   const mapEmbedUrl = mapQuery ? `https://www.google.com/maps?q=${encodeURIComponent(mapQuery)}&output=embed` : null;
   const mapDirectionsUrl = mapQuery ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(mapQuery)}` : null;
 
+  const handleMapDirectionsClick = useCallback(
+    (event) => {
+      if (!mapDirectionsUrl) return;
+      openExternalLink(mapDirectionsUrl, event, { preferApp: true });
+    },
+    [mapDirectionsUrl, openExternalLink]
+  );
+
+  const mobileActionsToggleLabel = mobileActionsOpen
+    ? t('mobileActionsCloseLabel')
+    : t('mobileActionsOpenLabel');
+  const mobileActionsTitle = t('mobileActionsTitle');
+
   return (
     <section className={`museum-detail${heroImage ? ' has-hero' : ''}`}>
       <SEO title={`${displayName} — MuseumBuddy`} description={seoDescription} image={heroImage} canonical={canonical} />
@@ -889,6 +1047,7 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
               rel="noreferrer"
               className="museum-primary-action primary"
               aria-describedby={ticketContext ? primaryTicketNoteId : undefined}
+              onClick={handleTicketLinkClick}
             >
               <span className="ticket-button__label">{t('buyTickets')}</span>
               {ticketContext ? (
@@ -909,6 +1068,7 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
               target="_blank"
               rel="noreferrer"
               className="museum-primary-action secondary"
+              onClick={handleWebsiteLinkClick}
             >
               <span>{t('website')}</span>
             </a>
@@ -960,38 +1120,49 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
                 {summary && <p className="museum-overview-text">{summary}</p>}
                 {overviewDetails.length > 0 && (
                   <ul className="museum-overview-list">
-                    {overviewDetails.map((detail) => (
-                      <li key={detail.key} className="museum-overview-list-item">
-                        <span className="museum-overview-label">{detail.label}</span>
-                        <span className="museum-overview-value">
-                          {detail.href ? (
-                            <>
-                            <a
-                              href={detail.href}
-                              target="_blank"
-                              rel="noreferrer"
-                              aria-describedby={detail.note && detail.noteId ? detail.noteId : undefined}
-                            >
-                              {formatLinkLabel(detail.href) || detail.value}
-                            </a>
-                            {detail.note ? (
-                              <span className="museum-overview-note" id={detail.noteId}>
-                                {detail.note}
-                              </span>
-                            ) : null}
-                            </>
-                          ) : detail.lines ? (
-                            detail.lines.map((line, index) => (
-                              <span key={`${detail.key}-${index}`} className="museum-overview-line">
-                                {line}
-                              </span>
-                            ))
-                          ) : (
-                            detail.value
-                          )}
-                        </span>
-                      </li>
-                    ))}
+                    {overviewDetails.map((detail) => {
+                      const detailClickHandler =
+                        detail.key === 'tickets'
+                          ? handleTicketLinkClick
+                          : detail.key === 'website'
+                          ? handleWebsiteLinkClick
+                          : undefined;
+                      return (
+                        <li key={detail.key} className="museum-overview-list-item">
+                          <span className="museum-overview-label">{detail.label}</span>
+                          <span className="museum-overview-value">
+                            {detail.href ? (
+                              <>
+                                <a
+                                  href={detail.href}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  aria-describedby={
+                                    detail.note && detail.noteId ? detail.noteId : undefined
+                                  }
+                                  onClick={detailClickHandler}
+                                >
+                                  {formatLinkLabel(detail.href) || detail.value}
+                                </a>
+                                {detail.note ? (
+                                  <span className="museum-overview-note" id={detail.noteId}>
+                                    {detail.note}
+                                  </span>
+                                ) : null}
+                              </>
+                            ) : detail.lines ? (
+                              detail.lines.map((line, index) => (
+                                <span key={`${detail.key}-${index}`} className="museum-overview-line">
+                                  {line}
+                                </span>
+                              ))
+                            ) : (
+                              detail.value
+                            )}
+                          </span>
+                        </li>
+                      );
+                    })}
                   </ul>
                 )}
               </div>
@@ -1134,7 +1305,13 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
                       />
                     </div>
                     {mapDirectionsUrl && (
-                      <a className="museum-map-link" href={mapDirectionsUrl} target="_blank" rel="noreferrer">
+                      <a
+                        className="museum-map-link"
+                        href={mapDirectionsUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        onClick={handleMapDirectionsClick}
+                      >
                         {t('mapDirections')}
                       </a>
                     )}
@@ -1248,6 +1425,107 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
           </aside>
         </div>
       </div>
+
+      {hasMobilePrimaryActions ? (
+        <div className={`museum-mobile-actions${mobileActionsOpen ? ' is-open' : ''}`}>
+          <button
+            type="button"
+            className="museum-mobile-actions__fab"
+            aria-expanded={mobileActionsOpen}
+            aria-controls={mobileActionSheetId}
+            onClick={handleToggleMobileActions}
+            aria-label={mobileActionsToggleLabel}
+          >
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M3.75 7.5A1.75 1.75 0 0 1 5.5 5.75h13a1.75 1.75 0 0 1 1.75 1.75v2.1a2 2 0 1 0 0 4v2.1A1.75 1.75 0 0 1 18.5 17.5h-13A1.75 1.75 0 0 1 3.75 15.7v-2.1a2 2 0 1 0 0-4Z" />
+              <path d="M12 8.25v7.5" />
+              <path d="M9.75 12h4.5" />
+            </svg>
+          </button>
+          <div
+            className="museum-mobile-actions__backdrop"
+            role="presentation"
+            aria-hidden="true"
+            onClick={handleCloseMobileActions}
+          />
+          <div
+            className="museum-mobile-actions__sheet"
+            role="dialog"
+            aria-modal="true"
+            id={mobileActionSheetId}
+            aria-labelledby={mobileActionSheetTitleId}
+            aria-hidden={!mobileActionsOpen}
+            tabIndex={-1}
+          >
+            <div className="museum-mobile-actions__handle" aria-hidden="true" />
+            <div className="museum-mobile-actions__header">
+              <h2 id={mobileActionSheetTitleId} className="museum-mobile-actions__title">
+                {mobileActionsTitle}
+              </h2>
+              <button
+                type="button"
+                className="museum-mobile-actions__close"
+                onClick={handleCloseMobileActions}
+                aria-label={t('close')}
+              >
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="M6 6l12 12" />
+                  <path d="M18 6L6 18" />
+                </svg>
+              </button>
+            </div>
+            <div className="museum-mobile-actions__body">
+              <div className="museum-mobile-actions__actions">
+                {hasTicketLink ? (
+                  <button
+                    type="button"
+                    className="museum-primary-action primary museum-mobile-actions__action"
+                    onClick={handleMobileTicketAction}
+                    aria-describedby={ticketContext ? mobileTicketNoteId : undefined}
+                  >
+                    <span className="ticket-button__label">{t('buyTickets')}</span>
+                    {ticketContext ? (
+                      <span className="ticket-button__note" id={mobileTicketNoteId}>
+                        {ticketContext}
+                      </span>
+                    ) : null}
+                  </button>
+                ) : null}
+                {hasWebsite ? (
+                  <button
+                    type="button"
+                    className="museum-primary-action secondary museum-mobile-actions__action"
+                    onClick={handleMobileWebsiteAction}
+                  >
+                    <span>{t('website')}</span>
+                  </button>
+                ) : null}
+              </div>
+              <div className="museum-mobile-actions__utility">
+                <ShareButton onShare={handleShareFromSheet} label={t('share')} />
+                <FavoriteButton active={isFavorite} onToggle={handleFavorite} label={t('save')} />
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
     </section>
   );
 }

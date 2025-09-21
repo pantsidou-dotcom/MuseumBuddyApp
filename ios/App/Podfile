@@ -17,6 +17,9 @@ end
 target 'App' do
   capacitor_pods
   # Add your Pods here
+  pod 'CapacitorApp', :path => '../../node_modules/@capacitor/app'
+  pod 'CapacitorBrowser', :path => '../../node_modules/@capacitor/browser'
+  pod 'CapacitorHaptics', :path => '../../node_modules/@capacitor/haptics'
 end
 
 post_install do |installer|
