@@ -14,6 +14,9 @@ const nextConfig = {
     ],
   },
 
+  // Schakel font-optimalisatie uit zodat builds geen externe stylesheets hoeven te downloaden
+  optimizeFonts: false,
+
   // Let op: i18n is tijdelijk verwijderd omdat output: 'export' geen i18n ondersteunt
 };
 
