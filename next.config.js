@@ -10,12 +10,8 @@ const nextConfig = {
     remotePatterns: [
       { protocol: 'https', hostname: 'upload.wikimedia.org' },
       { protocol: 'https', hostname: 'images.unsplash.com' },
-      { protocol: 'https', hostname: '**.wikimedia.org' }
+      { protocol: 'https', hostname: '**.wikimedia.org' },
     ],
-  },
-
-  experimental: {
-    optimizeCss: true,
   },
 
   // Let op: i18n is tijdelijk verwijderd omdat output: 'export' geen i18n ondersteunt
