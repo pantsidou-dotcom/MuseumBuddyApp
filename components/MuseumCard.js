@@ -44,6 +44,7 @@ export default function MuseumCard({ museum }) {
   const hours = museumOpeningHours[museum.slug]?.[lang];
   const locationText = [museum.city, museum.province].filter(Boolean).join(', ');
   const showAffiliateNote = Boolean(museum.ticketUrl) && shouldShowAffiliateNote(museum.slug);
+  const ticketContext = t(showAffiliateNote ? 'ticketsViaPartner' : 'ticketsViaOfficialSite');
 
   const [isFavoriteBouncing, setIsFavoriteBouncing] = useState(false);
   const bounceTimeoutRef = useRef(null);
@@ -143,16 +144,13 @@ export default function MuseumCard({ museum }) {
               target="_blank"
               rel="noreferrer"
               className="ticket-button"
-              title={t('affiliateLink')}
             >
-              <span>{t('buyTicket')}</span>
-              {showAffiliateNote && (
-                <span className="affiliate-note">{t('affiliateLinkLabel')}</span>
-              )}
+              <span className="ticket-button__label">{t('buyTickets')}</span>
+              <span className="ticket-button__note">{ticketContext}</span>
             </a>
           ) : (
             <button type="button" className="ticket-button" disabled aria-disabled="true">
-              <span>{t('buyTicket')}</span>
+              <span className="ticket-button__label">{t('buyTickets')}</span>
             </button>
           )}
         </div>

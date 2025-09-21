@@ -450,7 +450,7 @@ export default function Home({ initialMuseums = [], initialError = null }) {
               onClick={handleQuickShowExhibitions}
               aria-pressed={activeFilters.exhibitions}
             >
-              {t('expositions')}
+              {t('exhibitions')}
             </button>
             {(query || activeFilters.free || activeFilters.exhibitions) && (
               <a href="/" className="hero-quick-link hero-quick-link--ghost">
