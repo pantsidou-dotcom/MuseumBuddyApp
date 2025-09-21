@@ -2004,19 +2004,19 @@ button.hero-quick-link {
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 12px;
 }
 
 .exposition-carousel__viewport {
   position: relative;
   overflow-x: auto;
   scroll-snap-type: x mandatory;
-  scroll-padding-inline: clamp(16px, 5vw, 36px);
+  scroll-padding-inline: clamp(12px, 4vw, 28px);
   scrollbar-width: none;
   -webkit-overflow-scrolling: touch;
-  padding: 4px clamp(16px, 5vw, 36px) 20px;
-  margin: 0 calc(-1 * clamp(16px, 5vw, 36px));
-  border-radius: 28px;
+  padding: 4px clamp(12px, 4vw, 28px) 16px;
+  margin: 0 calc(-1 * clamp(12px, 4vw, 28px));
+  border-radius: 24px;
 }
 
 .exposition-carousel__viewport:focus-visible {
@@ -2031,8 +2031,8 @@ button.hero-quick-link {
 .exposition-carousel__track {
   display: grid;
   grid-auto-flow: column;
-  grid-auto-columns: minmax(280px, clamp(320px, 58vw, 420px));
-  gap: clamp(16px, 4vw, 28px);
+  grid-auto-columns: minmax(220px, clamp(240px, 45vw, 320px));
+  gap: clamp(12px, 3.5vw, 20px);
   list-style: none;
   margin: 0;
   padding: 0;
@@ -2141,28 +2141,28 @@ button.hero-quick-link {
   flex-direction: column;
   min-height: 100%;
   background: var(--surface);
-  border-radius: 28px;
+  border-radius: 24px;
   overflow: hidden;
   border: 1px solid var(--panel-border);
-  box-shadow: 0 20px 44px rgba(15,23,42,0.16);
+  box-shadow: 0 14px 32px rgba(15,23,42,0.14);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .exposition-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 28px 60px rgba(15,23,42,0.2);
+  transform: translateY(-3px);
+  box-shadow: 0 20px 48px rgba(15,23,42,0.18);
 }
 
 [data-theme='dark'] .exposition-card {
   background: rgba(15,23,42,0.92);
   border-color: rgba(148,163,184,0.24);
-  box-shadow: 0 34px 64px rgba(2,6,23,0.55);
+  box-shadow: 0 26px 52px rgba(2,6,23,0.5);
 }
 
 .exposition-card__media {
   position: relative;
   overflow: hidden;
-  aspect-ratio: 4 / 3;
+  aspect-ratio: 16 / 9;
   background: linear-gradient(135deg, rgba(255,90,60,0.14), rgba(14,116,144,0.14));
 }
 
@@ -2207,8 +2207,8 @@ button.hero-quick-link {
 .exposition-card__body {
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  padding: 24px 24px 0;
+  gap: 12px;
+  padding: 18px 20px 0;
   min-height: 0;
 }
 
@@ -2216,29 +2216,31 @@ button.hero-quick-link {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 16px;
+  gap: 12px;
 }
+
 
 .exposition-card__date {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  font-size: 12px;
-  letter-spacing: 0.12em;
+  gap: 4px;
+  font-size: 11px;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--muted);
 }
 
 .exposition-card__date-value {
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 700;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.06em;
   color: var(--text);
 }
 
+
 .exposition-card__title {
   margin: 0;
-  font-size: clamp(20px, 2vw, 24px);
+  font-size: clamp(18px, 1.6vw, 21px);
   letter-spacing: -0.01em;
 }
 
@@ -2252,29 +2254,32 @@ button.hero-quick-link {
   text-decoration: underline;
 }
 
+
 .exposition-card__summary {
   margin: 0;
   color: var(--muted);
-  font-size: 15px;
-  line-height: 1.6;
+  font-size: 14px;
+  line-height: 1.5;
 }
+
 
 .exposition-card__tags {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 8px;
   list-style: none;
   margin: 0;
   padding: 0;
 }
 
+
 .exposition-card__tag {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 6px 14px;
+  padding: 4px 12px;
   border-radius: 999px;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
   letter-spacing: 0.02em;
   background: var(--chip-bg);
@@ -2296,20 +2301,22 @@ button.hero-quick-link {
   opacity: 0.4;
 }
 
+
 .exposition-card__footer {
   margin-top: auto;
-  padding: 24px;
+  padding: 16px 20px 20px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
 }
+
 
 .exposition-card__cta {
   width: 100%;
   justify-content: center;
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 600;
-  box-shadow: 0 18px 32px rgba(15,23,42,0.18);
+  box-shadow: 0 12px 24px rgba(15,23,42,0.16);
 }
 
 .exposition-card__cta[disabled],
@@ -2317,9 +2324,10 @@ button.hero-quick-link {
   box-shadow: none;
 }
 
+
 .exposition-card .icon-button.large {
-  width: 42px;
-  height: 42px;
+  width: 36px;
+  height: 36px;
   background: rgba(255,255,255,0.92);
   border: 1px solid var(--panel-border);
   box-shadow: none;
@@ -2330,11 +2338,12 @@ button.hero-quick-link {
   border-color: rgba(148,163,184,0.32);
 }
 
+
 .exposition-card .icon-button.large.favorited {
   background: var(--accent);
   color: var(--accent-ink);
   border-color: transparent;
-  box-shadow: 0 12px 24px rgba(255,90,60,0.35);
+  box-shadow: 0 10px 20px rgba(255,90,60,0.32);
 }
 
 .exposition-card.is-bouncing .icon-button.large {
@@ -2367,19 +2376,19 @@ button.hero-quick-link {
 
 @media (min-width: 1200px) {
   .exposition-carousel__track {
-    grid-auto-columns: minmax(320px, 380px);
+    grid-auto-columns: minmax(260px, 300px);
   }
 }
 
 @media (max-width: 900px) {
   .exposition-carousel__track {
-    grid-auto-columns: minmax(260px, 70vw);
+    grid-auto-columns: minmax(220px, 65vw);
   }
   .exposition-card__body {
-    padding: 20px 20px 0;
+    padding: 16px 16px 0;
   }
   .exposition-card__footer {
-    padding: 20px;
+    padding: 16px;
   }
   .exposition-card__topline {
     align-items: center;
@@ -2394,21 +2403,21 @@ button.hero-quick-link {
 
 @media (max-width: 600px) {
   .exposition-carousel__viewport {
-    margin-inline: calc(-1 * clamp(12px, 4vw, 20px));
-    padding-inline: clamp(12px, 4vw, 20px);
+    margin-inline: calc(-1 * clamp(10px, 3vw, 16px));
+    padding-inline: clamp(10px, 3vw, 16px);
   }
   .exposition-carousel__track {
-    grid-auto-columns: calc(100% - clamp(24px, 8vw, 40px));
+    grid-auto-columns: calc(100% - clamp(20px, 6vw, 28px));
   }
   .exposition-card {
-    border-radius: 24px;
-    box-shadow: 0 22px 40px rgba(15,23,42,0.22);
+    border-radius: 20px;
+    box-shadow: 0 16px 32px rgba(15,23,42,0.2);
   }
   .exposition-card__body {
-    padding: 18px 18px 0;
+    padding: 16px 16px 0;
   }
   .exposition-card__footer {
-    padding: 18px;
+    padding: 16px;
   }
 }
 
