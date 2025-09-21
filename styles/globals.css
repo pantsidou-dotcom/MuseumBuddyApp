@@ -1054,7 +1054,12 @@ button.hero-quick-link {
 .museum-primary-action-utility .icon-button.favorited {
   box-shadow: 0 18px 32px rgba(255,90,60,0.35);
 }
-.museum-detail-grid { display: grid; gap: 32px; grid-template-columns: minmax(0, 2.3fr) minmax(0, 1fr); align-items: start; }
+.museum-detail-grid {
+  display: grid;
+  gap: 32px;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 360px);
+  align-items: start;
+}
 .museum-expositions-card { background: var(--panel-bg); border-radius: 32px; padding: clamp(24px, 4vw, 44px); border: 1px solid var(--panel-border); box-shadow: var(--panel-shadow); backdrop-filter: blur(14px); display: flex; flex-direction: column; gap: 24px; }
 .museum-expositions-card .detail-title { margin: 0; font-size: clamp(28px, 4vw, 40px); }
 .museum-expositions-card .detail-sub { margin-top: 6px; }
@@ -1063,6 +1068,28 @@ button.hero-quick-link {
 .museum-expositions-body { display: flex; flex-direction: column; gap: 16px; }
 .museum-expositions-body .events-list { gap: 16px; }
 .museum-expositions-empty { margin: 8px 0 0; color: var(--muted); }
+.museum-tabs { display: flex; flex-direction: column; gap: clamp(20px, 4vw, 32px); }
+.museum-tablist { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+.museum-tab { appearance: none; border: 1px solid var(--chip-border); background: var(--chip-bg); color: var(--text); font-size: 14px; font-weight: 600; padding: 10px 18px; border-radius: 999px; cursor: pointer; transition: transform 0.15s ease, box-shadow 0.2s ease, background 0.2s ease, color 0.2s ease; box-shadow: 0 6px 14px rgba(15,23,42,0.08); position: relative; }
+.museum-tab span { pointer-events: none; }
+.museum-tab:hover { transform: translateY(-1px); box-shadow: 0 12px 22px rgba(15,23,42,0.16); }
+.museum-tab.is-active { background: var(--chip-active-bg); border-color: transparent; color: var(--chip-active-text); box-shadow: 0 12px 24px rgba(255,90,60,0.28); }
+.museum-tab:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(255,90,60,0.38), 0 10px 24px rgba(15,23,42,0.2); }
+[data-theme='dark'] .museum-tab { background: rgba(15,23,42,0.65); border-color: rgba(148,163,184,0.28); color: var(--text); box-shadow: 0 6px 16px rgba(15,23,42,0.4); }
+[data-theme='dark'] .museum-tab:hover { box-shadow: 0 12px 26px rgba(15,23,42,0.5); }
+[data-theme='dark'] .museum-tab.is-active { color: var(--chip-active-text); box-shadow: 0 14px 30px rgba(255,90,60,0.32); }
+.museum-tabpanels { display: flex; flex-direction: column; gap: clamp(18px, 3vw, 28px); }
+.museum-tabpanel { scroll-margin-top: clamp(110px, 14vw, 180px); border-radius: 24px; }
+.museum-tabpanel[hidden] { display: none; }
+.museum-tabpanel-content { display: flex; flex-direction: column; gap: clamp(18px, 3vw, 28px); }
+.museum-tabpanel-title { margin: 0; font-size: clamp(22px, 3.4vw, 28px); font-weight: 700; letter-spacing: -0.01em; }
+.museum-map-frame { border-radius: 28px; overflow: hidden; box-shadow: 0 18px 34px rgba(15,23,42,0.18); background: rgba(15,23,42,0.12); }
+[data-theme='dark'] .museum-map-frame { background: rgba(15,23,42,0.6); box-shadow: 0 18px 34px rgba(15,23,42,0.5); }
+.museum-map-embed { display: block; width: 100%; min-height: clamp(260px, 45vw, 420px); border: 0; }
+.museum-map-empty { margin: 8px 0 0; color: var(--muted); }
+.museum-map-link { display: inline-flex; align-items: center; gap: 8px; margin-top: 18px; font-weight: 600; color: var(--accent); text-decoration: none; }
+.museum-map-link::after { content: "→"; font-size: 16px; }
+.museum-map-link:hover { text-decoration: underline; }
 .museum-sidebar { position: relative; }
 .museum-sidebar-card {
   background: linear-gradient(180deg, var(--info-card-bg) 0%, rgba(255,255,255,0.95) 100%);
@@ -1107,6 +1134,14 @@ button.hero-quick-link {
 [data-theme='dark'] .museum-info-credit { color: rgba(226,232,240,0.7); }
 .museum-info-credit-label { font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; }
 .museum-info-credit a { color: inherit; text-decoration: underline; }
+
+@media (min-width: 1201px) {
+  .museum-sidebar-card {
+    position: sticky;
+    top: clamp(28px, 6vw, 84px);
+    top: calc(clamp(28px, 6vw, 84px) + env(safe-area-inset-top, 0px));
+  }
+}
 
 @media (max-width: 1200px) {
   .museum-detail.has-hero .museum-detail-container { margin-top: -120px; }
