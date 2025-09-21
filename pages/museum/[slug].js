@@ -236,7 +236,6 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
   const mapDirectionsUrl = mapQuery ? `https://www.google.com/maps?q=${encodeURIComponent(mapQuery)}` : null;
   const hasWebsite = Boolean(resolvedMuseum.websiteUrl);
   const hasTicketLink = Boolean(ticketUrl);
-
   const heroImage = useMemo(() => {
     if (!rawImage) return null;
     if (rawImage.startsWith('http://') || rawImage.startsWith('https://')) return rawImage;
@@ -487,6 +486,33 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
     <section className={`museum-detail${heroImage ? ' has-hero' : ''}`}>
       <SEO title={`${displayName} — MuseumBuddy`} description={seoDescription} image={heroImage} canonical={canonical} />
 
+      <div className="museum-detail-container museum-hero-heading-container">
+        <div className="museum-hero-heading">
+          <Link href="/" className="museum-backlink">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+              width="20"
+              height="20"
+            >
+              <path d="M15 18l-6-6 6-6" />
+            </svg>
+            <span>{t('back')}</span>
+          </Link>
+
+          <div className="museum-hero-text">
+            {locationLabel && <p className="detail-sub museum-hero-location">{locationLabel}</p>}
+            <h1 className="detail-title museum-hero-title">{displayName}</h1>
+            {summary && <p className="detail-sub museum-hero-tagline">{summary}</p>}
+          </div>
+        </div>
+      </div>
+
       {heroImage && (
         <div className="museum-detail-hero">
           <Image
@@ -501,22 +527,6 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
       )}
 
       <div className="museum-detail-container">
-        <Link href="/" className="museum-backlink">
-          <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            aria-hidden="true"
-            width="20"
-            height="20"
-          >
-            <path d="M15 18l-6-6 6-6" />
-          </svg>
-          <span>{t('back')}</span>
-        </Link>
 
         <div className="museum-primary-action-bar">
           <div className="museum-primary-action-group">
@@ -557,30 +567,26 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
 
         <div className="museum-detail-grid">
           <div className="museum-expositions-card">
-            <div className="museum-tabs">
-              <div className="museum-tablist" role="tablist" aria-label={t('museumTabsLabel') || 'Sections'}>
-                {TAB_ORDER.map((key) => {
-                  const isActive = activeTab === key;
-                  const tabId = `museum-tab-${key}`;
-                  const panelId = TAB_HASHES[key];
-                  return (
-                    <button
-                      key={key}
-                      type="button"
-                      role="tab"
-                      id={tabId}
-                      aria-controls={panelId}
-                      aria-selected={isActive}
-                      className={`museum-tab${isActive ? ' is-active' : ''}`}
-                      tabIndex={isActive ? 0 : -1}
-                      onClick={() => handleTabSelect(key)}
-                      onKeyDown={(event) => handleTabKeyDown(event, key)}
-                    >
-                      <span>{tabLabels[key] || key}</span>
-                    </button>
-                  );
-                })}
-              </div>
+            <div className="museum-expositions-body">
+              <h2 className="museum-expositions-heading">{t('expositionsTitle')}</h2>
+              {expositionItems.length > 0 ? (
+                <ul className="events-list">
+                  {expositionItems.map((exposition) => (
+                    <li key={exposition.id}>
+                      <ExpositionCard
+                        exposition={exposition}
+                        affiliateUrl={affiliateTicketUrl}
+                        ticketUrl={directTicketUrl}
+                        museumSlug={slug}
+                      />
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="museum-expositions-empty">{t('noExpositions')}</p>
+              )}
+            </div>
+          </div>
 
               <div className="museum-tabpanels">
                 <section
