@@ -747,6 +747,10 @@ button.hero-quick-link {
   gap: 12px;
   background: var(--panel-bg);
 }
+.filters-popover { position: absolute; top: calc(100% + 12px); right: 0; width: min(320px, 80vw); background: var(--panel-bg); border: 1px solid var(--panel-border); box-shadow: var(--panel-shadow); border-radius: var(--radius-md); z-index: 55; display: flex; flex-direction: column; overflow: hidden; backdrop-filter: blur(14px); }
+.filters-popover .filters-sheet__header { padding: 20px; }
+.filters-popover .filters-sheet__content { padding: 20px; }
+.filters-popover .filters-sheet__footer { padding: 16px 20px; }
 .filters-sheet__reset,
 .filters-sheet__apply {
   border-radius: 999px;
@@ -1271,6 +1275,30 @@ button.hero-quick-link {
 }
 .museum-expositions-card .detail-title { margin: 0; font-size: clamp(28px, 4vw, 40px); }
 .museum-expositions-card .detail-sub { margin-top: 6px; }
+.museum-expositions-filters { display: flex; flex-wrap: wrap; gap: 12px 16px; align-items: center; justify-content: space-between; }
+.museum-expositions-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.museum-expositions-chip { display: inline-flex; align-items: center; justify-content: center; padding: 6px 14px; border-radius: 999px; border: 1px solid var(--chip-border); background: var(--chip-bg); color: var(--text); font-size: 13px; font-weight: 600; cursor: pointer; transition: background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, transform 0.2s ease; }
+.museum-expositions-chip:hover { transform: translateY(-1px); box-shadow: 0 12px 24px rgba(15, 23, 42, 0.12); }
+.museum-expositions-chip:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.museum-expositions-chip.is-active { background: var(--chip-active-bg); color: var(--chip-active-text); border-color: transparent; box-shadow: 0 12px 28px rgba(37, 99, 235, 0.2); }
+[data-theme='dark'] .museum-expositions-chip { background: rgba(15, 23, 42, 0.7); border-color: rgba(148, 163, 184, 0.3); color: rgba(226, 232, 240, 0.85); }
+[data-theme='dark'] .museum-expositions-chip.is-active { box-shadow: 0 14px 28px rgba(37, 99, 235, 0.32); }
+.museum-expositions-filter-actions { display: flex; align-items: center; gap: 8px; position: relative; }
+.museum-expositions-filter-button { display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px; border-radius: 999px; border: 1px solid var(--chip-border); background: var(--chip-bg); color: var(--text); font-weight: 600; font-size: 13px; cursor: pointer; transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease; }
+.museum-expositions-filter-button svg { width: 18px; height: 18px; }
+.museum-expositions-filter-button:hover { transform: translateY(-1px); box-shadow: 0 14px 26px rgba(15, 23, 42, 0.14); }
+.museum-expositions-filter-button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+[data-theme='dark'] .museum-expositions-filter-button { background: rgba(15, 23, 42, 0.75); border-color: rgba(148, 163, 184, 0.32); color: rgba(226, 232, 240, 0.9); }
+.museum-expositions-filter-button--popover { display: none; }
+.museum-expositions-filter-button--sheet { display: inline-flex; }
+@media (min-width: 768px) {
+  .museum-expositions-filter-button--popover { display: inline-flex; }
+  .museum-expositions-filter-button--sheet { display: none; }
+}
+@media (max-width: 640px) {
+  .museum-expositions-filters { flex-direction: column; align-items: stretch; gap: 16px; }
+  .museum-expositions-filter-actions { justify-content: flex-start; }
+}
 .museum-detail-header { display: flex; flex-direction: column; gap: 16px; align-items: flex-start; }
 .museum-expositions-heading { margin: 0; font-size: clamp(24px, 3vw, 30px); font-weight: 700; letter-spacing: -0.01em; }
 .museum-expositions-body { display: flex; flex-direction: column; gap: 20px; }
