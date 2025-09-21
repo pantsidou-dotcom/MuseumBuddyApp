@@ -21,6 +21,7 @@ export default function FiltersPopover({
 
   useEffect(() => {
     if (!open) return undefined;
+    if (typeof document === 'undefined') return undefined;
 
     const handlePointerDown = (event) => {
       if (!popoverRef.current) return;
@@ -49,6 +50,7 @@ export default function FiltersPopover({
 
   useEffect(() => {
     if (!open) return;
+    if (typeof window === 'undefined') return undefined;
     const timer = window.setTimeout(() => {
       closeButtonRef.current?.focus();
     }, 100);

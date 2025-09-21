@@ -131,6 +131,7 @@ export default function FiltersSheet({
   useEffect(() => {
     if (!mounted) return undefined;
     if (!open) return undefined;
+    if (typeof document === 'undefined') return undefined;
 
     previousOverflow.current = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
@@ -150,6 +151,8 @@ export default function FiltersSheet({
       }
     };
 
+    if (typeof document === 'undefined') return undefined;
+
     document.addEventListener('keydown', handleKeyDown);
 
     return () => {
@@ -159,6 +162,7 @@ export default function FiltersSheet({
 
   useEffect(() => {
     if (!open) return;
+    if (typeof window === 'undefined') return undefined;
     const timer = window.setTimeout(() => {
       closeButtonRef.current?.focus();
     }, 150);
@@ -166,6 +170,7 @@ export default function FiltersSheet({
   }, [open]);
 
   if (!mounted) return null;
+  if (typeof document === 'undefined') return null;
 
   const handleBackdropClick = (event) => {
     if (event.target === event.currentTarget) {
