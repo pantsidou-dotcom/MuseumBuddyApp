@@ -370,6 +370,7 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
   const ticketHoverMessage = showAffiliateNote ? t('ticketsAffiliateHover') : undefined;
   const primaryTicketNoteId = useId();
   const overviewTicketNoteId = useId();
+  const heroTicketNoteId = useId();
   const mobileTicketNoteId = useId();
   const mobileActionSheetId = useId();
   const mobileActionSheetTitleId = useId();
@@ -1048,6 +1049,24 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
             priority={isLandingMuseum}
             loading={isLandingMuseum ? 'eager' : 'lazy'}
           />
+          {hasTicketLink ? (
+            <a
+              href={ticketUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="museum-hero-ticket-link museum-primary-action primary"
+              aria-describedby={ticketContext ? heroTicketNoteId : undefined}
+              onClick={handleTicketLinkClick}
+              title={ticketHoverMessage}
+            >
+              <span className="ticket-button__label">{t('buyTickets')}</span>
+              {ticketContext ? (
+                <TicketButtonNote affiliate={showAffiliateNote} id={heroTicketNoteId}>
+                  {ticketContext}
+                </TicketButtonNote>
+              ) : null}
+            </a>
+          ) : null}
           {!isPublicDomainImage && hasCreditSegments && (
             <p className="museum-hero-credit" title={creditFullText || undefined}>
               {creditSegments.map((segment, index) => (
