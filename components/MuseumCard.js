@@ -287,13 +287,6 @@ export default function MuseumCard({ museum }) {
           )}
         </div>
         {summary && <p className="museum-card-summary">{summary}</p>}
-        <div className="museum-card-mobile-cta">
-          <div className="museum-card-mobile-actions">
-            {renderShareButton('icon-button--mobile')}
-            {renderFavoriteButton('icon-button--mobile')}
-          </div>
-          <div className="museum-card-mobile-ticket">{renderTicketButton('ticket-button--mobile')}</div>
-        </div>
         {museum.free && (
           <div className="museum-card-tags">
             <span className="tag">{t('free')}</span>
