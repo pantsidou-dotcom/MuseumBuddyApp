@@ -7,6 +7,7 @@ import museumSummaries from '../lib/museumSummaries';
 import museumOpeningHours from '../lib/museumOpeningHours';
 import { shouldShowAffiliateNote } from '../lib/nonAffiliateMuseums';
 import formatImageCredit from '../lib/formatImageCredit';
+import TicketButtonNote from './TicketButtonNote';
 
 const HOVER_COLORS = ['#A7D8F0', '#77DDDD', '#F7C59F', '#D8BFD8', '#EAE0C8'];
 
@@ -46,6 +47,7 @@ export default function MuseumCard({ museum }) {
   const locationText = [museum.city, museum.province].filter(Boolean).join(', ');
   const showAffiliateNote = Boolean(museum.ticketUrl) && shouldShowAffiliateNote(museum.slug);
   const ticketContext = t(showAffiliateNote ? 'ticketsViaPartner' : 'ticketsViaOfficialSite');
+  const ticketHoverMessage = showAffiliateNote ? t('ticketsAffiliateHover') : undefined;
 
   const imageCredit = museum.imageCredit;
   const isPublicDomainImage = Boolean(imageCredit?.isPublicDomain);
@@ -155,9 +157,12 @@ export default function MuseumCard({ museum }) {
               target="_blank"
               rel="noreferrer"
               className="ticket-button"
+              title={ticketHoverMessage}
             >
               <span className="ticket-button__label">{t('buyTickets')}</span>
-              <span className="ticket-button__note">{ticketContext}</span>
+              <TicketButtonNote affiliate={showAffiliateNote}>
+                {ticketContext}
+              </TicketButtonNote>
             </a>
           ) : (
             <button type="button" className="ticket-button" disabled aria-disabled="true">

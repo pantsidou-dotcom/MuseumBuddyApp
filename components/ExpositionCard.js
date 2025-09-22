@@ -3,6 +3,7 @@ import { useEffect, useId, useMemo, useRef, useState } from 'react';
 import { useLanguage } from './LanguageContext';
 import { useFavorites } from './FavoritesContext';
 import { shouldShowAffiliateNote } from '../lib/nonAffiliateMuseums';
+import TicketButtonNote from './TicketButtonNote';
 
 const FALLBACK_IMAGE = '/images/exposition-placeholder.svg';
 
@@ -138,6 +139,7 @@ export default function ExpositionCard({ exposition, ticketUrl, affiliateUrl, mu
   const buyUrl = primaryAffiliateUrl || fallbackTicketUrl || sourceUrl;
   const showAffiliateNote = Boolean(primaryAffiliateUrl) && (!slug || shouldShowAffiliateNote(slug));
   const ticketContext = t(showAffiliateNote ? 'ticketsViaPartner' : 'ticketsViaOfficialSite');
+  const ticketHoverMessage = showAffiliateNote ? t('ticketsAffiliateHover') : undefined;
   const ticketNoteId = useId();
   const ctaDescribedBy = ticketContext ? ticketNoteId : undefined;
 
@@ -298,12 +300,13 @@ export default function ExpositionCard({ exposition, ticketUrl, affiliateUrl, mu
             rel="noreferrer"
             className="ticket-button exposition-card__cta"
             aria-describedby={ctaDescribedBy}
+            title={ticketHoverMessage}
           >
             <span className="ticket-button__label">{t('buyTickets')}</span>
             {ticketContext ? (
-              <span className="ticket-button__note" id={ticketNoteId}>
+              <TicketButtonNote affiliate={showAffiliateNote} id={ticketNoteId}>
                 {ticketContext}
-              </span>
+              </TicketButtonNote>
             ) : null}
           </a>
         ) : (
