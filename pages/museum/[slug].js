@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
+import { Fragment, useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
 import { Capacitor } from '@capacitor/core';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -15,6 +15,7 @@ import museumImageCredits from '../../lib/museumImageCredits';
 import museumSummaries from '../../lib/museumSummaries';
 import museumOpeningHours from '../../lib/museumOpeningHours';
 import museumTicketUrls from '../../lib/museumTicketUrls';
+import formatImageCredit from '../../lib/formatImageCredit';
 import { supabase as supabaseClient } from '../../lib/supabase';
 import { shouldShowAffiliateNote } from '../../lib/nonAffiliateMuseums';
 
@@ -334,8 +335,20 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
   const slug = resolvedMuseum.slug;
   const isLandingMuseum = typeof slug === 'string' && slug.toLowerCase() === LANDING_MUSEUM_SLUG;
   const displayName = resolvedMuseum.name;
-  const rawImage = museumImages[slug] || resolvedMuseum.raw?.image_url || null;
+  const rawImage =
+    museumImages[slug] ||
+    resolvedMuseum.raw?.afbeelding_url ||
+    resolvedMuseum.raw?.image_url ||
+    null;
   const imageCredit = museumImageCredits[slug];
+  const isPublicDomainImage = Boolean(imageCredit?.isPublicDomain);
+  const formattedCredit = useMemo(
+    () => (isPublicDomainImage ? null : formatImageCredit(imageCredit, t)),
+    [imageCredit, isPublicDomainImage, t]
+  );
+  const creditSegments = formattedCredit?.segments || [];
+  const hasCreditSegments = creditSegments.length > 0;
+  const creditFullText = creditSegments.map((segment) => segment.label).join(' • ');
   const summary =
     museumSummaries[slug]?.[lang] ||
     resolvedMuseum.description ||
@@ -1033,6 +1046,31 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
             priority={isLandingMuseum}
             loading={isLandingMuseum ? 'eager' : 'lazy'}
           />
+          {!isPublicDomainImage && hasCreditSegments && (
+            <p className="museum-hero-credit" title={creditFullText || undefined}>
+              {creditSegments.map((segment, index) => (
+                <Fragment key={`hero-credit-${segment.key}-${index}`}>
+                  {index > 0 && (
+                    <span aria-hidden="true" className="image-credit-divider">
+                      •
+                    </span>
+                  )}
+                  {segment.url ? (
+                    <a
+                      className="image-credit-link"
+                      href={segment.url}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      {segment.label}
+                    </a>
+                  ) : (
+                    <span className="image-credit-part">{segment.label}</span>
+                  )}
+                </Fragment>
+              ))}
+            </p>
+          )}
         </div>
       )}
 
@@ -1398,29 +1436,6 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
                 )}
               </div>
 
-              {(heroImage || imageCredit) && (
-                <div className="museum-info-credit">
-                  <span className="museum-info-credit-label">{t('imageCreditLabel')}:</span>
-                  <span className="museum-info-credit-value">
-                    {imageCredit ? (
-                      <span className="museum-info-credit-content">
-                        <span>{imageCredit.author || t('unknown')}</span>
-                        {imageCredit.license && <span>, {imageCredit.license}</span>}
-                        {imageCredit.source && (
-                          <span className="museum-info-credit-source">
-                            {t('via')}
-                            <a href={imageCredit.url} target="_blank" rel="noreferrer">
-                              {imageCredit.source}
-                            </a>
-                          </span>
-                        )}
-                      </span>
-                    ) : (
-                      t('unknown')
-                    )}
-                  </span>
-                </div>
-              )}
             </div>
           </aside>
         </div>

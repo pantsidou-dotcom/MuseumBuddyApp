@@ -1,11 +1,12 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { Fragment, useEffect, useMemo, useRef, useState } from 'react';
 import { useFavorites } from './FavoritesContext';
 import { useLanguage } from './LanguageContext';
 import museumSummaries from '../lib/museumSummaries';
 import museumOpeningHours from '../lib/museumOpeningHours';
 import { shouldShowAffiliateNote } from '../lib/nonAffiliateMuseums';
+import formatImageCredit from '../lib/formatImageCredit';
 
 const HOVER_COLORS = ['#A7D8F0', '#77DDDD', '#F7C59F', '#D8BFD8', '#EAE0C8'];
 
@@ -45,6 +46,16 @@ export default function MuseumCard({ museum }) {
   const locationText = [museum.city, museum.province].filter(Boolean).join(', ');
   const showAffiliateNote = Boolean(museum.ticketUrl) && shouldShowAffiliateNote(museum.slug);
   const ticketContext = t(showAffiliateNote ? 'ticketsViaPartner' : 'ticketsViaOfficialSite');
+
+  const imageCredit = museum.imageCredit;
+  const isPublicDomainImage = Boolean(imageCredit?.isPublicDomain);
+  const formattedCredit = useMemo(
+    () => (isPublicDomainImage ? null : formatImageCredit(imageCredit, t)),
+    [imageCredit, isPublicDomainImage, t]
+  );
+  const creditSegments = formattedCredit?.segments || [];
+  const hasCreditSegments = creditSegments.length > 0;
+  const creditFullText = creditSegments.map((segment) => segment.label).join(' • ');
 
   const [isFavoriteBouncing, setIsFavoriteBouncing] = useState(false);
   const bounceTimeoutRef = useRef(null);
@@ -184,37 +195,31 @@ export default function MuseumCard({ museum }) {
           </button>
         </div>
       </div>
-      <p className="image-credit">
-        <span className="image-credit-label">{t('imageCreditLabel')}</span>
-        <span aria-hidden="true" className="image-credit-separator">•</span>
-        {museum.imageCredit ? (
-          <>
-            <span className="image-credit-definition">
-              {museum.imageCredit.author}
-              {museum.imageCredit.license ? `, ${museum.imageCredit.license}` : ''}
-            </span>
-            {museum.imageCredit.source && (
-              <>
-                <span aria-hidden="true" className="image-credit-divider">•</span>
-                {museum.imageCredit.url ? (
-                  <a
-                    className="image-credit-link"
-                    href={museum.imageCredit.url}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    {museum.imageCredit.source}
-                  </a>
-                ) : (
-                  <span className="image-credit-definition">{museum.imageCredit.source}</span>
-                )}
-              </>
-            )}
-          </>
-        ) : (
-          <span className="image-credit-definition">{t('unknown')}</span>
-        )}
-      </p>
+      {!isPublicDomainImage && museum.image && hasCreditSegments && (
+        <p className="image-credit" title={creditFullText || undefined}>
+          {creditSegments.map((segment, index) => (
+            <Fragment key={`${museum.slug}-credit-${segment.key}-${index}`}>
+              {index > 0 && (
+                <span aria-hidden="true" className="image-credit-divider">
+                  •
+                </span>
+              )}
+              {segment.url ? (
+                <a
+                  className="image-credit-link"
+                  href={segment.url}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  {segment.label}
+                </a>
+              ) : (
+                <span className="image-credit-part">{segment.label}</span>
+              )}
+            </Fragment>
+          ))}
+        </p>
+      )}
       <div className="museum-card-info">
         <h3 className="museum-card-title">
           <Link

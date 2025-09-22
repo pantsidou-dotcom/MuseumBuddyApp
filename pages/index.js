@@ -485,7 +485,7 @@ export default function Home({ initialMuseums = [], initialError = null }) {
                   city: m.stad,
                   province: m.provincie,
                   free: m.gratis_toegankelijk,
-                  image: museumImages[m.slug],
+                  image: museumImages[m.slug] || m.afbeelding_url || m.image_url || null,
                   imageCredit: museumImageCredits[m.slug],
                   ticketUrl: m.ticket_affiliate_url || museumTicketUrls[m.slug] || m.website_url,
                 }}
