@@ -466,17 +466,17 @@ img { max-width: 100%; height: auto; display: block; }
   inset: -2%;
   background-image: url('/images/Nachtwacht via Rijksmuseum.jpg');
   background-size: cover;
-  background-position: center bottom;
+  background-position: center 44%;
   transform: scale(1.02);
-  filter: saturate(1.05) brightness(0.82);
+  filter: saturate(1.05) brightness(0.9);
   z-index: -2;
 }
 .hero::after {
   content: '';
   position: absolute;
   inset: -2%;
-  background: linear-gradient(180deg, rgba(15, 23, 42, 0.1) 0%, rgba(15, 23, 42, 0.82) 68%),
-    linear-gradient(120deg, rgba(15, 23, 42, 0.7) 0%, rgba(15, 23, 42, 0.15) 55%);
+  background: linear-gradient(180deg, rgba(15, 23, 42, 0.08) 0%, rgba(15, 23, 42, 0.68) 68%),
+    linear-gradient(120deg, rgba(15, 23, 42, 0.54) 0%, rgba(15, 23, 42, 0.12) 55%);
   z-index: -1;
 }
 .hero > * { position: relative; z-index: 1; }
@@ -828,11 +828,11 @@ button.hero-quick-link {
   }
 }
 [data-theme='dark'] .hero::before {
-  filter: saturate(1.05) brightness(0.58);
+  filter: saturate(1.05) brightness(0.66);
 }
 [data-theme='dark'] .hero::after {
-  background: linear-gradient(180deg, rgba(2, 6, 23, 0.38) 0%, rgba(2, 6, 23, 0.86) 72%),
-    linear-gradient(120deg, rgba(2, 6, 23, 0.78) 0%, rgba(2, 6, 23, 0.2) 55%);
+  background: linear-gradient(180deg, rgba(2, 6, 23, 0.32) 0%, rgba(2, 6, 23, 0.78) 72%),
+    linear-gradient(120deg, rgba(2, 6, 23, 0.7) 0%, rgba(2, 6, 23, 0.18) 55%);
 }
 
 @media (min-width: 900px) {
@@ -853,7 +853,7 @@ button.hero-quick-link {
 
 @media (max-width: 600px) {
   .hero { gap: var(--space-24); padding: var(--space-24); border-radius: var(--radius-md); }
-  .hero::before { background-position: center; }
+  .hero::before { background-position: center 46%; }
   .hero-card { padding: var(--space-16); }
 }
 
