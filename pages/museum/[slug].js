@@ -15,6 +15,7 @@ import museumImageCredits from '../../lib/museumImageCredits';
 import museumSummaries from '../../lib/museumSummaries';
 import museumOpeningHours from '../../lib/museumOpeningHours';
 import museumTicketUrls from '../../lib/museumTicketUrls';
+import formatImageCredit from '../../lib/formatImageCredit';
 import { supabase as supabaseClient } from '../../lib/supabase';
 import { shouldShowAffiliateNote } from '../../lib/nonAffiliateMuseums';
 
@@ -334,8 +335,23 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
   const slug = resolvedMuseum.slug;
   const isLandingMuseum = typeof slug === 'string' && slug.toLowerCase() === LANDING_MUSEUM_SLUG;
   const displayName = resolvedMuseum.name;
-  const rawImage = museumImages[slug] || resolvedMuseum.raw?.image_url || null;
+  const rawImage =
+    museumImages[slug] ||
+    resolvedMuseum.raw?.afbeelding_url ||
+    resolvedMuseum.raw?.image_url ||
+    null;
   const imageCredit = museumImageCredits[slug];
+  const isPublicDomainImage = Boolean(imageCredit?.isPublicDomain);
+  const formattedCredit = useMemo(
+    () => (isPublicDomainImage ? null : formatImageCredit(imageCredit, t)),
+    [imageCredit, isPublicDomainImage, t]
+  );
+  const creditText = formattedCredit?.text || '';
+  const creditLicense = formattedCredit?.licenseLabel || '';
+  const creditLicenseUrl = formattedCredit?.licenseUrl || '';
+  const showCreditText = Boolean(creditText);
+  const showCreditLicense = Boolean(creditLicense);
+  const showCreditSource = !isPublicDomainImage && Boolean(imageCredit?.source);
   const summary =
     museumSummaries[slug]?.[lang] ||
     resolvedMuseum.description ||
@@ -1398,20 +1414,35 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
                 )}
               </div>
 
-              {(heroImage || imageCredit) && (
+              {(!isPublicDomainImage && heroImage) && (
                 <div className="museum-info-credit">
                   <span className="museum-info-credit-label">{t('imageCreditLabel')}:</span>
                   <span className="museum-info-credit-value">
-                    {imageCredit ? (
+                    {!isPublicDomainImage && (showCreditText || showCreditLicense || showCreditSource) ? (
                       <span className="museum-info-credit-content">
-                        <span>{imageCredit.author || t('unknown')}</span>
-                        {imageCredit.license && <span>, {imageCredit.license}</span>}
-                        {imageCredit.source && (
+                        {showCreditText && <span>{creditText}</span>}
+                        {showCreditLicense && (
+                          <span>
+                            {showCreditText && ', '}
+                            {creditLicenseUrl ? (
+                              <a href={creditLicenseUrl} target="_blank" rel="noreferrer">
+                                {creditLicense}
+                              </a>
+                            ) : (
+                              creditLicense
+                            )}
+                          </span>
+                        )}
+                        {showCreditSource && (
                           <span className="museum-info-credit-source">
                             {t('via')}
-                            <a href={imageCredit.url} target="_blank" rel="noreferrer">
-                              {imageCredit.source}
-                            </a>
+                            {imageCredit.url ? (
+                              <a href={imageCredit.url} target="_blank" rel="noreferrer">
+                                {imageCredit.source}
+                              </a>
+                            ) : (
+                              imageCredit.source
+                            )}
                           </span>
                         )}
                       </span>
