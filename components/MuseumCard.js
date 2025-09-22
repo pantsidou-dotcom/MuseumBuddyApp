@@ -86,6 +86,78 @@ export default function MuseumCard({ museum }) {
     triggerFavoriteBounce();
   };
 
+  const renderShareButton = (className = '') => (
+    <button
+      type="button"
+      className={`icon-button${className ? ` ${className}` : ''}`}
+      aria-label={t('share')}
+      onClick={shareMuseum}
+    >
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        aria-hidden="true"
+      >
+        <path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7" />
+        <path d="M16 6l-4-4-4 4" />
+        <path d="M12 2v14" />
+      </svg>
+    </button>
+  );
+
+  const renderFavoriteButton = (className = '') => (
+    <button
+      type="button"
+      className={`icon-button${isFavorite ? ' favorited' : ''}${
+        isFavoriteBouncing ? ' icon-button--bounce' : ''
+      }${className ? ` ${className}` : ''}`}
+      aria-label={t('save')}
+      aria-pressed={isFavorite}
+      onClick={handleFavorite}
+    >
+      <svg
+        viewBox="0 0 24 24"
+        fill={isFavorite ? 'currentColor' : 'none'}
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        aria-hidden="true"
+      >
+        <path d="M21 8.25c0 4.556-9 11.25-9 11.25S3 12.806 3 8.25a5.25 5.25 0 0 1 9-3.676A5.25 5.25 0 0 1 21 8.25Z" />
+      </svg>
+    </button>
+  );
+
+  const renderTicketButton = (className = '') => {
+    const classNames = `ticket-button${className ? ` ${className}` : ''}`;
+
+    if (museum.ticketUrl) {
+      return (
+        <a
+          href={museum.ticketUrl}
+          target="_blank"
+          rel="noreferrer"
+          className={classNames}
+          title={ticketHoverMessage}
+        >
+          <span className="ticket-button__label">{t('buyTickets')}</span>
+          <TicketButtonNote affiliate={showAffiliateNote}>{ticketContext}</TicketButtonNote>
+        </a>
+      );
+    }
+
+    return (
+      <button type="button" className={classNames} disabled aria-disabled="true">
+        <span className="ticket-button__label">{t('buyTickets')}</span>
+      </button>
+    );
+  };
+
   const shareMuseum = async () => {
     if (typeof window === 'undefined') return;
 
@@ -150,54 +222,10 @@ export default function MuseumCard({ museum }) {
             </span>
           </div>
         </Link>
-        <div className="museum-card-ticket">
-          {museum.ticketUrl ? (
-            <a
-              href={museum.ticketUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="ticket-button"
-              title={ticketHoverMessage}
-            >
-              <span className="ticket-button__label">{t('buyTickets')}</span>
-              <TicketButtonNote affiliate={showAffiliateNote}>
-                {ticketContext}
-              </TicketButtonNote>
-            </a>
-          ) : (
-            <button type="button" className="ticket-button" disabled aria-disabled="true">
-              <span className="ticket-button__label">{t('buyTickets')}</span>
-            </button>
-          )}
-        </div>
+        <div className="museum-card-ticket">{renderTicketButton()}</div>
         <div className="museum-card-actions">
-          <button className="icon-button" aria-label={t('share')} onClick={shareMuseum}>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-              <path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7" />
-              <path d="M16 6l-4-4-4 4" />
-              <path d="M12 2v14" />
-            </svg>
-          </button>
-          <button
-            className={`icon-button${isFavorite ? ' favorited' : ''}${
-              isFavoriteBouncing ? ' icon-button--bounce' : ''
-            }`}
-            aria-label={t('save')}
-            aria-pressed={isFavorite}
-            onClick={handleFavorite}
-          >
-            <svg
-              viewBox="0 0 24 24"
-              fill={isFavorite ? 'currentColor' : 'none'}
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              aria-hidden="true"
-            >
-              <path d="M21 8.25c0 4.556-9 11.25-9 11.25S3 12.806 3 8.25a5.25 5.25 0 0 1 9-3.676A5.25 5.25 0 0 1 21 8.25Z" />
-            </svg>
-          </button>
+          {renderShareButton()}
+          {renderFavoriteButton()}
         </div>
       </div>
       {!isPublicDomainImage && museum.image && hasCreditSegments && (
@@ -259,6 +287,13 @@ export default function MuseumCard({ museum }) {
           )}
         </div>
         {summary && <p className="museum-card-summary">{summary}</p>}
+        <div className="museum-card-mobile-cta">
+          <div className="museum-card-mobile-actions">
+            {renderShareButton('icon-button--mobile')}
+            {renderFavoriteButton('icon-button--mobile')}
+          </div>
+          <div className="museum-card-mobile-ticket">{renderTicketButton('ticket-button--mobile')}</div>
+        </div>
         {museum.free && (
           <div className="museum-card-tags">
             <span className="tag">{t('free')}</span>
