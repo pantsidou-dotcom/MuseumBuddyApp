@@ -4,10 +4,10 @@ const assert = require('assert');
 const translationsContent = fs.readFileSync('lib/translations.js', 'utf8');
 assert(/buyTickets:\s*'Buy tickets'/.test(translationsContent), 'English CTA translation missing');
 assert(/buyTickets:\s*'Koop tickets'/.test(translationsContent), 'Dutch CTA translation missing');
-assert(/ticketsViaOfficialSite:\s*'Via official site'/.test(translationsContent), 'English official-site label missing');
-assert(/ticketsViaOfficialSite:\s*'Via officiële site'/.test(translationsContent), 'Dutch official-site label missing');
-assert(/ticketsViaPartner:\s*'Via partner site'/.test(translationsContent), 'English partner label missing');
-assert(/ticketsViaPartner:\s*'Via partner'/.test(translationsContent), 'Dutch partner label missing');
+assert(/ticketsViaOfficialSite:\s*'Opens official website'/.test(translationsContent), 'English official-site label missing');
+assert(/ticketsViaOfficialSite:\s*'Opent officiële website'/.test(translationsContent), 'Dutch official-site label missing');
+assert(/ticketsViaPartner:\s*'Opens partner website'/.test(translationsContent), 'English partner label missing');
+assert(/ticketsViaPartner:\s*'Opent partnerwebsite'/.test(translationsContent), 'Dutch partner label missing');
 
 const files = [
   'components/MuseumCard.js',
@@ -16,7 +16,7 @@ const files = [
 ];
 const legacyTooltipPattern = /title={t\('affiliateLink'\)}/;
 const legacyNotePattern = /className="affiliate-note"/;
-const newNotePattern = /ticket-button__note/;
+const newNotePattern = /TicketButtonNote/;
 
 for (const file of files) {
   const content = fs.readFileSync(file, 'utf8');

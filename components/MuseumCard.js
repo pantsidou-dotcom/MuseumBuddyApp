@@ -7,6 +7,7 @@ import museumSummaries from '../lib/museumSummaries';
 import museumOpeningHours from '../lib/museumOpeningHours';
 import { shouldShowAffiliateNote } from '../lib/nonAffiliateMuseums';
 import formatImageCredit from '../lib/formatImageCredit';
+import TicketButtonNote from './TicketButtonNote';
 
 const HOVER_COLORS = ['#A7D8F0', '#77DDDD', '#F7C59F', '#D8BFD8', '#EAE0C8'];
 
@@ -157,7 +158,9 @@ export default function MuseumCard({ museum }) {
               className="ticket-button"
             >
               <span className="ticket-button__label">{t('buyTickets')}</span>
-              <span className="ticket-button__note">{ticketContext}</span>
+              <TicketButtonNote affiliate={showAffiliateNote}>
+                {ticketContext}
+              </TicketButtonNote>
             </a>
           ) : (
             <button type="button" className="ticket-button" disabled aria-disabled="true">

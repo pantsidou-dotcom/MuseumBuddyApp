@@ -3,6 +3,7 @@ import { useEffect, useId, useMemo, useRef, useState } from 'react';
 import { useLanguage } from './LanguageContext';
 import { useFavorites } from './FavoritesContext';
 import { shouldShowAffiliateNote } from '../lib/nonAffiliateMuseums';
+import TicketButtonNote from './TicketButtonNote';
 
 const FALLBACK_IMAGE = '/images/exposition-placeholder.svg';
 
@@ -301,9 +302,9 @@ export default function ExpositionCard({ exposition, ticketUrl, affiliateUrl, mu
           >
             <span className="ticket-button__label">{t('buyTickets')}</span>
             {ticketContext ? (
-              <span className="ticket-button__note" id={ticketNoteId}>
+              <TicketButtonNote affiliate={showAffiliateNote} id={ticketNoteId}>
                 {ticketContext}
-              </span>
+              </TicketButtonNote>
             ) : null}
           </a>
         ) : (
