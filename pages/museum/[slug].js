@@ -370,6 +370,7 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
   const ticketHoverMessage = showAffiliateNote ? t('ticketsAffiliateHover') : undefined;
   const primaryTicketNoteId = useId();
   const overviewTicketNoteId = useId();
+  const heroTicketNoteId = useId();
   const mobileTicketNoteId = useId();
   const mobileActionSheetId = useId();
   const mobileActionSheetTitleId = useId();
@@ -581,6 +582,10 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
     },
     [openExternalLink, resolvedMuseum.websiteUrl]
   );
+
+  const showHeroTicketLink = Boolean(heroImage && hasTicketLink);
+
+  const showSecondaryTicketAction = hasTicketLink && !showHeroTicketLink;
 
   const hasMobilePrimaryActions = hasTicketLink || hasWebsite;
 
@@ -1048,6 +1053,24 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
             priority={isLandingMuseum}
             loading={isLandingMuseum ? 'eager' : 'lazy'}
           />
+          {showHeroTicketLink ? (
+            <a
+              href={ticketUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="museum-hero-ticket-link museum-primary-action primary"
+              aria-describedby={ticketContext ? heroTicketNoteId : undefined}
+              onClick={handleTicketLinkClick}
+              title={ticketHoverMessage}
+            >
+              <span className="ticket-button__label">{t('buyTickets')}</span>
+              {ticketContext ? (
+                <TicketButtonNote affiliate={showAffiliateNote} id={heroTicketNoteId}>
+                  {ticketContext}
+                </TicketButtonNote>
+              ) : null}
+            </a>
+          ) : null}
           {!isPublicDomainImage && hasCreditSegments && (
             <p className="museum-hero-credit" title={creditFullText || undefined}>
               {creditSegments.map((segment, index) => (
@@ -1079,42 +1102,43 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
       <div className="museum-detail-container">
 
         <div className="museum-primary-action-bar">
-        <div className="museum-primary-action-group">
-          {hasTicketLink ? (
-            <a
-              href={ticketUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="museum-primary-action primary"
-              aria-describedby={ticketContext ? primaryTicketNoteId : undefined}
-              onClick={handleTicketLinkClick}
-              title={ticketHoverMessage}
-            >
-              <span className="ticket-button__label">{t('buyTickets')}</span>
-              {ticketContext ? (
-                <TicketButtonNote affiliate={showAffiliateNote} id={primaryTicketNoteId}>
-                  {ticketContext}
-                </TicketButtonNote>
-              ) : null}
-            </a>
-          ) : (
-            <button type="button" className="museum-primary-action primary" disabled aria-disabled="true">
-              <span className="ticket-button__label">{t('buyTickets')}</span>
-            </button>
-          )}
+          <div className="museum-primary-action-group">
+            {showSecondaryTicketAction ? (
+              <a
+                href={ticketUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="museum-primary-action primary"
+                aria-describedby={ticketContext ? primaryTicketNoteId : undefined}
+                onClick={handleTicketLinkClick}
+                title={ticketHoverMessage}
+              >
+                <span className="ticket-button__label">{t('buyTickets')}</span>
+                {ticketContext ? (
+                  <TicketButtonNote affiliate={showAffiliateNote} id={primaryTicketNoteId}>
+                    {ticketContext}
+                  </TicketButtonNote>
+                ) : null}
+              </a>
+            ) : null}
+            {!hasTicketLink ? (
+              <button type="button" className="museum-primary-action primary" disabled aria-disabled="true">
+                <span className="ticket-button__label">{t('buyTickets')}</span>
+              </button>
+            ) : null}
 
-          {hasWebsite && (
-            <a
-              href={resolvedMuseum.websiteUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="museum-primary-action secondary"
-              onClick={handleWebsiteLinkClick}
-            >
-              <span>{t('website')}</span>
-            </a>
-          )}
-        </div>
+            {hasWebsite && (
+              <a
+                href={resolvedMuseum.websiteUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="museum-primary-action secondary"
+                onClick={handleWebsiteLinkClick}
+              >
+                <span>{t('website')}</span>
+              </a>
+            )}
+          </div>
 
           <div className="museum-primary-action-utility">
             <ShareButton onShare={handleShare} label={t('share')} />
@@ -1510,7 +1534,7 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
             </div>
             <div className="museum-mobile-actions__body">
               <div className="museum-mobile-actions__actions">
-                {hasTicketLink ? (
+                {showSecondaryTicketAction ? (
                   <button
                     type="button"
                     className="museum-primary-action primary museum-mobile-actions__action"

@@ -1242,6 +1242,70 @@ button.hero-quick-link {
   box-shadow: 0 12px 26px rgba(255,90,60,0.3);
 }
 
+.museum-hero-ticket-link {
+  position: absolute;
+  top: clamp(16px, 4vw, 28px);
+  left: clamp(16px, 4vw, 32px);
+  right: auto;
+  bottom: auto;
+  z-index: 4;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.2;
+  text-decoration: none;
+  color: var(--accent-ink);
+  background: var(--accent);
+  border: 1px solid transparent;
+  box-shadow: 0 14px 30px rgba(37, 99, 235, 0.28);
+  backdrop-filter: blur(18px);
+  min-height: 0;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+.museum-hero-ticket-link .ticket-button__label {
+  font-size: 0.95rem;
+  white-space: nowrap;
+}
+.museum-hero-ticket-link .ticket-button__note {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  border: 0;
+  white-space: nowrap;
+}
+.museum-hero-ticket-link:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 18px 34px rgba(37, 99, 235, 0.32);
+}
+.museum-hero-ticket-link:focus-visible {
+  outline: none;
+  transform: translateY(-1px);
+  box-shadow: 0 0 0 2px var(--focus-ring-outline), 0 0 0 5px var(--focus-ring-shadow),
+    0 20px 38px rgba(37, 99, 235, 0.3);
+}
+[data-theme='dark'] .museum-hero-ticket-link {
+  background: rgba(37, 99, 235, 0.92);
+  color: var(--accent-ink);
+  box-shadow: 0 16px 36px rgba(2, 6, 23, 0.58);
+}
+[data-theme='dark'] .museum-hero-ticket-link:hover {
+  box-shadow: 0 18px 40px rgba(2, 6, 23, 0.66);
+}
+[data-theme='dark'] .museum-hero-ticket-link:focus-visible {
+  box-shadow: 0 0 0 2px var(--focus-ring-outline),
+    0 0 0 5px var(--focus-ring-shadow),
+    0 22px 40px rgba(2, 6, 23, 0.66);
+}
+
 .museum-mobile-actions {
   display: none;
 }
@@ -1533,7 +1597,17 @@ button.hero-quick-link {
   .museum-map-card,
   .museum-sidebar-card { border-radius: var(--radius-md); }
   .museum-info-links { gap: 10px; }
-
+  .museum-hero-ticket-link {
+    top: clamp(12px, 5vw, 20px);
+    left: clamp(12px, 5vw, 20px);
+    padding: 8px 14px;
+    gap: 6px;
+    font-size: 13px;
+    box-shadow: 0 12px 26px rgba(37, 99, 235, 0.28);
+  }
+  .museum-hero-ticket-link .ticket-button__label {
+    font-size: 0.9rem;
+  }
   .museum-mobile-actions {
     display: block;
     position: fixed;
@@ -1715,6 +1789,19 @@ button.hero-quick-link {
   [data-theme='dark'] .museum-mobile-actions__close:hover {
     background: rgba(15,23,42,0.82);
     box-shadow: 0 16px 32px rgba(0,0,0,0.45);
+  }
+}
+
+@media (max-width: 480px) {
+  .museum-hero-ticket-link {
+    top: clamp(10px, 6vw, 18px);
+    left: clamp(10px, 6vw, 18px);
+    padding: 7px 12px;
+    font-size: 12px;
+    gap: 4px;
+  }
+  .museum-hero-ticket-link .ticket-button__label {
+    font-size: 0.85rem;
   }
 }
 
