@@ -370,6 +370,7 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
   const ticketHoverMessage = showAffiliateNote ? t('ticketsAffiliateHover') : undefined;
   const primaryTicketNoteId = useId();
   const overviewTicketNoteId = useId();
+  const mobileHeroTicketNoteId = useId();
   const mobileTicketNoteId = useId();
   const mobileActionSheetId = useId();
   const mobileActionSheetTitleId = useId();
@@ -1075,6 +1076,27 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
           )}
         </div>
       )}
+
+      {hasTicketLink ? (
+        <div className="museum-mobile-hero-actions">
+          <a
+            href={ticketUrl}
+            target="_blank"
+            rel="noreferrer"
+            className="museum-primary-action primary museum-mobile-hero-action"
+            aria-describedby={ticketContext ? mobileHeroTicketNoteId : undefined}
+            onClick={handleTicketLinkClick}
+            title={ticketHoverMessage}
+          >
+            <span className="ticket-button__label">{t('buyTickets')}</span>
+            {ticketContext ? (
+              <TicketButtonNote affiliate={showAffiliateNote} id={mobileHeroTicketNoteId}>
+                {ticketContext}
+              </TicketButtonNote>
+            ) : null}
+          </a>
+        </div>
+      ) : null}
 
       <div className="museum-detail-container">
 

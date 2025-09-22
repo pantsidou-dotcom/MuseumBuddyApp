@@ -1157,6 +1157,9 @@ button.hero-quick-link {
   gap: var(--space-16);
   justify-content: flex-end;
 }
+.museum-mobile-hero-actions {
+  display: none;
+}
 .museum-primary-action {
   display: inline-flex;
   align-items: center;
@@ -1533,6 +1536,30 @@ button.hero-quick-link {
   .museum-map-card,
   .museum-sidebar-card { border-radius: var(--radius-md); }
   .museum-info-links { gap: 10px; }
+  .museum-mobile-hero-actions {
+    display: flex;
+    justify-content: center;
+    padding: 0 var(--space-16);
+    margin: clamp(16px, 4vw, 28px) 0;
+  }
+  .museum-mobile-hero-action {
+    width: 100%;
+    max-width: 520px;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 10px;
+    padding: 14px 22px;
+    box-shadow: 0 16px 32px rgba(15,23,42,0.16);
+  }
+  .museum-mobile-hero-action .ticket-button__label {
+    font-size: 1.05rem;
+  }
+  .museum-mobile-hero-action .ticket-button__note {
+    font-size: 0.8rem;
+    line-height: 1.35;
+    justify-content: center;
+  }
 
   .museum-mobile-actions {
     display: block;
