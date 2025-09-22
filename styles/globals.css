@@ -1840,10 +1840,6 @@ button.hero-quick-link {
   box-shadow: 0 24px 48px rgba(15,23,42,0.16);
 }
 
-.museum-card-mobile-cta {
-  display: none;
-}
-
 @media (min-width: 768px) {
   .museum-card {
     --card-aspect-ratio: 16 / 9;
@@ -2132,9 +2128,41 @@ button.hero-quick-link {
     padding: 16px;
   }
 
-  .museum-card-ticket,
+  .museum-card-ticket {
+    top: 8px;
+    left: 8px;
+  }
+
+  .museum-card-ticket .ticket-button {
+    padding: 8px 12px;
+    font-size: 0.85rem;
+    border-radius: 10px;
+    box-shadow: 0 12px 24px rgba(15,23,42,0.14);
+    gap: 4px;
+  }
+
+  .museum-card-ticket .ticket-button__note {
+    font-size: 0.7rem;
+    line-height: 1.25;
+  }
+
   .museum-card-actions {
-    display: none;
+    top: 8px;
+    right: 8px;
+    padding: 5px;
+    gap: 5px;
+    border-radius: 12px;
+  }
+
+  .museum-card .museum-card-actions .icon-button {
+    width: 32px;
+    height: 32px;
+    border-radius: 12px;
+  }
+
+  .museum-card .museum-card-actions .icon-button svg {
+    width: 16px;
+    height: 16px;
   }
 
   .museum-card-summary {
@@ -2144,45 +2172,6 @@ button.hero-quick-link {
     -webkit-line-clamp: 4;
     -webkit-box-orient: vertical;
     overflow: hidden;
-  }
-
-  .museum-card-mobile-cta {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    width: 100%;
-    margin-top: 8px;
-  }
-
-  .museum-card-mobile-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 12px;
-  }
-
-  .museum-card-mobile-actions .icon-button,
-  .icon-button--mobile {
-    width: 44px;
-    height: 44px;
-    border-radius: 14px;
-  }
-
-  .museum-card-mobile-ticket {
-    width: 100%;
-  }
-
-  .museum-card-mobile-ticket .ticket-button,
-  .ticket-button--mobile {
-    width: 100%;
-    padding: 14px 18px;
-    font-size: 1rem;
-    box-shadow: 0 16px 32px rgba(15,23,42,0.16);
-  }
-
-  .museum-card-mobile-ticket .ticket-button__note,
-  .ticket-button--mobile .ticket-button__note {
-    font-size: 0.8rem;
-    line-height: 1.35;
   }
 
   .museum-card-tags {
