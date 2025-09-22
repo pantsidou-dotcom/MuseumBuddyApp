@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { Fragment, useEffect, useMemo, useRef, useState } from 'react';
 import { useFavorites } from './FavoritesContext';
 import { useLanguage } from './LanguageContext';
 import museumSummaries from '../lib/museumSummaries';
@@ -53,12 +53,9 @@ export default function MuseumCard({ museum }) {
     () => (isPublicDomainImage ? null : formatImageCredit(imageCredit, t)),
     [imageCredit, isPublicDomainImage, t]
   );
-  const creditText = formattedCredit?.text || '';
-  const creditLicense = formattedCredit?.licenseLabel || '';
-  const creditLicenseUrl = formattedCredit?.licenseUrl || '';
-  const showCreditText = Boolean(creditText);
-  const showCreditLicense = Boolean(creditLicense);
-  const showCreditSource = !isPublicDomainImage && Boolean(imageCredit?.source);
+  const creditSegments = formattedCredit?.segments || [];
+  const hasCreditSegments = creditSegments.length > 0;
+  const creditFullText = creditSegments.map((segment) => segment.label).join(' • ');
 
   const [isFavoriteBouncing, setIsFavoriteBouncing] = useState(false);
   const bounceTimeoutRef = useRef(null);
@@ -198,57 +195,29 @@ export default function MuseumCard({ museum }) {
           </button>
         </div>
       </div>
-      {!isPublicDomainImage && museum.image && (
-        <p className="image-credit">
-          <span className="image-credit-label">{t('imageCreditLabel')}</span>
-          <span aria-hidden="true" className="image-credit-separator">•</span>
-          {showCreditText || showCreditLicense || showCreditSource ? (
-            <>
-              {showCreditText && (
-                <span className="image-credit-definition">{creditText}</span>
+      {!isPublicDomainImage && museum.image && hasCreditSegments && (
+        <p className="image-credit" title={creditFullText || undefined}>
+          {creditSegments.map((segment, index) => (
+            <Fragment key={`${museum.slug}-credit-${segment.key}-${index}`}>
+              {index > 0 && (
+                <span aria-hidden="true" className="image-credit-divider">
+                  •
+                </span>
               )}
-              {showCreditLicense && (
-                <>
-                  {showCreditText && (
-                    <span aria-hidden="true" className="image-credit-divider">•</span>
-                  )}
-                  {creditLicenseUrl ? (
-                    <a
-                      className="image-credit-link"
-                      href={creditLicenseUrl}
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      {creditLicense}
-                    </a>
-                  ) : (
-                    <span className="image-credit-definition">{creditLicense}</span>
-                  )}
-                </>
+              {segment.url ? (
+                <a
+                  className="image-credit-link"
+                  href={segment.url}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  {segment.label}
+                </a>
+              ) : (
+                <span className="image-credit-part">{segment.label}</span>
               )}
-              {showCreditSource && (
-                <>
-                  {(showCreditText || showCreditLicense) && (
-                    <span aria-hidden="true" className="image-credit-divider">•</span>
-                  )}
-                  {imageCredit?.url ? (
-                    <a
-                      className="image-credit-link"
-                      href={imageCredit.url}
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      {imageCredit.source}
-                    </a>
-                  ) : (
-                    <span className="image-credit-definition">{imageCredit?.source}</span>
-                  )}
-                </>
-              )}
-            </>
-          ) : (
-            <span className="image-credit-definition">{t('unknown')}</span>
-          )}
+            </Fragment>
+          ))}
         </p>
       )}
       <div className="museum-card-info">
