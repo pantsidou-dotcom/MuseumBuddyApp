@@ -7,6 +7,7 @@ import museumSummaries from '../lib/museumSummaries';
 import museumOpeningHours from '../lib/museumOpeningHours';
 import { shouldShowAffiliateNote } from '../lib/nonAffiliateMuseums';
 import formatImageCredit from '../lib/formatImageCredit';
+import TicketButtonAffiliateInfo from './TicketButtonAffiliateInfo';
 import TicketButtonNote from './TicketButtonNote';
 
 const HOVER_COLORS = ['#A7D8F0', '#77DDDD', '#F7C59F', '#D8BFD8', '#EAE0C8'];
@@ -145,15 +146,24 @@ export default function MuseumCard({ museum }) {
           className={classNames}
           title={ticketHoverMessage}
         >
-          <span className="ticket-button__label">{t('buyTickets')}</span>
-          <TicketButtonNote affiliate={showAffiliateNote}>{ticketContext}</TicketButtonNote>
+          <span className="ticket-button__label">
+            {showAffiliateNote ? (
+              <TicketButtonAffiliateInfo infoMessage={ticketHoverMessage} />
+            ) : null}
+            <span className="ticket-button__label-text">{t('buyTickets')}</span>
+          </span>
+          <TicketButtonNote affiliate={showAffiliateNote}>
+            {ticketContext}
+          </TicketButtonNote>
         </a>
       );
     }
 
     return (
       <button type="button" className={classNames} disabled aria-disabled="true">
-        <span className="ticket-button__label">{t('buyTickets')}</span>
+        <span className="ticket-button__label">
+          <span className="ticket-button__label-text">{t('buyTickets')}</span>
+        </span>
       </button>
     );
   };

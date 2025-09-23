@@ -1,10 +1,15 @@
-export default function TicketButtonNote({ affiliate = false, showIcon = true, children, id }) {
+export default function TicketButtonNote({
+  affiliate = false,
+  showIcon = true,
+  children,
+  id,
+}) {
+  const shouldShowIcon = affiliate || showIcon;
+  const noteClassName = `ticket-button__note${affiliate ? ' ticket-button__note--partner' : ''}`;
+
   if (!children) {
     return null;
   }
-
-  const noteClassName = `ticket-button__note${affiliate ? ' ticket-button__note--partner' : ''}`;
-  const shouldShowIcon = affiliate || showIcon;
 
   return (
     <span className={noteClassName} id={id}>
