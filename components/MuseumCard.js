@@ -222,7 +222,7 @@ export default function MuseumCard({ museum }) {
             </span>
           </div>
         </Link>
-        <div className="museum-card-ticket">{renderTicketButton()}</div>
+        <div className="museum-card-ticket">{renderTicketButton('ticket-button--card')}</div>
         <div className="museum-card-actions">
           {renderShareButton()}
           {renderFavoriteButton()}
@@ -292,7 +292,9 @@ export default function MuseumCard({ museum }) {
             {renderShareButton('icon-button--mobile')}
             {renderFavoriteButton('icon-button--mobile')}
           </div>
-          <div className="museum-card-mobile-ticket">{renderTicketButton('ticket-button--mobile')}</div>
+          <div className="museum-card-mobile-ticket">
+            {renderTicketButton('ticket-button--card ticket-button--mobile')}
+          </div>
         </div>
         {museum.free && (
           <div className="museum-card-tags">

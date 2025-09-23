@@ -1997,8 +1997,8 @@ button.hero-quick-link {
 
 .museum-card-actions {
   position: absolute;
-  top: 12px;
-  right: 12px;
+  top: 16px;
+  right: 16px;
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -2018,9 +2018,49 @@ button.hero-quick-link {
 
 .museum-card-ticket {
   position: absolute;
-  top: 12px;
-  left: 12px;
+  top: 16px;
+  left: 16px;
   z-index: 1;
+  display: flex;
+}
+
+.ticket-button--card {
+  display: inline-grid;
+  grid-auto-flow: row;
+  align-content: center;
+  justify-items: start;
+  width: clamp(120px, 18vw, 136px);
+  min-height: 44px;
+  padding: 6px 14px;
+  border-radius: 14px;
+  gap: 2px;
+  text-align: left;
+  line-height: 1.1;
+}
+
+.ticket-button--card .ticket-button__label {
+  width: 100%;
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.ticket-button--card .ticket-button__note {
+  width: 100%;
+  justify-content: flex-start;
+  font-size: 0.7rem;
+  line-height: 1.2;
+  gap: 4px;
+  text-align: left;
+}
+
+.ticket-button--card .ticket-button__note-icon {
+  width: 11px;
+  height: 11px;
+}
+
+.ticket-button--card .ticket-button__note-text {
+  flex: 1;
 }
 .ticket-button {
   padding: 6px 12px;
