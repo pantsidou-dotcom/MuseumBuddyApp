@@ -2119,6 +2119,7 @@ button.hero-quick-link {
   justify-content: center;
   flex-wrap: wrap;
   gap: 6px;
+  width: 100%;
   font-size: 11px;
   font-weight: 500;
   line-height: 1.2;
@@ -2131,6 +2132,7 @@ button.hero-quick-link {
 .ticket-button__note--partner {
   font-weight: 600;
   opacity: 1;
+  font-size: 0.8em;
 }
 
 .ticket-button__note-text {
