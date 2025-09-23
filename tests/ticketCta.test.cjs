@@ -28,6 +28,7 @@ const legacyTooltipPattern = /title={t\('affiliateLink'\)}/;
 const legacyNotePattern = /className="affiliate-note"/;
 const newNotePattern = /TicketButtonNote/;
 const hoverTitlePattern = /title={ticketHoverMessage}/;
+const infoMessagePattern = /infoMessage={ticketHoverMessage}/;
 
 for (const file of files) {
   const content = fs.readFileSync(file, 'utf8');
@@ -35,6 +36,7 @@ for (const file of files) {
   assert(!legacyNotePattern.test(content), `Legacy affiliate note class found in ${file}`);
   assert(newNotePattern.test(content), `Ticket note missing in ${file}`);
   assert(hoverTitlePattern.test(content), `Affiliate hover title missing in ${file}`);
+  assert(infoMessagePattern.test(content), `Affiliate info tooltip missing in ${file}`);
 }
 
 console.log('Ticket CTA copy tests passed.');

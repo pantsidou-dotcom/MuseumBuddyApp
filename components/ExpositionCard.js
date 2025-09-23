@@ -304,7 +304,11 @@ export default function ExpositionCard({ exposition, ticketUrl, affiliateUrl, mu
           >
             <span className="ticket-button__label">{t('buyTickets')}</span>
             {ticketContext ? (
-              <TicketButtonNote affiliate={showAffiliateNote} id={ticketNoteId}>
+              <TicketButtonNote
+                affiliate={showAffiliateNote}
+                id={ticketNoteId}
+                infoMessage={ticketHoverMessage}
+              >
                 {ticketContext}
               </TicketButtonNote>
             ) : null}
