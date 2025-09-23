@@ -2131,6 +2131,7 @@ button.hero-quick-link {
 .ticket-button__note--partner {
   font-weight: 600;
   opacity: 1;
+  font-size: 0.9em;
 }
 
 .ticket-button__note-text {
