@@ -135,26 +135,48 @@ export default function MuseumCard({ museum }) {
 
   const renderTicketButton = (className = '') => {
     const classNames = `ticket-button${className ? ` ${className}` : ''}`;
+    const noteId = showAffiliateNote
+      ? `ticket-note-${museum.slug || museum.id || 'cta'}`
+      : undefined;
+    const ticketLabel = t('tickets');
+    const ariaLabel = ticketContext ? `${t('buyTickets')} — ${ticketContext}` : t('buyTickets');
+    const relAttributes = ['noreferrer', 'noopener'];
+
+    if (showAffiliateNote) {
+      relAttributes.push('sponsored');
+    }
 
     if (museum.ticketUrl) {
       return (
-        <a
-          href={museum.ticketUrl}
-          target="_blank"
-          rel="noreferrer"
-          className={classNames}
-          title={ticketHoverMessage}
+        <div
+          className={`ticket-button-wrapper${showAffiliateNote ? ' ticket-button-wrapper--partner' : ''}`}
         >
-          <span className="ticket-button__label">{t('buyTickets')}</span>
-          <TicketButtonNote affiliate={showAffiliateNote}>{ticketContext}</TicketButtonNote>
-        </a>
+          <a
+            href={museum.ticketUrl}
+            target="_blank"
+            rel={relAttributes.join(' ')}
+            className={classNames}
+            title={ticketHoverMessage}
+            aria-label={ariaLabel}
+            aria-describedby={noteId || undefined}
+          >
+            <span className="ticket-button__label">{ticketLabel}</span>
+          </a>
+          {showAffiliateNote ? (
+            <TicketButtonNote affiliate id={noteId}>
+              {ticketContext}
+            </TicketButtonNote>
+          ) : null}
+        </div>
       );
     }
 
     return (
-      <button type="button" className={classNames} disabled aria-disabled="true">
-        <span className="ticket-button__label">{t('buyTickets')}</span>
-      </button>
+      <div className="ticket-button-wrapper">
+        <button type="button" className={classNames} disabled aria-disabled="true">
+          <span className="ticket-button__label">{t('buyTickets')}</span>
+        </button>
+      </div>
     );
   };
 
@@ -287,13 +309,6 @@ export default function MuseumCard({ museum }) {
           )}
         </div>
         {summary && <p className="museum-card-summary">{summary}</p>}
-        <div className="museum-card-mobile-cta">
-          <div className="museum-card-mobile-actions">
-            {renderShareButton('icon-button--mobile')}
-            {renderFavoriteButton('icon-button--mobile')}
-          </div>
-          <div className="museum-card-mobile-ticket">{renderTicketButton('ticket-button--mobile')}</div>
-        </div>
         {museum.free && (
           <div className="museum-card-tags">
             <span className="tag">{t('free')}</span>
