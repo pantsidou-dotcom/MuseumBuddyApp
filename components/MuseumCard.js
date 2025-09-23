@@ -146,7 +146,9 @@ export default function MuseumCard({ museum }) {
           title={ticketHoverMessage}
         >
           <span className="ticket-button__label">{t('buyTickets')}</span>
-          <TicketButtonNote affiliate={showAffiliateNote}>{ticketContext}</TicketButtonNote>
+          <TicketButtonNote affiliate={showAffiliateNote} infoMessage={ticketHoverMessage}>
+            {ticketContext}
+          </TicketButtonNote>
         </a>
       );
     }

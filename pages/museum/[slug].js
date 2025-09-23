@@ -1092,7 +1092,11 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
             >
               <span className="ticket-button__label">{t('buyTickets')}</span>
               {ticketContext ? (
-                <TicketButtonNote affiliate={showAffiliateNote} id={primaryTicketNoteId}>
+                <TicketButtonNote
+                  affiliate={showAffiliateNote}
+                  id={primaryTicketNoteId}
+                  infoMessage={ticketHoverMessage}
+                >
                   {ticketContext}
                 </TicketButtonNote>
               ) : null}
@@ -1520,7 +1524,11 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
                   >
                     <span className="ticket-button__label">{t('buyTickets')}</span>
                     {ticketContext ? (
-                      <TicketButtonNote affiliate={showAffiliateNote} id={mobileTicketNoteId}>
+                      <TicketButtonNote
+                        affiliate={showAffiliateNote}
+                        id={mobileTicketNoteId}
+                        infoMessage={ticketHoverMessage}
+                      >
                         {ticketContext}
                       </TicketButtonNote>
                     ) : null}
