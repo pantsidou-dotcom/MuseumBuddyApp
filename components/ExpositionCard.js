@@ -3,6 +3,7 @@ import { useEffect, useId, useMemo, useRef, useState } from 'react';
 import { useLanguage } from './LanguageContext';
 import { useFavorites } from './FavoritesContext';
 import { shouldShowAffiliateNote } from '../lib/nonAffiliateMuseums';
+import TicketButtonAffiliateInfo from './TicketButtonAffiliateInfo';
 import TicketButtonNote from './TicketButtonNote';
 
 const FALLBACK_IMAGE = '/images/exposition-placeholder.svg';
@@ -302,16 +303,26 @@ export default function ExpositionCard({ exposition, ticketUrl, affiliateUrl, mu
             aria-describedby={ctaDescribedBy}
             title={ticketHoverMessage}
           >
-            <span className="ticket-button__label">{t('buyTickets')}</span>
+            <span className="ticket-button__label">
+              {showAffiliateNote ? (
+                <TicketButtonAffiliateInfo infoMessage={ticketHoverMessage} />
+              ) : null}
+              <span className="ticket-button__label-text">{t('buyTickets')}</span>
+            </span>
             {ticketContext ? (
-              <TicketButtonNote affiliate={showAffiliateNote} id={ticketNoteId}>
+              <TicketButtonNote
+                affiliate={showAffiliateNote}
+                id={ticketNoteId}
+              >
                 {ticketContext}
               </TicketButtonNote>
             ) : null}
           </a>
         ) : (
           <button type="button" className="ticket-button exposition-card__cta" disabled aria-disabled="true">
-            <span className="ticket-button__label">{t('buyTickets')}</span>
+            <span className="ticket-button__label">
+              <span className="ticket-button__label-text">{t('buyTickets')}</span>
+            </span>
           </button>
         )}
       </div>

@@ -2118,6 +2118,16 @@ button.hero-quick-link {
   pointer-events: none;
   cursor: not-allowed;
 }
+.ticket-button__label {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.ticket-button__label-text {
+  display: inline;
+}
 .ticket-button__note {
   display: inline-flex;
   align-items: center;
@@ -2132,6 +2142,7 @@ button.hero-quick-link {
   opacity: 0.92;
   text-align: center;
   max-width: 100%;
+  position: relative;
 }
 
 .ticket-button__note--partner {
@@ -2149,6 +2160,109 @@ button.hero-quick-link {
   width: 12px;
   height: 12px;
   flex-shrink: 0;
+}
+
+.ticket-button__affiliate-info-group {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.ticket-button__affiliate-info {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  border: 1px solid currentColor;
+  cursor: pointer;
+  color: inherit;
+  background: transparent;
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease,
+    transform 0.2s ease;
+}
+
+.ticket-button__affiliate-info:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(255,255,255,0.65), 0 0 0 4px rgba(15,23,42,0.38);
+}
+
+.ticket-button__affiliate-info:hover {
+  background: rgba(15,23,42,0.12);
+}
+
+.ticket-button__affiliate-info:active {
+  transform: translateY(1px);
+}
+
+.ticket-button__affiliate-info-icon {
+  width: 12px;
+  height: 12px;
+}
+
+.ticket-button__affiliate-tooltip {
+  position: absolute;
+  bottom: calc(100% + 12px);
+  left: 50%;
+  transform: translate(-50%, 4px);
+  background: rgba(15,23,42,0.92);
+  color: #ffffff;
+  padding: 8px 12px;
+  border-radius: 10px;
+  box-shadow: 0 12px 24px rgba(15,23,42,0.2);
+  font-size: 0.75rem;
+  line-height: 1.35;
+  width: max-content;
+  max-width: min(260px, 80vw);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  z-index: 30;
+  text-align: left;
+}
+
+.ticket-button__affiliate-tooltip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 6px;
+  border-style: solid;
+  border-color: rgba(15,23,42,0.92) transparent transparent transparent;
+}
+
+.ticket-button:hover .ticket-button__affiliate-tooltip,
+.ticket-button:focus-within .ticket-button__affiliate-tooltip,
+.ticket-button__affiliate-tooltip[data-visible='true'] {
+  opacity: 1;
+  transform: translate(-50%, 0);
+  pointer-events: auto;
+}
+
+[data-theme='dark'] .ticket-button__affiliate-info {
+  border-color: rgba(255,255,255,0.7);
+}
+
+[data-theme='dark'] .ticket-button__affiliate-info:hover {
+  background: rgba(255,255,255,0.16);
+}
+
+[data-theme='dark'] .ticket-button__affiliate-info:focus-visible {
+  box-shadow: 0 0 0 2px rgba(255,255,255,0.85), 0 0 0 5px rgba(255,120,79,0.6);
+}
+
+[data-theme='dark'] .ticket-button__affiliate-tooltip {
+  background: rgba(248,250,252,0.95);
+  color: #0f172a;
+  box-shadow: 0 18px 28px rgba(15,23,42,0.28);
+}
+
+[data-theme='dark'] .ticket-button__affiliate-tooltip::after {
+  border-color: rgba(248,250,252,0.95) transparent transparent transparent;
 }
 
 [data-theme='dark'] .ticket-button:focus-visible {

@@ -10,6 +10,7 @@ import { useLanguage } from '../../components/LanguageContext';
 import { useFavorites } from '../../components/FavoritesContext';
 import FiltersSheet from '../../components/FiltersSheet';
 import FiltersPopover from '../../components/FiltersPopover';
+import TicketButtonAffiliateInfo from '../../components/TicketButtonAffiliateInfo';
 import TicketButtonNote from '../../components/TicketButtonNote';
 import museumImages from '../../lib/museumImages';
 import museumImageCredits from '../../lib/museumImageCredits';
@@ -1090,16 +1091,26 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
               onClick={handleTicketLinkClick}
               title={ticketHoverMessage}
             >
-              <span className="ticket-button__label">{t('buyTickets')}</span>
+              <span className="ticket-button__label">
+                {showAffiliateNote ? (
+                  <TicketButtonAffiliateInfo infoMessage={ticketHoverMessage} />
+                ) : null}
+                <span className="ticket-button__label-text">{t('buyTickets')}</span>
+              </span>
               {ticketContext ? (
-                <TicketButtonNote affiliate={showAffiliateNote} id={primaryTicketNoteId}>
+                <TicketButtonNote
+                  affiliate={showAffiliateNote}
+                  id={primaryTicketNoteId}
+                >
                   {ticketContext}
                 </TicketButtonNote>
               ) : null}
             </a>
           ) : (
             <button type="button" className="museum-primary-action primary" disabled aria-disabled="true">
-              <span className="ticket-button__label">{t('buyTickets')}</span>
+              <span className="ticket-button__label">
+                <span className="ticket-button__label-text">{t('buyTickets')}</span>
+              </span>
             </button>
           )}
 
@@ -1518,9 +1529,17 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
                     aria-describedby={ticketContext ? mobileTicketNoteId : undefined}
                     title={ticketHoverMessage}
                   >
-                    <span className="ticket-button__label">{t('buyTickets')}</span>
+                    <span className="ticket-button__label">
+                      {showAffiliateNote ? (
+                        <TicketButtonAffiliateInfo infoMessage={ticketHoverMessage} />
+                      ) : null}
+                      <span className="ticket-button__label-text">{t('buyTickets')}</span>
+                    </span>
                     {ticketContext ? (
-                      <TicketButtonNote affiliate={showAffiliateNote} id={mobileTicketNoteId}>
+                      <TicketButtonNote
+                        affiliate={showAffiliateNote}
+                        id={mobileTicketNoteId}
+                      >
                         {ticketContext}
                       </TicketButtonNote>
                     ) : null}
