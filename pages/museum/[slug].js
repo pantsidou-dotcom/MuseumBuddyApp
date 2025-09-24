@@ -1086,7 +1086,7 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
               href={ticketUrl}
               target="_blank"
               rel="noreferrer"
-              className="museum-primary-action primary"
+              className="museum-primary-action primary inline-flex items-center justify-center rounded-full border border-transparent bg-sky-600 px-5 py-3 text-sm font-semibold text-white shadow-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:ring-offset-2 dark:bg-sky-500 dark:text-slate-900 dark:focus-visible:ring-offset-slate-900"
               aria-describedby={ticketContext ? primaryTicketNoteId : undefined}
               onClick={handleTicketLinkClick}
               title={ticketHoverMessage}
@@ -1107,7 +1107,12 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
               ) : null}
             </a>
           ) : (
-            <button type="button" className="museum-primary-action primary" disabled aria-disabled="true">
+            <button
+              type="button"
+              className="museum-primary-action primary inline-flex items-center justify-center rounded-full border border-transparent bg-slate-300 px-5 py-3 text-sm font-semibold text-slate-600 shadow-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2 dark:bg-slate-700 dark:text-slate-200 dark:focus-visible:ring-offset-slate-900"
+              disabled
+              aria-disabled="true"
+            >
               <span className="ticket-button__label">
                 <span className="ticket-button__label-text">{t('buyTickets')}</span>
               </span>
@@ -1119,7 +1124,7 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
               href={resolvedMuseum.websiteUrl}
               target="_blank"
               rel="noreferrer"
-              className="museum-primary-action secondary"
+              className="museum-primary-action secondary inline-flex items-center justify-center rounded-full border border-slate-300 bg-transparent px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2 dark:border-slate-600 dark:text-slate-100 dark:hover:bg-slate-800/70 dark:focus-visible:ring-offset-slate-900"
               onClick={handleWebsiteLinkClick}
             >
               <span>{t('website')}</span>
@@ -1524,7 +1529,7 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
                 {hasTicketLink ? (
                   <button
                     type="button"
-                    className="museum-primary-action primary museum-mobile-actions__action"
+                    className="museum-primary-action primary museum-mobile-actions__action inline-flex items-center justify-center rounded-full border border-transparent bg-sky-600 px-5 py-3 text-sm font-semibold text-white shadow-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:ring-offset-2 dark:bg-sky-500 dark:text-slate-900 dark:focus-visible:ring-offset-slate-900"
                     onClick={handleMobileTicketAction}
                     aria-describedby={ticketContext ? mobileTicketNoteId : undefined}
                     title={ticketHoverMessage}
@@ -1548,7 +1553,7 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
                 {hasWebsite ? (
                   <button
                     type="button"
-                    className="museum-primary-action secondary museum-mobile-actions__action"
+                    className="museum-primary-action secondary museum-mobile-actions__action inline-flex items-center justify-center rounded-full border border-slate-300 bg-transparent px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2 dark:border-slate-600 dark:text-slate-100 dark:hover:bg-slate-800/70 dark:focus-visible:ring-offset-slate-900"
                     onClick={handleMobileWebsiteAction}
                   >
                     <span>{t('website')}</span>

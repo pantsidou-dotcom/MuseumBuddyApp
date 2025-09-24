@@ -6,7 +6,8 @@ import { LanguageProvider } from '../components/LanguageContext';
 import { ThemeProvider } from '../components/ThemeContext';
 
 const fontStylesheetHref =
-  'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@400;500;600;700&display=swap';
+  'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap';
+const tailwindCdnHref = 'https://cdn.jsdelivr.net/npm/tailwindcss@3.4.10/dist/tailwind.min.css';
 
 export default function MyApp({ Component, pageProps }) {
   return (
@@ -18,8 +19,10 @@ export default function MyApp({ Component, pageProps }) {
             <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
             <link rel="preload" as="style" href={fontStylesheetHref} />
             <link rel="stylesheet" href={fontStylesheetHref} />
+            <link rel="stylesheet" href={tailwindCdnHref} />
             <noscript>
               <link rel="stylesheet" href={fontStylesheetHref} />
+              <link rel="stylesheet" href={tailwindCdnHref} />
             </noscript>
           </Head>
           <Layout>

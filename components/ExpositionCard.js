@@ -223,7 +223,9 @@ export default function ExpositionCard({ exposition, ticketUrl, affiliateUrl, mu
     .join(' ');
 
   return (
-    <article className={`exposition-card${isFavoriteBouncing ? ' is-bouncing' : ''}`}>
+    <article
+      className={`exposition-card${isFavoriteBouncing ? ' is-bouncing' : ''} rounded-xl border border-slate-200 bg-white shadow-sm transition duration-200 hover:shadow-lg dark:border-slate-700/60 dark:bg-slate-900`}
+    >
       <div className={mediaClassName} aria-busy={!isImageLoaded}>
         {!isImageLoaded && (
           <div className="exposition-card__skeleton" aria-hidden="true">
@@ -299,7 +301,7 @@ export default function ExpositionCard({ exposition, ticketUrl, affiliateUrl, mu
             href={buyUrl}
             target="_blank"
             rel="noreferrer"
-            className="ticket-button exposition-card__cta"
+            className="ticket-button exposition-card__cta inline-flex items-center justify-center font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-sky-500 focus-visible:ring-offset-white dark:focus-visible:ring-offset-slate-900"
             aria-describedby={ctaDescribedBy}
             title={ticketHoverMessage}
           >
@@ -319,7 +321,12 @@ export default function ExpositionCard({ exposition, ticketUrl, affiliateUrl, mu
             ) : null}
           </a>
         ) : (
-          <button type="button" className="ticket-button exposition-card__cta" disabled aria-disabled="true">
+          <button
+            type="button"
+            className="ticket-button exposition-card__cta inline-flex items-center justify-center font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-sky-500 focus-visible:ring-offset-white dark:focus-visible:ring-offset-slate-900"
+            disabled
+            aria-disabled="true"
+          >
             <span className="ticket-button__label">
               <span className="ticket-button__label-text">{t('buyTickets')}</span>
             </span>
