@@ -135,7 +135,21 @@ export default function MuseumCard({ museum }) {
   );
 
   const renderTicketButton = (className = '') => {
-    const classNames = `ticket-button${className ? ` ${className}` : ''}`;
+    const baseClasses = [
+      'ticket-button',
+      'inline-flex',
+      'items-center',
+      'justify-center',
+      'font-medium',
+      'transition',
+      'focus-visible:outline-none',
+      'focus-visible:ring-2',
+      'focus-visible:ring-offset-2',
+      'focus-visible:ring-sky-500',
+      'focus-visible:ring-offset-white',
+      'dark:focus-visible:ring-offset-slate-900',
+    ];
+    const classNames = className ? `${baseClasses.join(' ')} ${className}` : baseClasses.join(' ');
 
     if (museum.ticketUrl) {
       return (
@@ -205,7 +219,10 @@ export default function MuseumCard({ museum }) {
   };
 
   return (
-    <article className="museum-card" style={{ '--hover-bg': hoverColor }}>
+    <article
+      className="museum-card group rounded-xl border border-slate-200 bg-white shadow-sm transition duration-200 hover:shadow-lg dark:border-slate-700/60 dark:bg-slate-900"
+      style={{ '--hover-bg': hoverColor }}
+    >
       <div className="museum-card-image">
         <Link
           href={{ pathname: '/museum/[slug]', query: { slug: museum.slug } }}
@@ -264,7 +281,7 @@ export default function MuseumCard({ museum }) {
         </p>
       )}
       <div className="museum-card-info">
-        <h3 className="museum-card-title">
+        <h3 className="museum-card-title text-slate-900 dark:text-slate-100">
           <Link
             href={{ pathname: '/museum/[slug]', query: { slug: museum.slug } }}
             style={{ color: 'inherit', textDecoration: 'none' }}

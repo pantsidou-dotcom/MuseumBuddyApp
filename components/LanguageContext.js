@@ -4,7 +4,7 @@ import translations from '../lib/translations';
 const LanguageContext = createContext();
 
 export function LanguageProvider({ children }) {
-  const [lang, setLang] = useState('en');
+  const [lang, setLang] = useState('nl');
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
