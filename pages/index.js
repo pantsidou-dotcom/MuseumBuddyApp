@@ -475,7 +475,7 @@ export default function Home({ initialMuseums = [], initialError = null }) {
         <p>{t('noResults')}</p>
       ) : (
         <ul className="grid" style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-          {results.map((m) => (
+          {results.map((m, index) => (
             <li key={m.id}>
               <MuseumCard
                 museum={{
@@ -489,6 +489,7 @@ export default function Home({ initialMuseums = [], initialError = null }) {
                   imageCredit: museumImageCredits[m.slug],
                   ticketUrl: m.ticket_affiliate_url || museumTicketUrls[m.slug] || m.website_url,
                 }}
+                priority={index < 6}
               />
             </li>
           ))}
