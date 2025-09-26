@@ -975,7 +975,7 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
               />
               <div className="museum-hero-overlay">
                 <div className="museum-detail-container">
-                  <div className="museum-hero-overlay-card">
+                  <div className="museum-hero-content">
                     <div className="museum-hero-heading">
                       <div className="museum-hero-text">
                         {locationLabel && <p className="detail-sub museum-hero-location">{locationLabel}</p>}

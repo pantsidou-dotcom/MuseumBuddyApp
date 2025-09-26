@@ -1325,8 +1325,8 @@ button.hero-quick-link {
 .museum-detail {
   position: relative;
   background: var(--body-bg);
-  padding-bottom: clamp(96px, 10vw, 140px);
-  --museum-hero-lift: clamp(72px, 10vw, 128px);
+  padding-bottom: clamp(84px, 9vw, 132px);
+  --museum-hero-lift: clamp(48px, 8vw, 96px);
 }
 .museum-detail:not(.has-hero) {
   --museum-hero-lift: 0px;
@@ -1334,9 +1334,9 @@ button.hero-quick-link {
 .museum-detail-container { position: relative; z-index: 2; }
 .museum-detail-hero-section {
   position: relative;
-  padding: clamp(16px, 4vw, 40px) clamp(16px, 4vw, 48px)
-    calc(var(--museum-hero-lift) + clamp(32px, 6vw, 72px));
-  background: linear-gradient(180deg, rgba(241, 245, 249, 0.92) 0%, rgba(248, 250, 252, 0.72) 35%, var(--body-bg) 100%);
+  padding: clamp(16px, 4vw, 36px) clamp(16px, 4vw, 44px)
+    calc(var(--museum-hero-lift) + clamp(24px, 5vw, 56px));
+  background: linear-gradient(180deg, rgba(241, 245, 249, 0.92) 0%, rgba(248, 250, 252, 0.78) 38%, var(--body-bg) 100%);
 }
 [data-theme='dark'] .museum-detail-hero-section {
   background: linear-gradient(180deg, rgba(2, 6, 23, 0.95) 0%, rgba(2, 6, 23, 0.88) 40%, var(--body-bg) 100%);
@@ -1349,7 +1349,7 @@ button.hero-quick-link {
 .museum-detail-hero {
   position: relative;
   width: 100%;
-  height: clamp(220px, 42vw, 340px);
+  height: clamp(220px, 40vw, 332px);
   overflow: hidden;
   border-radius: var(--radius-lg);
   box-shadow: 0 18px 30px rgba(15, 23, 42, 0.12);
@@ -1369,16 +1369,16 @@ button.hero-quick-link {
 }
 .museum-detail-body {
   position: relative;
-  padding: calc(var(--museum-hero-lift) + clamp(24px, 5vw, 48px)) clamp(16px, 4vw, 48px)
-    clamp(96px, 10vw, 128px);
+  padding: calc(var(--museum-hero-lift) + clamp(18px, 4vw, 40px)) clamp(16px, 4vw, 44px)
+    clamp(72px, 9vw, 112px);
   background: var(--body-bg);
 }
 .museum-detail-body-content {
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: clamp(28px, 5vw, 48px);
-  transform: translateY(calc(-1 * var(--museum-hero-lift)));
+  gap: clamp(24px, 4vw, 40px);
+  transform: translateY(calc(-0.7 * var(--museum-hero-lift)));
 }
 .museum-detail:not(.has-hero) .museum-detail-body-content {
   transform: none;
@@ -1416,21 +1416,23 @@ button.hero-quick-link {
   inset: 0;
   display: flex;
   align-items: flex-end;
-  padding: clamp(16px, 4vw, 36px);
-  background: linear-gradient(180deg, rgba(15, 23, 42, 0.08) 0%, rgba(15, 23, 42, 0.45) 65%, rgba(15, 23, 42, 0.78) 100%);
+  padding: clamp(18px, 4vw, 42px) clamp(18px, 4vw, 44px);
+  background:
+    radial-gradient(120% 120% at 12% 88%, rgba(15, 23, 42, 0.78) 0%, rgba(15, 23, 42, 0.42) 55%, rgba(15, 23, 42, 0) 100%),
+    linear-gradient(180deg, rgba(15, 23, 42, 0.08) 0%, rgba(15, 23, 42, 0.6) 68%, rgba(15, 23, 42, 0.78) 100%);
   pointer-events: none;
 }
 
-.museum-hero-overlay-card {
+.museum-hero-content {
   pointer-events: auto;
+  position: relative;
   width: 100%;
   max-width: min(880px, 100%);
-  padding: clamp(18px, 3vw, 30px);
-  border-radius: var(--radius-lg);
-  background: rgba(15, 23, 42, 0.68);
+  display: flex;
+  flex-direction: column;
+  gap: clamp(18px, 3vw, 28px);
+  padding: clamp(12px, 3vw, 20px) clamp(14px, 4vw, 26px);
   color: rgba(248, 250, 252, 0.96);
-  backdrop-filter: blur(18px);
-  box-shadow: 0 22px 46px rgba(15, 23, 42, 0.35);
 }
 
 .museum-hero-heading {
@@ -1451,6 +1453,10 @@ button.hero-quick-link {
   flex-direction: column;
   gap: 6px;
   max-width: 720px;
+}
+
+.museum-hero-content .museum-hero-text > * {
+  text-shadow: 0 14px 32px rgba(15, 23, 42, 0.6);
 }
 
 .museum-hero-location {
@@ -1635,46 +1641,46 @@ button.hero-quick-link {
   color: var(--muted);
 }
 
-.museum-hero-overlay-card .museum-hero-location,
-.museum-hero-overlay-card .museum-hero-tagline,
-.museum-hero-overlay-card .museum-primary-action__note {
+.museum-hero-content .museum-hero-location,
+.museum-hero-content .museum-hero-tagline,
+.museum-hero-content .museum-primary-action__note {
   color: rgba(248, 250, 252, 0.82);
 }
 
-.museum-hero-overlay-card .museum-primary-action.primary {
+.museum-hero-content .museum-primary-action.primary {
   background: rgba(248, 250, 252, 0.92);
   color: #0f172a;
   box-shadow: 0 16px 32px rgba(15, 23, 42, 0.32);
 }
 
-.museum-hero-overlay-card .museum-primary-action.primary:hover {
+.museum-hero-content .museum-primary-action.primary:hover {
   background: #fff;
 }
 
-.museum-hero-overlay-card .museum-primary-action.secondary {
+.museum-hero-content .museum-primary-action.secondary {
   background: rgba(15, 23, 42, 0.24);
   border-color: rgba(248, 250, 252, 0.35);
   color: rgba(248, 250, 252, 0.92);
 }
 
-.museum-hero-overlay-card .museum-primary-action.secondary:hover {
+.museum-hero-content .museum-primary-action.secondary:hover {
   background: rgba(248, 250, 252, 0.12);
 }
 
-.museum-hero-overlay-card .museum-hero-utilities .icon-button {
+.museum-hero-content .museum-hero-utilities .icon-button {
   background: rgba(15, 23, 42, 0.4);
   border-color: rgba(248, 250, 252, 0.35);
   color: rgba(248, 250, 252, 0.95);
   box-shadow: 0 14px 28px rgba(15, 23, 42, 0.3);
 }
 
-.museum-hero-overlay-card .museum-hero-utilities .icon-button:hover,
-.museum-hero-overlay-card .museum-hero-utilities .icon-button:focus-visible {
+.museum-hero-content .museum-hero-utilities .icon-button:hover,
+.museum-hero-content .museum-hero-utilities .icon-button:focus-visible {
   background: rgba(248, 250, 252, 0.18);
   color: #fff;
 }
 
-.museum-hero-overlay-card .museum-hero-utilities .icon-button.favorited {
+.museum-hero-content .museum-hero-utilities .icon-button.favorited {
   color: #fb7185;
   background: rgba(248, 250, 252, 0.2);
   box-shadow: 0 18px 32px rgba(251, 113, 133, 0.32);
@@ -1727,7 +1733,7 @@ button.hero-quick-link {
 
 .museum-detail-grid {
   display: grid;
-  gap: clamp(32px, 6vw, 48px);
+  gap: clamp(28px, 5vw, 44px);
   grid-template-columns: minmax(0, 1fr) minmax(0, 360px);
   align-items: start;
   margin: 0;
@@ -1998,7 +2004,7 @@ button.hero-quick-link {
 }
 
 @media (max-width: 1200px) {
-  .museum-detail { --museum-hero-lift: clamp(64px, 14vw, 120px); }
+  .museum-detail { --museum-hero-lift: clamp(44px, 12vw, 88px); }
   .museum-detail-grid { grid-template-columns: minmax(0, 1fr); }
   .museum-sidebar {
     position: static;
@@ -2008,24 +2014,24 @@ button.hero-quick-link {
 }
 
 @media (max-width: 900px) {
-  .museum-detail { --museum-hero-lift: clamp(56px, 22vw, 108px); }
+  .museum-detail { --museum-hero-lift: clamp(40px, 20vw, 80px); }
 }
 
 @media (max-width: 768px) {
   .museum-detail {
     padding-bottom: calc(148px + env(safe-area-inset-bottom, 0px));
-    --museum-hero-lift: clamp(52px, 28vw, 96px);
+    --museum-hero-lift: clamp(36px, 24vw, 76px);
   }
   .museum-detail-hero-section {
-    padding: clamp(18px, 7vw, 40px) clamp(16px, 6vw, 32px)
-      calc(var(--museum-hero-lift) + clamp(28px, 9vw, 52px));
+    padding: clamp(18px, 7vw, 36px) clamp(16px, 6vw, 30px)
+      calc(var(--museum-hero-lift) + clamp(22px, 8vw, 44px));
   }
   .museum-detail-body {
-    padding: calc(var(--museum-hero-lift) + clamp(20px, 6vw, 44px)) clamp(16px, 6vw, 32px)
-      clamp(96px, 20vw, 160px);
+    padding: calc(var(--museum-hero-lift) + clamp(16px, 6vw, 36px)) clamp(16px, 6vw, 30px)
+      clamp(88px, 20vw, 150px);
   }
   .museum-detail-body-content {
-    gap: clamp(28px, 8vw, 48px);
+    gap: clamp(24px, 8vw, 44px);
   }
   .museum-hero-heading { gap: 12px; }
   .museum-hero-tagline { font-size: 15px; }
@@ -2049,18 +2055,18 @@ button.hero-quick-link {
 @media (max-width: 600px) {
   .museum-detail {
     padding-bottom: calc(176px + env(safe-area-inset-bottom, 0px));
-    --museum-hero-lift: clamp(44px, 34vw, 84px);
+    --museum-hero-lift: clamp(32px, 28vw, 68px);
   }
   .museum-detail-hero-section {
-    padding: clamp(16px, 8vw, 36px) clamp(16px, 7vw, 28px)
-      calc(var(--museum-hero-lift) + clamp(24px, 9vw, 44px));
+    padding: clamp(16px, 8vw, 32px) clamp(16px, 7vw, 26px)
+      calc(var(--museum-hero-lift) + clamp(18px, 8vw, 40px));
   }
   .museum-detail-body {
-    padding: calc(var(--museum-hero-lift) + clamp(18px, 8vw, 40px)) clamp(16px, 7vw, 28px)
-      clamp(120px, 24vw, 200px);
+    padding: calc(var(--museum-hero-lift) + clamp(14px, 8vw, 32px)) clamp(16px, 7vw, 26px)
+      clamp(112px, 24vw, 192px);
   }
   .museum-detail-body-content {
-    gap: clamp(24px, 10vw, 40px);
+    gap: clamp(22px, 9vw, 38px);
   }
   .museum-detail-grid { gap: 24px; }
   .museum-expositions-card,
