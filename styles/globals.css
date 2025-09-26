@@ -3421,6 +3421,12 @@ button.hero-quick-link {
   gap: clamp(20px, 3vw, 28px);
 }
 
+@media (max-width: 768px) {
+  .home-value-props {
+    display: none;
+  }
+}
+
 .home-value-props__intro {
   max-width: 640px;
 }
