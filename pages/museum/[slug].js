@@ -385,7 +385,7 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
   const ticketAriaLabel = showAffiliateNote
     ? `${t('buyTickets')} — ${t('ticketsAffiliateDisclosure')}`
     : t('buyTickets');
-  const locationLines = getLocationLines(resolvedMuseum);
+  const locationLines = useMemo(() => getLocationLines(resolvedMuseum), [resolvedMuseum]);
   const locationLabel = [resolvedMuseum.city, resolvedMuseum.province].filter(Boolean).join(', ');
   const hasWebsite = Boolean(resolvedMuseum.websiteUrl);
   const hasTicketLink = Boolean(ticketUrl);
@@ -590,7 +590,6 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
 
   const seoDescription = summary || t('museumDescription', { name: displayName });
   const canonical = `/museum/${slug}`;
-  const visitorInformationCard = renderVisitorInformationCard();
 
   const expositionItems = useMemo(
     () =>
@@ -844,6 +843,8 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
       </div>
     );
   };
+
+  const visitorInformationCard = renderVisitorInformationCard();
 
   const tabDefinitions = useMemo(
     () =>
