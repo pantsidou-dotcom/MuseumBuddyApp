@@ -1037,153 +1037,158 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
         idPrefix="exposition-filters-sheet"
       />
 
-      <div className="museum-detail-container museum-hero-heading-container">
-        <div className="museum-hero-heading">
-          <nav className="museum-breadcrumbs" aria-label={t('breadcrumbsLabel')}>
-            <Link href="/" className="museum-backlink">
-              <svg
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                aria-hidden="true"
-                width="20"
-                height="20"
-              >
-                <path d="M15 18l-6-6 6-6" />
-              </svg>
-              <span>{t('breadcrumbMuseums')}</span>
-            </Link>
-          </nav>
+      <header className={`museum-detail-hero-section${heroImage ? ' has-hero-image' : ''}`}>
+        <div className="museum-detail-container">
+          <div className="museum-hero-heading-container">
+            <div className="museum-hero-heading">
+              <nav className="museum-breadcrumbs" aria-label={t('breadcrumbsLabel')}>
+                <Link href="/" className="museum-backlink">
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden="true"
+                    width="20"
+                    height="20"
+                  >
+                    <path d="M15 18l-6-6 6-6" />
+                  </svg>
+                  <span>{t('breadcrumbMuseums')}</span>
+                </Link>
+              </nav>
 
-          <div className="museum-hero-text">
-            {locationLabel && <p className="detail-sub museum-hero-location">{locationLabel}</p>}
-            <h1 className="detail-title museum-hero-title">{displayName}</h1>
-            {summary && <p className="detail-sub museum-hero-tagline">{summary}</p>}
+              <div className="museum-hero-text">
+                {locationLabel && <p className="detail-sub museum-hero-location">{locationLabel}</p>}
+                <h1 className="detail-title museum-hero-title">{displayName}</h1>
+                {summary && <p className="detail-sub museum-hero-tagline">{summary}</p>}
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
 
-      {heroImage && (
-        <div className="museum-detail-hero">
-          <Image
-            src={heroImage}
-            alt={displayName}
-            fill
-            className="museum-hero-image"
-            sizes="(max-width: 640px) 100vw, (max-width: 1200px) 90vw, 1200px"
-            priority={isLandingMuseum}
-            loading={isLandingMuseum ? 'eager' : 'lazy'}
-          />
-          {!isPublicDomainImage && hasCreditSegments && (
-            <p className="museum-hero-credit" title={creditFullText || undefined}>
-              {creditSegments.map((segment, index) => (
-                <Fragment key={`hero-credit-${segment.key}-${index}`}>
-                  {index > 0 && (
-                    <span aria-hidden="true" className="image-credit-divider">
-                      •
-                    </span>
-                  )}
-                  {segment.url ? (
+          {heroImage && (
+            <div className="museum-detail-hero">
+              <Image
+                src={heroImage}
+                alt={displayName}
+                fill
+                className="museum-hero-image"
+                sizes="(max-width: 640px) 100vw, (max-width: 1200px) 90vw, 1200px"
+                priority={isLandingMuseum}
+                loading={isLandingMuseum ? 'eager' : 'lazy'}
+              />
+              {!isPublicDomainImage && hasCreditSegments && (
+                <p className="museum-hero-credit" title={creditFullText || undefined}>
+                  {creditSegments.map((segment, index) => (
+                    <Fragment key={`hero-credit-${segment.key}-${index}`}>
+                      {index > 0 && (
+                        <span aria-hidden="true" className="image-credit-divider">
+                          •
+                        </span>
+                      )}
+                      {segment.url ? (
+                        <a
+                          className="image-credit-link"
+                          href={segment.url}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          {segment.label}
+                        </a>
+                      ) : (
+                        <span className="image-credit-part">{segment.label}</span>
+                      )}
+                    </Fragment>
+                  ))}
+                </p>
+              )}
+            </div>
+          )}
+        </div>
+      </header>
+
+      <section className="museum-detail-body">
+        <div className="museum-detail-container">
+          <div className="museum-detail-body-content">
+            <div className="museum-primary-action-bar">
+              <div className="museum-primary-action-group">
+                {hasTicketLink ? (
+                  <div className="museum-primary-action-stack">
                     <a
-                      className="image-credit-link"
-                      href={segment.url}
+                      href={ticketUrl}
                       target="_blank"
-                      rel="noreferrer"
+                      rel={ticketRel}
+                      className="museum-primary-action primary"
+                      aria-describedby={ticketContext ? primaryTicketNoteId : undefined}
+                      onClick={handleTicketLinkClick}
+                      title={ticketHoverMessage}
+                      aria-label={ticketAriaLabel}
+                      data-affiliate={showAffiliateNote ? 'true' : undefined}
                     >
-                      {segment.label}
+                      <span
+                        className={
+                          showAffiliateNote
+                            ? 'ticket-button__label ticket-button__label--stacked'
+                            : 'ticket-button__label'
+                        }
+                      >
+                        <span className="ticket-button__label-text">{t('buyTickets')}</span>
+                        {showAffiliateNote ? (
+                          <span className="ticket-button__badge">
+                            {t('ticketsPartnerBadge')}
+                            <span className="sr-only"> — {t('ticketsAffiliateIntro')}</span>
+                          </span>
+                        ) : null}
+                      </span>
                     </a>
-                  ) : (
-                    <span className="image-credit-part">{segment.label}</span>
-                  )}
-                </Fragment>
-              ))}
-            </p>
-          )}
-        </div>
-      )}
+                    {ticketContext ? (
+                      <TicketButtonNote
+                        affiliate={showAffiliateNote}
+                        showIcon={false}
+                        id={primaryTicketNoteId}
+                        className="museum-primary-action__note"
+                      >
+                        {createTicketNote('primary-ticket-note')}
+                      </TicketButtonNote>
+                    ) : null}
+                  </div>
+                ) : (
+                  <div className="museum-primary-action-stack">
+                    <button
+                      type="button"
+                      className="museum-primary-action primary"
+                      disabled
+                      aria-disabled="true"
+                    >
+                      <span className="ticket-button__label">
+                        <span className="ticket-button__label-text">{t('buyTickets')}</span>
+                      </span>
+                    </button>
+                  </div>
+                )}
 
-      <div className="museum-detail-container">
+                {hasWebsite && (
+                  <a
+                    href={resolvedMuseum.websiteUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="museum-primary-action secondary"
+                    onClick={handleWebsiteLinkClick}
+                  >
+                    <span>{t('website')}</span>
+                  </a>
+                )}
+              </div>
 
-        <div className="museum-primary-action-bar">
-        <div className="museum-primary-action-group">
-          {hasTicketLink ? (
-            <div className="museum-primary-action-stack">
-              <a
-                href={ticketUrl}
-                target="_blank"
-                rel={ticketRel}
-                className="museum-primary-action primary"
-                aria-describedby={ticketContext ? primaryTicketNoteId : undefined}
-                onClick={handleTicketLinkClick}
-                title={ticketHoverMessage}
-                aria-label={ticketAriaLabel}
-                data-affiliate={showAffiliateNote ? 'true' : undefined}
-              >
-                <span
-                  className={
-                    showAffiliateNote
-                      ? 'ticket-button__label ticket-button__label--stacked'
-                      : 'ticket-button__label'
-                  }
-                >
-                  <span className="ticket-button__label-text">{t('buyTickets')}</span>
-                  {showAffiliateNote ? (
-                    <span className="ticket-button__badge">
-                      {t('ticketsPartnerBadge')}
-                      <span className="sr-only"> — {t('ticketsAffiliateIntro')}</span>
-                    </span>
-                  ) : null}
-                </span>
-              </a>
-              {ticketContext ? (
-                <TicketButtonNote
-                  affiliate={showAffiliateNote}
-                  showIcon={false}
-                  id={primaryTicketNoteId}
-                  className="museum-primary-action__note"
-                >
-                  {createTicketNote('primary-ticket-note')}
-                </TicketButtonNote>
-              ) : null}
+              <div className="museum-primary-action-utility">
+                <ShareButton onShare={handleShare} label={t('share')} />
+                <FavoriteButton active={isFavorite} onToggle={handleFavorite} label={t('save')} />
+              </div>
             </div>
-          ) : (
-            <div className="museum-primary-action-stack">
-              <button
-                type="button"
-                className="museum-primary-action primary"
-                disabled
-                aria-disabled="true"
-              >
-                <span className="ticket-button__label">
-                  <span className="ticket-button__label-text">{t('buyTickets')}</span>
-                </span>
-              </button>
-            </div>
-          )}
 
-          {hasWebsite && (
-            <a
-              href={resolvedMuseum.websiteUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="museum-primary-action secondary"
-              onClick={handleWebsiteLinkClick}
-            >
-              <span>{t('website')}</span>
-            </a>
-          )}
-        </div>
-
-          <div className="museum-primary-action-utility">
-            <ShareButton onShare={handleShare} label={t('share')} />
-            <FavoriteButton active={isFavorite} onToggle={handleFavorite} label={t('save')} />
-          </div>
-        </div>
-
-        <div className="museum-detail-grid">
+            <div className="museum-detail-grid">
           <div className="museum-detail-main">
             <div className="museum-tablist" role="tablist" aria-label={t('museumTabsLabel')}>
               {tabDefinitions.map((tab, index) => {
@@ -1504,6 +1509,9 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
           </aside>
         </div>
       </div>
+    </div>
+  </div>
+      </section>
 
       {hasMobilePrimaryActions ? (
         <div className={`museum-mobile-actions${mobileActionsOpen ? ' is-open' : ''}`}>
