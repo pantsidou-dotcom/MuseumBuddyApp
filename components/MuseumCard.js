@@ -191,22 +191,6 @@ export default function MuseumCard({ museum, priority = false }) {
             aria-describedby={showAffiliateNote ? ticketNoteId : undefined}
             data-affiliate={showAffiliateNote ? 'true' : undefined}
           >
-            <span className="ticket-button__icon" aria-hidden="true">
-              <svg
-                viewBox="0 0 24 24"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M4.5 7.75a1.75 1.75 0 0 1 1.75-1.75h4.5v2a1.75 1.75 0 1 0 0 3.5v2h-4.5A1.75 1.75 0 0 1 4.5 11.75v-4Z"
-                  fill="currentColor"
-                />
-                <path
-                  d="M13.25 16.25v-2a1.75 1.75 0 1 0 0-3.5v-2h4.5a1.75 1.75 0 0 1 1.75 1.75v4a1.75 1.75 0 0 1-1.75 1.75h-4.5Z"
-                  fill="currentColor"
-                />
-              </svg>
-            </span>
             <span className={labelClassName}>
               <span className="ticket-button__label-text">{t('buyTickets')}</span>
               {partnerBadge}
@@ -218,22 +202,6 @@ export default function MuseumCard({ museum, priority = false }) {
 
     return (
       <button type="button" className={classNames} disabled aria-disabled="true">
-        <span className="ticket-button__icon" aria-hidden="true">
-          <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M4.5 7.75a1.75 1.75 0 0 1 1.75-1.75h4.5v2a1.75 1.75 0 1 0 0 3.5v2h-4.5A1.75 1.75 0 0 1 4.5 11.75v-4Z"
-              fill="currentColor"
-            />
-            <path
-              d="M13.25 16.25v-2a1.75 1.75 0 1 0 0-3.5v-2h4.5a1.75 1.75 0 0 1 1.75 1.75v4a1.75 1.75 0 0 1-1.75 1.75h-4.5Z"
-              fill="currentColor"
-            />
-          </svg>
-        </span>
         <span className="ticket-button__label">
           <span className="ticket-button__label-text">{t('buyTickets')}</span>
         </span>
