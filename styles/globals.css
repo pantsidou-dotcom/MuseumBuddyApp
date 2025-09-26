@@ -2375,15 +2375,18 @@ button.hero-quick-link {
 
 .ticket-button__label--stacked {
   flex-direction: column;
-  gap: 4px;
+  gap: 2px;
+  align-items: center;
 }
 
 .ticket-button__label--stacked .ticket-button__label-text {
   display: block;
+  transform: translateY(1px);
 }
 
 .ticket-button__label--stacked .ticket-button__badge {
-  margin-top: 2px;
+  margin-top: 0;
+  transform: translateY(-1px);
 }
 
 .ticket-button__label-text {
