@@ -141,11 +141,14 @@ export default function ExpositionCard({ exposition, ticketUrl, affiliateUrl, mu
   const ticketHoverMessage = showAffiliateNote ? t('ticketsAffiliateDisclosure') : undefined;
   const ticketContext = showAffiliateNote
     ? [
-        <span key="partner" className="ticket-button__note-line">
-          {t('ticketsViaPartner')}
+        <span key="intro" className="ticket-button__note-line">
+          {t('ticketsAffiliateIntro')}
         </span>,
         <span key="disclosure" className="ticket-button__note-line ticket-button__note-disclosure">
           {t('ticketsAffiliateDisclosure')}
+        </span>,
+        <span key="prices" className="ticket-button__note-line ticket-button__note-disclosure">
+          {t('ticketsAffiliatePricesMayVary')}
         </span>,
       ]
     : null;
@@ -306,6 +309,16 @@ export default function ExpositionCard({ exposition, ticketUrl, affiliateUrl, mu
             ))}
           </ul>
         )}
+        {ticketContext ? (
+          <TicketButtonNote
+            affiliate={showAffiliateNote}
+            showIcon={false}
+            id={ticketNoteId}
+            className="exposition-card__affiliate-note"
+          >
+            {ticketContext}
+          </TicketButtonNote>
+        ) : null}
       </div>
       <div className="exposition-card__footer">
         {buyUrl ? (
@@ -332,24 +345,22 @@ export default function ExpositionCard({ exposition, ticketUrl, affiliateUrl, mu
                   />
                 </svg>
               </span>
-              <span className="ticket-button__label-text">{t('buyTickets')}</span>
-              {showAffiliateNote ? (
-                <span className="ticket-button__badge">
-                  {t('ticketsPartnerBadge')}
-                  <span className="sr-only"> — {t('ticketsViaPartner')}</span>
-                </span>
-              ) : null}
-            </a>
-            {ticketContext ? (
-              <TicketButtonNote
-                affiliate={showAffiliateNote}
-                showIcon={false}
-                id={ticketNoteId}
-                className="ticket-button__overlay-note"
+              <span
+                className={
+                  showAffiliateNote
+                    ? 'ticket-button__label ticket-button__label--stacked'
+                    : 'ticket-button__label'
+                }
               >
-                {ticketContext}
-              </TicketButtonNote>
-            ) : null}
+                <span className="ticket-button__label-text">{t('buyTickets')}</span>
+                {showAffiliateNote ? (
+                  <span className="ticket-button__badge">
+                    {t('ticketsPartnerBadge')}
+                    <span className="sr-only"> — {t('ticketsAffiliateIntro')}</span>
+                  </span>
+                ) : null}
+              </span>
+            </a>
           </Fragment>
         ) : (
           <button
@@ -358,6 +369,18 @@ export default function ExpositionCard({ exposition, ticketUrl, affiliateUrl, mu
             disabled
             aria-disabled="true"
           >
+            <span className="ticket-button__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path
+                  d="M4.5 7.75a1.75 1.75 0 0 1 1.75-1.75h4.5v2a1.75 1.75 0 1 0 0 3.5v2h-4.5A1.75 1.75 0 0 1 4.5 11.75v-4Z"
+                  fill="currentColor"
+                />
+                <path
+                  d="M13.25 16.25v-2a1.75 1.75 0 1 0 0-3.5v-2h4.5a1.75 1.75 0 0 1 1.75 1.75v4a1.75 1.75 0 0 1-1.75 1.75h-4.5Z"
+                  fill="currentColor"
+                />
+              </svg>
+            </span>
             <span className="ticket-button__label">
               <span className="ticket-button__label-text">{t('buyTickets')}</span>
             </span>

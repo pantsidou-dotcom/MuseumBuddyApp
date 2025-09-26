@@ -19,16 +19,32 @@ assert(
   'Dutch affiliate hover copy missing'
 );
 assert(
-  /ticketsAffiliateDisclosure:\s*'Partner link — MuseumBuddy may receive a commission when you buy via this link.'/.test(
+  /ticketsAffiliateIntro:\s*'You buy tickets via an affiliate partner.'/.test(translationsContent),
+  'English affiliate intro copy missing'
+);
+assert(
+  /ticketsAffiliateIntro:\s*'Je koopt tickets via een affiliate partner.'/.test(translationsContent),
+  'Dutch affiliate intro copy missing'
+);
+assert(
+  /ticketsAffiliateDisclosure:\s*'MuseumBuddy may receive a commission when you buy via this link.'/.test(
     translationsContent
   ),
   'English affiliate disclosure copy missing'
 );
 assert(
-  /ticketsAffiliateDisclosure:\s*'Partnerlink — MuseumBuddy ontvangt mogelijk commissie bij aankoop via deze link.'/.test(
+  /ticketsAffiliateDisclosure:\s*'MuseumBuddy ontvangt mogelijk commissie bij aankoop via deze link.'/.test(
     translationsContent
   ),
   'Dutch affiliate disclosure copy missing'
+);
+assert(
+  /ticketsAffiliatePricesMayVary:\s*'Prices may vary.'/.test(translationsContent),
+  'English affiliate price disclaimer missing'
+);
+assert(
+  /ticketsAffiliatePricesMayVary:\s*'Prijzen kunnen afwijken.'/.test(translationsContent),
+  'Dutch affiliate price disclaimer missing'
 );
 assert(/ticketsPartnerBadge:\s*'Partner'/.test(translationsContent), 'English partner badge copy missing');
 assert(/ticketsPartnerBadge:\s*'Partner'/.test(translationsContent), 'Dutch partner badge copy missing');

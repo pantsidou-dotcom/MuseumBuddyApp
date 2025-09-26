@@ -369,8 +369,9 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
   const ticketHoverMessage = showAffiliateNote ? t('ticketsAffiliateDisclosure') : undefined;
   const ticketNoteDefinitions = showAffiliateNote
     ? [
-        { key: 'partner', message: t('ticketsViaPartner'), disclosure: false },
+        { key: 'intro', message: t('ticketsAffiliateIntro'), disclosure: false },
         { key: 'disclosure', message: t('ticketsAffiliateDisclosure'), disclosure: true },
+        { key: 'prices', message: t('ticketsAffiliatePricesMayVary'), disclosure: true },
       ]
     : [];
 
@@ -1131,13 +1132,21 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
                     />
                   </svg>
                 </span>
-                <span className="ticket-button__label-text">{t('buyTickets')}</span>
-                {showAffiliateNote ? (
-                  <span className="ticket-button__badge">
-                    {t('ticketsPartnerBadge')}
-                    <span className="sr-only"> — {t('ticketsViaPartner')}</span>
-                  </span>
-                ) : null}
+                <span
+                  className={
+                    showAffiliateNote
+                      ? 'ticket-button__label ticket-button__label--stacked'
+                      : 'ticket-button__label'
+                  }
+                >
+                  <span className="ticket-button__label-text">{t('buyTickets')}</span>
+                  {showAffiliateNote ? (
+                    <span className="ticket-button__badge">
+                      {t('ticketsPartnerBadge')}
+                      <span className="sr-only"> — {t('ticketsAffiliateIntro')}</span>
+                    </span>
+                  ) : null}
+                </span>
               </a>
               {ticketContext ? (
                 <TicketButtonNote
@@ -1170,7 +1179,9 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
                     />
                   </svg>
                 </span>
-                <span className="ticket-button__label-text">{t('buyTickets')}</span>
+                <span className="ticket-button__label">
+                  <span className="ticket-button__label-text">{t('buyTickets')}</span>
+                </span>
               </button>
             </div>
           )}
@@ -1605,13 +1616,21 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
                           />
                         </svg>
                       </span>
-                      <span className="ticket-button__label-text">{t('buyTickets')}</span>
-                      {showAffiliateNote ? (
-                        <span className="ticket-button__badge">
-                          {t('ticketsPartnerBadge')}
-                          <span className="sr-only"> — {t('ticketsViaPartner')}</span>
-                        </span>
-                      ) : null}
+                      <span
+                        className={
+                          showAffiliateNote
+                            ? 'ticket-button__label ticket-button__label--stacked'
+                            : 'ticket-button__label'
+                        }
+                      >
+                        <span className="ticket-button__label-text">{t('buyTickets')}</span>
+                        {showAffiliateNote ? (
+                          <span className="ticket-button__badge">
+                            {t('ticketsPartnerBadge')}
+                            <span className="sr-only"> — {t('ticketsAffiliateIntro')}</span>
+                          </span>
+                        ) : null}
+                      </span>
                     </button>
                     {ticketContext ? (
                       <TicketButtonNote

@@ -2370,6 +2370,20 @@ button.hero-quick-link {
   justify-content: center;
   gap: 6px;
   line-height: 1.1;
+  text-align: center;
+}
+
+.ticket-button__label--stacked {
+  flex-direction: column;
+  gap: 4px;
+}
+
+.ticket-button__label--stacked .ticket-button__label-text {
+  display: block;
+}
+
+.ticket-button__label--stacked .ticket-button__badge {
+  margin-top: 2px;
 }
 
 .ticket-button__label-text {
@@ -2396,22 +2410,31 @@ button.hero-quick-link {
 .ticket-button__badge {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 4px;
-  padding: 4px 8px;
+  padding: 2px 8px;
   border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.8);
-  background: rgba(255, 255, 255, 0.96);
-  color: #1f2937;
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  background: rgba(255, 255, 255, 0.18);
+  color: var(--accent-ink);
   font-size: 0.625rem;
-  font-weight: 700;
+  font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  line-height: 1;
+  line-height: 1.1;
+}
+
+@media (prefers-color-scheme: dark) {
+  .ticket-button__badge {
+    border-color: rgba(148, 163, 184, 0.45);
+    background: rgba(148, 163, 184, 0.22);
+    color: rgba(226, 232, 240, 0.92);
+  }
 }
 
 [data-theme='dark'] .ticket-button__badge {
-  background: rgba(15, 23, 42, 0.9);
-  border-color: rgba(148, 163, 184, 0.5);
+  border-color: rgba(148, 163, 184, 0.45);
+  background: rgba(148, 163, 184, 0.22);
   color: rgba(226, 232, 240, 0.92);
 }
 .ticket-button__note {
@@ -2421,10 +2444,20 @@ button.hero-quick-link {
   width: 100%;
   font-size: 0.6875rem;
   font-weight: 500;
-  line-height: 1.35;
-  color: var(--muted);
+  line-height: 1.45;
+  color: rgba(71, 85, 105, 0.95);
   text-align: left;
   max-width: 100%;
+}
+
+@media (prefers-color-scheme: dark) {
+  .ticket-button__note {
+    color: rgba(226, 232, 240, 0.88);
+  }
+}
+
+[data-theme='dark'] .ticket-button__note {
+  color: rgba(226, 232, 240, 0.88);
 }
 
 .ticket-button__note--partner {
@@ -2439,12 +2472,12 @@ button.hero-quick-link {
 }
 
 .ticket-button__note-line {
-  display: inline;
+  display: block;
   color: inherit;
 }
 
 .ticket-button__note-disclosure {
-  opacity: 0.85;
+  opacity: 0.88;
 }
 
 .ticket-button__note-icon {
@@ -2455,30 +2488,12 @@ button.hero-quick-link {
   margin-top: 1px;
 }
 
-.ticket-button__overlay-note {
-  padding: 6px 10px;
-  border-radius: 0.75rem;
-  background: rgba(255, 255, 255, 0.9);
-  box-shadow: 0 12px 26px rgba(15, 23, 42, 0.18);
-  backdrop-filter: blur(8px);
+.museum-card__affiliate-note {
+  margin-top: 12px;
 }
 
-.ticket-button__overlay-note .ticket-button__note-text {
-  gap: 3px;
-}
-
-@media (prefers-color-scheme: dark) {
-  .ticket-button__overlay-note {
-    background: rgba(15, 23, 42, 0.92);
-    color: rgba(226, 232, 240, 0.92);
-    box-shadow: 0 14px 30px rgba(2, 6, 23, 0.55);
-  }
-}
-
-[data-theme='dark'] .ticket-button__overlay-note {
-  background: rgba(15, 23, 42, 0.92);
-  color: rgba(226, 232, 240, 0.92);
-  box-shadow: 0 14px 30px rgba(2, 6, 23, 0.55);
+.exposition-card__affiliate-note {
+  margin-top: 12px;
 }
 
 .ticket-button__affiliate-info-group {
