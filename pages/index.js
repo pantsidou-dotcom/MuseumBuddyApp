@@ -10,6 +10,7 @@ import { useLanguage } from '../components/LanguageContext';
 import { supabase as supabaseClient } from '../lib/supabase';
 import SEO from '../components/SEO';
 import FiltersSheet from '../components/FiltersSheet';
+import HomeHeroHighlights from '../components/HomeHeroHighlights';
 
 const FEATURED_SLUGS = [
   'van-gogh-museum-amsterdam',
@@ -117,6 +118,12 @@ export default function Home({ initialMuseums = [], initialError = null }) {
   const [sheetFilters, setSheetFilters] = useState(filtersFromUrl);
   const [isLoading, setIsLoading] = useState(false);
   const skipNextUrlSync = useRef(false);
+
+  const highlightMuseums = useMemo(() => {
+    const sourceMuseums = initialMuseumsSorted.length > 0 ? initialMuseumsSorted : results;
+    const museumMap = new Map(sourceMuseums.map((museum) => [museum.slug, museum]));
+    return FEATURED_SLUGS.map((slug) => museumMap.get(slug)).filter(Boolean).slice(0, 3);
+  }, [initialMuseumsSorted, results]);
 
   useEffect(() => {
     if (!router.isReady) return;
@@ -409,56 +416,61 @@ export default function Home({ initialMuseums = [], initialError = null }) {
         }}
       />
       <section className="hero">
-        <div className="hero-content">
-          <span className="hero-tagline">{t('heroTagline')}</span>
-          <h1 className="hero-title">{t('heroTitle')}</h1>
-          <p className="hero-subtext">{t('heroSubtitle')}</p>
-        </div>
-        <form className="hero-card hero-search" onSubmit={(e) => e.preventDefault()}>
-          <input
-            type="search"
-            className="input hero-input"
-            placeholder={t('searchPlaceholder')}
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            aria-label={t('searchPlaceholder')}
-          />
-          <div className="hero-actions">
-            <button
-              type="button"
-              className="hero-quick-link hero-quick-link--ghost hero-quick-link--filters"
-              onClick={() => setFiltersSheetOpen(true)}
-            >
-              <svg
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                aria-hidden="true"
-              >
-                <path d="M4 4h16" />
-                <path d="M7 12h10" />
-                <path d="M10 20h4" />
-              </svg>
-              <span>{t('filtersButton')}</span>
-            </button>
-            <button
-              type="button"
-              className="hero-quick-link hero-quick-link--primary"
-              onClick={handleQuickShowExhibitions}
-              aria-pressed={activeFilters.exhibitions}
-            >
-              {t('exhibitions')}
-            </button>
-            {(query || activeFilters.free || activeFilters.exhibitions) && (
-              <a href="/" className="hero-quick-link hero-quick-link--ghost">
-                {t('reset')}
-              </a>
-            )}
+        <div className="hero-layout">
+          <div className="hero-content">
+            <span className="hero-tagline">{t('heroTagline')}</span>
+            <h1 className="hero-title">{t('heroTitle')}</h1>
+            <p className="hero-subtext">{t('heroSubtitle')}</p>
           </div>
-        </form>
+          <div className="hero-utilities">
+            <form className="hero-card hero-search" onSubmit={(e) => e.preventDefault()}>
+              <input
+                type="search"
+                className="input hero-input"
+                placeholder={t('searchPlaceholder')}
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                aria-label={t('searchPlaceholder')}
+              />
+              <div className="hero-actions">
+                <button
+                  type="button"
+                  className="hero-quick-link hero-quick-link--ghost hero-quick-link--filters"
+                  onClick={() => setFiltersSheetOpen(true)}
+                >
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden="true"
+                  >
+                    <path d="M4 4h16" />
+                    <path d="M7 12h10" />
+                    <path d="M10 20h4" />
+                  </svg>
+                  <span>{t('filtersButton')}</span>
+                </button>
+                <button
+                  type="button"
+                  className="hero-quick-link hero-quick-link--primary"
+                  onClick={handleQuickShowExhibitions}
+                  aria-pressed={activeFilters.exhibitions}
+                >
+                  {t('exhibitions')}
+                </button>
+                {(query || activeFilters.free || activeFilters.exhibitions) && (
+                  <a href="/" className="hero-quick-link hero-quick-link--ghost">
+                    {t('reset')}
+                  </a>
+                )}
+              </div>
+            </form>
+            <HomeHeroHighlights museums={highlightMuseums} />
+          </div>
+        </div>
       </section>
 
       <p className="count">{results.length} {t('results')}</p>
