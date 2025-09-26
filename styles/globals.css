@@ -753,6 +753,16 @@ button.header-link {
     border: 1px solid color-mix(in srgb, var(--panel-border) 75%, transparent);
     box-shadow: none;
   }
+
+  .lang-select {
+    gap: 0;
+    font-size: 0.8rem;
+    font-weight: 700;
+  }
+
+  .lang-select svg {
+    display: none;
+  }
 }
 
 @media (max-width: 480px) {
