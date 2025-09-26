@@ -62,16 +62,16 @@ export default function MuseumCard({ museum, priority = false }) {
   const showAffiliateNote = Boolean(museum.ticketUrl) && shouldShowAffiliateNote(museum.slug);
   const ticketNoteId = useId();
   const ticketHoverMessage = showAffiliateNote ? t('ticketsAffiliateDisclosure') : undefined;
+  const ticketDisclosureLine = [t('ticketsAffiliateDisclosure'), t('ticketsAffiliatePricesMayVary')]
+    .filter(Boolean)
+    .join(' ');
   const ticketContext = showAffiliateNote
     ? [
         <span key="intro" className="ticket-button__note-line">
           {t('ticketsAffiliateIntro')}
         </span>,
-        <span key="disclosure" className="ticket-button__note-line ticket-button__note-disclosure">
-          {t('ticketsAffiliateDisclosure')}
-        </span>,
-        <span key="prices" className="ticket-button__note-line ticket-button__note-disclosure">
-          {t('ticketsAffiliatePricesMayVary')}
+        <span key="details" className="ticket-button__note-line ticket-button__note-disclosure">
+          {ticketDisclosureLine}
         </span>,
       ]
     : null;

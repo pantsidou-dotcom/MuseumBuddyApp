@@ -367,11 +367,13 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
   const ticketUrl = affiliateTicketUrl || directTicketUrl;
   const showAffiliateNote = Boolean(affiliateTicketUrl) && shouldShowAffiliateNote(slug);
   const ticketHoverMessage = showAffiliateNote ? t('ticketsAffiliateDisclosure') : undefined;
+  const ticketDetailsLine = [t('ticketsAffiliateDisclosure'), t('ticketsAffiliatePricesMayVary')]
+    .filter(Boolean)
+    .join(' ');
   const ticketNoteDefinitions = showAffiliateNote
     ? [
         { key: 'intro', message: t('ticketsAffiliateIntro'), disclosure: false },
-        { key: 'disclosure', message: t('ticketsAffiliateDisclosure'), disclosure: true },
-        { key: 'prices', message: t('ticketsAffiliatePricesMayVary'), disclosure: true },
+        { key: 'details', message: ticketDetailsLine, disclosure: true },
       ]
     : [];
 
