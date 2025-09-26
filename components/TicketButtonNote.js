@@ -2,12 +2,15 @@ import { Children, cloneElement, isValidElement } from 'react';
 
 export default function TicketButtonNote({
   affiliate = false,
-  showIcon = true,
+  showIcon,
   children,
   id,
+  className = '',
 }) {
-  const shouldShowIcon = affiliate || showIcon;
-  const noteClassName = `ticket-button__note${affiliate ? ' ticket-button__note--partner' : ''}`;
+  const shouldShowIcon = typeof showIcon === 'boolean' ? showIcon : affiliate;
+  const noteClassName = ['ticket-button__note', affiliate ? 'ticket-button__note--partner' : '', className]
+    .filter(Boolean)
+    .join(' ');
 
   const childArray = Children.toArray(children).filter(
     (child) => child !== null && child !== undefined && child !== false
