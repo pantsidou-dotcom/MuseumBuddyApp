@@ -367,8 +367,30 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
   const directTicketUrl = resolvedMuseum.ticketUrl || resolvedMuseum.websiteUrl || null;
   const ticketUrl = affiliateTicketUrl || directTicketUrl;
   const showAffiliateNote = Boolean(affiliateTicketUrl) && shouldShowAffiliateNote(slug);
-  const ticketContext = t(showAffiliateNote ? 'ticketsViaPartner' : 'ticketsViaOfficialSite');
-  const ticketHoverMessage = showAffiliateNote ? t('ticketsAffiliateHover') : undefined;
+  const ticketHoverMessage = showAffiliateNote ? t('ticketsAffiliateDisclosure') : undefined;
+  const ticketNoteDefinitions = showAffiliateNote
+    ? [
+        { key: 'partner', message: t('ticketsViaPartner'), disclosure: false },
+        { key: 'disclosure', message: t('ticketsAffiliateDisclosure'), disclosure: true },
+      ]
+    : [{ key: 'official', message: t('ticketsViaOfficialSite'), disclosure: false }];
+
+  const createTicketNote = (prefix) => {
+    if (!ticketNoteDefinitions.length) {
+      return null;
+    }
+
+    return ticketNoteDefinitions.map((definition, index) => (
+      <span
+        key={`${prefix}-${definition.key ?? index}`}
+        className={`ticket-button__note-line${definition.disclosure ? ' ticket-button__note-disclosure' : ''}`}
+      >
+        {definition.message}
+      </span>
+    ));
+  };
+
+  const ticketContext = createTicketNote('ticket-context');
   const primaryTicketNoteId = useId();
   const overviewTicketNoteId = useId();
   const mobileTicketNoteId = useId();
@@ -1102,7 +1124,7 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
                   affiliate={showAffiliateNote}
                   id={primaryTicketNoteId}
                 >
-                  {ticketContext}
+                  {createTicketNote('primary-ticket-note')}
                 </TicketButtonNote>
               ) : null}
             </a>
@@ -1545,7 +1567,7 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
                         affiliate={showAffiliateNote}
                         id={mobileTicketNoteId}
                       >
-                        {ticketContext}
+                        {createTicketNote('mobile-ticket-note')}
                       </TicketButtonNote>
                     ) : null}
                   </button>

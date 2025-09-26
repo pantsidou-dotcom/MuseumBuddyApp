@@ -61,8 +61,21 @@ export default function MuseumCard({ museum, priority = false }) {
   const hours = museumOpeningHours[museum.slug]?.[lang];
   const locationText = [museum.city, museum.province].filter(Boolean).join(', ');
   const showAffiliateNote = Boolean(museum.ticketUrl) && shouldShowAffiliateNote(museum.slug);
-  const ticketContext = t(showAffiliateNote ? 'ticketsViaPartner' : 'ticketsViaOfficialSite');
-  const ticketHoverMessage = showAffiliateNote ? t('ticketsAffiliateHover') : undefined;
+  const ticketHoverMessage = showAffiliateNote ? t('ticketsAffiliateDisclosure') : undefined;
+  const ticketContext = showAffiliateNote
+    ? [
+        <span key="partner" className="ticket-button__note-line">
+          {t('ticketsViaPartner')}
+        </span>,
+        <span key="disclosure" className="ticket-button__note-line ticket-button__note-disclosure">
+          {t('ticketsAffiliateDisclosure')}
+        </span>,
+      ]
+    : [
+        <span key="official" className="ticket-button__note-line">
+          {t('ticketsViaOfficialSite')}
+        </span>,
+      ];
 
   const imageCredit = museum.imageCredit;
   const isPublicDomainImage = Boolean(imageCredit?.isPublicDomain);

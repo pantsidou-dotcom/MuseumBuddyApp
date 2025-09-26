@@ -2364,7 +2364,7 @@ button.hero-quick-link {
   font-size: 0.75rem;
   font-weight: 500;
   line-height: 1.3;
-  color: rgba(255, 255, 255, 0.9);
+  color: var(--accent-ink);
   opacity: 1;
   text-align: center;
   max-width: 100%;
@@ -2379,6 +2379,37 @@ button.hero-quick-link {
 .ticket-button__note-text {
   display: inline;
   white-space: normal;
+}
+
+.ticket-button__note-line {
+  display: block;
+  width: 100%;
+  color: inherit;
+}
+
+.ticket-button__note-disclosure {
+  display: block;
+  width: 100%;
+  color: inherit;
+  opacity: 0.9;
+}
+
+@media (prefers-color-scheme: dark) {
+  .ticket-button__note {
+    color: var(--accent-ink);
+  }
+
+  .ticket-button__note-disclosure {
+    opacity: 0.92;
+  }
+}
+
+[data-theme='dark'] .ticket-button__note {
+  color: var(--accent-ink);
+}
+
+[data-theme='dark'] .ticket-button__note-disclosure {
+  opacity: 0.92;
 }
 
 .ticket-button__note-icon {

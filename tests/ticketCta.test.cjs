@@ -18,6 +18,18 @@ assert(
   ),
   'Dutch affiliate hover copy missing'
 );
+assert(
+  /ticketsAffiliateDisclosure:\s*'Partner link — MuseumBuddy may receive a commission when you buy via this link.'/.test(
+    translationsContent
+  ),
+  'English affiliate disclosure copy missing'
+);
+assert(
+  /ticketsAffiliateDisclosure:\s*'Partnerlink — MuseumBuddy ontvangt mogelijk commissie bij aankoop via deze link.'/.test(
+    translationsContent
+  ),
+  'Dutch affiliate disclosure copy missing'
+);
 
 const files = [
   'components/MuseumCard.js',

@@ -139,8 +139,21 @@ export default function ExpositionCard({ exposition, ticketUrl, affiliateUrl, mu
   const sourceUrl = exposition.bron_url || null;
   const buyUrl = primaryAffiliateUrl || fallbackTicketUrl || sourceUrl;
   const showAffiliateNote = Boolean(primaryAffiliateUrl) && (!slug || shouldShowAffiliateNote(slug));
-  const ticketContext = t(showAffiliateNote ? 'ticketsViaPartner' : 'ticketsViaOfficialSite');
-  const ticketHoverMessage = showAffiliateNote ? t('ticketsAffiliateHover') : undefined;
+  const ticketHoverMessage = showAffiliateNote ? t('ticketsAffiliateDisclosure') : undefined;
+  const ticketContext = showAffiliateNote
+    ? [
+        <span key="partner" className="ticket-button__note-line">
+          {t('ticketsViaPartner')}
+        </span>,
+        <span key="disclosure" className="ticket-button__note-line ticket-button__note-disclosure">
+          {t('ticketsAffiliateDisclosure')}
+        </span>,
+      ]
+    : [
+        <span key="official" className="ticket-button__note-line">
+          {t('ticketsViaOfficialSite')}
+        </span>,
+      ];
   const ticketNoteId = useId();
   const ctaDescribedBy = ticketContext ? ticketNoteId : undefined;
 
