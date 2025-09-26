@@ -2390,23 +2390,6 @@ button.hero-quick-link {
   display: inline;
 }
 
-.ticket-button__icon {
-  width: 20px;
-  height: 20px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 0.75rem;
-  background: rgba(255, 255, 255, 0.18);
-  color: inherit;
-  flex-shrink: 0;
-}
-
-.ticket-button__icon svg {
-  width: 14px;
-  height: 14px;
-}
-
 .ticket-button__badge {
   display: inline-flex;
   align-items: center;
