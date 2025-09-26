@@ -7,6 +7,7 @@ import museumNames from '../lib/museumNames';
 import museumImageCredits from '../lib/museumImageCredits';
 import museumTicketUrls from '../lib/museumTicketUrls';
 import { useLanguage } from '../components/LanguageContext';
+import HomeValueProps from '../components/HomeValueProps';
 import { supabase as supabaseClient } from '../lib/supabase';
 import SEO from '../components/SEO';
 import FiltersSheet from '../components/FiltersSheet';
@@ -90,6 +91,15 @@ function parseBooleanParam(value) {
 export default function Home({ initialMuseums = [], initialError = null }) {
   const { t } = useLanguage();
   const router = useRouter();
+
+  const partnerLogos = useMemo(
+    () => [
+      { label: t('homePartnerIamsterdam') },
+      { label: t('homePartnerMuseumkaart') },
+      { label: t('homePartnerVisitHolland') },
+    ],
+    [t]
+  );
 
   const qFromUrl = useMemo(() => {
     const q = router.query?.q;
@@ -460,6 +470,8 @@ export default function Home({ initialMuseums = [], initialError = null }) {
           </div>
         </form>
       </section>
+
+      <HomeValueProps partnerLogos={partnerLogos} />
 
       <p className="count">{results.length} {t('results')}</p>
 
