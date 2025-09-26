@@ -736,6 +736,98 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
     return links;
   }, [resolvedMuseum.instagram, resolvedMuseum.facebook, resolvedMuseum.twitter]);
 
+  const hasVisitorInformation =
+    Boolean(openingHours) ||
+    locationLines.length > 0 ||
+    resolvedMuseum.free ||
+    resolvedMuseum.phone ||
+    resolvedMuseum.email ||
+    socialLinks.length > 0;
+
+  const renderVisitorInformationCard = (variant = 'sidebar') => {
+    if (!hasVisitorInformation) {
+      return null;
+    }
+
+    const cardClassName = [
+      'museum-sidebar-card',
+      'support-card',
+      'museum-visitor-card',
+      variant === 'hero' ? 'museum-visitor-card--hero' : 'museum-visitor-card--sidebar',
+    ]
+      .filter(Boolean)
+      .join(' ');
+
+    return (
+      <div className={cardClassName}>
+        <h2 className="museum-sidebar-title">{t('visitorInformation')}</h2>
+
+        <div className="museum-info-details">
+          {openingHours && (
+            <div className="museum-info-item">
+              <span className="museum-info-label">{t('openingHours')}</span>
+              <p className="museum-info-value">{openingHours}</p>
+            </div>
+          )}
+
+          {locationLines.length > 0 && (
+            <div className="museum-info-item">
+              <span className="museum-info-label">{t('location')}</span>
+              <p className="museum-info-value">
+                {locationLines.map((line, index) => (
+                  <span key={line}>
+                    {line}
+                    {index < locationLines.length - 1 && <br />}
+                  </span>
+                ))}
+              </p>
+            </div>
+          )}
+
+          {resolvedMuseum.free && (
+            <div className="museum-info-item">
+              <span className="museum-info-label">{t('visitorInformation')}</span>
+              <p className="museum-info-value">{t('free')}</p>
+            </div>
+          )}
+
+          {resolvedMuseum.phone && (
+            <div className="museum-info-item">
+              <span className="museum-info-label">{t('phone')}</span>
+              <p className="museum-info-value">
+                <a href={`tel:${resolvedMuseum.phone}`}>{resolvedMuseum.phone}</a>
+              </p>
+            </div>
+          )}
+
+          {resolvedMuseum.email && (
+            <div className="museum-info-item">
+              <span className="museum-info-label">{t('email')}</span>
+              <p className="museum-info-value">
+                <a href={`mailto:${resolvedMuseum.email}`}>{resolvedMuseum.email}</a>
+              </p>
+            </div>
+          )}
+
+          {socialLinks.length > 0 && (
+            <div className="museum-info-item">
+              <span className="museum-info-label">{t('social')}</span>
+              <p className="museum-info-value">
+                {socialLinks.map((item) => (
+                  <span key={item.url} style={{ display: 'block' }}>
+                    <a href={item.url} target="_blank" rel="noreferrer">
+                      {item.value}
+                    </a>
+                  </span>
+                ))}
+              </p>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
+
   const tabDefinitions = useMemo(
     () =>
       TAB_IDS.map((id) => ({
@@ -1058,52 +1150,67 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
             </Link>
           </nav>
 
-          <div className="museum-hero-text">
-            {locationLabel && <p className="detail-sub museum-hero-location">{locationLabel}</p>}
-            <h1 className="detail-title museum-hero-title">{displayName}</h1>
-            {summary && <p className="detail-sub museum-hero-tagline">{summary}</p>}
+          <div className={`museum-hero-layout${heroImage ? '' : ' museum-hero-layout--no-image'}`}>
+            {heroImage ? (
+              <div className="museum-hero-media">
+                <div className="museum-hero-media-inner">
+                  <Image
+                    src={heroImage}
+                    alt={displayName}
+                    fill
+                    className="museum-hero-image"
+                    sizes="(max-width: 640px) 100vw, (max-width: 1200px) 90vw, 1200px"
+                    priority={isLandingMuseum}
+                    loading={isLandingMuseum ? 'eager' : 'lazy'}
+                  />
+                  <div className="museum-hero-text museum-hero-overlay">
+                    {locationLabel && <p className="detail-sub museum-hero-location">{locationLabel}</p>}
+                    <h1 className="detail-title museum-hero-title">{displayName}</h1>
+                    {summary && <p className="detail-sub museum-hero-tagline">{summary}</p>}
+                  </div>
+                </div>
+                {!isPublicDomainImage && hasCreditSegments && (
+                  <p className="museum-hero-credit" title={creditFullText || undefined}>
+                    {creditSegments.map((segment, index) => (
+                      <Fragment key={`hero-credit-${segment.key}-${index}`}>
+                        {index > 0 && (
+                          <span aria-hidden="true" className="image-credit-divider">
+                            •
+                          </span>
+                        )}
+                        {segment.url ? (
+                          <a
+                            className="image-credit-link"
+                            href={segment.url}
+                            target="_blank"
+                            rel="noreferrer"
+                          >
+                            {segment.label}
+                          </a>
+                        ) : (
+                          <span className="image-credit-part">{segment.label}</span>
+                        )}
+                      </Fragment>
+                    ))}
+                  </p>
+                )}
+              </div>
+            ) : (
+              <div className="museum-hero-media">
+                <div className="museum-hero-text museum-hero-text--standalone">
+                  {locationLabel && <p className="detail-sub museum-hero-location">{locationLabel}</p>}
+                  <h1 className="detail-title museum-hero-title">{displayName}</h1>
+                  {summary && <p className="detail-sub museum-hero-tagline">{summary}</p>}
+                </div>
+              </div>
+            )}
+
+            {hasVisitorInformation && (
+              <div className="museum-hero-sidebar">{renderVisitorInformationCard('hero')}</div>
+            )}
           </div>
         </div>
       </div>
-
-      {heroImage && (
-        <div className="museum-detail-hero">
-          <Image
-            src={heroImage}
-            alt={displayName}
-            fill
-            className="museum-hero-image"
-            sizes="(max-width: 640px) 100vw, (max-width: 1200px) 90vw, 1200px"
-            priority={isLandingMuseum}
-            loading={isLandingMuseum ? 'eager' : 'lazy'}
-          />
-          {!isPublicDomainImage && hasCreditSegments && (
-            <p className="museum-hero-credit" title={creditFullText || undefined}>
-              {creditSegments.map((segment, index) => (
-                <Fragment key={`hero-credit-${segment.key}-${index}`}>
-                  {index > 0 && (
-                    <span aria-hidden="true" className="image-credit-divider">
-                      •
-                    </span>
-                  )}
-                  {segment.url ? (
-                    <a
-                      className="image-credit-link"
-                      href={segment.url}
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      {segment.label}
-                    </a>
-                  ) : (
-                    <span className="image-credit-part">{segment.label}</span>
-                  )}
-                </Fragment>
-              ))}
-            </p>
-          )}
-        </div>
-      )}
 
       <div className="museum-detail-container">
 
@@ -1434,73 +1541,7 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
             aria-hidden={activeTab !== 'info'}
             tabIndex={activeTab === 'info' ? 0 : -1}
           >
-            <div className="museum-sidebar-card support-card">
-              <h2 className="museum-sidebar-title">{t('visitorInformation')}</h2>
-
-              <div className="museum-info-details">
-                {openingHours && (
-                  <div className="museum-info-item">
-                    <span className="museum-info-label">{t('openingHours')}</span>
-                    <p className="museum-info-value">{openingHours}</p>
-                  </div>
-                )}
-
-                {locationLines.length > 0 && (
-                  <div className="museum-info-item">
-                    <span className="museum-info-label">{t('location')}</span>
-                    <p className="museum-info-value">
-                      {locationLines.map((line, index) => (
-                        <span key={line}>
-                          {line}
-                          {index < locationLines.length - 1 && <br />}
-                        </span>
-                      ))}
-                    </p>
-                  </div>
-                )}
-
-                {resolvedMuseum.free && (
-                  <div className="museum-info-item">
-                    <span className="museum-info-label">{t('visitorInformation')}</span>
-                    <p className="museum-info-value">{t('free')}</p>
-                  </div>
-                )}
-
-                {resolvedMuseum.phone && (
-                  <div className="museum-info-item">
-                    <span className="museum-info-label">{t('phone')}</span>
-                    <p className="museum-info-value">
-                      <a href={`tel:${resolvedMuseum.phone}`}>{resolvedMuseum.phone}</a>
-                    </p>
-                  </div>
-                )}
-
-                {resolvedMuseum.email && (
-                  <div className="museum-info-item">
-                    <span className="museum-info-label">{t('email')}</span>
-                    <p className="museum-info-value">
-                      <a href={`mailto:${resolvedMuseum.email}`}>{resolvedMuseum.email}</a>
-                    </p>
-                  </div>
-                )}
-
-                {socialLinks.length > 0 && (
-                  <div className="museum-info-item">
-                    <span className="museum-info-label">{t('social')}</span>
-                    <p className="museum-info-value">
-                      {socialLinks.map((item) => (
-                        <span key={item.url} style={{ display: 'block' }}>
-                          <a href={item.url} target="_blank" rel="noreferrer">
-                            {item.value}
-                          </a>
-                        </span>
-                      ))}
-                    </p>
-                  </div>
-                )}
-              </div>
-
-            </div>
+            {renderVisitorInformationCard('sidebar')}
           </aside>
         </div>
       </div>

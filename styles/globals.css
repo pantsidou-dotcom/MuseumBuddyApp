@@ -1324,22 +1324,48 @@ button.hero-quick-link {
 
 .museum-detail { position: relative; background: var(--body-bg); padding-bottom: 64px; }
 .museum-detail-container { position: relative; z-index: 2; }
-.museum-detail.has-hero .museum-detail-container:not(.museum-hero-heading-container) { margin-top: -140px; }
-.museum-detail-hero { position: relative; height: clamp(220px, 48vh, 360px); overflow: hidden; border-radius: var(--radius-md); box-shadow: 0 10px 26px rgba(15, 23, 42, 0.18); }
-.museum-detail-hero::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background:
-    radial-gradient(120% 100% at 50% 0%, var(--hero-overlay-glow) 0%, transparent 65%),
-    linear-gradient(180deg, var(--hero-overlay-start) 0%, var(--hero-overlay-mid) 55%, var(--hero-overlay-end) 100%),
-    linear-gradient(120deg, var(--hero-overlay-side) 0%, transparent 42%);
-  mix-blend-mode: normal;
-  pointer-events: none;
-  z-index: 1;
-  border-radius: inherit;
+.museum-hero-heading-container { position: relative; z-index: 5; margin-bottom: clamp(24px, 5vw, 48px); }
+.museum-hero-heading { display: flex; flex-direction: column; align-items: stretch; gap: clamp(20px, 4vw, 32px); }
+.museum-hero-layout { display: flex; flex-direction: column; gap: clamp(20px, 4vw, 32px); width: 100%; }
+.museum-hero-media { display: flex; flex-direction: column; gap: 12px; }
+.museum-hero-media-inner {
+  position: relative;
+  min-height: clamp(260px, 52vw, 420px);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  box-shadow: 0 18px 42px rgba(15, 23, 42, 0.18);
+  background: rgba(15, 23, 42, 0.08);
 }
 .museum-hero-image { object-fit: cover; object-position: center; filter: saturate(1.08); }
+.museum-hero-overlay {
+  position: absolute;
+  inset: auto 0 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: clamp(20px, 5vw, 40px);
+  background: linear-gradient(180deg, rgba(15, 23, 42, 0) 0%, rgba(15, 23, 42, 0.68) 68%, rgba(15, 23, 42, 0.9) 100%);
+  color: rgba(248, 250, 252, 0.96);
+}
+.museum-hero-text { display: flex; flex-direction: column; gap: 6px; max-width: 720px; }
+.museum-hero-overlay .museum-hero-location { color: rgba(226, 232, 240, 0.78); }
+.museum-hero-overlay .museum-hero-tagline { color: rgba(226, 232, 240, 0.9); }
+.museum-hero-text--standalone {
+  padding: clamp(var(--space-24), 5vw, var(--space-32));
+  border-radius: var(--radius-md);
+  background: linear-gradient(180deg, var(--info-card-bg) 0%, rgba(255, 255, 255, 0.95) 100%);
+  box-shadow: var(--panel-shadow);
+}
+.museum-hero-text--standalone .museum-hero-location,
+.museum-hero-text--standalone .museum-hero-tagline {
+  color: var(--muted);
+}
+.museum-hero-location { margin: 0; font-size: 12px; letter-spacing: 0.16em; text-transform: uppercase; font-weight: 600; color: var(--muted); }
+.museum-hero-title { margin: 0; font-size: clamp(34px, 4.5vw, 48px); font-weight: 800; letter-spacing: -0.02em; line-height: 1.05; }
+.museum-hero-tagline { margin: 0; color: var(--muted); font-size: 16px; line-height: 1.5; }
+.museum-hero-sidebar { display: flex; flex-direction: column; gap: var(--space-16); }
+.museum-visitor-card { display: flex; flex-direction: column; gap: var(--space-24); }
+.museum-visitor-card--hero { height: 100%; }
 .museum-hero-credit {
   position: absolute;
   left: clamp(16px, 4vw, 32px);
@@ -1361,18 +1387,8 @@ button.hero-quick-link {
   backdrop-filter: blur(8px);
   z-index: 2;
 }
-.museum-hero-credit .image-credit-divider {
-  color: rgba(226, 232, 240, 0.78);
-}
-.museum-hero-credit .image-credit-link {
-  color: inherit;
-}
-.museum-hero-heading-container { position: relative; z-index: 5; margin-bottom: clamp(12px, 2vw, 20px); }
-.museum-hero-heading { display: flex; flex-direction: column; align-items: flex-start; gap: 14px; }
-.museum-hero-text { display: flex; flex-direction: column; gap: 6px; max-width: 720px; }
-.museum-hero-location { margin: 0; font-size: 12px; letter-spacing: 0.16em; text-transform: uppercase; font-weight: 600; color: var(--muted); }
-.museum-hero-title { margin: 0; font-size: clamp(34px, 4.5vw, 48px); font-weight: 800; letter-spacing: -0.02em; line-height: 1.05; }
-.museum-hero-tagline { margin: 0; color: var(--muted); font-size: 16px; line-height: 1.5; }
+.museum-hero-credit .image-credit-divider { color: rgba(226, 232, 240, 0.78); }
+.museum-hero-credit .image-credit-link { color: inherit; }
 .museum-backlink {
   display: inline-flex;
   align-items: center;
@@ -1818,8 +1834,22 @@ button.hero-quick-link {
 [data-theme='dark'] .museum-info-label { color: rgba(226,232,240,0.7); }
 .museum-info-value { margin: 0; color: inherit; font-size: 15px; line-height: 1.5; }
 
+@media (min-width: 900px) {
+  .museum-hero-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 5fr) minmax(320px, 3fr);
+    align-items: stretch;
+    gap: clamp(24px, 4vw, 40px);
+  }
+  .museum-hero-sidebar {
+    height: 100%;
+  }
+  .museum-hero-sidebar .museum-visitor-card {
+    height: 100%;
+  }
+}
+
 @media (max-width: 1200px) {
-  .museum-detail.has-hero .museum-detail-container:not(.museum-hero-heading-container) { margin-top: -120px; }
   .museum-detail-grid { grid-template-columns: minmax(0, 1fr); }
   .museum-sidebar {
     position: static;
@@ -1829,7 +1859,6 @@ button.hero-quick-link {
 }
 
 @media (max-width: 900px) {
-  .museum-detail.has-hero .museum-detail-container:not(.museum-hero-heading-container) { margin-top: -90px; }
   .museum-primary-action-bar {
     grid-template-columns: 1fr;
     top: calc(88px + env(safe-area-inset-top, 0px));
@@ -1843,9 +1872,10 @@ button.hero-quick-link {
 @media (max-width: 768px) {
   .museum-detail { padding-bottom: calc(168px + env(safe-area-inset-bottom, 0px)); }
   .museum-primary-action-bar { display: none; }
-  .museum-detail.has-hero .museum-detail-container:not(.museum-hero-heading-container) { margin-top: -70px; }
   .museum-hero-heading { gap: 12px; }
   .museum-hero-tagline { font-size: 15px; }
+  .museum-hero-media-inner { min-height: clamp(220px, 70vw, 320px); }
+  .museum-hero-text--standalone { padding: var(--space-24); }
   .museum-expositions-card,
   .museum-overview-card,
   .museum-map-card,
@@ -2038,7 +2068,8 @@ button.hero-quick-link {
 
 @media (max-width: 600px) {
   .museum-detail { padding-bottom: calc(196px + env(safe-area-inset-bottom, 0px)); }
-  .museum-detail.has-hero .museum-detail-container:not(.museum-hero-heading-container) { margin-top: -48px; }
+  .museum-hero-layout { gap: var(--space-24); }
+  .museum-hero-media-inner { min-height: clamp(200px, 72vw, 300px); }
   .museum-detail-grid { gap: 24px; }
   .museum-expositions-card,
   .museum-overview-card,
