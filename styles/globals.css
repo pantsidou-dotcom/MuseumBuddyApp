@@ -2284,9 +2284,9 @@ button.hero-quick-link {
 .ticket-button--card {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
-  padding: 10px 16px;
-  border-radius: 0.875rem;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: 0.8125rem;
   background: linear-gradient(135deg, rgba(37, 99, 235, 0.95), rgba(37, 99, 235, 0.82));
   color: var(--accent-ink);
   border: 1px solid rgba(255, 255, 255, 0.32);
@@ -2313,12 +2313,12 @@ button.hero-quick-link {
   gap: 10px;
 }
 .ticket-button {
-  padding: 8px 16px;
+  padding: 6px 14px;
   border: none;
-  border-radius: 0.625rem;
+  border-radius: 0.5625rem;
   background: var(--accent);
   color: var(--accent-ink);
-  font-size: 0.85rem;
+  font-size: 0.8125rem;
   font-weight: 600;
   letter-spacing: -0.01em;
   cursor: pointer;
@@ -2328,7 +2328,7 @@ button.hero-quick-link {
   justify-content: center;
   text-align: center;
   text-decoration: none;
-  gap: 6px;
+  gap: 5px;
   min-width: 0;
   width: fit-content;
   max-width: 100%;
@@ -2350,7 +2350,7 @@ button.hero-quick-link {
 }
 .museum-info-links .ticket-button {
   width: fit-content;
-  padding: 8px 16px;
+  padding: 6px 14px;
   box-shadow: 0 10px 22px rgba(37, 99, 235, 0.22);
 }
 @media (min-width: 601px) {
