@@ -7,6 +7,7 @@ import museumNames from '../lib/museumNames';
 import museumImageCredits from '../lib/museumImageCredits';
 import museumTicketUrls from '../lib/museumTicketUrls';
 import { useLanguage } from '../components/LanguageContext';
+import HomeValueProps from '../components/HomeValueProps';
 import { supabase as supabaseClient } from '../lib/supabase';
 import SEO from '../components/SEO';
 import FiltersSheet from '../components/FiltersSheet';
@@ -460,6 +461,8 @@ export default function Home({ initialMuseums = [], initialError = null }) {
           </div>
         </form>
       </section>
+
+      <HomeValueProps />
 
       <p className="count">{results.length} {t('results')}</p>
 
