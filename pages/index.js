@@ -92,15 +92,6 @@ export default function Home({ initialMuseums = [], initialError = null }) {
   const { t } = useLanguage();
   const router = useRouter();
 
-  const partnerLogos = useMemo(
-    () => [
-      { label: t('homePartnerIamsterdam') },
-      { label: t('homePartnerMuseumkaart') },
-      { label: t('homePartnerVisitHolland') },
-    ],
-    [t]
-  );
-
   const qFromUrl = useMemo(() => {
     const q = router.query?.q;
     return typeof q === 'string' ? q.trim() : '';
@@ -471,7 +462,7 @@ export default function Home({ initialMuseums = [], initialError = null }) {
         </form>
       </section>
 
-      <HomeValueProps partnerLogos={partnerLogos} />
+      <HomeValueProps />
 
       <p className="count">{results.length} {t('results')}</p>
 
