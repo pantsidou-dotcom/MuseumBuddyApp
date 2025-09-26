@@ -9,29 +9,10 @@ import { shouldShowAffiliateNote } from '../lib/nonAffiliateMuseums';
 import formatImageCredit from '../lib/formatImageCredit';
 import TicketButtonNote from './TicketButtonNote';
 
-const HOVER_COLORS = ['#A7D8F0', '#77DDDD', '#F7C59F', '#D8BFD8', '#EAE0C8'];
+// Keep in sync with --card-accent-soft-solid in styles/globals.css
+const CARD_ACCENT_SOFT_HEX = '#dbeafe';
 
-function hashKey(value) {
-  if (!value) return 0;
-  const str = String(value);
-  let hash = 0;
-  for (let i = 0; i < str.length; i += 1) {
-    hash = (hash << 5) - hash + str.charCodeAt(i);
-    hash |= 0;
-  }
-  return Math.abs(hash);
-}
-
-function getHoverColor(slug, id) {
-  const key = slug || (typeof id !== 'undefined' ? String(id) : '');
-  if (!key) {
-    return HOVER_COLORS[0];
-  }
-  const index = hashKey(key) % HOVER_COLORS.length;
-  return HOVER_COLORS[index];
-}
-
-function createBlurDataUrl(color) {
+function createBlurDataUrl(color = CARD_ACCENT_SOFT_HEX) {
   if (typeof color !== 'string' || !color) {
     return 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 20"%3E%3Crect width="32" height="20" fill="%23e2e8f0" /%3E%3C/svg%3E';
   }
@@ -39,10 +20,12 @@ function createBlurDataUrl(color) {
   const normalized = color.startsWith('#') ? color : `#${color}`;
   const sanitized = /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(normalized)
     ? normalized
-    : '#e2e8f0';
+    : CARD_ACCENT_SOFT_HEX;
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 20"><rect width="32" height="20" fill="${sanitized}" /></svg>`;
   return `data:image/svg+xml,${encodeURIComponent(svg)}`;
 }
+
+const DEFAULT_BLUR_DATA_URL = createBlurDataUrl();
 
 export default function MuseumCard({ museum, priority = false }) {
   if (!museum) return null;
@@ -50,11 +33,7 @@ export default function MuseumCard({ museum, priority = false }) {
   const { favorites, toggleFavorite } = useFavorites();
   const { t, lang } = useLanguage();
   const isFavorite = favorites.some((f) => f.id === museum.id && f.type === 'museum');
-  const hoverColor = useMemo(
-    () => getHoverColor(museum.slug, museum.id),
-    [museum.slug, museum.id]
-  );
-  const blurDataUrl = useMemo(() => createBlurDataUrl(hoverColor), [hoverColor]);
+  const blurDataUrl = DEFAULT_BLUR_DATA_URL;
 
   const summary = museumSummaries[museum.slug]?.[lang] || museum.summary;
   const hours = museumOpeningHours[museum.slug]?.[lang];
@@ -246,7 +225,7 @@ export default function MuseumCard({ museum, priority = false }) {
   };
 
   return (
-    <article className="museum-card" style={{ '--hover-bg': hoverColor }}>
+    <article className="museum-card">
       <div className="museum-card-image">
         <Link
           href={{ pathname: '/museum/[slug]', query: { slug: museum.slug } }}
@@ -313,7 +292,7 @@ export default function MuseumCard({ museum, priority = false }) {
         <h3 className="museum-card-title">
           <Link
             href={{ pathname: '/museum/[slug]', query: { slug: museum.slug } }}
-            style={{ color: 'inherit', textDecoration: 'none' }}
+            className="museum-card-title-link"
           >
             {museum.title}
           </Link>
