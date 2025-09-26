@@ -1325,8 +1325,8 @@ button.hero-quick-link {
 .museum-detail {
   position: relative;
   background: var(--body-bg);
-  padding-bottom: clamp(120px, 12vw, 160px);
-  --museum-hero-lift: clamp(140px, 18vw, 220px);
+  padding-bottom: clamp(96px, 10vw, 140px);
+  --museum-hero-lift: clamp(72px, 10vw, 128px);
 }
 .museum-detail:not(.has-hero) {
   --museum-hero-lift: 0px;
@@ -1334,19 +1334,26 @@ button.hero-quick-link {
 .museum-detail-container { position: relative; z-index: 2; }
 .museum-detail-hero-section {
   position: relative;
-  padding: clamp(32px, 6vw, 72px) clamp(16px, 4vw, 48px)
-    calc(var(--museum-hero-lift) + clamp(48px, 8vw, 96px));
-  background: linear-gradient(180deg, rgba(226, 232, 240, 0.72) 0%, rgba(241, 245, 249, 0.82) 45%, var(--body-bg) 100%);
+  padding: clamp(16px, 4vw, 40px) clamp(16px, 4vw, 48px)
+    calc(var(--museum-hero-lift) + clamp(32px, 6vw, 72px));
+  background: linear-gradient(180deg, rgba(241, 245, 249, 0.92) 0%, rgba(248, 250, 252, 0.72) 35%, var(--body-bg) 100%);
 }
 [data-theme='dark'] .museum-detail-hero-section {
-  background: linear-gradient(180deg, rgba(2, 6, 23, 0.92) 0%, rgba(2, 6, 23, 0.86) 45%, var(--body-bg) 100%);
+  background: linear-gradient(180deg, rgba(2, 6, 23, 0.95) 0%, rgba(2, 6, 23, 0.88) 40%, var(--body-bg) 100%);
 }
 .museum-detail-hero-section .museum-detail-container {
   display: flex;
   flex-direction: column;
-  gap: clamp(24px, 5vw, 48px);
+  gap: clamp(16px, 4vw, 32px);
 }
-.museum-detail-hero { position: relative; width: 100%; height: clamp(220px, 48vh, 360px); overflow: hidden; border-radius: var(--radius-md); box-shadow: 0 10px 26px rgba(15, 23, 42, 0.18); }
+.museum-detail-hero {
+  position: relative;
+  width: 100%;
+  height: clamp(220px, 42vw, 340px);
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  box-shadow: 0 18px 30px rgba(15, 23, 42, 0.12);
+}
 .museum-detail-hero::after {
   content: "";
   position: absolute;
@@ -1362,15 +1369,15 @@ button.hero-quick-link {
 }
 .museum-detail-body {
   position: relative;
-  padding: calc(var(--museum-hero-lift) + clamp(24px, 5vw, 56px)) clamp(16px, 4vw, 48px)
-    clamp(120px, 12vw, 160px);
+  padding: calc(var(--museum-hero-lift) + clamp(24px, 5vw, 48px)) clamp(16px, 4vw, 48px)
+    clamp(96px, 10vw, 128px);
   background: var(--body-bg);
 }
 .museum-detail-body-content {
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: clamp(32px, 6vw, 56px);
+  gap: clamp(28px, 5vw, 48px);
   transform: translateY(calc(-1 * var(--museum-hero-lift)));
 }
 .museum-detail:not(.has-hero) .museum-detail-body-content {
@@ -1404,26 +1411,87 @@ button.hero-quick-link {
 .museum-hero-credit .image-credit-link {
   color: inherit;
 }
-.museum-hero-heading-container { position: relative; z-index: 5; margin: 0; }
-.museum-hero-heading { display: flex; flex-direction: column; align-items: flex-start; gap: 14px; }
-.museum-hero-text { display: flex; flex-direction: column; gap: 6px; max-width: 720px; }
-.museum-hero-location { margin: 0; font-size: 12px; letter-spacing: 0.16em; text-transform: uppercase; font-weight: 600; color: var(--muted); }
-.museum-hero-title { margin: 0; font-size: clamp(34px, 4.5vw, 48px); font-weight: 800; letter-spacing: -0.02em; line-height: 1.05; }
-.museum-hero-tagline { margin: 0; color: var(--muted); font-size: 16px; line-height: 1.5; }
+.museum-hero-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: flex-end;
+  padding: clamp(16px, 4vw, 36px);
+  background: linear-gradient(180deg, rgba(15, 23, 42, 0.08) 0%, rgba(15, 23, 42, 0.45) 65%, rgba(15, 23, 42, 0.78) 100%);
+  pointer-events: none;
+}
+
+.museum-hero-overlay-card {
+  pointer-events: auto;
+  width: 100%;
+  max-width: min(880px, 100%);
+  padding: clamp(18px, 3vw, 30px);
+  border-radius: var(--radius-lg);
+  background: rgba(15, 23, 42, 0.68);
+  color: rgba(248, 250, 252, 0.96);
+  backdrop-filter: blur(18px);
+  box-shadow: 0 22px 46px rgba(15, 23, 42, 0.35);
+}
+
+.museum-hero-heading {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(16px, 3vw, 24px);
+}
+
+.museum-hero-heading--no-image {
+  padding: clamp(20px, 4vw, 32px);
+  border-radius: var(--radius-lg);
+  background: var(--panel-bg);
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+}
+
+.museum-hero-text {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-width: 720px;
+}
+
+.museum-hero-location {
+  margin: 0;
+  font-size: 12px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: inherit;
+  opacity: 0.85;
+}
+
+.museum-hero-title {
+  margin: 0;
+  font-size: clamp(30px, 4vw, 44px);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.08;
+}
+
+.museum-hero-tagline {
+  margin: 0;
+  color: inherit;
+  opacity: 0.88;
+  font-size: 16px;
+  line-height: 1.5;
+}
 .museum-backlink {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 8px 14px;
-  border-radius: 16px;
+  padding: 6px 12px;
+  border-radius: 14px;
   font-size: 13px;
   font-weight: 600;
   margin: 0;
   color: var(--text);
-  background: rgba(255, 255, 255, 0.92);
-  border: 1px solid var(--panel-border);
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(148, 163, 184, 0.3);
   text-decoration: none;
-  box-shadow: 0 10px 22px rgba(15, 23, 42, 0.14);
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.14);
   backdrop-filter: blur(6px);
   transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
 }
@@ -1439,7 +1507,7 @@ button.hero-quick-link {
 }
 .museum-backlink:hover {
   transform: translateY(-1px);
-  box-shadow: 0 14px 26px rgba(15, 23, 42, 0.18);
+  box-shadow: 0 12px 22px rgba(15, 23, 42, 0.2);
 }
 .museum-backlink:focus-visible {
   outline: 2px solid var(--accent);
@@ -1449,8 +1517,7 @@ button.hero-quick-link {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: clamp(16px, 3vw, 24px);
-  margin-top: clamp(8px, 2vw, 16px);
+  gap: clamp(12px, 2.5vw, 20px);
 }
 
 .museum-hero-primary {
@@ -1566,6 +1633,78 @@ button.hero-quick-link {
 }
 [data-theme='dark'] .museum-primary-action__note {
   color: var(--muted);
+}
+
+.museum-hero-overlay-card .museum-hero-location,
+.museum-hero-overlay-card .museum-hero-tagline,
+.museum-hero-overlay-card .museum-primary-action__note {
+  color: rgba(248, 250, 252, 0.82);
+}
+
+.museum-hero-overlay-card .museum-primary-action.primary {
+  background: rgba(248, 250, 252, 0.92);
+  color: #0f172a;
+  box-shadow: 0 16px 32px rgba(15, 23, 42, 0.32);
+}
+
+.museum-hero-overlay-card .museum-primary-action.primary:hover {
+  background: #fff;
+}
+
+.museum-hero-overlay-card .museum-primary-action.secondary {
+  background: rgba(15, 23, 42, 0.24);
+  border-color: rgba(248, 250, 252, 0.35);
+  color: rgba(248, 250, 252, 0.92);
+}
+
+.museum-hero-overlay-card .museum-primary-action.secondary:hover {
+  background: rgba(248, 250, 252, 0.12);
+}
+
+.museum-hero-overlay-card .museum-hero-utilities .icon-button {
+  background: rgba(15, 23, 42, 0.4);
+  border-color: rgba(248, 250, 252, 0.35);
+  color: rgba(248, 250, 252, 0.95);
+  box-shadow: 0 14px 28px rgba(15, 23, 42, 0.3);
+}
+
+.museum-hero-overlay-card .museum-hero-utilities .icon-button:hover,
+.museum-hero-overlay-card .museum-hero-utilities .icon-button:focus-visible {
+  background: rgba(248, 250, 252, 0.18);
+  color: #fff;
+}
+
+.museum-hero-overlay-card .museum-hero-utilities .icon-button.favorited {
+  color: #fb7185;
+  background: rgba(248, 250, 252, 0.2);
+  box-shadow: 0 18px 32px rgba(251, 113, 133, 0.32);
+}
+
+.museum-hero-heading--no-image .museum-hero-location,
+.museum-hero-heading--no-image .museum-hero-tagline,
+.museum-hero-heading--no-image .museum-primary-action__note {
+  color: var(--muted);
+}
+
+@media (min-width: 900px) {
+  .museum-hero-heading {
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: clamp(24px, 4vw, 40px);
+  }
+
+  .museum-hero-heading .museum-hero-text {
+    max-width: min(540px, 60%);
+  }
+
+  .museum-hero-heading .museum-hero-actions {
+    align-items: flex-end;
+  }
+
+  .museum-hero-heading .museum-hero-utilities {
+    justify-content: flex-end;
+  }
 }
 
 .museum-hero-utilities .icon-button {
@@ -1859,7 +1998,7 @@ button.hero-quick-link {
 }
 
 @media (max-width: 1200px) {
-  .museum-detail { --museum-hero-lift: clamp(110px, 20vw, 180px); }
+  .museum-detail { --museum-hero-lift: clamp(64px, 14vw, 120px); }
   .museum-detail-grid { grid-template-columns: minmax(0, 1fr); }
   .museum-sidebar {
     position: static;
@@ -1869,21 +2008,21 @@ button.hero-quick-link {
 }
 
 @media (max-width: 900px) {
-  .museum-detail { --museum-hero-lift: clamp(90px, 26vw, 150px); }
+  .museum-detail { --museum-hero-lift: clamp(56px, 22vw, 108px); }
 }
 
 @media (max-width: 768px) {
   .museum-detail {
-    padding-bottom: calc(168px + env(safe-area-inset-bottom, 0px));
-    --museum-hero-lift: clamp(64px, 30vw, 120px);
+    padding-bottom: calc(148px + env(safe-area-inset-bottom, 0px));
+    --museum-hero-lift: clamp(52px, 28vw, 96px);
   }
   .museum-detail-hero-section {
-    padding: clamp(24px, 8vw, 52px) clamp(16px, 6vw, 32px)
-      calc(var(--museum-hero-lift) + clamp(32px, 10vw, 60px));
+    padding: clamp(18px, 7vw, 40px) clamp(16px, 6vw, 32px)
+      calc(var(--museum-hero-lift) + clamp(28px, 9vw, 52px));
   }
   .museum-detail-body {
-    padding: calc(var(--museum-hero-lift) + clamp(24px, 6vw, 48px)) clamp(16px, 6vw, 32px)
-      clamp(120px, 20vw, 190px);
+    padding: calc(var(--museum-hero-lift) + clamp(20px, 6vw, 44px)) clamp(16px, 6vw, 32px)
+      clamp(96px, 20vw, 160px);
   }
   .museum-detail-body-content {
     gap: clamp(28px, 8vw, 48px);
@@ -1909,16 +2048,16 @@ button.hero-quick-link {
 
 @media (max-width: 600px) {
   .museum-detail {
-    padding-bottom: calc(196px + env(safe-area-inset-bottom, 0px));
-    --museum-hero-lift: clamp(48px, 34vw, 96px);
+    padding-bottom: calc(176px + env(safe-area-inset-bottom, 0px));
+    --museum-hero-lift: clamp(44px, 34vw, 84px);
   }
   .museum-detail-hero-section {
-    padding: clamp(20px, 8vw, 44px) clamp(16px, 7vw, 28px)
-      calc(var(--museum-hero-lift) + clamp(28px, 10vw, 48px));
+    padding: clamp(16px, 8vw, 36px) clamp(16px, 7vw, 28px)
+      calc(var(--museum-hero-lift) + clamp(24px, 9vw, 44px));
   }
   .museum-detail-body {
-    padding: calc(var(--museum-hero-lift) + clamp(20px, 8vw, 44px)) clamp(16px, 7vw, 28px)
-      clamp(140px, 24vw, 220px);
+    padding: calc(var(--museum-hero-lift) + clamp(18px, 8vw, 40px)) clamp(16px, 7vw, 28px)
+      clamp(120px, 24vw, 200px);
   }
   .museum-detail-body-content {
     gap: clamp(24px, 10vw, 40px);

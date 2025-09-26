@@ -941,97 +941,29 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
 
       <header className={`museum-detail-hero-section${heroImage ? ' has-hero-image' : ''}`}>
         <div className="museum-detail-container">
-          <div className="museum-hero-heading-container">
-          <div className="museum-hero-heading">
-            <nav className="museum-breadcrumbs" aria-label={t('breadcrumbsLabel')}>
-              <Link href="/" className="museum-backlink">
-                <svg
-                  viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    aria-hidden="true"
-                    width="20"
-                    height="20"
-                  >
-                    <path d="M15 18l-6-6 6-6" />
-                  </svg>
-                  <span>{t('breadcrumbMuseums')}</span>
-                </Link>
-              </nav>
+          <nav className="museum-breadcrumbs" aria-label={t('breadcrumbsLabel')}>
+            <Link href="/" className="museum-backlink">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+                width="20"
+                height="20"
+              >
+                <path d="M15 18l-6-6 6-6" />
+              </svg>
+              <span>{t('breadcrumbMuseums')}</span>
+            </Link>
+          </nav>
+        </div>
 
-              <div className="museum-hero-text">
-                {locationLabel && <p className="detail-sub museum-hero-location">{locationLabel}</p>}
-                <h1 className="detail-title museum-hero-title">{displayName}</h1>
-                {summary && <p className="detail-sub museum-hero-tagline">{summary}</p>}
-              </div>
-
-              <div className="museum-hero-actions">
-                {hasTicketLink ? (
-                  <div className="museum-hero-primary">
-                    <a
-                      href={ticketUrl}
-                      target="_blank"
-                      rel={ticketRel}
-                      className="museum-primary-action primary"
-                      aria-describedby={ticketContext ? primaryTicketNoteId : undefined}
-                      onClick={handleTicketLinkClick}
-                      title={ticketHoverMessage}
-                      aria-label={ticketAriaLabel}
-                      data-affiliate={showAffiliateNote ? 'true' : undefined}
-                    >
-                      <span
-                        className={
-                          showAffiliateNote
-                            ? 'ticket-button__label ticket-button__label--stacked'
-                            : 'ticket-button__label'
-                        }
-                      >
-                        <span className="ticket-button__label-text">{t('buyTickets')}</span>
-                        {showAffiliateNote ? (
-                          <span className="ticket-button__badge">
-                            {t('ticketsPartnerBadge')}
-                            <span className="sr-only"> — {t('ticketsAffiliateIntro')}</span>
-                          </span>
-                        ) : null}
-                      </span>
-                    </a>
-                    {ticketContext ? (
-                      <TicketButtonNote
-                        affiliate={showAffiliateNote}
-                        showIcon={false}
-                        id={primaryTicketNoteId}
-                        className="museum-primary-action__note museum-hero-ticket-note"
-                      >
-                        {ticketContext}
-                      </TicketButtonNote>
-                    ) : null}
-                  </div>
-                ) : null}
-
-                <div className="museum-hero-utilities">
-                  {hasWebsite ? (
-                    <a
-                      href={resolvedMuseum.websiteUrl}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="museum-primary-action secondary museum-hero-secondary-action"
-                      onClick={handleWebsiteLinkClick}
-                    >
-                      <span>{t('website')}</span>
-                    </a>
-                  ) : null}
-                  <ShareButton onShare={handleShare} label={t('share')} />
-                  <FavoriteButton active={isFavorite} onToggle={handleFavorite} label={t('save')} />
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {heroImage && (
-            <div className="museum-detail-hero">
+        <div className="museum-detail-hero">
+          {heroImage ? (
+            <>
               <Image
                 src={heroImage}
                 alt={displayName}
@@ -1041,6 +973,80 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
                 priority={isLandingMuseum}
                 loading={isLandingMuseum ? 'eager' : 'lazy'}
               />
+              <div className="museum-hero-overlay">
+                <div className="museum-detail-container">
+                  <div className="museum-hero-overlay-card">
+                    <div className="museum-hero-heading">
+                      <div className="museum-hero-text">
+                        {locationLabel && <p className="detail-sub museum-hero-location">{locationLabel}</p>}
+                        <h1 className="detail-title museum-hero-title">{displayName}</h1>
+                        {summary && <p className="detail-sub museum-hero-tagline">{summary}</p>}
+                      </div>
+
+                      <div className="museum-hero-actions">
+                        {hasTicketLink ? (
+                          <div className="museum-hero-primary">
+                            <a
+                              href={ticketUrl}
+                              target="_blank"
+                              rel={ticketRel}
+                              className="museum-primary-action primary"
+                              aria-describedby={ticketContext ? primaryTicketNoteId : undefined}
+                              onClick={handleTicketLinkClick}
+                              title={ticketHoverMessage}
+                              aria-label={ticketAriaLabel}
+                              data-affiliate={showAffiliateNote ? 'true' : undefined}
+                            >
+                              <span
+                                className={
+                                  showAffiliateNote
+                                    ? 'ticket-button__label ticket-button__label--stacked'
+                                    : 'ticket-button__label'
+                                }
+                              >
+                                <span className="ticket-button__label-text">{t('buyTickets')}</span>
+                                {showAffiliateNote ? (
+                                  <span className="ticket-button__badge">
+                                    {t('ticketsPartnerBadge')}
+                                    <span className="sr-only"> — {t('ticketsAffiliateIntro')}</span>
+                                  </span>
+                                ) : null}
+                              </span>
+                            </a>
+                            {ticketContext ? (
+                              <TicketButtonNote
+                                affiliate={showAffiliateNote}
+                                showIcon={false}
+                                id={primaryTicketNoteId}
+                                className="museum-primary-action__note museum-hero-ticket-note"
+                              >
+                                {ticketContext}
+                              </TicketButtonNote>
+                            ) : null}
+                          </div>
+                        ) : null}
+
+                        <div className="museum-hero-utilities">
+                          {hasWebsite ? (
+                            <a
+                              href={resolvedMuseum.websiteUrl}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="museum-primary-action secondary museum-hero-secondary-action"
+                              onClick={handleWebsiteLinkClick}
+                            >
+                              <span>{t('website')}</span>
+                            </a>
+                          ) : null}
+                          <ShareButton onShare={handleShare} label={t('share')} />
+                          <FavoriteButton active={isFavorite} onToggle={handleFavorite} label={t('save')} />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
               {!isPublicDomainImage && hasCreditSegments && (
                 <p className="museum-hero-credit" title={creditFullText || undefined}>
                   {creditSegments.map((segment, index) => (
@@ -1066,6 +1072,76 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
                   ))}
                 </p>
               )}
+            </>
+          ) : (
+            <div className="museum-detail-container">
+              <div className="museum-hero-heading museum-hero-heading--no-image">
+                <div className="museum-hero-text">
+                  {locationLabel && <p className="detail-sub museum-hero-location">{locationLabel}</p>}
+                  <h1 className="detail-title museum-hero-title">{displayName}</h1>
+                  {summary && <p className="detail-sub museum-hero-tagline">{summary}</p>}
+                </div>
+
+                <div className="museum-hero-actions">
+                  {hasTicketLink ? (
+                    <div className="museum-hero-primary">
+                      <a
+                        href={ticketUrl}
+                        target="_blank"
+                        rel={ticketRel}
+                        className="museum-primary-action primary"
+                        aria-describedby={ticketContext ? primaryTicketNoteId : undefined}
+                        onClick={handleTicketLinkClick}
+                        title={ticketHoverMessage}
+                        aria-label={ticketAriaLabel}
+                        data-affiliate={showAffiliateNote ? 'true' : undefined}
+                      >
+                        <span
+                          className={
+                            showAffiliateNote
+                              ? 'ticket-button__label ticket-button__label--stacked'
+                              : 'ticket-button__label'
+                          }
+                        >
+                          <span className="ticket-button__label-text">{t('buyTickets')}</span>
+                          {showAffiliateNote ? (
+                            <span className="ticket-button__badge">
+                              {t('ticketsPartnerBadge')}
+                              <span className="sr-only"> — {t('ticketsAffiliateIntro')}</span>
+                            </span>
+                          ) : null}
+                        </span>
+                      </a>
+                      {ticketContext ? (
+                        <TicketButtonNote
+                          affiliate={showAffiliateNote}
+                          showIcon={false}
+                          id={primaryTicketNoteId}
+                          className="museum-primary-action__note museum-hero-ticket-note"
+                        >
+                          {ticketContext}
+                        </TicketButtonNote>
+                      ) : null}
+                    </div>
+                  ) : null}
+
+                  <div className="museum-hero-utilities">
+                    {hasWebsite ? (
+                      <a
+                        href={resolvedMuseum.websiteUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="museum-primary-action secondary museum-hero-secondary-action"
+                        onClick={handleWebsiteLinkClick}
+                      >
+                        <span>{t('website')}</span>
+                      </a>
+                    ) : null}
+                    <ShareButton onShare={handleShare} label={t('share')} />
+                    <FavoriteButton active={isFavorite} onToggle={handleFavorite} label={t('save')} />
+                  </div>
+                </div>
+              </div>
             </div>
           )}
         </div>
