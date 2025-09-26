@@ -18,6 +18,36 @@ assert(
   ),
   'Dutch affiliate hover copy missing'
 );
+assert(
+  /ticketsAffiliateIntro:\s*'You buy tickets via an affiliate partner.'/.test(translationsContent),
+  'English affiliate intro copy missing'
+);
+assert(
+  /ticketsAffiliateIntro:\s*'Je koopt tickets via een affiliate partner.'/.test(translationsContent),
+  'Dutch affiliate intro copy missing'
+);
+assert(
+  /ticketsAffiliateDisclosure:\s*'MuseumBuddy may receive a commission when you buy via this link.'/.test(
+    translationsContent
+  ),
+  'English affiliate disclosure copy missing'
+);
+assert(
+  /ticketsAffiliateDisclosure:\s*'MuseumBuddy ontvangt mogelijk commissie bij aankoop via deze link.'/.test(
+    translationsContent
+  ),
+  'Dutch affiliate disclosure copy missing'
+);
+assert(
+  /ticketsAffiliatePricesMayVary:\s*'Prices may vary.'/.test(translationsContent),
+  'English affiliate price disclaimer missing'
+);
+assert(
+  /ticketsAffiliatePricesMayVary:\s*'Prijzen kunnen afwijken.'/.test(translationsContent),
+  'Dutch affiliate price disclaimer missing'
+);
+assert(/ticketsPartnerBadge:\s*'Partner'/.test(translationsContent), 'English partner badge copy missing');
+assert(/ticketsPartnerBadge:\s*'Partner'/.test(translationsContent), 'Dutch partner badge copy missing');
 
 const files = [
   'components/MuseumCard.js',
@@ -28,7 +58,8 @@ const legacyTooltipPattern = /title={t\('affiliateLink'\)}/;
 const legacyNotePattern = /className="affiliate-note"/;
 const newNotePattern = /TicketButtonNote/;
 const hoverTitlePattern = /title={ticketHoverMessage}/;
-const affiliateInfoPattern = /TicketButtonAffiliateInfo infoMessage={ticketHoverMessage}/;
+const partnerBadgePattern = /ticketsPartnerBadge/;
+const affiliateInfoPattern = /TicketButtonAffiliateInfo/;
 
 for (const file of files) {
   const content = fs.readFileSync(file, 'utf8');
@@ -36,7 +67,8 @@ for (const file of files) {
   assert(!legacyNotePattern.test(content), `Legacy affiliate note class found in ${file}`);
   assert(newNotePattern.test(content), `Ticket note missing in ${file}`);
   assert(hoverTitlePattern.test(content), `Affiliate hover title missing in ${file}`);
-  assert(affiliateInfoPattern.test(content), `Affiliate info tooltip missing in ${file}`);
+  assert(partnerBadgePattern.test(content), `Partner badge translation missing in ${file}`);
+  assert(!affiliateInfoPattern.test(content), `Legacy affiliate info component found in ${file}`);
 }
 
 console.log('Ticket CTA copy tests passed.');

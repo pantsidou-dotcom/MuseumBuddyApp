@@ -10,7 +10,6 @@ import { useLanguage } from '../../components/LanguageContext';
 import { useFavorites } from '../../components/FavoritesContext';
 import FiltersSheet from '../../components/FiltersSheet';
 import FiltersPopover from '../../components/FiltersPopover';
-import TicketButtonAffiliateInfo from '../../components/TicketButtonAffiliateInfo';
 import TicketButtonNote from '../../components/TicketButtonNote';
 import museumImages from '../../lib/museumImages';
 import museumImageCredits from '../../lib/museumImageCredits';
@@ -367,11 +366,38 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
   const directTicketUrl = resolvedMuseum.ticketUrl || resolvedMuseum.websiteUrl || null;
   const ticketUrl = affiliateTicketUrl || directTicketUrl;
   const showAffiliateNote = Boolean(affiliateTicketUrl) && shouldShowAffiliateNote(slug);
-  const ticketContext = t(showAffiliateNote ? 'ticketsViaPartner' : 'ticketsViaOfficialSite');
-  const ticketHoverMessage = showAffiliateNote ? t('ticketsAffiliateHover') : undefined;
+  const ticketHoverMessage = showAffiliateNote ? t('ticketsAffiliateDisclosure') : undefined;
+  const ticketNoteDefinitions = showAffiliateNote
+    ? [
+        { key: 'intro', message: t('ticketsAffiliateIntro'), disclosure: false },
+        { key: 'disclosure', message: t('ticketsAffiliateDisclosure'), disclosure: true },
+        { key: 'prices', message: t('ticketsAffiliatePricesMayVary'), disclosure: true },
+      ]
+    : [];
+
+  const createTicketNote = (prefix) => {
+    if (!ticketNoteDefinitions.length) {
+      return null;
+    }
+
+    return ticketNoteDefinitions.map((definition, index) => (
+      <span
+        key={`${prefix}-${definition.key ?? index}`}
+        className={`ticket-button__note-line${definition.disclosure ? ' ticket-button__note-disclosure' : ''}`}
+      >
+        {definition.message}
+      </span>
+    ));
+  };
+
+  const ticketContext = createTicketNote('ticket-context');
   const primaryTicketNoteId = useId();
   const overviewTicketNoteId = useId();
   const mobileTicketNoteId = useId();
+  const ticketRel = showAffiliateNote ? 'sponsored noopener noreferrer' : 'noopener noreferrer';
+  const ticketAriaLabel = showAffiliateNote
+    ? `${t('buyTickets')} — ${t('ticketsAffiliateDisclosure')}`
+    : t('buyTickets');
   const mobileActionSheetId = useId();
   const mobileActionSheetTitleId = useId();
   const locationLines = getLocationLines(resolvedMuseum);
@@ -1082,41 +1108,82 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
         <div className="museum-primary-action-bar">
         <div className="museum-primary-action-group">
           {hasTicketLink ? (
-            <a
-              href={ticketUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="museum-primary-action primary inline-flex items-center justify-center rounded-full border border-transparent bg-sky-600 px-5 py-3 text-sm font-semibold text-white shadow-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:ring-offset-2 dark:bg-sky-500 dark:text-slate-900 dark:focus-visible:ring-offset-slate-900"
-              aria-describedby={ticketContext ? primaryTicketNoteId : undefined}
-              onClick={handleTicketLinkClick}
-              title={ticketHoverMessage}
-            >
-              <span className="ticket-button__label">
-                {showAffiliateNote ? (
-                  <TicketButtonAffiliateInfo infoMessage={ticketHoverMessage} />
-                ) : null}
-                <span className="ticket-button__label-text">{t('buyTickets')}</span>
-              </span>
+            <div className="museum-primary-action-stack">
+              <a
+                href={ticketUrl}
+                target="_blank"
+                rel={ticketRel}
+                className="museum-primary-action primary"
+                aria-describedby={ticketContext ? primaryTicketNoteId : undefined}
+                onClick={handleTicketLinkClick}
+                title={ticketHoverMessage}
+                aria-label={ticketAriaLabel}
+                data-affiliate={showAffiliateNote ? 'true' : undefined}
+              >
+                <span className="ticket-button__icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path
+                      d="M4.5 7.75a1.75 1.75 0 0 1 1.75-1.75h4.5v2a1.75 1.75 0 1 0 0 3.5v2h-4.5A1.75 1.75 0 0 1 4.5 11.75v-4Z"
+                      fill="currentColor"
+                    />
+                    <path
+                      d="M13.25 16.25v-2a1.75 1.75 0 1 0 0-3.5v-2h4.5a1.75 1.75 0 0 1 1.75 1.75v4a1.75 1.75 0 0 1-1.75 1.75h-4.5Z"
+                      fill="currentColor"
+                    />
+                  </svg>
+                </span>
+                <span
+                  className={
+                    showAffiliateNote
+                      ? 'ticket-button__label ticket-button__label--stacked'
+                      : 'ticket-button__label'
+                  }
+                >
+                  <span className="ticket-button__label-text">{t('buyTickets')}</span>
+                  {showAffiliateNote ? (
+                    <span className="ticket-button__badge">
+                      {t('ticketsPartnerBadge')}
+                      <span className="sr-only"> — {t('ticketsAffiliateIntro')}</span>
+                    </span>
+                  ) : null}
+                </span>
+              </a>
               {ticketContext ? (
                 <TicketButtonNote
                   affiliate={showAffiliateNote}
+                  showIcon={false}
                   id={primaryTicketNoteId}
+                  className="museum-primary-action__note"
                 >
-                  {ticketContext}
+                  {createTicketNote('primary-ticket-note')}
                 </TicketButtonNote>
               ) : null}
-            </a>
+            </div>
           ) : (
-            <button
-              type="button"
-              className="museum-primary-action primary inline-flex items-center justify-center rounded-full border border-transparent bg-slate-300 px-5 py-3 text-sm font-semibold text-slate-600 shadow-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2 dark:bg-slate-700 dark:text-slate-200 dark:focus-visible:ring-offset-slate-900"
-              disabled
-              aria-disabled="true"
-            >
-              <span className="ticket-button__label">
-                <span className="ticket-button__label-text">{t('buyTickets')}</span>
-              </span>
-            </button>
+            <div className="museum-primary-action-stack">
+              <button
+                type="button"
+                className="museum-primary-action primary"
+                disabled
+                aria-disabled="true"
+              >
+                <span className="ticket-button__icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path
+                      d="M4.5 7.75a1.75 1.75 0 0 1 1.75-1.75h4.5v2a1.75 1.75 0 1 0 0 3.5v2h-4.5A1.75 1.75 0 0 1 4.5 11.75v-4Z"
+                      fill="currentColor"
+                    />
+                    <path
+                      d="M13.25 16.25v-2a1.75 1.75 0 1 0 0-3.5v-2h4.5a1.75 1.75 0 0 1 1.75 1.75v4a1.75 1.75 0 0 1-1.75 1.75h-4.5Z"
+                      fill="currentColor"
+                    />
+                  </svg>
+                </span>
+                <span className="ticket-button__label">
+                  <span className="ticket-button__label-text">{t('buyTickets')}</span>
+                </span>
+              </button>
+            </div>
           )}
 
           {hasWebsite && (
@@ -1124,7 +1191,7 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
               href={resolvedMuseum.websiteUrl}
               target="_blank"
               rel="noreferrer"
-              className="museum-primary-action secondary inline-flex items-center justify-center rounded-full border border-slate-300 bg-transparent px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2 dark:border-slate-600 dark:text-slate-100 dark:hover:bg-slate-800/70 dark:focus-visible:ring-offset-slate-900"
+              className="museum-primary-action secondary"
               onClick={handleWebsiteLinkClick}
             >
               <span>{t('website')}</span>
@@ -1527,33 +1594,60 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
             <div className="museum-mobile-actions__body">
               <div className="museum-mobile-actions__actions">
                 {hasTicketLink ? (
-                  <button
-                    type="button"
-                    className="museum-primary-action primary museum-mobile-actions__action inline-flex items-center justify-center rounded-full border border-transparent bg-sky-600 px-5 py-3 text-sm font-semibold text-white shadow-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:ring-offset-2 dark:bg-sky-500 dark:text-slate-900 dark:focus-visible:ring-offset-slate-900"
-                    onClick={handleMobileTicketAction}
-                    aria-describedby={ticketContext ? mobileTicketNoteId : undefined}
-                    title={ticketHoverMessage}
-                  >
-                    <span className="ticket-button__label">
-                      {showAffiliateNote ? (
-                        <TicketButtonAffiliateInfo infoMessage={ticketHoverMessage} />
-                      ) : null}
-                      <span className="ticket-button__label-text">{t('buyTickets')}</span>
-                    </span>
+                  <div className="museum-primary-action-stack">
+                    <button
+                      type="button"
+                      className="museum-primary-action primary museum-mobile-actions__action"
+                      onClick={handleMobileTicketAction}
+                      aria-describedby={ticketContext ? mobileTicketNoteId : undefined}
+                      title={ticketHoverMessage}
+                      aria-label={ticketAriaLabel}
+                      data-affiliate={showAffiliateNote ? 'true' : undefined}
+                    >
+                      <span className="ticket-button__icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path
+                            d="M4.5 7.75a1.75 1.75 0 0 1 1.75-1.75h4.5v2a1.75 1.75 0 1 0 0 3.5v2h-4.5A1.75 1.75 0 0 1 4.5 11.75v-4Z"
+                            fill="currentColor"
+                          />
+                          <path
+                            d="M13.25 16.25v-2a1.75 1.75 0 1 0 0-3.5v-2h4.5a1.75 1.75 0 0 1 1.75 1.75v4a1.75 1.75 0 0 1-1.75 1.75h-4.5Z"
+                            fill="currentColor"
+                          />
+                        </svg>
+                      </span>
+                      <span
+                        className={
+                          showAffiliateNote
+                            ? 'ticket-button__label ticket-button__label--stacked'
+                            : 'ticket-button__label'
+                        }
+                      >
+                        <span className="ticket-button__label-text">{t('buyTickets')}</span>
+                        {showAffiliateNote ? (
+                          <span className="ticket-button__badge">
+                            {t('ticketsPartnerBadge')}
+                            <span className="sr-only"> — {t('ticketsAffiliateIntro')}</span>
+                          </span>
+                        ) : null}
+                      </span>
+                    </button>
                     {ticketContext ? (
                       <TicketButtonNote
                         affiliate={showAffiliateNote}
+                        showIcon={false}
                         id={mobileTicketNoteId}
+                        className="museum-primary-action__note"
                       >
-                        {ticketContext}
+                        {createTicketNote('mobile-ticket-note')}
                       </TicketButtonNote>
                     ) : null}
-                  </button>
+                  </div>
                 ) : null}
                 {hasWebsite ? (
                   <button
                     type="button"
-                    className="museum-primary-action secondary museum-mobile-actions__action inline-flex items-center justify-center rounded-full border border-slate-300 bg-transparent px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2 dark:border-slate-600 dark:text-slate-100 dark:hover:bg-slate-800/70 dark:focus-visible:ring-offset-slate-900"
+                    className="museum-primary-action secondary museum-mobile-actions__action"
                     onClick={handleMobileWebsiteAction}
                   >
                     <span>{t('website')}</span>

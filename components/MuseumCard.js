@@ -1,13 +1,12 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import { Fragment, useEffect, useMemo, useRef, useState } from 'react';
+import { Fragment, useEffect, useId, useMemo, useRef, useState } from 'react';
 import { useFavorites } from './FavoritesContext';
 import { useLanguage } from './LanguageContext';
 import museumSummaries from '../lib/museumSummaries';
 import museumOpeningHours from '../lib/museumOpeningHours';
 import { shouldShowAffiliateNote } from '../lib/nonAffiliateMuseums';
 import formatImageCredit from '../lib/formatImageCredit';
-import TicketButtonAffiliateInfo from './TicketButtonAffiliateInfo';
 import TicketButtonNote from './TicketButtonNote';
 
 const HOVER_COLORS = ['#A7D8F0', '#77DDDD', '#F7C59F', '#D8BFD8', '#EAE0C8'];
@@ -61,8 +60,25 @@ export default function MuseumCard({ museum, priority = false }) {
   const hours = museumOpeningHours[museum.slug]?.[lang];
   const locationText = [museum.city, museum.province].filter(Boolean).join(', ');
   const showAffiliateNote = Boolean(museum.ticketUrl) && shouldShowAffiliateNote(museum.slug);
-  const ticketContext = t(showAffiliateNote ? 'ticketsViaPartner' : 'ticketsViaOfficialSite');
-  const ticketHoverMessage = showAffiliateNote ? t('ticketsAffiliateHover') : undefined;
+  const ticketNoteId = useId();
+  const ticketHoverMessage = showAffiliateNote ? t('ticketsAffiliateDisclosure') : undefined;
+  const ticketContext = showAffiliateNote
+    ? [
+        <span key="intro" className="ticket-button__note-line">
+          {t('ticketsAffiliateIntro')}
+        </span>,
+        <span key="disclosure" className="ticket-button__note-line ticket-button__note-disclosure">
+          {t('ticketsAffiliateDisclosure')}
+        </span>,
+        <span key="prices" className="ticket-button__note-line ticket-button__note-disclosure">
+          {t('ticketsAffiliatePricesMayVary')}
+        </span>,
+      ]
+    : null;
+  const ticketRel = showAffiliateNote ? 'sponsored noopener noreferrer' : 'noopener noreferrer';
+  const ticketAriaLabel = showAffiliateNote
+    ? `${t('buyTickets')} — ${t('ticketsAffiliateDisclosure')}`
+    : t('buyTickets');
 
   const imageCredit = museum.imageCredit;
   const isPublicDomainImage = Boolean(imageCredit?.isPublicDomain);
@@ -149,46 +165,75 @@ export default function MuseumCard({ museum, priority = false }) {
   );
 
   const renderTicketButton = (className = '') => {
-    const baseClasses = [
-      'ticket-button',
-      'inline-flex',
-      'items-center',
-      'justify-center',
-      'font-medium',
-      'transition',
-      'focus-visible:outline-none',
-      'focus-visible:ring-2',
-      'focus-visible:ring-offset-2',
-      'focus-visible:ring-sky-500',
-      'focus-visible:ring-offset-white',
-      'dark:focus-visible:ring-offset-slate-900',
-    ];
+    const baseClasses = ['ticket-button'];
     const classNames = className ? `${baseClasses.join(' ')} ${className}` : baseClasses.join(' ');
 
     if (museum.ticketUrl) {
+      const labelClassName = showAffiliateNote
+        ? 'ticket-button__label ticket-button__label--stacked'
+        : 'ticket-button__label';
+      const partnerBadge = showAffiliateNote ? (
+        <span className="ticket-button__badge">
+          {t('ticketsPartnerBadge')}
+          <span className="sr-only"> — {t('ticketsAffiliateIntro')}</span>
+        </span>
+      ) : null;
+
       return (
-        <a
-          href={museum.ticketUrl}
-          target="_blank"
-          rel="noreferrer"
-          className={classNames}
-          title={ticketHoverMessage}
-        >
-          <span className="ticket-button__label">
-            {showAffiliateNote ? (
-              <TicketButtonAffiliateInfo infoMessage={ticketHoverMessage} />
-            ) : null}
-            <span className="ticket-button__label-text">{t('buyTickets')}</span>
-          </span>
-          <TicketButtonNote affiliate={showAffiliateNote}>
-            {ticketContext}
-          </TicketButtonNote>
-        </a>
+        <Fragment>
+          <a
+            href={museum.ticketUrl}
+            target="_blank"
+            rel={ticketRel}
+            className={classNames}
+            title={ticketHoverMessage}
+            aria-label={ticketAriaLabel}
+            aria-describedby={showAffiliateNote ? ticketNoteId : undefined}
+            data-affiliate={showAffiliateNote ? 'true' : undefined}
+          >
+            <span className="ticket-button__icon" aria-hidden="true">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M4.5 7.75a1.75 1.75 0 0 1 1.75-1.75h4.5v2a1.75 1.75 0 1 0 0 3.5v2h-4.5A1.75 1.75 0 0 1 4.5 11.75v-4Z"
+                  fill="currentColor"
+                />
+                <path
+                  d="M13.25 16.25v-2a1.75 1.75 0 1 0 0-3.5v-2h4.5a1.75 1.75 0 0 1 1.75 1.75v4a1.75 1.75 0 0 1-1.75 1.75h-4.5Z"
+                  fill="currentColor"
+                />
+              </svg>
+            </span>
+            <span className={labelClassName}>
+              <span className="ticket-button__label-text">{t('buyTickets')}</span>
+              {partnerBadge}
+            </span>
+          </a>
+        </Fragment>
       );
     }
 
     return (
       <button type="button" className={classNames} disabled aria-disabled="true">
+        <span className="ticket-button__icon" aria-hidden="true">
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M4.5 7.75a1.75 1.75 0 0 1 1.75-1.75h4.5v2a1.75 1.75 0 1 0 0 3.5v2h-4.5A1.75 1.75 0 0 1 4.5 11.75v-4Z"
+              fill="currentColor"
+            />
+            <path
+              d="M13.25 16.25v-2a1.75 1.75 0 1 0 0-3.5v-2h4.5a1.75 1.75 0 0 1 1.75 1.75v4a1.75 1.75 0 0 1-1.75 1.75h-4.5Z"
+              fill="currentColor"
+            />
+          </svg>
+        </span>
         <span className="ticket-button__label">
           <span className="ticket-button__label-text">{t('buyTickets')}</span>
         </span>
@@ -233,10 +278,7 @@ export default function MuseumCard({ museum, priority = false }) {
   };
 
   return (
-    <article
-      className="museum-card group rounded-xl border border-slate-200 bg-white shadow-sm transition duration-200 hover:shadow-lg dark:border-slate-700/60 dark:bg-slate-900"
-      style={{ '--hover-bg': hoverColor }}
-    >
+    <article className="museum-card" style={{ '--hover-bg': hoverColor }}>
       <div className="museum-card-image">
         <Link
           href={{ pathname: '/museum/[slug]', query: { slug: museum.slug } }}
@@ -300,7 +342,7 @@ export default function MuseumCard({ museum, priority = false }) {
         </p>
       )}
       <div className="museum-card-info">
-        <h3 className="museum-card-title text-slate-900 dark:text-slate-100">
+        <h3 className="museum-card-title">
           <Link
             href={{ pathname: '/museum/[slug]', query: { slug: museum.slug } }}
             style={{ color: 'inherit', textDecoration: 'none' }}
@@ -338,6 +380,16 @@ export default function MuseumCard({ museum, priority = false }) {
             <span className="tag">{t('free')}</span>
           </div>
         )}
+        {ticketContext ? (
+          <TicketButtonNote
+            affiliate={showAffiliateNote}
+            showIcon={false}
+            id={ticketNoteId}
+            className="museum-card__affiliate-note"
+          >
+            {ticketContext}
+          </TicketButtonNote>
+        ) : null}
       </div>
     </article>
   );
