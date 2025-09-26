@@ -197,26 +197,21 @@ const EXPOSITION_FILTER_QUERY_MAP = Object.freeze({
   temporary: 'expoTijdelijk',
 });
 
-const DEFAULT_TAB = 'overview';
-const TAB_IDS = ['overview', 'exhibitions', 'info', 'map'];
+const DEFAULT_TAB = 'exhibitions';
+const TAB_IDS = ['exhibitions', 'map'];
 const TAB_HASHES = {
-  overview: 'overzicht',
   exhibitions: 'tentoonstellingen',
-  info: 'bezoekersinfo',
   map: 'kaart',
 };
 const TAB_LABEL_KEYS = {
-  overview: 'tabOverview',
   exhibitions: 'tabExhibitions',
-  info: 'tabVisitorInfo',
   map: 'tabMap',
 };
 const TAB_TITLE_KEYS = {
-  overview: 'tabTitleOverview',
   exhibitions: 'tabTitleExhibitions',
-  info: 'tabTitleVisitorInfo',
   map: 'tabTitleMap',
 };
+const VISITOR_INFO_HASH = 'bezoekersinfo';
 const HASH_TO_TAB = Object.entries(TAB_HASHES).reduce((acc, [id, hash]) => {
   acc[hash] = id;
   return acc;
@@ -394,14 +389,11 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
 
   const ticketContext = createTicketNote('ticket-context');
   const primaryTicketNoteId = useId();
-  const overviewTicketNoteId = useId();
-  const mobileTicketNoteId = useId();
   const ticketRel = showAffiliateNote ? 'sponsored noopener noreferrer' : 'noopener noreferrer';
   const ticketAriaLabel = showAffiliateNote
     ? `${t('buyTickets')} — ${t('ticketsAffiliateDisclosure')}`
     : t('buyTickets');
-  const mobileActionSheetId = useId();
-  const mobileActionSheetTitleId = useId();
+  const visitorInfoHeadingId = useId();
   const locationLines = getLocationLines(resolvedMuseum);
   const locationLabel = [resolvedMuseum.city, resolvedMuseum.province].filter(Boolean).join(', ');
   const hasWebsite = Boolean(resolvedMuseum.websiteUrl);
@@ -416,7 +408,6 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
   );
   const [filtersSheetOpen, setFiltersSheetOpen] = useState(false);
   const [filtersPopoverOpen, setFiltersPopoverOpen] = useState(false);
-  const [mobileActionsOpen, setMobileActionsOpen] = useState(false);
 
   const syncExpositionFiltersToUrl = useCallback(
     (nextFilters) => {
@@ -590,11 +581,6 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
     }
   }, [displayName, slug, t]);
 
-  const handleShareFromSheet = useCallback(() => {
-    setMobileActionsOpen(false);
-    handleShare();
-  }, [handleShare]);
-
   const handleTicketLinkClick = useCallback(
     (event) => {
       if (!ticketUrl) return;
@@ -610,56 +596,6 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
     },
     [openExternalLink, resolvedMuseum.websiteUrl]
   );
-
-  const hasMobilePrimaryActions = hasTicketLink || hasWebsite;
-
-  const handleToggleMobileActions = useCallback(() => {
-    setMobileActionsOpen((prev) => !prev);
-  }, []);
-
-  const handleCloseMobileActions = useCallback(() => {
-    setMobileActionsOpen(false);
-  }, []);
-
-  const handleMobileTicketAction = useCallback(async () => {
-    setMobileActionsOpen(false);
-    if (!ticketUrl) return;
-    await openExternalLink(ticketUrl);
-  }, [openExternalLink, ticketUrl]);
-
-  const handleMobileWebsiteAction = useCallback(async () => {
-    setMobileActionsOpen(false);
-    if (!resolvedMuseum.websiteUrl) return;
-    await openExternalLink(resolvedMuseum.websiteUrl);
-  }, [openExternalLink, resolvedMuseum.websiteUrl]);
-
-  useEffect(() => {
-    if (!hasMobilePrimaryActions) {
-      setMobileActionsOpen(false);
-    }
-  }, [hasMobilePrimaryActions]);
-
-  useEffect(() => {
-    if (!mobileActionsOpen || typeof document === 'undefined') return undefined;
-    const handleKeyDown = (event) => {
-      if (event.key === 'Escape') {
-        setMobileActionsOpen(false);
-      }
-    };
-    document.addEventListener('keydown', handleKeyDown);
-    return () => {
-      document.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [mobileActionsOpen]);
-
-  useEffect(() => {
-    if (!mobileActionsOpen || typeof document === 'undefined') return undefined;
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-    return () => {
-      document.body.style.overflow = previousOverflow;
-    };
-  }, [mobileActionsOpen]);
 
   const seoDescription = summary || t('museumDescription', { name: displayName });
   const canonical = `/museum/${slug}`;
@@ -896,11 +832,19 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
     if (typeof window === 'undefined') return undefined;
     const handleHashChange = () => {
       const nextHash = window.location.hash.replace('#', '').toLowerCase();
+      if (nextHash === VISITOR_INFO_HASH) {
+        const section = document.getElementById(VISITOR_INFO_HASH);
+        if (section) {
+          section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+        return;
+      }
       if (nextHash && HASH_TO_TAB[nextHash]) {
         setActiveTab(HASH_TO_TAB[nextHash]);
       }
     };
     window.addEventListener('hashchange', handleHashChange);
+    handleHashChange();
     return () => {
       window.removeEventListener('hashchange', handleHashChange);
     };
@@ -908,6 +852,10 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
+    const currentHash = window.location.hash.replace('#', '').toLowerCase();
+    if (currentHash === VISITOR_INFO_HASH) {
+      return;
+    }
     const hash = TAB_HASHES[activeTab] || TAB_HASHES[DEFAULT_TAB];
     if (!hash) return;
     const nextHash = `#${hash}`;
@@ -960,47 +908,6 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
     [tabDefinitions]
   );
 
-  const overviewDetails = [];
-  if (locationLines.length > 0) {
-    overviewDetails.push({
-      key: 'location',
-      label: t('location'),
-      lines: locationLines,
-    });
-  }
-  if (openingHours) {
-    overviewDetails.push({
-      key: 'hours',
-      label: t('openingHours'),
-      value: openingHours,
-    });
-  }
-  if (resolvedMuseum.free) {
-    overviewDetails.push({
-      key: 'free',
-      label: t('visitorInformation'),
-      value: t('free'),
-    });
-  }
-  if (hasWebsite) {
-    overviewDetails.push({
-      key: 'website',
-      label: t('website'),
-      value: resolvedMuseum.websiteUrl,
-      href: resolvedMuseum.websiteUrl,
-    });
-  }
-  if (hasTicketLink) {
-    overviewDetails.push({
-      key: 'tickets',
-      label: t('buyTickets'),
-      value: ticketUrl,
-      href: ticketUrl,
-      note: ticketContext,
-      noteId: overviewTicketNoteId,
-    });
-  }
-
   const mapQueryParts = [displayName, ...locationLines];
   if (!locationLines.length) {
     mapQueryParts.push(resolvedMuseum.address, resolvedMuseum.city, resolvedMuseum.province);
@@ -1016,11 +923,6 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
     },
     [mapDirectionsUrl, openExternalLink]
   );
-
-  const mobileActionsToggleLabel = mobileActionsOpen
-    ? t('mobileActionsCloseLabel')
-    : t('mobileActionsOpenLabel');
-  const mobileActionsTitle = t('mobileActionsTitle');
 
   return (
     <section className={`museum-detail${heroImage ? ' has-hero' : ''}`}>
@@ -1040,11 +942,11 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
       <header className={`museum-detail-hero-section${heroImage ? ' has-hero-image' : ''}`}>
         <div className="museum-detail-container">
           <div className="museum-hero-heading-container">
-            <div className="museum-hero-heading">
-              <nav className="museum-breadcrumbs" aria-label={t('breadcrumbsLabel')}>
-                <Link href="/" className="museum-backlink">
-                  <svg
-                    viewBox="0 0 24 24"
+          <div className="museum-hero-heading">
+            <nav className="museum-breadcrumbs" aria-label={t('breadcrumbsLabel')}>
+              <Link href="/" className="museum-backlink">
+                <svg
+                  viewBox="0 0 24 24"
                     fill="none"
                     stroke="currentColor"
                     strokeWidth="1.5"
@@ -1064,6 +966,66 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
                 {locationLabel && <p className="detail-sub museum-hero-location">{locationLabel}</p>}
                 <h1 className="detail-title museum-hero-title">{displayName}</h1>
                 {summary && <p className="detail-sub museum-hero-tagline">{summary}</p>}
+              </div>
+
+              <div className="museum-hero-actions">
+                {hasTicketLink ? (
+                  <div className="museum-hero-primary">
+                    <a
+                      href={ticketUrl}
+                      target="_blank"
+                      rel={ticketRel}
+                      className="museum-primary-action primary"
+                      aria-describedby={ticketContext ? primaryTicketNoteId : undefined}
+                      onClick={handleTicketLinkClick}
+                      title={ticketHoverMessage}
+                      aria-label={ticketAriaLabel}
+                      data-affiliate={showAffiliateNote ? 'true' : undefined}
+                    >
+                      <span
+                        className={
+                          showAffiliateNote
+                            ? 'ticket-button__label ticket-button__label--stacked'
+                            : 'ticket-button__label'
+                        }
+                      >
+                        <span className="ticket-button__label-text">{t('buyTickets')}</span>
+                        {showAffiliateNote ? (
+                          <span className="ticket-button__badge">
+                            {t('ticketsPartnerBadge')}
+                            <span className="sr-only"> — {t('ticketsAffiliateIntro')}</span>
+                          </span>
+                        ) : null}
+                      </span>
+                    </a>
+                    {ticketContext ? (
+                      <TicketButtonNote
+                        affiliate={showAffiliateNote}
+                        showIcon={false}
+                        id={primaryTicketNoteId}
+                        className="museum-primary-action__note museum-hero-ticket-note"
+                      >
+                        {ticketContext}
+                      </TicketButtonNote>
+                    ) : null}
+                  </div>
+                ) : null}
+
+                <div className="museum-hero-utilities">
+                  {hasWebsite ? (
+                    <a
+                      href={resolvedMuseum.websiteUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="museum-primary-action secondary museum-hero-secondary-action"
+                      onClick={handleWebsiteLinkClick}
+                    >
+                      <span>{t('website')}</span>
+                    </a>
+                  ) : null}
+                  <ShareButton onShare={handleShare} label={t('share')} />
+                  <FavoriteButton active={isFavorite} onToggle={handleFavorite} label={t('save')} />
+                </div>
               </div>
             </div>
           </div>
@@ -1112,82 +1074,6 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
       <section className="museum-detail-body">
         <div className="museum-detail-container">
           <div className="museum-detail-body-content">
-            <div className="museum-primary-action-bar">
-              <div className="museum-primary-action-group">
-                {hasTicketLink ? (
-                  <div className="museum-primary-action-stack">
-                    <a
-                      href={ticketUrl}
-                      target="_blank"
-                      rel={ticketRel}
-                      className="museum-primary-action primary"
-                      aria-describedby={ticketContext ? primaryTicketNoteId : undefined}
-                      onClick={handleTicketLinkClick}
-                      title={ticketHoverMessage}
-                      aria-label={ticketAriaLabel}
-                      data-affiliate={showAffiliateNote ? 'true' : undefined}
-                    >
-                      <span
-                        className={
-                          showAffiliateNote
-                            ? 'ticket-button__label ticket-button__label--stacked'
-                            : 'ticket-button__label'
-                        }
-                      >
-                        <span className="ticket-button__label-text">{t('buyTickets')}</span>
-                        {showAffiliateNote ? (
-                          <span className="ticket-button__badge">
-                            {t('ticketsPartnerBadge')}
-                            <span className="sr-only"> — {t('ticketsAffiliateIntro')}</span>
-                          </span>
-                        ) : null}
-                      </span>
-                    </a>
-                    {ticketContext ? (
-                      <TicketButtonNote
-                        affiliate={showAffiliateNote}
-                        showIcon={false}
-                        id={primaryTicketNoteId}
-                        className="museum-primary-action__note"
-                      >
-                        {createTicketNote('primary-ticket-note')}
-                      </TicketButtonNote>
-                    ) : null}
-                  </div>
-                ) : (
-                  <div className="museum-primary-action-stack">
-                    <button
-                      type="button"
-                      className="museum-primary-action primary"
-                      disabled
-                      aria-disabled="true"
-                    >
-                      <span className="ticket-button__label">
-                        <span className="ticket-button__label-text">{t('buyTickets')}</span>
-                      </span>
-                    </button>
-                  </div>
-                )}
-
-                {hasWebsite && (
-                  <a
-                    href={resolvedMuseum.websiteUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="museum-primary-action secondary"
-                    onClick={handleWebsiteLinkClick}
-                  >
-                    <span>{t('website')}</span>
-                  </a>
-                )}
-              </div>
-
-              <div className="museum-primary-action-utility">
-                <ShareButton onShare={handleShare} label={t('share')} />
-                <FavoriteButton active={isFavorite} onToggle={handleFavorite} label={t('save')} />
-              </div>
-            </div>
-
             <div className="museum-detail-grid">
               <div className="museum-detail-main">
                 <div className="museum-tablist" role="tablist" aria-label={t('museumTabsLabel')}>
@@ -1212,68 +1098,6 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
                     );
                   })}
                 </div>
-
-                <section
-              id={TAB_HASHES.overview}
-              role="tabpanel"
-              aria-labelledby="museum-tab-overview"
-              className="museum-tabpanel"
-              hidden={activeTab !== 'overview'}
-              aria-hidden={activeTab !== 'overview'}
-              tabIndex={activeTab === 'overview' ? 0 : -1}
-            >
-              <div className="museum-overview-card">
-                <h2 className="museum-overview-title">{t('tabOverview')}</h2>
-                {summary && <p className="museum-overview-text">{summary}</p>}
-                {overviewDetails.length > 0 && (
-                  <ul className="museum-overview-list">
-                    {overviewDetails.map((detail) => {
-                      const detailClickHandler =
-                        detail.key === 'tickets'
-                          ? handleTicketLinkClick
-                          : detail.key === 'website'
-                          ? handleWebsiteLinkClick
-                          : undefined;
-                      return (
-                        <li key={detail.key} className="museum-overview-list-item">
-                          <span className="museum-overview-label">{detail.label}</span>
-                          <span className="museum-overview-value">
-                            {detail.href ? (
-                              <>
-                                <a
-                                  href={detail.href}
-                                  target="_blank"
-                                  rel="noreferrer"
-                                  aria-describedby={
-                                    detail.note && detail.noteId ? detail.noteId : undefined
-                                  }
-                                  onClick={detailClickHandler}
-                                >
-                                  {formatLinkLabel(detail.href) || detail.value}
-                                </a>
-                                {detail.note ? (
-                                  <span className="museum-overview-note" id={detail.noteId}>
-                                    {detail.note}
-                                  </span>
-                                ) : null}
-                              </>
-                            ) : detail.lines ? (
-                              detail.lines.map((line, index) => (
-                                <span key={`${detail.key}-${index}`} className="museum-overview-line">
-                                  {line}
-                                </span>
-                              ))
-                            ) : (
-                              detail.value
-                            )}
-                          </span>
-                        </li>
-                      );
-                    })}
-                  </ul>
-                )}
-              </div>
-                </section>
 
                 <section
               id={TAB_HASHES.exhibitions}
@@ -1430,17 +1254,11 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
                 </section>
               </div>
 
-          <aside
-            className={`museum-sidebar museum-tabpanel${activeTab === 'info' ? ' is-active' : ''}`}
-            role="tabpanel"
-            id={TAB_HASHES.info}
-            aria-labelledby="museum-tab-info"
-            hidden={activeTab !== 'info'}
-            aria-hidden={activeTab !== 'info'}
-            tabIndex={activeTab === 'info' ? 0 : -1}
-          >
+          <aside className="museum-sidebar" id={VISITOR_INFO_HASH} aria-labelledby={visitorInfoHeadingId}>
             <div className="museum-sidebar-card support-card">
-              <h2 className="museum-sidebar-title">{t('visitorInformation')}</h2>
+              <h2 id={visitorInfoHeadingId} className="museum-sidebar-title">
+                {t('visitorInformation')}
+              </h2>
 
               <div className="museum-info-details">
                 {openingHours && (
@@ -1468,6 +1286,47 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
                   <div className="museum-info-item">
                     <span className="museum-info-label">{t('visitorInformation')}</span>
                     <p className="museum-info-value">{t('free')}</p>
+                  </div>
+                )}
+
+                {hasWebsite && (
+                  <div className="museum-info-item">
+                    <span className="museum-info-label">{t('website')}</span>
+                    <p className="museum-info-value">
+                      <a
+                        href={resolvedMuseum.websiteUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        onClick={handleWebsiteLinkClick}
+                      >
+                        {formatLinkLabel(resolvedMuseum.websiteUrl) || resolvedMuseum.websiteUrl}
+                      </a>
+                    </p>
+                  </div>
+                )}
+
+                {hasTicketLink && (
+                  <div className="museum-info-item">
+                    <span className="museum-info-label">{t('buyTickets')}</span>
+                    <p className="museum-info-value">
+                      <a
+                        href={ticketUrl}
+                        target="_blank"
+                        rel={ticketRel}
+                        onClick={handleTicketLinkClick}
+                      >
+                        {formatLinkLabel(ticketUrl) || ticketUrl}
+                      </a>
+                    </p>
+                    {ticketNoteDefinitions.length > 0 ? (
+                      <TicketButtonNote
+                        affiliate={showAffiliateNote}
+                        showIcon={false}
+                        className="museum-info-note"
+                      >
+                        {createTicketNote('visitor-info-ticket-note')}
+                      </TicketButtonNote>
+                    ) : null}
                   </div>
                 )}
 
@@ -1511,131 +1370,6 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
           </div>
         </div>
       </section>
-
-      {hasMobilePrimaryActions ? (
-        <div className={`museum-mobile-actions${mobileActionsOpen ? ' is-open' : ''}`}>
-          <button
-            type="button"
-            className="museum-mobile-actions__fab"
-            aria-expanded={mobileActionsOpen}
-            aria-controls={mobileActionSheetId}
-            onClick={handleToggleMobileActions}
-            aria-label={mobileActionsToggleLabel}
-          >
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              aria-hidden="true"
-            >
-              <path d="M3.75 7.5A1.75 1.75 0 0 1 5.5 5.75h13a1.75 1.75 0 0 1 1.75 1.75v2.1a2 2 0 1 0 0 4v2.1A1.75 1.75 0 0 1 18.5 17.5h-13A1.75 1.75 0 0 1 3.75 15.7v-2.1a2 2 0 1 0 0-4Z" />
-              <path d="M12 8.25v7.5" />
-              <path d="M9.75 12h4.5" />
-            </svg>
-          </button>
-          <div
-            className="museum-mobile-actions__backdrop"
-            role="presentation"
-            aria-hidden="true"
-            onClick={handleCloseMobileActions}
-          />
-          <div
-            className="museum-mobile-actions__sheet"
-            role="dialog"
-            aria-modal="true"
-            id={mobileActionSheetId}
-            aria-labelledby={mobileActionSheetTitleId}
-            aria-hidden={!mobileActionsOpen}
-            tabIndex={-1}
-          >
-            <div className="museum-mobile-actions__handle" aria-hidden="true" />
-            <div className="museum-mobile-actions__header">
-              <h2 id={mobileActionSheetTitleId} className="museum-mobile-actions__title">
-                {mobileActionsTitle}
-              </h2>
-              <button
-                type="button"
-                className="museum-mobile-actions__close"
-                onClick={handleCloseMobileActions}
-                aria-label={t('close')}
-              >
-                <svg
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  aria-hidden="true"
-                >
-                  <path d="M6 6l12 12" />
-                  <path d="M18 6L6 18" />
-                </svg>
-              </button>
-            </div>
-            <div className="museum-mobile-actions__body">
-              <div className="museum-mobile-actions__actions">
-                {hasTicketLink ? (
-                  <div className="museum-primary-action-stack">
-                    <button
-                      type="button"
-                      className="museum-primary-action primary museum-mobile-actions__action"
-                      onClick={handleMobileTicketAction}
-                      aria-describedby={ticketContext ? mobileTicketNoteId : undefined}
-                      title={ticketHoverMessage}
-                      aria-label={ticketAriaLabel}
-                      data-affiliate={showAffiliateNote ? 'true' : undefined}
-                    >
-                      <span
-                        className={
-                          showAffiliateNote
-                            ? 'ticket-button__label ticket-button__label--stacked'
-                            : 'ticket-button__label'
-                        }
-                      >
-                        <span className="ticket-button__label-text">{t('buyTickets')}</span>
-                        {showAffiliateNote ? (
-                          <span className="ticket-button__badge">
-                            {t('ticketsPartnerBadge')}
-                            <span className="sr-only"> — {t('ticketsAffiliateIntro')}</span>
-                          </span>
-                        ) : null}
-                      </span>
-                    </button>
-                    {ticketContext ? (
-                      <TicketButtonNote
-                        affiliate={showAffiliateNote}
-                        showIcon={false}
-                        id={mobileTicketNoteId}
-                        className="museum-primary-action__note"
-                      >
-                        {createTicketNote('mobile-ticket-note')}
-                      </TicketButtonNote>
-                    ) : null}
-                  </div>
-                ) : null}
-                {hasWebsite ? (
-                  <button
-                    type="button"
-                    className="museum-primary-action secondary museum-mobile-actions__action"
-                    onClick={handleMobileWebsiteAction}
-                  >
-                    <span>{t('website')}</span>
-                  </button>
-                ) : null}
-              </div>
-              <div className="museum-mobile-actions__utility">
-                <ShareButton onShare={handleShareFromSheet} label={t('share')} />
-                <FavoriteButton active={isFavorite} onToggle={handleFavorite} label={t('save')} />
-              </div>
-            </div>
-          </div>
-        </div>
-      ) : null}
-
     </section>
   );
 }
