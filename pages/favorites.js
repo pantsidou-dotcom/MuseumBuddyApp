@@ -23,9 +23,9 @@ export default function FavoritesPage() {
             <>
               <h2 className="page-title">{t('favoriteMuseums')}</h2>
               <ul className="grid" style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-                {museumFavorites.map((m) => (
+                {museumFavorites.map((m, index) => (
                   <li key={`m-${m.id}`}>
-                    <MuseumCard museum={m} />
+                    <MuseumCard museum={m} priority={index < 3} />
                   </li>
                 ))}
               </ul>

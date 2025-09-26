@@ -32,7 +32,20 @@ function getHoverColor(slug, id) {
   return HOVER_COLORS[index];
 }
 
-export default function MuseumCard({ museum }) {
+function createBlurDataUrl(color) {
+  if (typeof color !== 'string' || !color) {
+    return 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 20"%3E%3Crect width="32" height="20" fill="%23e2e8f0" /%3E%3C/svg%3E';
+  }
+
+  const normalized = color.startsWith('#') ? color : `#${color}`;
+  const sanitized = /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(normalized)
+    ? normalized
+    : '#e2e8f0';
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 20"><rect width="32" height="20" fill="${sanitized}" /></svg>`;
+  return `data:image/svg+xml,${encodeURIComponent(svg)}`;
+}
+
+export default function MuseumCard({ museum, priority = false }) {
   if (!museum) return null;
 
   const { favorites, toggleFavorite } = useFavorites();
@@ -42,6 +55,7 @@ export default function MuseumCard({ museum }) {
     () => getHoverColor(museum.slug, museum.id),
     [museum.slug, museum.id]
   );
+  const blurDataUrl = useMemo(() => createBlurDataUrl(hoverColor), [hoverColor]);
 
   const summary = museumSummaries[museum.slug]?.[lang] || museum.summary;
   const hours = museumOpeningHours[museum.slug]?.[lang];
@@ -237,6 +251,11 @@ export default function MuseumCard({ museum }) {
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
               className="museum-card-media"
               style={{ objectFit: 'cover' }}
+              placeholder="blur"
+              blurDataURL={blurDataUrl}
+              priority={priority}
+              loading={priority ? 'eager' : 'lazy'}
+              quality={70}
             />
           )}
           <div className="museum-card-overlay" aria-hidden="true">
