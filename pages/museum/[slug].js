@@ -1189,31 +1189,31 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
             </div>
 
             <div className="museum-detail-grid">
-          <div className="museum-detail-main">
-            <div className="museum-tablist" role="tablist" aria-label={t('museumTabsLabel')}>
-              {tabDefinitions.map((tab, index) => {
-                const isActive = activeTab === tab.id;
-                return (
-                  <button
-                    key={tab.id}
-                    type="button"
-                    role="tab"
-                    id={`museum-tab-${tab.id}`}
-                    aria-controls={tab.hash}
-                    aria-selected={isActive}
-                    aria-label={tab.title}
-                    tabIndex={isActive ? 0 : -1}
-                    className={`museum-tab${isActive ? ' is-active' : ''}`}
-                    onClick={() => handleTabSelect(tab.id)}
-                    onKeyDown={(event) => handleTabKeyDown(event, index)}
-                  >
-                    <span>{tab.label}</span>
-                  </button>
-                );
-              })}
-            </div>
+              <div className="museum-detail-main">
+                <div className="museum-tablist" role="tablist" aria-label={t('museumTabsLabel')}>
+                  {tabDefinitions.map((tab, index) => {
+                    const isActive = activeTab === tab.id;
+                    return (
+                      <button
+                        key={tab.id}
+                        type="button"
+                        role="tab"
+                        id={`museum-tab-${tab.id}`}
+                        aria-controls={tab.hash}
+                        aria-selected={isActive}
+                        aria-label={tab.title}
+                        tabIndex={isActive ? 0 : -1}
+                        className={`museum-tab${isActive ? ' is-active' : ''}`}
+                        onClick={() => handleTabSelect(tab.id)}
+                        onKeyDown={(event) => handleTabKeyDown(event, index)}
+                      >
+                        <span>{tab.label}</span>
+                      </button>
+                    );
+                  })}
+                </div>
 
-            <section
+                <section
               id={TAB_HASHES.overview}
               role="tabpanel"
               aria-labelledby="museum-tab-overview"
@@ -1273,9 +1273,9 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
                   </ul>
                 )}
               </div>
-            </section>
+                </section>
 
-            <section
+                <section
               id={TAB_HASHES.exhibitions}
               role="tabpanel"
               aria-labelledby="museum-tab-exhibitions"
@@ -1388,9 +1388,9 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
                   )}
                 </div>
               </div>
-            </section>
+                </section>
 
-            <section
+                <section
               id={TAB_HASHES.map}
               role="tabpanel"
               aria-labelledby="museum-tab-map"
@@ -1427,8 +1427,8 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
                   <p className="museum-map-empty">{t('mapUnavailable')}</p>
                 )}
               </div>
-            </section>
-          </div>
+                </section>
+              </div>
 
           <aside
             className={`museum-sidebar museum-tabpanel${activeTab === 'info' ? ' is-active' : ''}`}
@@ -1507,10 +1507,9 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
 
             </div>
           </aside>
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
-  </div>
       </section>
 
       {hasMobilePrimaryActions ? (
