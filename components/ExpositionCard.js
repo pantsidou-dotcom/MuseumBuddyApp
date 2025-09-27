@@ -5,8 +5,6 @@ import { useFavorites } from './FavoritesContext';
 import { shouldShowAffiliateNote } from '../lib/nonAffiliateMuseums';
 import TicketButtonNote from './TicketButtonNote';
 
-const FALLBACK_IMAGE = '/images/exposition-placeholder.svg';
-
 function formatRange(start, end, locale) {
   if (!start) return '';
   const opts = { day: '2-digit', month: 'short' };
@@ -114,6 +112,35 @@ function resolveMediaAlt(exposition, translate) {
   return typeof translate === 'function' ? translate('exhibitionsTitle') : '';
 }
 
+function stringHash(input) {
+  const str = String(input ?? '');
+  let hash = 0;
+  for (let index = 0; index < str.length; index += 1) {
+    hash = (hash << 5) - hash + str.charCodeAt(index);
+    hash |= 0; // eslint-disable-line no-bitwise
+  }
+  return hash;
+}
+
+function createFallbackPalette(seed) {
+  const hash = Math.abs(stringHash(seed)) || 240;
+  const huePrimary = hash % 360;
+  const hueSecondary = (huePrimary + 32) % 360;
+  const hueGlow = (huePrimary + 140) % 360;
+  return {
+    '--fallback-start': `hsl(${huePrimary}, 76%, 56%)`,
+    '--fallback-end': `hsl(${hueSecondary}, 78%, 50%)`,
+    '--fallback-glow': `hsla(${hueGlow}, 92%, 72%, 0.55)`,
+  };
+}
+
+function resolveFallbackInitial(title, translate) {
+  const fallback = typeof translate === 'function' ? translate('exhibitionsTitle') : 'E';
+  const source = typeof title === 'string' && title.trim() ? title.trim() : fallback;
+  const initial = source.trim().charAt(0);
+  return initial ? initial.toUpperCase() : 'E';
+}
+
 function pickBoolean(...values) {
   for (const value of values) {
     if (typeof value === 'boolean') return value;
@@ -185,8 +212,23 @@ export default function ExpositionCard({ exposition, ticketUrl, affiliateUrl, mu
 
   const mediaUrl = useMemo(() => resolveMediaUrl(exposition), [exposition]);
   const hasMedia = Boolean(mediaUrl) && !hasImageError;
-  const resolvedImage = hasMedia ? mediaUrl : FALLBACK_IMAGE;
-  const favoriteImage = hasMedia ? mediaUrl : FALLBACK_IMAGE;
+  const showFallbackArtwork = !hasMedia;
+  const resolvedImage = hasMedia ? mediaUrl : null;
+  const favoriteImage = hasMedia ? mediaUrl : null;
+  const fallbackSeed = useMemo(() => {
+    const parts = [slug, exposition?.id, exposition?.titel, exposition?.bron_url];
+    return (
+      parts
+        .filter((value) => value !== undefined && value !== null && String(value).trim() !== '')
+        .join('-') || 'exposition'
+    );
+  }, [slug, exposition?.id, exposition?.titel, exposition?.bron_url]);
+  const fallbackPalette = useMemo(() => createFallbackPalette(fallbackSeed), [fallbackSeed]);
+  const fallbackInitial = useMemo(
+    () => resolveFallbackInitial(exposition?.titel, t),
+    [exposition?.titel, t]
+  );
+  const fallbackLabel = useMemo(() => t('exhibitionsTitle'), [t]);
   const resolvedAltText = useMemo(() => resolveMediaAlt(exposition, t), [exposition, t]);
 
   useEffect(() => {
@@ -231,8 +273,8 @@ export default function ExpositionCard({ exposition, ticketUrl, affiliateUrl, mu
 
   const mediaClassName = [
     'exposition-card__media',
-    !isImageLoaded ? ' is-loading' : '',
-    hasMedia ? '' : ' is-placeholder',
+    hasMedia && !isImageLoaded ? ' is-loading' : '',
+    showFallbackArtwork ? ' is-fallback' : '',
   ]
     .filter(Boolean)
     .join(' ');
@@ -241,26 +283,41 @@ export default function ExpositionCard({ exposition, ticketUrl, affiliateUrl, mu
     <article
       className={`exposition-card${isFavoriteBouncing ? ' is-bouncing' : ''}`}
     >
-      <div className={mediaClassName} aria-busy={!isImageLoaded}>
-        {!isImageLoaded && (
-          <div className="exposition-card__skeleton" aria-hidden="true">
-            <div className="exposition-card__skeleton-shimmer" />
+      <div
+        className={mediaClassName}
+        aria-busy={hasMedia && !isImageLoaded ? 'true' : undefined}
+        style={showFallbackArtwork ? fallbackPalette : undefined}
+      >
+        {showFallbackArtwork ? (
+          <div className="exposition-card__fallback" aria-hidden="true">
+            <span className="exposition-card__fallback-letter">{fallbackInitial}</span>
+            <span className="exposition-card__fallback-pill">{fallbackLabel}</span>
           </div>
+        ) : (
+          <>
+            {!isImageLoaded && (
+              <div className="exposition-card__skeleton" aria-hidden="true">
+                <div className="exposition-card__skeleton-shimmer" />
+              </div>
+            )}
+            {resolvedImage ? (
+              <Image
+                src={resolvedImage}
+                alt={resolvedAltText}
+                width={630}
+                height={300}
+                className="exposition-card__image"
+                loading="lazy"
+                sizes="(max-width: 600px) 100vw, (max-width: 1024px) 70vw, 300px"
+                onLoadingComplete={() => setIsImageLoaded(true)}
+                onError={() => {
+                  setHasImageError(true);
+                  setIsImageLoaded(true);
+                }}
+              />
+            ) : null}
+          </>
         )}
-        <Image
-          src={resolvedImage}
-          alt={resolvedAltText}
-          width={630}
-          height={300}
-          className="exposition-card__image"
-          loading="lazy"
-          sizes="(max-width: 600px) 100vw, (max-width: 1024px) 70vw, 300px"
-          onLoadingComplete={() => setIsImageLoaded(true)}
-          onError={() => {
-            setHasImageError(true);
-            setIsImageLoaded(true);
-          }}
-        />
       </div>
       <div className="exposition-card__body">
         <div className="exposition-card__topline">
