@@ -3118,54 +3118,6 @@ button.hero-quick-link {
   box-shadow: 0 20px 50px rgba(2, 6, 23, 0.6);
 }
 
-.exposition-card__media {
-  position: relative;
-  overflow: hidden;
-  aspect-ratio: 21 / 10;
-  background: linear-gradient(135deg, rgba(255,90,60,0.14), rgba(14,116,144,0.14));
-}
-
-.exposition-card__media.is-placeholder {
-  background: linear-gradient(135deg, rgba(255,90,60,0.1), rgba(59,130,246,0.12));
-}
-
-.exposition-card__skeleton {
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  background: var(--skeleton-base);
-  overflow: hidden;
-  opacity: 0;
-  transition: opacity 0.25s ease;
-}
-
-.exposition-card__skeleton-shimmer {
-  position: absolute;
-  inset: 0;
-  transform: translateX(-100%);
-  background: linear-gradient(90deg, transparent 0%, var(--skeleton-highlight) 50%, transparent 100%);
-  animation: skeleton-shimmer 1.6s ease-in-out infinite;
-}
-
-.exposition-card__media.is-loading .exposition-card__skeleton {
-  opacity: 1;
-}
-
-.exposition-card__image {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-  transition: transform 0.35s ease, opacity 0.25s ease;
-}
-
-.exposition-card__media.is-loading .exposition-card__image {
-  opacity: 0;
-}
-
-.exposition-card:hover .exposition-card__image {
-  transform: scale(1.02);
-}
 
 .exposition-card__body,
 .event-card__body {
@@ -3174,6 +3126,16 @@ button.hero-quick-link {
   gap: var(--space-16);
   padding: var(--space-24);
   min-height: 0;
+}
+
+.exposition-card__body {
+  background: linear-gradient(180deg, rgba(148,163,184,0.12) 0%, rgba(248,250,252,0) 78%);
+  border-bottom: 1px solid rgba(148, 163, 184, 0.25);
+}
+
+[data-theme='dark'] .exposition-card__body {
+  background: linear-gradient(180deg, rgba(148,163,184,0.16) 0%, rgba(2,6,23,0) 78%);
+  border-bottom-color: rgba(100, 116, 139, 0.32);
 }
 
 .exposition-card__topline {
@@ -3392,14 +3354,12 @@ button.hero-quick-link {
 @media (prefers-reduced-motion: reduce) {
   .exposition-carousel__arrow,
   .exposition-carousel__dot,
-  .exposition-card,
-  .exposition-card__image {
+  .exposition-card {
     transition: none;
   }
   .exposition-card.is-bouncing .icon-button.large {
     animation: none;
   }
-  .exposition-card__skeleton-shimmer,
   .exposition-card--loading .exposition-card__summary::after,
   .exposition-card--loading .exposition-card__title::after,
   .exposition-card--loading .exposition-card__tag::after,
