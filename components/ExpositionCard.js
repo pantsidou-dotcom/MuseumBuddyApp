@@ -1,11 +1,8 @@
-import Image from 'next/image';
 import { Fragment, useEffect, useId, useMemo, useRef, useState } from 'react';
 import { useLanguage } from './LanguageContext';
 import { useFavorites } from './FavoritesContext';
 import { shouldShowAffiliateNote } from '../lib/nonAffiliateMuseums';
 import TicketButtonNote from './TicketButtonNote';
-
-const FALLBACK_IMAGE = '/images/exposition-placeholder.svg';
 
 function formatRange(start, end, locale) {
   if (!start) return '';
@@ -22,96 +19,6 @@ function formatRange(start, end, locale) {
       .padStart(2, '0')} ${month}`;
   }
   return `${startFmt} - ${endFmt}`;
-}
-
-function resolveMediaUrl(exposition) {
-  if (!exposition || typeof exposition !== 'object') return null;
-  const primaryKeys = [
-    'image',
-    'image_url',
-    'imageUrl',
-    'afbeelding',
-    'afbeelding_url',
-    'afbeeldingUrl',
-    'mediaUrl',
-    'coverImage',
-    'cover_image',
-    'poster',
-    'posterUrl',
-    'hero_image',
-    'heroImage',
-  ];
-  for (const key of primaryKeys) {
-    const value = exposition[key];
-    if (typeof value === 'string' && value.trim()) {
-      return value.trim();
-    }
-  }
-  const collectionKeys = ['images', 'photos', 'media', 'gallery'];
-  for (const key of collectionKeys) {
-    const value = exposition[key];
-    if (Array.isArray(value)) {
-      for (const item of value) {
-        if (typeof item === 'string' && item.trim()) {
-          return item.trim();
-        }
-        if (item && typeof item === 'object') {
-          if (typeof item.url === 'string' && item.url.trim()) {
-            return item.url.trim();
-          }
-          if (typeof item.src === 'string' && item.src.trim()) {
-            return item.src.trim();
-          }
-        }
-      }
-    } else if (value && typeof value === 'object') {
-      if (typeof value.url === 'string' && value.url.trim()) {
-        return value.url.trim();
-      }
-      if (typeof value.src === 'string' && value.src.trim()) {
-        return value.src.trim();
-      }
-    }
-  }
-  return null;
-}
-
-function resolveMediaAlt(exposition, translate) {
-  if (!exposition || typeof exposition !== 'object') {
-    return typeof translate === 'function' ? translate('exhibitionsTitle') : '';
-  }
-  const altKeys = [
-    'image_alt',
-    'imageAlt',
-    'image_alt_text',
-    'imageAltText',
-    'afbeelding_alt',
-    'afbeeldingAlt',
-    'afbeelding_omschrijving',
-    'afbeeldingOmschrijving',
-    'media_alt',
-    'mediaAlt',
-    'poster_alt',
-    'posterAlt',
-    'hero_image_alt',
-    'heroImageAlt',
-    'cover_image_alt',
-    'coverImageAlt',
-    'alt',
-  ];
-  for (const key of altKeys) {
-    const value = exposition[key];
-    if (typeof value === 'string') {
-      const trimmed = value.trim();
-      if (trimmed) {
-        return trimmed;
-      }
-    }
-  }
-  if (typeof exposition.titel === 'string' && exposition.titel.trim()) {
-    return exposition.titel.trim();
-  }
-  return typeof translate === 'function' ? translate('exhibitionsTitle') : '';
 }
 
 function pickBoolean(...values) {
@@ -160,8 +67,6 @@ export default function ExpositionCard({ exposition, ticketUrl, affiliateUrl, mu
   const ctaDescribedBy = ticketContext ? ticketNoteId : undefined;
 
   const [isFavoriteBouncing, setIsFavoriteBouncing] = useState(false);
-  const [hasImageError, setHasImageError] = useState(false);
-  const [isImageLoaded, setIsImageLoaded] = useState(false);
   const bounceTimeoutRef = useRef(null);
 
   useEffect(() => {
@@ -183,17 +88,6 @@ export default function ExpositionCard({ exposition, ticketUrl, affiliateUrl, mu
     }, 420);
   };
 
-  const mediaUrl = useMemo(() => resolveMediaUrl(exposition), [exposition]);
-  const hasMedia = Boolean(mediaUrl) && !hasImageError;
-  const resolvedImage = hasMedia ? mediaUrl : FALLBACK_IMAGE;
-  const favoriteImage = hasMedia ? mediaUrl : FALLBACK_IMAGE;
-  const resolvedAltText = useMemo(() => resolveMediaAlt(exposition, t), [exposition, t]);
-
-  useEffect(() => {
-    setHasImageError(false);
-    setIsImageLoaded(false);
-  }, [mediaUrl]);
-
   const handleFavorite = () => {
     toggleFavorite({
       id: exposition.id,
@@ -204,7 +98,7 @@ export default function ExpositionCard({ exposition, ticketUrl, affiliateUrl, mu
       ticketAffiliateUrl: primaryAffiliateUrl,
       ticketUrl: buyUrl,
       museumSlug: slug,
-      image: favoriteImage,
+      image: null,
       type: 'exposition',
     });
     triggerFavoriteBounce();
@@ -229,39 +123,10 @@ export default function ExpositionCard({ exposition, ticketUrl, affiliateUrl, mu
   ];
   const activeTags = tagDefinitions.filter((tag) => tag.active);
 
-  const mediaClassName = [
-    'exposition-card__media',
-    !isImageLoaded ? ' is-loading' : '',
-    hasMedia ? '' : ' is-placeholder',
-  ]
-    .filter(Boolean)
-    .join(' ');
-
   return (
     <article
       className={`exposition-card${isFavoriteBouncing ? ' is-bouncing' : ''}`}
     >
-      <div className={mediaClassName} aria-busy={!isImageLoaded}>
-        {!isImageLoaded && (
-          <div className="exposition-card__skeleton" aria-hidden="true">
-            <div className="exposition-card__skeleton-shimmer" />
-          </div>
-        )}
-        <Image
-          src={resolvedImage}
-          alt={resolvedAltText}
-          width={630}
-          height={300}
-          className="exposition-card__image"
-          loading="lazy"
-          sizes="(max-width: 600px) 100vw, (max-width: 1024px) 70vw, 300px"
-          onLoadingComplete={() => setIsImageLoaded(true)}
-          onError={() => {
-            setHasImageError(true);
-            setIsImageLoaded(true);
-          }}
-        />
-      </div>
       <div className="exposition-card__body">
         <div className="exposition-card__topline">
           {rangeLabel && (
