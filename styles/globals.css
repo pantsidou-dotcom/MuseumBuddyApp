@@ -1356,6 +1356,9 @@ button.hero-quick-link {
   background: linear-gradient(180deg, var(--info-card-bg) 0%, rgba(255, 255, 255, 0.95) 100%);
   box-shadow: var(--panel-shadow);
 }
+.museum-hero-text--standalone .museum-hero-title {
+  color: rgba(255, 255, 255, 0.95);
+}
 .museum-hero-text--standalone .museum-hero-location,
 .museum-hero-text--standalone .museum-hero-tagline {
   color: var(--muted);
