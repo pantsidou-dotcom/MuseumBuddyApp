@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 240" role="img" aria-labelledby="title desc">
+  <title id="title">MuseumBuddy wordmark</title>
+  <desc id="desc">Three vertical bars followed by the words Museum Buddy set in blue on a soft grey gradient background.</desc>
+  <defs>
+    <linearGradient id="bg-gradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#f8fafc" />
+      <stop offset="100%" stop-color="#cbd5f5" />
+    </linearGradient>
+    <linearGradient id="bar-gradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#2563eb" />
+      <stop offset="100%" stop-color="#1d4ed8" />
+    </linearGradient>
+  </defs>
+  <rect fill="url(#bg-gradient)" width="640" height="240" rx="32" />
+  <g transform="translate(96 48)">
+    <rect fill="url(#bar-gradient)" width="36" height="144" rx="10" />
+    <rect fill="url(#bar-gradient)" x="56" width="36" height="144" rx="10" />
+    <rect fill="url(#bar-gradient)" x="112" width="36" height="144" rx="10" />
+  </g>
+  <text x="248" y="124" fill="#0f172a" font-family="'Inter', 'Segoe UI', sans-serif" font-size="68" font-weight="600" letter-spacing="0.02em">Museum</text>
+  <text x="248" y="190" fill="#1d4ed8" font-family="'Inter', 'Segoe UI', sans-serif" font-size="68" font-weight="600" letter-spacing="0.02em">Buddy</text>
+</svg>

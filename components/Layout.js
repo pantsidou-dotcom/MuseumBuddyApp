@@ -13,6 +13,8 @@ export default function Layout({ children }) {
   const { lang, switchLang, t } = useLanguage();
 
   const navLabel = lang === 'en' ? 'Main navigation' : 'Hoofdnavigatie';
+  const brandAlt = t('brandAlt');
+  const brandAltText = brandAlt === 'brandAlt' ? 'MuseumBuddy wordmark logo' : brandAlt;
 
   const handleFiltersClick = () => {
     if (typeof window !== 'undefined') {
@@ -30,11 +32,12 @@ export default function Layout({ children }) {
             <div className="brand-identity">
               <Image
                 className="brand-logo"
-                src="/brand/MuseumBuddy Logo Design 2.png"
-                alt="MuseumBuddy logo"
-                width={800}
-                height={219}
+                src="/brand/museumbuddy-wordmark.svg"
+                alt={brandAltText}
+                width={320}
+                height={120}
                 priority
+                sizes="(max-width: 480px) 160px, (max-width: 768px) 200px, 240px"
               />
               <div className="brand-lockup">
                 <span className="brand-title">MuseumBuddy</span>
