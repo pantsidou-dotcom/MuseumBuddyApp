@@ -356,23 +356,7 @@ export default function Home({ initialMuseums = [], initialError = null }) {
 
     const run = async () => {
       try {
-        const buildQuery = (columns, expositionIds) => {
-          if (activeFilters.nearby) {
-            const latitude = userLocation?.latitude;
-            const longitude = userLocation?.longitude;
-            let db = supabaseClient.rpc(NEARBY_RPC_NAME, {
-              lat: latitude,
-              lng: longitude,
-              radius_meters: NEARBY_RADIUS_METERS,
-            });
-            if (query) db = db.ilike('naam', `%${query}%`);
-            if (activeFilters.free) db = db.eq('gratis_toegankelijk', true);
-            if (Array.isArray(expositionIds) && expositionIds.length > 0) {
-              db = db.in('id', expositionIds);
-            }
-            return db;
-          }
-
+        const createBaseQuery = (columns, expositionIds) => {
           let db = supabaseClient.from('musea').select(columns).order('naam', { ascending: true });
           if (query) db = db.ilike('naam', `%${query}%`);
           if (activeFilters.free) db = db.eq('gratis_toegankelijk', true);
@@ -380,6 +364,67 @@ export default function Home({ initialMuseums = [], initialError = null }) {
             db = db.in('id', expositionIds);
           }
           return db;
+        };
+
+        const createNearbyQuery = (expositionIds) => {
+          const latitude = userLocation?.latitude;
+          const longitude = userLocation?.longitude;
+          let db = supabaseClient.rpc(NEARBY_RPC_NAME, {
+            lat: latitude,
+            lng: longitude,
+            radius_meters: NEARBY_RADIUS_METERS,
+          });
+          if (query) db = db.ilike('naam', `%${query}%`);
+          if (activeFilters.free) db = db.eq('gratis_toegankelijk', true);
+          if (Array.isArray(expositionIds) && expositionIds.length > 0) {
+            db = db.in('id', expositionIds);
+          }
+          return db;
+        };
+
+        const runQuery = async (columns, expositionIds) => {
+          let nearbyError = null;
+
+          if (activeFilters.nearby) {
+            const nearbyResult = await createNearbyQuery(expositionIds);
+            if (!nearbyResult.error) {
+              return {
+                data: nearbyResult.data,
+                error: nearbyResult.error,
+                usedNearbyResults: true,
+                nearbyError: null,
+              };
+            }
+
+            nearbyError = nearbyResult.error;
+          }
+
+          const baseResult = await createBaseQuery(columns, expositionIds);
+
+          return {
+            data: baseResult.data,
+            error: baseResult.error,
+            usedNearbyResults: false,
+            nearbyError,
+          };
+        };
+
+        const executeWithColumnFallback = async (columns, expositionIds) => {
+          const primaryAttempt = await runQuery(columns, expositionIds);
+          const { error: primaryError, nearbyError } = primaryAttempt;
+
+          if (
+            columns === BASE_MUSEUM_COLUMNS ||
+            (!primaryError && !nearbyError) ||
+            !(
+              (primaryError?.message && /column|identifier|relationship/i.test(primaryError.message)) ||
+              (nearbyError?.message && /column|identifier|relationship/i.test(nearbyError.message))
+            )
+          ) {
+            return primaryAttempt;
+          }
+
+          return runQuery(BASE_MUSEUM_COLUMNS, expositionIds);
         };
 
         let expositionIds = null;
@@ -413,15 +458,17 @@ export default function Home({ initialMuseums = [], initialError = null }) {
 
         const columnsWithOptional = `${BASE_MUSEUM_COLUMNS}, ${OPTIONAL_MUSEUM_COLUMNS}`;
 
-        let { data, error: queryError } = await buildQuery(columnsWithOptional, expositionIds);
+        let {
+          data,
+          error: queryError,
+          usedNearbyResults,
+        } = await executeWithColumnFallback(columnsWithOptional, expositionIds);
 
-        if (
-          !activeFilters.nearby &&
-          queryError &&
-          queryError.message &&
-          /column|identifier|relationship/i.test(queryError.message)
-        ) {
-          ({ data, error: queryError } = await buildQuery(BASE_MUSEUM_COLUMNS, expositionIds));
+        if (queryError && /column|identifier|relationship/i.test(queryError.message || '')) {
+          ({ data, error: queryError, usedNearbyResults } = await executeWithColumnFallback(
+            BASE_MUSEUM_COLUMNS,
+            expositionIds
+          ));
         }
 
         if (queryError) {
@@ -435,11 +482,11 @@ export default function Home({ initialMuseums = [], initialError = null }) {
         const filtered = filterMuseumsForDisplay(data || [], {
           excludeSlugs: ['amsterdam-tulip-museum-amsterdam'],
           onlyKidFriendly: activeFilters.kidFriendly,
-          isNearbyActive: activeFilters.nearby,
+          isNearbyActive: activeFilters.nearby && usedNearbyResults,
           isKidFriendlyCheck: (museum) => isKidFriendly(museum),
         });
 
-        const sortedResults = activeFilters.nearby
+        const sortedResults = activeFilters.nearby && usedNearbyResults
           ? sortMuseumsByDistance(filtered)
           : sortMuseums(filtered);
 
