@@ -3134,6 +3134,11 @@ button.hero-quick-link {
 
 .exposition-card__media--placeholder {
   color: rgba(100, 116, 139, 0.38);
+  background-color: #13263b;
+}
+
+.exposition-card__media--placeholder::before {
+  opacity: 0;
 }
 
 [data-theme='dark'] .exposition-card__media {
@@ -3153,18 +3158,20 @@ button.hero-quick-link {
 }
 
 .exposition-card__media-placeholder {
-  position: relative;
+  position: absolute;
+  inset: 0;
   z-index: 1;
   display: block;
-  width: clamp(68px, 22vw, 104px);
-  height: auto;
-  filter: grayscale(1);
-  opacity: 0.68;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: none;
+  opacity: 1;
 }
 
 [data-theme='dark'] .exposition-card__media-placeholder {
-  filter: grayscale(1) brightness(0.88);
-  opacity: 0.78;
+  filter: none;
+  opacity: 1;
 }
 
 @media (max-width: 640px) {
