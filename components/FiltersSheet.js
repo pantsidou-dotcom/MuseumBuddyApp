@@ -19,13 +19,13 @@ function resolveSections(sections, labels) {
       options: [
         { name: 'free', label: labels?.free },
         { name: 'exhibitions', label: labels?.exhibitions },
+        { name: 'kidFriendly', label: labels?.kidFriendly },
       ],
     },
     {
       id: 'comingsoon',
       title: labels?.future,
       options: [
-        { name: 'kidFriendly', label: labels?.kidFriendly, disabled: true, badge: labels?.comingSoon },
         { name: 'nearby', label: labels?.distance, disabled: true, badge: labels?.comingSoon },
       ],
       note: labels?.todo,

@@ -19,6 +19,7 @@ import museumTicketUrls from '../../lib/museumTicketUrls';
 import formatImageCredit from '../../lib/formatImageCredit';
 import { supabase as supabaseClient } from '../../lib/supabase';
 import { shouldShowAffiliateNote } from '../../lib/nonAffiliateMuseums';
+import kidFriendlyMuseums, { isKidFriendly as resolveKidFriendly } from '../../lib/kidFriendlyMuseums';
 
 function todayYMD(tz = 'Europe/Amsterdam') {
   try {
@@ -225,6 +226,7 @@ const CONFIGURED_LANDING_SLUG =
     ? process.env.NEXT_PUBLIC_LANDING_MUSEUM_SLUG.trim().toLowerCase()
     : '';
 const LANDING_MUSEUM_SLUG = CONFIGURED_LANDING_SLUG || DEFAULT_LANDING_MUSEUM_SLUG;
+const KID_FRIENDLY_SLUG_SET = new Set(kidFriendlyMuseums.map((slug) => slug.toLowerCase()));
 
 function parseBooleanQueryParam(value) {
   if (Array.isArray(value)) {
@@ -297,6 +299,10 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
   const router = useRouter();
 
   const resolvedMuseum = useMemo(() => (museum ? { ...museum } : null), [museum]);
+  const isKidFriendlyMuseum = useMemo(
+    () => (resolvedMuseum ? resolveKidFriendly(resolvedMuseum, KID_FRIENDLY_SLUG_SET) : false),
+    [resolvedMuseum]
+  );
 
   if (error) {
     return (
@@ -667,6 +673,7 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
     Boolean(openingHours) ||
     locationLines.length > 0 ||
     resolvedMuseum.free ||
+    isKidFriendlyMuseum ||
     resolvedMuseum.phone ||
     resolvedMuseum.email ||
     socialLinks.length > 0;
@@ -782,6 +789,13 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
               <div className="museum-info-item">
                 <span className="museum-info-label">{t('visitorInformation')}</span>
                 <p className="museum-info-value">{t('free')}</p>
+              </div>
+            )}
+
+            {isKidFriendlyMuseum && (
+              <div className="museum-info-item">
+                <span className="museum-info-label">{t('filtersKidFriendly')}</span>
+                <p className="museum-info-value">{t('tagChildFriendly')}</p>
               </div>
             )}
 
