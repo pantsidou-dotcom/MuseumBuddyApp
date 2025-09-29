@@ -28,21 +28,6 @@ function pickBoolean(...values) {
   return undefined;
 }
 
-function getMediaInitial(exposition, museumSlug) {
-  const candidates = [
-    exposition?.titel,
-    museumSlug,
-    exposition?.museumSlug,
-    exposition?.id != null ? String(exposition.id) : null,
-  ];
-  for (const candidate of candidates) {
-    if (typeof candidate === 'string' && candidate.trim()) {
-      return candidate.trim()[0].toUpperCase();
-    }
-  }
-  return null;
-}
-
 export default function ExpositionCard({ exposition, ticketUrl, affiliateUrl, museumSlug, tags = {} }) {
   if (!exposition) return null;
 
@@ -136,25 +121,19 @@ export default function ExpositionCard({ exposition, ticketUrl, affiliateUrl, mu
     { key: 'temporary', label: t('tagTemporary'), active: temporaryTag === true },
   ];
   const activeTags = tagDefinitions.filter((tag) => tag.active);
-  const mediaInitial = useMemo(() => getMediaInitial(exposition, slug), [exposition, slug]);
-  const hasInitial = Boolean(mediaInitial);
-  const mediaClassName = `exposition-card__media${hasInitial ? '' : ' exposition-card__media--placeholder'}`;
+  const mediaClassName = 'exposition-card__media exposition-card__media--placeholder';
 
   return (
     <article
       className={`exposition-card${isFavoriteBouncing ? ' is-bouncing' : ''}`}
     >
       <div className={mediaClassName} aria-hidden="true">
-        {mediaInitial ? (
-          <span className="exposition-card__media-initial">{mediaInitial}</span>
-        ) : (
-          <img
-            src="/images/exposition-placeholder.svg"
-            alt=""
-            className="exposition-card__media-placeholder"
-            loading="lazy"
-          />
-        )}
+        <img
+          src="/images/exposition-placeholder.svg"
+          alt=""
+          className="exposition-card__media-placeholder"
+          loading="lazy"
+        />
       </div>
       <div className="exposition-card__body">
         <div className="exposition-card__topline">
