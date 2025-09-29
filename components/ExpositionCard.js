@@ -28,6 +28,89 @@ function pickBoolean(...values) {
   return undefined;
 }
 
+function getExpositionGlyph(exposition, tags = {}) {
+  if (!exposition) {
+    return '🏛️';
+  }
+
+  const isChildFriendly =
+    pickBoolean(
+      tags.childFriendly,
+      exposition?.kindvriendelijk,
+      exposition?.childFriendly,
+      exposition?.familievriendelijk,
+      exposition?.familyFriendly
+    ) === true;
+
+  if (isChildFriendly) {
+    return '🧒';
+  }
+
+  const isFree =
+    pickBoolean(tags.free, exposition?.gratis, exposition?.free, exposition?.kosteloos, exposition?.freeEntry) === true;
+  if (isFree) {
+    return '🎟️';
+  }
+
+  const isTemporary =
+    pickBoolean(
+      tags.temporary,
+      exposition?.tijdelijk,
+      exposition?.temporary,
+      exposition?.tijdelijkeTentoonstelling
+    ) === true;
+  if (isTemporary) {
+    return '⏳';
+  }
+
+  if (Array.isArray(exposition?.tags) && exposition.tags.length > 0) {
+    const themedTag = exposition.tags.find((tag) => typeof tag === 'string');
+    if (themedTag) {
+      const normalized = themedTag.trim().toLowerCase();
+      if (normalized.includes('modern') || normalized.includes('design')) return '🎨';
+      if (normalized.includes('history')) return '📜';
+      if (normalized.includes('science')) return '🔬';
+      if (normalized.includes('nature')) return '🌿';
+    }
+  }
+
+  const title = typeof exposition.titel === 'string' ? exposition.titel.trim() : '';
+  if (title) {
+    const firstChar = title.charAt(0).toUpperCase();
+    if (firstChar) {
+      return firstChar;
+    }
+  }
+
+  return '🏛️';
+}
+
+function getMediaTheme(exposition, museumSlug) {
+  const idPart = exposition?.id != null ? String(exposition.id) : '';
+  const slugPart = museumSlug || exposition?.museumSlug || '';
+  const titlePart = exposition?.titel || '';
+  const seed = `${idPart}-${slugPart}-${titlePart}`;
+  if (!seed) {
+    return { className: 'exposition-card__media--tone-1', style: undefined };
+  }
+
+  let hash = 0;
+  for (let i = 0; i < seed.length; i += 1) {
+    hash = (hash * 31 + seed.charCodeAt(i)) | 0;
+  }
+  const positiveHash = Math.abs(hash);
+  const hue = positiveHash % 360;
+  const secondaryHue = (hue + 32) % 360;
+  const toneClass = `exposition-card__media--tone-${(positiveHash % 3) + 1}`;
+
+  return {
+    className: toneClass,
+    style: {
+      background: `linear-gradient(135deg, hsla(${hue}, 82%, 64%, 0.38), hsla(${secondaryHue}, 78%, 58%, 0.32))`,
+    },
+  };
+}
+
 export default function ExpositionCard({ exposition, ticketUrl, affiliateUrl, museumSlug, tags = {} }) {
   if (!exposition) return null;
 
@@ -121,11 +204,34 @@ export default function ExpositionCard({ exposition, ticketUrl, affiliateUrl, mu
     { key: 'temporary', label: t('tagTemporary'), active: temporaryTag === true },
   ];
   const activeTags = tagDefinitions.filter((tag) => tag.active);
+  const mediaGlyph = useMemo(() => getExpositionGlyph(exposition, tags), [exposition, tags]);
+  const mediaTheme = useMemo(() => getMediaTheme(exposition, slug), [exposition, slug]);
+  const mediaGlyphLabel = useMemo(() => {
+    if (!mediaGlyph) return undefined;
+    if (mediaGlyph === '🧒') return t('tagChildFriendly') || undefined;
+    if (mediaGlyph === '🎟️') return t('tagFree') || undefined;
+    if (mediaGlyph === '⏳') return t('tagTemporary') || undefined;
+    if (typeof mediaGlyph === 'string' && mediaGlyph.length === 1 && exposition?.titel) {
+      return exposition.titel;
+    }
+    return undefined;
+  }, [exposition?.titel, mediaGlyph, t]);
+  const mediaClassName = useMemo(() => {
+    if (!mediaTheme?.className) {
+      return 'exposition-card__media';
+    }
+    return `exposition-card__media ${mediaTheme.className}`;
+  }, [mediaTheme]);
 
   return (
     <article
       className={`exposition-card${isFavoriteBouncing ? ' is-bouncing' : ''}`}
     >
+      <div className={mediaClassName} style={mediaTheme?.style}>
+        <div className="exposition-card__media-content" role="img" aria-label={mediaGlyphLabel}>
+          {mediaGlyph}
+        </div>
+      </div>
       <div className="exposition-card__body">
         <div className="exposition-card__topline">
           {rangeLabel && (
