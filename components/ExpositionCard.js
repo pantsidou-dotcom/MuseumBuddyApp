@@ -28,38 +28,19 @@ function pickBoolean(...values) {
   return undefined;
 }
 
-function getMediaTheme(exposition, museumSlug) {
-  const idPart = exposition?.id != null ? String(exposition.id) : '';
-  const slugPart = museumSlug || exposition?.museumSlug || '';
-  const titlePart = exposition?.titel || '';
-  const seed = `${idPart}-${slugPart}-${titlePart}`;
-  let hash = 0;
-  for (let i = 0; i < seed.length; i += 1) {
-    hash = (hash * 31 + seed.charCodeAt(i)) | 0;
+function getMediaInitial(exposition, museumSlug) {
+  const candidates = [
+    exposition?.titel,
+    museumSlug,
+    exposition?.museumSlug,
+    exposition?.id != null ? String(exposition.id) : null,
+  ];
+  for (const candidate of candidates) {
+    if (typeof candidate === 'string' && candidate.trim()) {
+      return candidate.trim()[0].toUpperCase();
+    }
   }
-  const positiveHash = Math.abs(hash);
-  const hue = positiveHash % 360;
-  const accentHue = (hue + 38) % 360;
-  const baseInk = `hsl(${hue}, 42%, 32%)`;
-  const darkInk = `hsl(${hue}, 54%, 78%)`;
-  const gradientLayer = `linear-gradient(135deg, hsla(${hue}, 72%, 92%, 1) 0%, hsla(${accentHue}, 68%, 84%, 1) 100%)`;
-  const patternLayer = `repeating-linear-gradient(135deg, hsla(${hue}, 60%, 82%, 0.45) 0, hsla(${hue}, 60%, 82%, 0.45) 12px, hsla(${hue}, 60%, 82%, 0.15) 12px, hsla(${hue}, 60%, 82%, 0.15) 24px)`;
-  const borderLight = `hsla(${hue}, 58%, 72%, 0.45)`;
-  const borderDark = `hsla(${accentHue}, 52%, 48%, 0.55)`;
-
-  const initialSource = (titlePart || slugPart || idPart || '').trim();
-  const initial = initialSource ? initialSource[0].toUpperCase() : null;
-
-  return {
-    style: {
-      backgroundImage: `${patternLayer}, ${gradientLayer}`,
-      '--exposition-media-ink': baseInk,
-      '--exposition-media-ink-dark': darkInk,
-      '--exposition-media-border': borderLight,
-      '--exposition-media-border-dark': borderDark,
-    },
-    initial,
-  };
+  return null;
 }
 
 export default function ExpositionCard({ exposition, ticketUrl, affiliateUrl, museumSlug, tags = {} }) {
@@ -155,16 +136,25 @@ export default function ExpositionCard({ exposition, ticketUrl, affiliateUrl, mu
     { key: 'temporary', label: t('tagTemporary'), active: temporaryTag === true },
   ];
   const activeTags = tagDefinitions.filter((tag) => tag.active);
-  const mediaTheme = useMemo(() => getMediaTheme(exposition, slug), [exposition, slug]);
-  const mediaClassName = 'exposition-card__media';
-  const mediaInitial = mediaTheme?.initial;
+  const mediaInitial = useMemo(() => getMediaInitial(exposition, slug), [exposition, slug]);
+  const hasInitial = Boolean(mediaInitial);
+  const mediaClassName = `exposition-card__media${hasInitial ? '' : ' exposition-card__media--placeholder'}`;
 
   return (
     <article
       className={`exposition-card${isFavoriteBouncing ? ' is-bouncing' : ''}`}
     >
-      <div className={mediaClassName} style={mediaTheme?.style} aria-hidden="true">
-        {mediaInitial ? <span className="exposition-card__media-initial">{mediaInitial}</span> : null}
+      <div className={mediaClassName} aria-hidden="true">
+        {mediaInitial ? (
+          <span className="exposition-card__media-initial">{mediaInitial}</span>
+        ) : (
+          <img
+            src="/images/exposition-placeholder.svg"
+            alt=""
+            className="exposition-card__media-placeholder"
+            loading="lazy"
+          />
+        )}
       </div>
       <div className="exposition-card__body">
         <div className="exposition-card__topline">
