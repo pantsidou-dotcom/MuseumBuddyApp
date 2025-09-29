@@ -20,12 +20,27 @@ async function run() {
     kidFriendlyMuseums.includes('micropia-museum-amsterdam'),
     'Kid-friendly list should include Micropia'
   );
+  assert(
+    kidFriendlyMuseums.includes('scheepvaartmuseum-amsterdam'),
+    'Kid-friendly list should include Het Scheepvaartmuseum'
+  );
+  assert(
+    kidFriendlyMuseums.includes('straat-museum-amsterdam'),
+    'Kid-friendly list should include STRAAT Museum'
+  );
+  assert(
+    kidFriendlyMuseums.includes('kattenkabinet-amsterdam'),
+    'Kid-friendly list should include Het Kattenkabinet'
+  );
 
   const slugSet = new Set(kidFriendlyMuseums.map((slug) => slug.toLowerCase()));
 
   const sampleMuseums = [
     { slug: 'nemo-science-museum-amsterdam', kindvriendelijk: false },
     { slug: 'micropia-museum-amsterdam', kindvriendelijk: 0 },
+    { slug: 'scheepvaartmuseum-amsterdam', kindvriendelijk: 0 },
+    { slug: 'straat-museum-amsterdam', childFriendly: '' },
+    { slug: 'kattenkabinet-amsterdam', familyFriendly: null },
     { slug: 'another-museum', kindvriendelijk: false },
   ];
 
@@ -38,6 +53,18 @@ async function run() {
   assert(
     filtered.some((museum) => museum.slug === 'micropia-museum-amsterdam'),
     'Micropia should pass the kid-friendly filter even without a true flag'
+  );
+  assert(
+    filtered.some((museum) => museum.slug === 'scheepvaartmuseum-amsterdam'),
+    'Het Scheepvaartmuseum should pass the kid-friendly filter even without a true flag'
+  );
+  assert(
+    filtered.some((museum) => museum.slug === 'straat-museum-amsterdam'),
+    'STRAAT Museum should pass the kid-friendly filter even without a true flag'
+  );
+  assert(
+    filtered.some((museum) => museum.slug === 'kattenkabinet-amsterdam'),
+    'Het Kattenkabinet should pass the kid-friendly filter even without a true flag'
   );
   assert.strictEqual(
     filtered.some((museum) => museum.slug === 'another-museum'),
