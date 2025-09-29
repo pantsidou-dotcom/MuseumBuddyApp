@@ -399,22 +399,29 @@ img { max-width: 100%; height: auto; display: block; }
   gap: 14px;
   padding: 10px 14px;
   border-radius: 999px;
-  background: color-mix(in srgb, var(--surface) 92%, transparent);
-  border: 1px solid color-mix(in srgb, var(--panel-border) 85%, transparent);
-  box-shadow: var(--panel-shadow);
+  background: color-mix(in srgb, var(--surface) 96%, transparent);
+  border: 1px solid color-mix(in srgb, var(--panel-border) 70%, transparent);
+  box-shadow: none;
   color: var(--text);
   text-decoration: none;
-  transition: background-color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease,
-    transform 0.25s ease;
+  transition: background-color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+[data-theme='dark'] .header-brand {
+  background: color-mix(in srgb, var(--surface) 88%, transparent);
+  border-color: color-mix(in srgb, var(--panel-border) 76%, transparent);
 }
 
 .header-brand:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 16px 28px rgba(15, 23, 42, 0.12);
+  background: color-mix(in srgb, var(--surface) 90%, transparent);
+  border-color: color-mix(in srgb, var(--panel-border) 60%, transparent);
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
 }
 
 [data-theme='dark'] .header-brand:hover {
-  box-shadow: 0 16px 28px rgba(2, 6, 23, 0.52);
+  background: color-mix(in srgb, var(--surface) 88%, transparent);
+  border-color: color-mix(in srgb, var(--panel-border) 72%, transparent);
+  box-shadow: 0 12px 26px rgba(2, 6, 23, 0.35);
 }
 
 .header-brand:focus-visible {
@@ -422,28 +429,21 @@ img { max-width: 100%; height: auto; display: block; }
   outline-offset: 4px;
 }
 
-.brand-square {
-  display: inline-flex;
+.brand-identity {
+  display: flex;
   align-items: center;
-  justify-content: center;
-  width: 44px;
+  gap: 14px;
+}
+
+.brand-logo {
+  display: block;
   height: 44px;
-  border-radius: 16px;
-  background: var(--text);
-  color: var(--bg);
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  font-size: 0.95rem;
+  width: auto;
+  object-fit: contain;
 }
 
-[data-theme='dark'] .brand-square {
-  background: rgba(226, 232, 240, 0.14);
-  color: var(--text);
-}
-
-.brand-letter {
-  line-height: 1;
+[data-theme='dark'] .brand-logo {
+  filter: brightness(1.05) contrast(1.05);
 }
 
 .brand-lockup {
@@ -672,11 +672,12 @@ button.header-link {
     box-shadow: none;
   }
 
-  .brand-square {
-    width: 36px;
+  .brand-identity {
+    gap: 10px;
+  }
+
+  .brand-logo {
     height: 36px;
-    border-radius: 12px;
-    font-size: 0.85rem;
   }
 
   .brand-title {
