@@ -63,6 +63,20 @@ async function run() {
     'Non-science museums should be filtered out when filtering by science'
   );
 
+  const modernArtQuery = parseMuseumSearchQuery('Moderne kunst');
+
+  assert.strictEqual(
+    modernArtQuery.textQuery,
+    '',
+    'Moderne kunst should not leave behind partial free text search terms'
+  );
+
+  assert.deepStrictEqual(
+    modernArtQuery.categoryFilters,
+    ['modern-art'],
+    'Moderne kunst should map to the modern art category filter'
+  );
+
   console.log('Museum search parsing tests passed.');
 }
 
