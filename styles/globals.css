@@ -396,25 +396,15 @@ img { max-width: 100%; height: auto; display: block; }
 .header-brand {
   display: inline-flex;
   align-items: center;
-  gap: 14px;
-  padding: 10px 14px;
-  border-radius: 999px;
-  background: color-mix(in srgb, var(--surface) 92%, transparent);
-  border: 1px solid color-mix(in srgb, var(--panel-border) 85%, transparent);
-  box-shadow: var(--panel-shadow);
-  color: var(--text);
-  text-decoration: none;
-  transition: background-color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease,
-    transform 0.25s ease;
+  padding: 0;
+  border-radius: 20px;
+  overflow: hidden;
+  line-height: 0;
+  transition: transform 0.25s ease;
 }
 
 .header-brand:hover {
   transform: translateY(-1px);
-  box-shadow: 0 16px 28px rgba(15, 23, 42, 0.12);
-}
-
-[data-theme='dark'] .header-brand:hover {
-  box-shadow: 0 16px 28px rgba(2, 6, 23, 0.52);
 }
 
 .header-brand:focus-visible {
@@ -422,60 +412,10 @@ img { max-width: 100%; height: auto; display: block; }
   outline-offset: 4px;
 }
 
-.brand-square {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 44px;
-  height: 44px;
-  border-radius: 16px;
-  background: var(--text);
-  color: var(--bg);
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  font-size: 0.95rem;
-}
-
-[data-theme='dark'] .brand-square {
-  background: rgba(226, 232, 240, 0.14);
-  color: var(--text);
-}
-
-.brand-letter {
-  line-height: 1;
-}
-
-.brand-lockup {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.brand-title {
-  font-weight: 700;
-  font-size: 1.2rem;
-  letter-spacing: -0.02em;
-  color: var(--text);
-}
-
-.brand-tagline {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 2px 10px;
-  border-radius: 999px;
-  font-size: 0.7rem;
-  font-weight: 600;
-  letter-spacing: 0.24em;
-  text-transform: uppercase;
-  color: color-mix(in srgb, var(--muted) 88%, var(--text) 12%);
-  background: color-mix(in srgb, var(--surface) 78%, transparent);
-}
-
-[data-theme='dark'] .brand-tagline {
-  background: rgba(148, 163, 184, 0.12);
-  color: color-mix(in srgb, var(--muted) 92%, #ffffff 8%);
+.header-brand-image {
+  display: block;
+  width: clamp(200px, 26vw, 320px);
+  height: auto;
 }
 
 .header-links {
@@ -664,27 +604,12 @@ button.header-link {
   }
 
   .header-brand {
-    width: auto;
-    padding: 0;
-    gap: 10px;
-    background: none;
-    border: none;
-    box-shadow: none;
+    width: 100%;
+    max-width: 220px;
   }
 
-  .brand-square {
-    width: 36px;
-    height: 36px;
-    border-radius: 12px;
-    font-size: 0.85rem;
-  }
-
-  .brand-title {
-    font-size: 1rem;
-  }
-
-  .brand-tagline {
-    display: none;
+  .header-brand-image {
+    width: 100%;
   }
 
   .header-links {

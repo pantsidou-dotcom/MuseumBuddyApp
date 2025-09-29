@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import Head from 'next/head';
 import { useFavorites } from './FavoritesContext';
 import { useLanguage } from './LanguageContext';
@@ -26,13 +27,15 @@ export default function Layout({ children }) {
       <header className="header">
         <nav className="navbar container" aria-label={navLabel}>
           <Link href="/" className="header-brand" aria-label={t('homeLabel')}>
-            <span className="brand-square">
-              <span className="brand-letter">MB</span>
-            </span>
-            <span className="brand-lockup">
-              <span className="brand-title">MuseumBuddy</span>
-              <span className="brand-tagline">{t('heroTagline')}</span>
-            </span>
+            <Image
+              src="/images/museum-buddy-header.svg"
+              alt="Museum Buddy"
+              width={320}
+              height={120}
+              priority
+              className="header-brand-image"
+              sizes="(max-width: 680px) 180px, 260px"
+            />
           </Link>
           <div className="header-links">
             <Link href="/about" className="header-link">
