@@ -5,6 +5,7 @@ import { useFavorites } from './FavoritesContext';
 import { useLanguage } from './LanguageContext';
 import museumSummaries from '../lib/museumSummaries';
 import museumOpeningHours from '../lib/museumOpeningHours';
+import { CATEGORY_TRANSLATION_KEYS } from '../lib/museumCategories';
 import { shouldShowAffiliateNote } from '../lib/nonAffiliateMuseums';
 import formatImageCredit from '../lib/formatImageCredit';
 import TicketButtonNote from './TicketButtonNote';
@@ -58,6 +59,17 @@ export default function MuseumCard({ museum, priority = false }) {
 
   const summary = museumSummaries[museum.slug]?.[lang] || museum.summary;
   const hours = museumOpeningHours[museum.slug]?.[lang];
+  const categoryLabels = useMemo(() => {
+    if (!Array.isArray(museum.categories)) return [];
+    return museum.categories
+      .map((category) => {
+        const translationKey = CATEGORY_TRANSLATION_KEYS[category];
+        if (translationKey) return t(translationKey);
+        return category;
+      })
+      .filter(Boolean);
+  }, [museum.categories, t]);
+  const hasTags = museum.free || categoryLabels.length > 0;
   const locationText = [museum.city, museum.province].filter(Boolean).join(', ');
   const showAffiliateNote = Boolean(museum.ticketUrl) && shouldShowAffiliateNote(museum.slug);
   const ticketNoteId = useId();
@@ -343,9 +355,14 @@ export default function MuseumCard({ museum, priority = false }) {
           )}
         </div>
         {summary && <p className="museum-card-summary">{summary}</p>}
-        {museum.free && (
+        {hasTags && (
           <div className="museum-card-tags">
-            <span className="tag">{t('free')}</span>
+            {categoryLabels.map((label, index) => (
+              <span key={`${museum.slug}-category-${index}`} className="tag">
+                {label}
+              </span>
+            ))}
+            {museum.free && <span className="tag">{t('free')}</span>}
           </div>
         )}
         {ticketContext ? (
