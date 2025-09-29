@@ -2949,6 +2949,12 @@ button.hero-quick-link {
   margin-top: 4px;
 }
 
+.museum-card-tags .tag {
+  font-size: 0.75rem;
+  padding: 3px 9px;
+  letter-spacing: 0.06em;
+}
+
 /* Exposition carousel and cards */
 .events-list {
   list-style: none;
