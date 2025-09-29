@@ -26,12 +26,9 @@ export default function Layout({ children }) {
       <header className="header">
         <nav className="navbar container" aria-label={navLabel}>
           <Link href="/" className="header-brand" aria-label={t('homeLabel')}>
-            <span className="brand-square">
-              <span className="brand-letter">MB</span>
-            </span>
             <span className="brand-lockup">
-              <span className="brand-title">MuseumBuddy</span>
-              <span className="brand-tagline">{t('heroTagline')}</span>
+              <span className="brand-title-line">Museum</span>
+              <span className="brand-title-line">Buddy</span>
             </span>
           </Link>
           <div className="header-links">
