@@ -188,6 +188,7 @@ export default function Home({ initialMuseums = [], initialError = null }) {
     const params = buildQueryParams(query, {
       free: activeFilters.free,
       exhibitions: activeFilters.exhibitions,
+      kidFriendly: activeFilters.kidFriendly,
     });
     const nextQuery = {};
     if (params) {
@@ -222,7 +223,14 @@ export default function Home({ initialMuseums = [], initialError = null }) {
       undefined,
       { shallow: true, scroll: false }
     );
-  }, [router, buildQueryParams, query, activeFilters.free, activeFilters.exhibitions]);
+  }, [
+    router,
+    buildQueryParams,
+    query,
+    activeFilters.free,
+    activeFilters.exhibitions,
+    activeFilters.kidFriendly,
+  ]);
 
   useEffect(() => {
     if (filtersSheetOpen) {
@@ -344,6 +352,7 @@ export default function Home({ initialMuseums = [], initialError = null }) {
     query,
     activeFilters.free,
     activeFilters.exhibitions,
+    activeFilters.kidFriendly,
     initialMuseumsSorted,
     initialError,
   ]);
@@ -360,6 +369,7 @@ export default function Home({ initialMuseums = [], initialError = null }) {
     query,
     activeFilters.free,
     activeFilters.exhibitions,
+    activeFilters.kidFriendly,
     initialMuseumsSorted,
     initialError,
   ]);
