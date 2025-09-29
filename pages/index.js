@@ -59,7 +59,8 @@ const DEFAULT_FILTERS = Object.freeze({
 
 const BASE_MUSEUM_COLUMNS =
   'id, naam, stad, provincie, slug, gratis_toegankelijk, ticket_affiliate_url, website_url';
-const OPTIONAL_MUSEUM_COLUMNS = 'kindvriendelijk, afstand_meter'; // TODO: bevestig kolomnamen zodra beschikbaar in Supabase.
+const OPTIONAL_MUSEUM_COLUMNS = 'kindvriendelijk, afstand_meter';
+const NEARBY_DISTANCE_THRESHOLD_METERS = 2500; // 2.5 km radius for the nearby filter.
 
 function parseBooleanParam(value) {
   if (Array.isArray(value)) {
@@ -103,12 +104,19 @@ export default function Home({ initialMuseums = [], initialError = null }) {
       ...DEFAULT_FILTERS,
       free: parseBooleanParam(queryFilters.gratis),
       exhibitions: parseBooleanParam(queryFilters.exposities),
+      kidFriendly: parseBooleanParam(queryFilters.kindvriendelijk),
+      nearby: parseBooleanParam(queryFilters.dichtbij),
     };
   }, [router.query]);
 
   const initialMuseumsSorted = useMemo(() => sortMuseums(initialMuseums || []), [initialMuseums]);
   const shouldUseInitialData =
-    !qFromUrl && !filtersFromUrl.free && !filtersFromUrl.exhibitions && initialMuseumsSorted.length > 0;
+    !qFromUrl &&
+    !filtersFromUrl.free &&
+    !filtersFromUrl.exhibitions &&
+    !filtersFromUrl.kidFriendly &&
+    !filtersFromUrl.nearby &&
+    initialMuseumsSorted.length > 0;
 
   const [query, setQuery] = useState('');
   const [results, setResults] = useState(() => (shouldUseInitialData ? initialMuseumsSorted : []));
@@ -155,6 +163,8 @@ export default function Home({ initialMuseums = [], initialError = null }) {
       if (searchValue) params.set('q', searchValue);
       if (filters?.exhibitions) params.set('exposities', '1');
       if (filters?.free) params.set('gratis', '1');
+      if (filters?.kidFriendly) params.set('kindvriendelijk', '1');
+      if (filters?.nearby) params.set('dichtbij', '1');
       return params.toString();
     },
     []
@@ -172,6 +182,8 @@ export default function Home({ initialMuseums = [], initialError = null }) {
     const params = buildQueryParams(query, {
       free: activeFilters.free,
       exhibitions: activeFilters.exhibitions,
+      kidFriendly: activeFilters.kidFriendly,
+      nearby: activeFilters.nearby,
     });
     const nextQuery = {};
     if (params) {
@@ -206,7 +218,15 @@ export default function Home({ initialMuseums = [], initialError = null }) {
       undefined,
       { shallow: true, scroll: false }
     );
-  }, [router, buildQueryParams, query, activeFilters.free, activeFilters.exhibitions]);
+  }, [
+    router,
+    buildQueryParams,
+    query,
+    activeFilters.free,
+    activeFilters.exhibitions,
+    activeFilters.kidFriendly,
+    activeFilters.nearby,
+  ]);
 
   useEffect(() => {
     if (filtersSheetOpen) {
@@ -217,7 +237,12 @@ export default function Home({ initialMuseums = [], initialError = null }) {
   useEffect(() => {
     if (!router.isReady) return;
 
-    const usingDefaultFilters = !query && !activeFilters.free && !activeFilters.exhibitions;
+    const usingDefaultFilters =
+      !query &&
+      !activeFilters.free &&
+      !activeFilters.exhibitions &&
+      !activeFilters.kidFriendly &&
+      !activeFilters.nearby;
 
     if (usingDefaultFilters && initialMuseumsSorted.length > 0) {
       setResults(initialMuseumsSorted);
@@ -243,6 +268,8 @@ export default function Home({ initialMuseums = [], initialError = null }) {
           let db = supabaseClient.from('musea').select(columns).order('naam', { ascending: true });
           if (query) db = db.ilike('naam', `%${query}%`);
           if (activeFilters.free) db = db.eq('gratis_toegankelijk', true);
+          if (activeFilters.kidFriendly) db = db.eq('kindvriendelijk', true);
+          if (activeFilters.nearby) db = db.lte('afstand_meter', NEARBY_DISTANCE_THRESHOLD_METERS);
           if (Array.isArray(expositionIds) && expositionIds.length > 0) {
             db = db.in('id', expositionIds);
           }
@@ -298,9 +325,19 @@ export default function Home({ initialMuseums = [], initialError = null }) {
           return;
         }
 
-        const filtered = (data || []).filter(
-          (m) => m.slug !== 'amsterdam-tulip-museum-amsterdam'
-        );
+        const filtered = (data || [])
+          .filter((m) => m.slug !== 'amsterdam-tulip-museum-amsterdam')
+          .filter((m) => (activeFilters.kidFriendly ? m.kindvriendelijk === true : true))
+          .filter((m) => {
+            if (!activeFilters.nearby) return true;
+            const rawDistance = m.afstand_meter;
+            const distanceValue =
+              typeof rawDistance === 'number' ? rawDistance : Number.parseFloat(rawDistance);
+            if (Number.isFinite(distanceValue)) {
+              return distanceValue <= NEARBY_DISTANCE_THRESHOLD_METERS;
+            }
+            return false;
+          });
 
         if (!isCancelled) {
           setResults(sortMuseums(filtered));
@@ -315,7 +352,14 @@ export default function Home({ initialMuseums = [], initialError = null }) {
       }
     };
 
-    const delay = query || activeFilters.free || activeFilters.exhibitions ? 200 : 0;
+    const delay =
+      query ||
+      activeFilters.free ||
+      activeFilters.exhibitions ||
+      activeFilters.kidFriendly ||
+      activeFilters.nearby
+        ? 200
+        : 0;
     const timer = setTimeout(run, delay);
     return () => {
       isCancelled = true;
@@ -326,13 +370,22 @@ export default function Home({ initialMuseums = [], initialError = null }) {
     query,
     activeFilters.free,
     activeFilters.exhibitions,
+    activeFilters.kidFriendly,
+    activeFilters.nearby,
     initialMuseumsSorted,
     initialError,
   ]);
 
   useEffect(() => {
     if (!router.isReady) return;
-    if (!query && !activeFilters.free && !activeFilters.exhibitions && initialMuseumsSorted.length > 0) {
+    if (
+      !query &&
+      !activeFilters.free &&
+      !activeFilters.exhibitions &&
+      !activeFilters.kidFriendly &&
+      !activeFilters.nearby &&
+      initialMuseumsSorted.length > 0
+    ) {
       setResults(initialMuseumsSorted);
       setError(initialError ?? null);
       setIsLoading(false);
@@ -342,6 +395,8 @@ export default function Home({ initialMuseums = [], initialError = null }) {
     query,
     activeFilters.free,
     activeFilters.exhibitions,
+    activeFilters.kidFriendly,
+    activeFilters.nearby,
     initialMuseumsSorted,
     initialError,
   ]);
@@ -402,11 +457,9 @@ export default function Home({ initialMuseums = [], initialError = null }) {
           exhibitions: t('filtersExhibitions'),
           kidFriendly: t('filtersKidFriendly'),
           distance: t('filtersDistance'),
-          comingSoon: t('filtersComingSoon'),
           apply: t('filtersApply'),
           reset: t('filtersReset'),
           close: t('filtersClose'),
-          todo: t('filtersTodo'),
         }}
       />
       <section className="hero">

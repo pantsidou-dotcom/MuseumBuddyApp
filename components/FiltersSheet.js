@@ -22,13 +22,12 @@ function resolveSections(sections, labels) {
       ],
     },
     {
-      id: 'comingsoon',
+      id: 'additional',
       title: labels?.future,
       options: [
-        { name: 'kidFriendly', label: labels?.kidFriendly, disabled: true, badge: labels?.comingSoon },
-        { name: 'nearby', label: labels?.distance, disabled: true, badge: labels?.comingSoon },
+        { name: 'kidFriendly', label: labels?.kidFriendly },
+        { name: 'nearby', label: labels?.distance },
       ],
-      note: labels?.todo,
     },
   ];
 }
