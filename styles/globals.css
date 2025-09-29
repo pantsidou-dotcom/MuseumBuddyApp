@@ -1259,6 +1259,20 @@ button.hero-quick-link {
 }
 
 /* Tags */
+.tag-button {
+  border: none;
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+  padding: 0;
+  background: none;
+}
+
+.tag-button:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+
 .tag {
   display: inline-flex;
   align-items: center;
@@ -2947,6 +2961,12 @@ button.hero-quick-link {
   gap: 8px;
   flex-wrap: wrap;
   margin-top: 4px;
+}
+
+.museum-card-tags .tag {
+  font-size: 0.75rem;
+  padding: 3px 9px;
+  letter-spacing: 0.06em;
 }
 
 /* Exposition carousel and cards */
