@@ -95,6 +95,32 @@ export default function ExpositionCarousel({
   useEffect(() => {
     const viewport = viewportRef.current;
     if (!viewport || totalSlides <= 1) return undefined;
+
+    const handleWheel = (event) => {
+      if (!viewport) return;
+      if (event.ctrlKey) return;
+      const isScrollable = viewport.scrollWidth - viewport.clientWidth > 1;
+      if (!isScrollable) return;
+
+      const { deltaX = 0, deltaY = 0 } = event;
+      if (Math.abs(deltaY) <= Math.abs(deltaX)) return;
+
+      event.preventDefault();
+      viewport.scrollBy({
+        left: deltaY,
+        behavior: 'smooth',
+      });
+    };
+
+    viewport.addEventListener('wheel', handleWheel, { passive: false });
+    return () => {
+      viewport.removeEventListener('wheel', handleWheel);
+    };
+  }, [totalSlides]);
+
+  useEffect(() => {
+    const viewport = viewportRef.current;
+    if (!viewport || totalSlides <= 1) return undefined;
     let frame = null;
 
     const handleScroll = () => {
