@@ -4,6 +4,24 @@ import { useFavorites } from './FavoritesContext';
 import { shouldShowAffiliateNote } from '../lib/nonAffiliateMuseums';
 import TicketButtonNote from './TicketButtonNote';
 
+const TAG_CONFIG = {
+  childFriendly: {
+    labelKey: 'tagChildFriendly',
+    icon: '🧒',
+    modifier: 'child-friendly',
+  },
+  free: {
+    labelKey: 'tagFree',
+    icon: '🆓',
+    modifier: 'free',
+  },
+  temporary: {
+    labelKey: 'tagTemporary',
+    icon: '⏳',
+    modifier: 'temporary',
+  },
+};
+
 function formatRange(start, end, locale) {
   if (!start) return '';
   const opts = { day: '2-digit', month: 'short' };
@@ -137,11 +155,41 @@ export default function ExpositionCard({ exposition, ticketUrl, affiliateUrl, mu
     temporaryTag = true;
   }
   const tagDefinitions = [
-    { key: 'childFriendly', label: t('tagChildFriendly'), active: pickBoolean(tags.childFriendly, exposition?.kindvriendelijk, exposition?.childFriendly, exposition?.familievriendelijk, exposition?.familyFriendly) === true },
-    { key: 'free', label: t('tagFree'), active: pickBoolean(tags.free, exposition?.gratis, exposition?.free, exposition?.kosteloos, exposition?.freeEntry) === true },
-    { key: 'temporary', label: t('tagTemporary'), active: temporaryTag === true },
+    {
+      key: 'childFriendly',
+      active:
+        pickBoolean(
+          tags.childFriendly,
+          exposition?.kindvriendelijk,
+          exposition?.childFriendly,
+          exposition?.familievriendelijk,
+          exposition?.familyFriendly,
+        ) === true,
+    },
+    {
+      key: 'free',
+      active:
+        pickBoolean(
+          tags.free,
+          exposition?.gratis,
+          exposition?.free,
+          exposition?.kosteloos,
+          exposition?.freeEntry,
+        ) === true,
+    },
+    { key: 'temporary', active: temporaryTag === true },
   ];
-  const activeTags = tagDefinitions.filter((tag) => tag.active);
+  const activeTags = tagDefinitions
+    .filter((tag) => tag.active && TAG_CONFIG[tag.key])
+    .map((tag) => {
+      const config = TAG_CONFIG[tag.key];
+      return {
+        key: tag.key,
+        label: t(config.labelKey),
+        icon: config.icon,
+        modifier: config.modifier,
+      };
+    });
   const mediaTheme = useMemo(() => getMediaTheme(exposition, slug), [exposition, slug]);
   const mediaClassName = 'exposition-card__media';
 
@@ -192,7 +240,12 @@ export default function ExpositionCard({ exposition, ticketUrl, affiliateUrl, mu
           <ul className="exposition-card__tags">
             {activeTags.map((tag) => (
               <li key={tag.key}>
-                <span className="exposition-card__tag">{tag.label}</span>
+                <span className={`exposition-card__tag exposition-card__tag--${tag.modifier}`}>
+                  <span className="exposition-card__tag-icon" aria-hidden="true">
+                    {tag.icon}
+                  </span>
+                  <span>{tag.label}</span>
+                </span>
               </li>
             ))}
           </ul>
