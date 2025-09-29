@@ -14,9 +14,11 @@ export default function ExpositionCarousel({
   initialActiveSlide = 0,
   getItemKey,
   labels = {},
+  layout = 'carousel',
 }) {
   const slides = useMemo(() => (Array.isArray(items) ? items.filter(Boolean) : []), [items]);
   const totalSlides = slides.length;
+  const isCarousel = layout === 'carousel';
   const viewportRef = useRef(null);
   const isControlled = typeof controlledActiveSlide === 'number' && !Number.isNaN(controlledActiveSlide);
   const getSafeIndex = useCallback(
@@ -51,14 +53,15 @@ export default function ExpositionCarousel({
   );
 
   useEffect(() => {
+    if (!isCarousel) return;
     if (!isControlled) {
       setUncontrolledActive((previous) => getSafeIndex(previous));
     }
-  }, [getSafeIndex, isControlled, totalSlides]);
+  }, [getSafeIndex, isCarousel, isControlled, totalSlides]);
 
   const updateActiveSlide = useCallback(
     (index) => {
-      if (!totalSlides) return;
+      if (!isCarousel || !totalSlides) return;
       const nextIndex = getSafeIndex(index);
       if (!isControlled) {
         setUncontrolledActive(nextIndex);
@@ -67,11 +70,12 @@ export default function ExpositionCarousel({
         onActiveSlideChange(nextIndex);
       }
     },
-    [getSafeIndex, isControlled, onActiveSlideChange, totalSlides]
+    [getSafeIndex, isCarousel, isControlled, onActiveSlideChange, totalSlides]
   );
 
   const scrollToActiveSlide = useCallback(
     (index) => {
+      if (!isCarousel) return;
       const viewport = viewportRef.current;
       if (!viewport) return;
       const slideNodes = viewport.querySelectorAll('[data-carousel-slide="true"]');
@@ -84,15 +88,16 @@ export default function ExpositionCarousel({
         viewport.scrollTo({ left: offsetLeft, behavior: 'smooth' });
       }
     },
-    []
+    [isCarousel]
   );
 
   useEffect(() => {
-    if (!totalSlides) return;
+    if (!isCarousel || !totalSlides) return;
     scrollToActiveSlide(activeSlide);
-  }, [activeSlide, scrollToActiveSlide, totalSlides]);
+  }, [activeSlide, isCarousel, scrollToActiveSlide, totalSlides]);
 
   useEffect(() => {
+    if (!isCarousel) return undefined;
     const viewport = viewportRef.current;
     if (!viewport || totalSlides <= 1) return undefined;
 
@@ -116,9 +121,10 @@ export default function ExpositionCarousel({
     return () => {
       viewport.removeEventListener('wheel', handleWheel);
     };
-  }, [totalSlides]);
+  }, [isCarousel, totalSlides]);
 
   useEffect(() => {
+    if (!isCarousel) return undefined;
     const viewport = viewportRef.current;
     if (!viewport || totalSlides <= 1) return undefined;
     let frame = null;
@@ -159,7 +165,7 @@ export default function ExpositionCarousel({
         cancelAnimationFrame(frame);
       }
     };
-  }, [activeSlide, isControlled, onActiveSlideChange, totalSlides, uncontrolledActive]);
+  }, [activeSlide, isCarousel, isControlled, onActiveSlideChange, totalSlides, uncontrolledActive]);
 
   const getSlideLabel = useCallback(
     (index) => {
@@ -197,6 +203,7 @@ export default function ExpositionCarousel({
 
   const handleViewportKeyDown = useCallback(
     (event) => {
+      if (!isCarousel) return;
       if (totalSlides <= 1) return;
       if (event.key === 'ArrowRight') {
         event.preventDefault();
@@ -212,7 +219,7 @@ export default function ExpositionCarousel({
         updateActiveSlide(totalSlides - 1);
       }
     },
-    [activeSlide, totalSlides, updateActiveSlide]
+    [activeSlide, isCarousel, totalSlides, updateActiveSlide]
   );
 
   const carouselId = useId();
@@ -221,41 +228,51 @@ export default function ExpositionCarousel({
   const instructionsId = `${carouselId}-instructions`;
   const liveRegionId = `${carouselId}-live-region`;
   const instructionsText = useMemo(() => {
+    if (!isCarousel) return null;
     if (typeof instructions === 'function') {
       return instructions(totalSlides);
     }
     return instructions;
-  }, [instructions, totalSlides]);
+  }, [instructions, isCarousel, totalSlides]);
   const describedBy = useMemo(() => {
+    if (!isCarousel) return undefined;
     const ids = [];
     if (instructionsText) ids.push(instructionsId);
     if (totalSlides > 1) ids.push(liveRegionId);
     return ids.join(' ');
-  }, [instructionsId, instructionsText, liveRegionId, totalSlides]);
+  }, [instructionsId, instructionsText, isCarousel, liveRegionId, totalSlides]);
   const controlledIds = useMemo(
     () =>
-      [viewportId, trackId]
-        .filter(Boolean)
-        .join(' ') || undefined,
-    [trackId, viewportId]
+      !isCarousel
+        ? undefined
+        : [viewportId, trackId]
+            .filter(Boolean)
+            .join(' ') || undefined,
+    [isCarousel, trackId, viewportId]
   );
   const [liveAnnouncement, setLiveAnnouncement] = useState(() => {
     if (totalSlides <= 0) {
       return '';
     }
-    return getSlideLabel(activeSlide);
+    return isCarousel ? getSlideLabel(activeSlide) : '';
   });
 
   useEffect(() => {
-    if (totalSlides <= 1) {
+    if (!isCarousel || totalSlides <= 1) {
       setLiveAnnouncement('');
       return;
     }
     const nextAnnouncement = getSlideLabel(activeSlide);
     setLiveAnnouncement((previous) => (previous === nextAnnouncement ? previous : nextAnnouncement));
-  }, [activeSlide, getSlideLabel, totalSlides]);
+  }, [activeSlide, getSlideLabel, isCarousel, totalSlides]);
 
-  const regionLabel = typeof ariaLabel === 'string' && ariaLabel.trim() ? ariaLabel : 'Carousel';
+  const regionLabel = useMemo(() => {
+    if (!isCarousel) return undefined;
+    if (typeof ariaLabel === 'string' && ariaLabel.trim()) {
+      return ariaLabel;
+    }
+    return 'Carousel';
+  }, [ariaLabel, isCarousel]);
 
   if (!totalSlides) {
     return null;
@@ -263,10 +280,10 @@ export default function ExpositionCarousel({
 
   return (
     <div
-      className="exposition-carousel"
-      role="region"
+      className={`exposition-carousel${isCarousel ? '' : ` exposition-carousel--${layout}`}`}
+      role={isCarousel ? 'region' : undefined}
       aria-label={regionLabel}
-      aria-roledescription="carousel"
+      aria-roledescription={isCarousel ? 'carousel' : undefined}
       aria-controls={controlledIds}
     >
       {instructionsText ? (
@@ -274,7 +291,7 @@ export default function ExpositionCarousel({
           {instructionsText}
         </p>
       ) : null}
-      {totalSlides > 1 ? (
+      {isCarousel && totalSlides > 1 ? (
         <p id={liveRegionId} className="sr-only" role="status" aria-live="polite" aria-atomic="true">
           {liveAnnouncement}
         </p>
@@ -282,24 +299,24 @@ export default function ExpositionCarousel({
       <div
         className="exposition-carousel__viewport"
         ref={viewportRef}
-        id={viewportId}
-        tabIndex={0}
-        onKeyDown={handleViewportKeyDown}
+        id={isCarousel ? viewportId : undefined}
+        tabIndex={isCarousel ? 0 : undefined}
+        onKeyDown={isCarousel ? handleViewportKeyDown : undefined}
         aria-describedby={describedBy || undefined}
       >
-        <ul className="exposition-carousel__track" role="list" id={trackId}>
+        <ul className="exposition-carousel__track" role="list" id={isCarousel ? trackId : undefined}>
           {slides.map((item, index) => {
             const key = typeof getItemKey === 'function' ? getItemKey(item, index) : item?.id ?? index;
             const isActive = index === activeSlide;
             return (
               <li
                 key={key}
-                className={`exposition-carousel__slide${isActive ? ' is-active' : ''}`}
-                data-carousel-slide="true"
-                role="group"
-                aria-roledescription="slide"
-                aria-label={getSlideLabel(index)}
-                aria-current={isActive ? 'true' : undefined}
+                className={`exposition-carousel__slide${isCarousel && isActive ? ' is-active' : ''}`}
+                data-carousel-slide={isCarousel ? 'true' : undefined}
+                role={isCarousel ? 'group' : undefined}
+                aria-roledescription={isCarousel ? 'slide' : undefined}
+                aria-label={isCarousel ? getSlideLabel(index) : undefined}
+                aria-current={isCarousel && isActive ? 'true' : undefined}
               >
                 {typeof renderItem === 'function' ? renderItem(item, index, isActive) : item}
               </li>
@@ -307,7 +324,7 @@ export default function ExpositionCarousel({
           })}
         </ul>
       </div>
-      {totalSlides > 1 && (
+      {isCarousel && totalSlides > 1 && (
         <>
           <div className="exposition-carousel__navigation">
             <button

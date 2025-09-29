@@ -128,6 +128,63 @@ function normaliseExpositionRow(row, museumSlug) {
   };
 }
 
+function parseDateFromYMD(value) {
+  if (typeof value !== 'string') return null;
+  const [year, month, day] = value.split('-').map((segment) => Number.parseInt(segment, 10));
+  if (!Number.isFinite(year) || !Number.isFinite(month)) return null;
+  const safeDay = Number.isFinite(day) ? day : 1;
+  const date = new Date(Date.UTC(year, month - 1, safeDay));
+  return Number.isNaN(date.getTime()) ? null : date;
+}
+
+function formatMonthYear(date, locale) {
+  if (!(date instanceof Date) || Number.isNaN(date.getTime())) return null;
+  try {
+    const label = new Intl.DateTimeFormat(locale, { month: 'long', year: 'numeric' }).format(date);
+    if (typeof label === 'string' && label.length > 0) {
+      return label.charAt(0).toUpperCase() + label.slice(1);
+    }
+    return label;
+  } catch (err) {
+    const year = date.getUTCFullYear();
+    const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+    return `${year}-${month}`;
+  }
+}
+
+function groupExpositionsByStartDate(items, { locale = 'nl-NL', unknownLabel = 'Unknown' } = {}) {
+  if (!Array.isArray(items) || items.length === 0) {
+    return [];
+  }
+
+  const sortedItems = [...items].sort((a, b) => {
+    const aDate = parseDateFromYMD(a?.start_datum);
+    const bDate = parseDateFromYMD(b?.start_datum);
+    if (aDate && bDate) {
+      return aDate.getTime() - bDate.getTime();
+    }
+    if (aDate) return -1;
+    if (bDate) return 1;
+    return 0;
+  });
+
+  const groups = new Map();
+  sortedItems.forEach((exposition) => {
+    const startDate = parseDateFromYMD(exposition?.start_datum);
+    const key = startDate ? `${startDate.getUTCFullYear()}-${String(startDate.getUTCMonth() + 1).padStart(2, '0')}` : 'unknown';
+    if (!groups.has(key)) {
+      groups.set(key, {
+        key,
+        label: startDate ? formatMonthYear(startDate, locale) : unknownLabel,
+        items: [],
+      });
+    }
+    groups.get(key).items.push(exposition);
+  });
+
+  return Array.from(groups.values());
+}
+
 function getLocationLines(museum) {
   if (!museum) return [];
   const lines = [];
@@ -612,25 +669,13 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
     () => hasActiveExpositionFilters(expositionFilters),
     [expositionFilters]
   );
-  const [activeExpositionSlide, setActiveExpositionSlide] = useState(0);
-
-  useEffect(() => {
-    setActiveExpositionSlide((prev) => {
-      if (!filteredExpositionItems.length) return 0;
-      return prev >= filteredExpositionItems.length
-        ? filteredExpositionItems.length - 1
-        : prev;
+  const expositionGroups = useMemo(() => {
+    const locale = lang === 'en' ? 'en-GB' : 'nl-NL';
+    return groupExpositionsByStartDate(filteredExpositionItems, {
+      locale,
+      unknownLabel: t('unknown'),
     });
-  }, [filteredExpositionItems.length]);
-
-  const expositionFiltersSignature = useMemo(
-    () => JSON.stringify(expositionFilters),
-    [expositionFilters]
-  );
-
-  useEffect(() => {
-    setActiveExpositionSlide(0);
-  }, [expositionFiltersSignature]);
+  }, [filteredExpositionItems, lang, t]);
 
   const expositionCarouselLabels = useMemo(
     () => ({
@@ -1292,23 +1337,28 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
                     </div>
                   </div>
                   {filteredExpositionItems.length > 0 ? (
-                    <ExpositionCarousel
-                      items={filteredExpositionItems}
-                      ariaLabel={t('exhibitionsTitle')}
-                      activeSlide={activeExpositionSlide}
-                      onActiveSlideChange={setActiveExpositionSlide}
-                      getItemKey={(exposition) => exposition.id}
-                      labels={expositionCarouselLabels}
-                      renderItem={(exposition) => (
-                        <ExpositionCard
-                          exposition={exposition}
-                          affiliateUrl={affiliateTicketUrl}
-                          ticketUrl={directTicketUrl}
-                          museumSlug={slug}
-                          tags={exposition.tags}
-                        />
-                      )}
-                    />
+                    <div className="museum-expositions-sections">
+                      {expositionGroups.map((group) => (
+                        <div key={group.key} className="museum-expositions-section">
+                          <h3 className="museum-expositions-subheading">{group.label}</h3>
+                          <ExpositionCarousel
+                            layout="grid"
+                            items={group.items}
+                            getItemKey={(exposition) => exposition.id}
+                            labels={expositionCarouselLabels}
+                            renderItem={(exposition) => (
+                              <ExpositionCard
+                                exposition={exposition}
+                                affiliateUrl={affiliateTicketUrl}
+                                ticketUrl={directTicketUrl}
+                                museumSlug={slug}
+                                tags={exposition.tags}
+                              />
+                            )}
+                          />
+                        </div>
+                      ))}
+                    </div>
                   ) : (
                     <p className="museum-expositions-empty">
                       {hasActiveExpositionFilter ? t('noFilteredExhibitions') : t('noExhibitions')}

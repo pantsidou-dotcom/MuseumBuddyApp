@@ -1834,6 +1834,9 @@ button.hero-quick-link {
 .museum-detail-header { display: flex; flex-direction: column; gap: 16px; align-items: flex-start; }
 .museum-expositions-heading { margin: 0; font-size: clamp(24px, 3vw, 30px); font-weight: 700; letter-spacing: -0.01em; }
 .museum-expositions-body { display: flex; flex-direction: column; gap: 20px; }
+.museum-expositions-sections { display: flex; flex-direction: column; gap: clamp(var(--space-24), 4vw, var(--space-40)); }
+.museum-expositions-section { display: flex; flex-direction: column; gap: clamp(var(--space-12), 2.5vw, var(--space-20)); }
+.museum-expositions-subheading { margin: 0; font-size: clamp(18px, 2.4vw, 22px); font-weight: 700; letter-spacing: -0.01em; }
 .museum-expositions-empty { margin: 8px 0 0; color: var(--muted); }
 .museum-sidebar {
   position: sticky;
@@ -2985,6 +2988,10 @@ button.hero-quick-link {
   gap: var(--space-16);
 }
 
+.exposition-carousel--grid {
+  gap: clamp(var(--space-12), 3vw, var(--space-20));
+}
+
 .exposition-carousel__viewport {
   position: relative;
   overflow-x: auto;
@@ -3014,6 +3021,22 @@ button.hero-quick-link {
   list-style: none;
   margin: 0;
   padding: 0;
+}
+
+.exposition-carousel--grid .exposition-carousel__navigation,
+.exposition-carousel--grid .exposition-carousel__pagination {
+  display: none;
+}
+
+.exposition-carousel--grid .exposition-carousel__viewport {
+  margin: 0;
+  padding: 0;
+  scroll-padding-inline: 0;
+}
+
+.exposition-carousel--grid .exposition-carousel__track {
+  grid-auto-columns: minmax(220px, clamp(260px, 48vw, 320px));
+  gap: clamp(var(--space-12), 3vw, var(--space-20));
 }
 
 .exposition-carousel__slide {
@@ -3406,6 +3429,27 @@ button.hero-quick-link {
   }
   .exposition-card__topline {
     align-items: center;
+  }
+}
+
+@media (min-width: 900px) {
+  .exposition-carousel--grid .exposition-carousel__viewport {
+    overflow: visible;
+    margin: 0;
+    padding: 0;
+    scroll-snap-type: none;
+  }
+
+  .exposition-carousel--grid .exposition-carousel__track {
+    grid-auto-flow: row;
+    grid-auto-columns: unset;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: clamp(var(--space-20), 3vw, var(--space-32));
+  }
+
+  .exposition-carousel--grid .exposition-carousel__slide {
+    scroll-snap-align: unset;
+    scroll-snap-stop: unset;
   }
 }
 
