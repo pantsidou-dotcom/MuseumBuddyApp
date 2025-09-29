@@ -397,8 +397,6 @@ img { max-width: 100%; height: auto; display: block; }
   display: inline-flex;
   align-items: center;
   padding: 0;
-  border-radius: 20px;
-  overflow: hidden;
   line-height: 0;
   transition: transform 0.25s ease;
 }
@@ -414,8 +412,10 @@ img { max-width: 100%; height: auto; display: block; }
 
 .header-brand-image {
   display: block;
-  width: clamp(200px, 26vw, 320px);
+  width: clamp(220px, 28vw, 340px);
   height: auto;
+  border-radius: 18px;
+  box-shadow: 0 24px 48px rgba(9, 15, 38, 0.18);
 }
 
 .header-links {

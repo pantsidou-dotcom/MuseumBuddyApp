@@ -29,7 +29,7 @@ export default function Layout({ children }) {
           <Link href="/" className="header-brand" aria-label={t('homeLabel')}>
             <Image
               src="/images/museum-buddy-header.svg"
-              alt="Museum Buddy"
+              alt="Museum Buddy logo"
               width={320}
               height={120}
               priority
