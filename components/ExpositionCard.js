@@ -28,6 +28,27 @@ function pickBoolean(...values) {
   return undefined;
 }
 
+function getMediaTheme(exposition, museumSlug) {
+  const idPart = exposition?.id != null ? String(exposition.id) : '';
+  const slugPart = museumSlug || exposition?.museumSlug || '';
+  const titlePart = exposition?.titel || '';
+  const seed = `${idPart}-${slugPart}-${titlePart}`;
+  let hash = 0;
+  for (let i = 0; i < seed.length; i += 1) {
+    hash = (hash * 31 + seed.charCodeAt(i)) | 0;
+  }
+  const positiveHash = Math.abs(hash);
+  const hue = positiveHash % 360;
+  const saturation = 55 + (positiveHash % 10);
+  const lightness = 82 + (positiveHash % 8);
+
+  return {
+    style: {
+      backgroundColor: `hsl(${hue}, ${saturation}%, ${lightness}%)`,
+    },
+  };
+}
+
 export default function ExpositionCard({ exposition, ticketUrl, affiliateUrl, museumSlug, tags = {} }) {
   if (!exposition) return null;
 
@@ -121,11 +142,14 @@ export default function ExpositionCard({ exposition, ticketUrl, affiliateUrl, mu
     { key: 'temporary', label: t('tagTemporary'), active: temporaryTag === true },
   ];
   const activeTags = tagDefinitions.filter((tag) => tag.active);
+  const mediaTheme = useMemo(() => getMediaTheme(exposition, slug), [exposition, slug]);
+  const mediaClassName = 'exposition-card__media';
 
   return (
     <article
       className={`exposition-card${isFavoriteBouncing ? ' is-bouncing' : ''}`}
     >
+      <div className={mediaClassName} style={mediaTheme?.style} aria-hidden="true" />
       <div className="exposition-card__body">
         <div className="exposition-card__topline">
           {rangeLabel && (
