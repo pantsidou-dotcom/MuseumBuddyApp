@@ -20,7 +20,7 @@ function resolveSections(sections, labels) {
         { name: 'free', label: labels?.free },
         { name: 'exhibitions', label: labels?.exhibitions },
         { name: 'kidFriendly', label: labels?.kidFriendly },
-        { name: 'nearby', label: labels?.distance },
+        { name: 'nearby', label: labels?.distance, hidden: true },
       ],
     },
   ];
@@ -53,7 +53,7 @@ export function FiltersForm({
                 </h3>
               )}
               {options.map((option) => {
-                if (!option) return null;
+                if (!option || option.hidden) return null;
                 const optionId = `${sectionId}-${option.name}`;
                 const isDisabled = Boolean(option.disabled);
                 const className = [
