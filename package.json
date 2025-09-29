@@ -6,7 +6,7 @@
     "build": "next build",
     "start": "next start",
     "crawl": "node scripts/crawl.mjs",
-    "test": "node tests/ticketCta.test.cjs && node tests/kidFriendlyFilter.test.cjs && node tests/nearbyFilter.test.cjs",
+    "test": "node tests/ticketCta.test.cjs && node tests/kidFriendlyFilter.test.cjs && node tests/nearbyFilter.test.cjs && node tests/museumSearch.test.cjs",
     "build:web": "next build",
     "cap:copy": "npx cap copy",
     "cap:sync": "npx cap sync"
