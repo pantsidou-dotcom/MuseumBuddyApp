@@ -12,6 +12,7 @@ import FiltersSheet from '../../components/FiltersSheet';
 import FiltersPopover from '../../components/FiltersPopover';
 import TicketButtonNote from '../../components/TicketButtonNote';
 import museumImages from '../../lib/museumImages';
+import { normalizeImageSource, resolveImageUrl } from '../../lib/resolveImageSource';
 import museumImageCredits from '../../lib/museumImageCredits';
 import museumSummaries from '../../lib/museumSummaries';
 import museumOpeningHours from '../../lib/museumOpeningHours';
@@ -334,6 +335,8 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
     resolvedMuseum.raw?.afbeelding_url ||
     resolvedMuseum.raw?.image_url ||
     null;
+  const heroImage = useMemo(() => normalizeImageSource(rawImage), [rawImage]);
+  const heroImageUrl = useMemo(() => resolveImageUrl(rawImage), [rawImage]);
   const imageCredit = museumImageCredits[slug];
   const isPublicDomainImage = Boolean(imageCredit?.isPublicDomain);
   const formattedCredit = useMemo(
@@ -434,13 +437,6 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
     [router, slug]
   );
 
-  const heroImage = useMemo(() => {
-    if (!rawImage) return null;
-    if (rawImage.startsWith('http://') || rawImage.startsWith('https://')) return rawImage;
-    if (rawImage.startsWith('/')) return rawImage;
-    return `/${rawImage}`;
-  }, [rawImage]);
-
   const favoritePayload = useMemo(
     () => ({
       id: resolvedMuseum.id,
@@ -449,7 +445,7 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
       city: resolvedMuseum.city,
       province: resolvedMuseum.province,
       free: resolvedMuseum.free,
-      image: heroImage || rawImage,
+      image: heroImageUrl,
       imageCredit,
       ticketUrl,
       type: 'museum',
@@ -461,8 +457,7 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
       resolvedMuseum.city,
       resolvedMuseum.province,
       resolvedMuseum.free,
-      heroImage,
-      rawImage,
+      heroImageUrl,
       imageCredit,
       ticketUrl,
     ]
@@ -1102,7 +1097,12 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
 
   return (
     <section className={`museum-detail${heroImage ? ' has-hero' : ''}`}>
-      <SEO title={`${displayName} — MuseumBuddy`} description={seoDescription} image={heroImage} canonical={canonical} />
+      <SEO
+        title={`${displayName} — MuseumBuddy`}
+        description={seoDescription}
+        image={heroImageUrl}
+        canonical={canonical}
+      />
       <FiltersSheet
         open={filtersSheetOpen}
         filters={pendingExpositionFilters}
@@ -1148,6 +1148,10 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
                     sizes="(max-width: 640px) 100vw, (max-width: 1200px) 90vw, 1200px"
                     priority={isLandingMuseum}
                     loading={isLandingMuseum ? 'eager' : 'lazy'}
+                    fetchPriority={isLandingMuseum ? 'high' : 'auto'}
+                    {...(heroImage && typeof heroImage === 'object' && 'blurDataURL' in heroImage && heroImage.blurDataURL
+                      ? { placeholder: 'blur', blurDataURL: heroImage.blurDataURL }
+                      : {})}
                   />
                   <div className="museum-hero-text museum-hero-overlay">
                     {locationLabel && <p className="detail-sub museum-hero-location">{locationLabel}</p>}

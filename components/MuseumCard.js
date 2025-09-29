@@ -8,6 +8,7 @@ import museumOpeningHours from '../lib/museumOpeningHours';
 import { CATEGORY_TRANSLATION_KEYS } from '../lib/museumCategories';
 import { shouldShowAffiliateNote } from '../lib/nonAffiliateMuseums';
 import formatImageCredit from '../lib/formatImageCredit';
+import { normalizeImageSource, resolveImageUrl } from '../lib/resolveImageSource';
 import TicketButtonNote from './TicketButtonNote';
 
 const HOVER_COLORS = ['#A7D8F0', '#77DDDD', '#F7C59F', '#D8BFD8', '#EAE0C8'];
@@ -56,6 +57,14 @@ export default function MuseumCard({ museum, priority = false, onCategoryClick }
     [museum.slug, museum.id]
   );
   const blurDataUrl = useMemo(() => createBlurDataUrl(hoverColor), [hoverColor]);
+  const normalizedImage = useMemo(() => normalizeImageSource(museum.image), [museum.image]);
+  const favoriteImageUrl = useMemo(() => resolveImageUrl(museum.image), [museum.image]);
+  const placeholderDataUrl = useMemo(() => {
+    if (normalizedImage && typeof normalizedImage === 'object' && 'blurDataURL' in normalizedImage) {
+      return normalizedImage.blurDataURL || blurDataUrl;
+    }
+    return blurDataUrl;
+  }, [blurDataUrl, normalizedImage]);
 
   const summary = museumSummaries[museum.slug]?.[lang] || museum.summary;
   const hours = museumOpeningHours[museum.slug]?.[lang];
@@ -126,7 +135,7 @@ export default function MuseumCard({ museum, priority = false, onCategoryClick }
   };
 
   const handleFavorite = () => {
-    toggleFavorite({ ...museum, type: 'museum' });
+    toggleFavorite({ ...museum, image: favoriteImageUrl, type: 'museum' });
     triggerFavoriteBounce();
   };
 
@@ -266,18 +275,20 @@ export default function MuseumCard({ museum, priority = false, onCategoryClick }
           className="museum-card-media-link"
           aria-label={`${t('view')} ${museum.title}`}
         >
-          {museum.image && (
+          {normalizedImage && (
             <Image
-              src={museum.image.startsWith('/') ? museum.image : `/${museum.image}`}
+              src={normalizedImage}
               alt={museum.title}
               fill
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
               className="museum-card-media"
               style={{ objectFit: 'cover' }}
-              placeholder="blur"
-              blurDataURL={blurDataUrl}
+              {...(placeholderDataUrl
+                ? { placeholder: 'blur', blurDataURL: placeholderDataUrl }
+                : {})}
               priority={priority}
               loading={priority ? 'eager' : 'lazy'}
+              fetchPriority={priority ? 'high' : 'auto'}
               quality={70}
             />
           )}
