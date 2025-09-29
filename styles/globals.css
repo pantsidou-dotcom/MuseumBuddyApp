@@ -3151,23 +3151,52 @@ button.hero-quick-link {
   position: relative;
   overflow: hidden;
   aspect-ratio: 21 / 10;
-  border-bottom: 1px solid rgba(148, 163, 184, 0.22);
+  border-bottom: 1px solid var(--exposition-media-border, rgba(148, 163, 184, 0.22));
   border-radius: var(--radius-md) var(--radius-md) 0 0;
   background-color: rgba(241, 245, 249, 0.85);
-  transition: transform 0.35s ease, background-color 0.35s ease, border-color 0.35s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.35s ease, background-color 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease;
+  color: var(--exposition-media-ink, rgba(30, 41, 59, 0.68));
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.35);
 }
 
-.exposition-card__media::before,
-.exposition-card__media::after {
-  content: none;
+.exposition-card__media::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 18% 18%, rgba(255, 255, 255, 0.55), transparent 58%),
+    radial-gradient(circle at 82% 12%, rgba(255, 255, 255, 0.28), transparent 60%);
+  pointer-events: none;
+  mix-blend-mode: screen;
 }
 
 .exposition-card__media.is-placeholder {
-  background-color: rgba(241, 245, 249, 0.85);
+  background-image: none !important;
 }
 
 [data-theme='dark'] .exposition-card__media {
-  border-color: rgba(71, 85, 105, 0.42);
+  border-color: var(--exposition-media-border-dark, rgba(71, 85, 105, 0.42));
+  background-color: rgba(15, 23, 42, 0.72);
+  color: var(--exposition-media-ink-dark, rgba(226, 232, 240, 0.88));
+  box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.55);
+}
+
+.exposition-card__media-initial {
+  position: relative;
+  z-index: 1;
+  font-size: clamp(28px, 7vw, 60px);
+  line-height: 1;
+  opacity: 0.92;
+  text-shadow: 0 10px 26px rgba(15, 23, 42, 0.18);
+}
+
+[data-theme='dark'] .exposition-card__media-initial {
+  text-shadow: 0 16px 34px rgba(15, 23, 42, 0.65);
 }
 
 @media (max-width: 640px) {
@@ -3234,19 +3263,47 @@ button.hero-quick-link {
 .exposition-card__date {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 10px;
   font-size: 0.75rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
   color: var(--muted);
   font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.exposition-card__date-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 0.65rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-weight: 700;
+  background: rgba(148, 163, 184, 0.22);
+  color: var(--text);
+}
+
+.exposition-card__date-label::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: currentColor;
+  opacity: 0.55;
+}
+
+[data-theme='dark'] .exposition-card__date-label {
+  background: rgba(148, 163, 184, 0.32);
+  color: rgba(226, 232, 240, 0.92);
 }
 
 .exposition-card__date-value {
-  font-size: 0.875rem;
-  font-weight: 600;
-  letter-spacing: 0.04em;
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
   color: var(--text);
+  text-transform: uppercase;
 }
 
 
@@ -3275,10 +3332,11 @@ button.hero-quick-link {
 }
 
 
+
 .exposition-card__tags {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: 10px;
   list-style: none;
   margin: 0;
   padding: 0;
@@ -3288,29 +3346,37 @@ button.hero-quick-link {
 .exposition-card__tag {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 3px 10px;
+  gap: 8px;
+  padding: 6px 14px;
   border-radius: 999px;
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  background: var(--chip-bg);
-  border: 1px solid var(--chip-border);
-  color: var(--text);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  background: linear-gradient(135deg, rgba(226, 232, 240, 0.92) 0%, rgba(203, 213, 225, 0.78) 100%);
+  border: 1px solid rgba(148, 163, 184, 0.45);
+  color: rgba(30, 41, 59, 0.82);
+  box-shadow: 0 12px 22px rgba(15, 23, 42, 0.08);
 }
 
 [data-theme='dark'] .exposition-card__tag {
-  background: rgba(148,163,184,0.16);
-  border-color: rgba(148,163,184,0.28);
+  background: linear-gradient(135deg, rgba(30, 41, 59, 0.88) 0%, rgba(51, 65, 85, 0.88) 100%);
+  border-color: rgba(148, 163, 184, 0.35);
+  color: rgba(226, 232, 240, 0.9);
+  box-shadow: 0 14px 26px rgba(15, 23, 42, 0.45);
 }
 
 .exposition-card__tag::before {
   content: '';
-  width: 6px;
-  height: 6px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
   background: currentColor;
-  opacity: 0.4;
+  opacity: 0.55;
+}
+
+[data-theme='dark'] .exposition-card__tag::before {
+  opacity: 0.7;
 }
 
 

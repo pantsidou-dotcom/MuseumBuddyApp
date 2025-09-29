@@ -39,13 +39,26 @@ function getMediaTheme(exposition, museumSlug) {
   }
   const positiveHash = Math.abs(hash);
   const hue = positiveHash % 360;
-  const saturation = 55 + (positiveHash % 10);
-  const lightness = 82 + (positiveHash % 8);
+  const accentHue = (hue + 38) % 360;
+  const baseInk = `hsl(${hue}, 42%, 32%)`;
+  const darkInk = `hsl(${hue}, 54%, 78%)`;
+  const gradientLayer = `linear-gradient(135deg, hsla(${hue}, 72%, 92%, 1) 0%, hsla(${accentHue}, 68%, 84%, 1) 100%)`;
+  const patternLayer = `repeating-linear-gradient(135deg, hsla(${hue}, 60%, 82%, 0.45) 0, hsla(${hue}, 60%, 82%, 0.45) 12px, hsla(${hue}, 60%, 82%, 0.15) 12px, hsla(${hue}, 60%, 82%, 0.15) 24px)`;
+  const borderLight = `hsla(${hue}, 58%, 72%, 0.45)`;
+  const borderDark = `hsla(${accentHue}, 52%, 48%, 0.55)`;
+
+  const initialSource = (titlePart || slugPart || idPart || '').trim();
+  const initial = initialSource ? initialSource[0].toUpperCase() : null;
 
   return {
     style: {
-      backgroundColor: `hsl(${hue}, ${saturation}%, ${lightness}%)`,
+      backgroundImage: `${patternLayer}, ${gradientLayer}`,
+      '--exposition-media-ink': baseInk,
+      '--exposition-media-ink-dark': darkInk,
+      '--exposition-media-border': borderLight,
+      '--exposition-media-border-dark': borderDark,
     },
+    initial,
   };
 }
 
@@ -144,12 +157,15 @@ export default function ExpositionCard({ exposition, ticketUrl, affiliateUrl, mu
   const activeTags = tagDefinitions.filter((tag) => tag.active);
   const mediaTheme = useMemo(() => getMediaTheme(exposition, slug), [exposition, slug]);
   const mediaClassName = 'exposition-card__media';
+  const mediaInitial = mediaTheme?.initial;
 
   return (
     <article
       className={`exposition-card${isFavoriteBouncing ? ' is-bouncing' : ''}`}
     >
-      <div className={mediaClassName} style={mediaTheme?.style} aria-hidden="true" />
+      <div className={mediaClassName} style={mediaTheme?.style} aria-hidden="true">
+        {mediaInitial ? <span className="exposition-card__media-initial">{mediaInitial}</span> : null}
+      </div>
       <div className="exposition-card__body">
         <div className="exposition-card__topline">
           {rangeLabel && (
