@@ -33,23 +33,18 @@ function getMediaTheme(exposition, museumSlug) {
   const slugPart = museumSlug || exposition?.museumSlug || '';
   const titlePart = exposition?.titel || '';
   const seed = `${idPart}-${slugPart}-${titlePart}`;
-  if (!seed) {
-    return { className: 'exposition-card__media--tone-1', style: undefined };
-  }
-
   let hash = 0;
   for (let i = 0; i < seed.length; i += 1) {
     hash = (hash * 31 + seed.charCodeAt(i)) | 0;
   }
   const positiveHash = Math.abs(hash);
   const hue = positiveHash % 360;
-  const secondaryHue = (hue + 32) % 360;
-  const toneClass = `exposition-card__media--tone-${(positiveHash % 3) + 1}`;
+  const saturation = 55 + (positiveHash % 10);
+  const lightness = 82 + (positiveHash % 8);
 
   return {
-    className: toneClass,
     style: {
-      background: `linear-gradient(135deg, hsla(${hue}, 62%, 86%, 0.9), hsla(${secondaryHue}, 58%, 82%, 0.88))`,
+      backgroundColor: `hsl(${hue}, ${saturation}%, ${lightness}%)`,
     },
   };
 }
@@ -148,12 +143,7 @@ export default function ExpositionCard({ exposition, ticketUrl, affiliateUrl, mu
   ];
   const activeTags = tagDefinitions.filter((tag) => tag.active);
   const mediaTheme = useMemo(() => getMediaTheme(exposition, slug), [exposition, slug]);
-  const mediaClassName = useMemo(() => {
-    if (!mediaTheme?.className) {
-      return 'exposition-card__media';
-    }
-    return `exposition-card__media ${mediaTheme.className}`;
-  }, [mediaTheme]);
+  const mediaClassName = 'exposition-card__media';
 
   return (
     <article
