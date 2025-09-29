@@ -58,9 +58,50 @@ const DEFAULT_FILTERS = Object.freeze({
 });
 
 const BASE_MUSEUM_COLUMNS =
-  'id, naam, stad, provincie, slug, gratis_toegankelijk, ticket_affiliate_url, website_url';
-const OPTIONAL_MUSEUM_COLUMNS = 'kindvriendelijk, afstand_meter';
+  'id, naam, stad, provincie, slug, gratis_toegankelijk, ticket_affiliate_url, website_url, kindvriendelijk';
+const DISTANCE_COLUMN = 'afstand_meter';
 const NEARBY_DISTANCE_THRESHOLD_METERS = 2500; // 2.5 km radius for the nearby filter.
+
+function resolveBooleanFlag(...values) {
+  for (const value of values) {
+    if (value === undefined || value === null) continue;
+    if (typeof value === 'boolean') return value;
+    if (typeof value === 'number') return value !== 0;
+    if (typeof value === 'string') {
+      const normalized = value.trim().toLowerCase();
+      if (!normalized) continue;
+      if (['1', 'true', 'yes', 'ja', 'waar', 'y'].includes(normalized)) return true;
+      if (['0', 'false', 'nee', 'no', 'n'].includes(normalized)) return false;
+      return true;
+    }
+  }
+  return undefined;
+}
+
+function isKidFriendly(museum) {
+  return resolveBooleanFlag(
+    museum?.kindvriendelijk,
+    museum?.kindFriendly,
+    museum?.familievriendelijk,
+    museum?.childFriendly
+  ) === true;
+}
+
+function parseDistanceMeters(value) {
+  if (typeof value === 'number' && Number.isFinite(value)) return value;
+  if (typeof value === 'string') {
+    const parsed = Number.parseFloat(value.replace(',', '.'));
+    if (Number.isFinite(parsed)) return parsed;
+  }
+  return null;
+}
+
+function getMuseumSelectColumns({ includeDistance } = {}) {
+  if (includeDistance) {
+    return `${BASE_MUSEUM_COLUMNS}, ${DISTANCE_COLUMN}`;
+  }
+  return BASE_MUSEUM_COLUMNS;
+}
 
 function parseBooleanParam(value) {
   if (Array.isArray(value)) {
@@ -268,8 +309,6 @@ export default function Home({ initialMuseums = [], initialError = null }) {
           let db = supabaseClient.from('musea').select(columns).order('naam', { ascending: true });
           if (query) db = db.ilike('naam', `%${query}%`);
           if (activeFilters.free) db = db.eq('gratis_toegankelijk', true);
-          if (activeFilters.kidFriendly) db = db.eq('kindvriendelijk', true);
-          if (activeFilters.nearby) db = db.lte('afstand_meter', NEARBY_DISTANCE_THRESHOLD_METERS);
           if (Array.isArray(expositionIds) && expositionIds.length > 0) {
             db = db.in('id', expositionIds);
           }
@@ -305,7 +344,7 @@ export default function Home({ initialMuseums = [], initialError = null }) {
           expositionIds = ids;
         }
 
-        const columnsWithOptional = `${BASE_MUSEUM_COLUMNS}, ${OPTIONAL_MUSEUM_COLUMNS}`;
+        const columnsWithOptional = getMuseumSelectColumns({ includeDistance: activeFilters.nearby });
 
         let { data, error: queryError } = await buildQuery(columnsWithOptional, expositionIds);
 
@@ -327,16 +366,12 @@ export default function Home({ initialMuseums = [], initialError = null }) {
 
         const filtered = (data || [])
           .filter((m) => m.slug !== 'amsterdam-tulip-museum-amsterdam')
-          .filter((m) => (activeFilters.kidFriendly ? m.kindvriendelijk === true : true))
+          .filter((m) => (activeFilters.kidFriendly ? isKidFriendly(m) : true))
           .filter((m) => {
             if (!activeFilters.nearby) return true;
-            const rawDistance = m.afstand_meter;
-            const distanceValue =
-              typeof rawDistance === 'number' ? rawDistance : Number.parseFloat(rawDistance);
-            if (Number.isFinite(distanceValue)) {
-              return distanceValue <= NEARBY_DISTANCE_THRESHOLD_METERS;
-            }
-            return false;
+            const distanceValue = parseDistanceMeters(m?.[DISTANCE_COLUMN]);
+            if (distanceValue === null) return false;
+            return distanceValue <= NEARBY_DISTANCE_THRESHOLD_METERS;
           });
 
         if (!isCancelled) {
@@ -566,7 +601,7 @@ export async function getStaticProps() {
   }
 
   try {
-    const columnsWithOptional = `${BASE_MUSEUM_COLUMNS}, ${OPTIONAL_MUSEUM_COLUMNS}`;
+    const columnsWithOptional = getMuseumSelectColumns({ includeDistance: false });
 
     let { data, error } = await supabaseClient
       .from('musea')
