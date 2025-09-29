@@ -1,22 +1,32 @@
-<svg width="800" height="560" viewBox="0 0 800 560" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
-  <title id="title">Tentoonstelling plaatsaanduiding</title>
-  <desc id="desc">Gestileerde poster met abstracte vormen als tijdelijke afbeelding voor een tentoonstelling.</desc>
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Tentoonstelling tijdelijke afbeelding</title>
+  <desc id="desc">Diepblauwe abstracte compositie als tijdelijke afbeelding voor een tentoonstelling.</desc>
   <defs>
     <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#f1f5f9" />
-      <stop offset="50%" stop-color="#e2e8f0" />
-      <stop offset="100%" stop-color="#cbd5f5" />
+      <stop offset="0%" stop-color="#13263b" />
+      <stop offset="100%" stop-color="#1f3550" />
     </linearGradient>
-    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#2563eb" stop-opacity="0.9" />
-      <stop offset="100%" stop-color="#1d4ed8" stop-opacity="0.95" />
+    <radialGradient id="highlight" cx="78%" cy="22%" r="48%">
+      <stop offset="0%" stop-color="rgba(255, 255, 255, 0.22)" />
+      <stop offset="100%" stop-color="rgba(255, 255, 255, 0)" />
+    </radialGradient>
+    <linearGradient id="curve" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#233f63" stop-opacity="0.65" />
+      <stop offset="100%" stop-color="#1a2f47" stop-opacity="0.1" />
+    </linearGradient>
+    <linearGradient id="bars" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#1d3857" stop-opacity="0.85" />
+      <stop offset="100%" stop-color="#112439" stop-opacity="0.2" />
     </linearGradient>
   </defs>
-  <rect width="800" height="560" fill="url(#bg)" rx="36" />
-  <circle cx="640" cy="130" r="96" fill="rgba(255, 255, 255, 0.55)" />
-  <circle cx="168" cy="168" r="132" fill="rgba(255, 255, 255, 0.32)" />
-  <path d="M120 420H680L560 220L460 340L360 180L120 420Z" fill="url(#accent)" opacity="0.88" />
-  <rect x="140" y="100" width="220" height="22" rx="11" fill="rgba(15, 23, 42, 0.55)" />
-  <rect x="140" y="140" width="320" height="18" rx="9" fill="rgba(15, 23, 42, 0.35)" />
-  <rect x="140" y="176" width="280" height="18" rx="9" fill="rgba(15, 23, 42, 0.2)" />
+  <rect width="1024" height="1024" fill="url(#bg)" rx="48" />
+  <rect x="96" y="180" width="96" height="664" rx="48" fill="url(#bars)" opacity="0.6" />
+  <rect x="204" y="220" width="88" height="560" rx="44" fill="url(#bars)" opacity="0.45" />
+  <rect x="312" y="260" width="80" height="456" rx="40" fill="url(#bars)" opacity="0.35" />
+  <circle cx="784" cy="248" r="164" fill="url(#highlight)" />
+  <path d="M64 736c168-120 300-176 432-176s264 64 464 240v160H64V736Z" fill="url(#curve)" />
+  <circle cx="768" cy="720" r="104" fill="rgba(35, 63, 99, 0.55)" />
+  <circle cx="720" cy="676" r="32" fill="rgba(255, 255, 255, 0.08)" />
+  <circle cx="840" cy="760" r="28" fill="rgba(255, 255, 255, 0.1)" />
+  <path d="M576 320c64 32 120 76 152 128s40 112 12 176c-56 120-216 160-320 128 96-64 168-140 212-232 28-60 36-120 36-200Z" fill="rgba(15, 24, 38, 0.4)" />
 </svg>
