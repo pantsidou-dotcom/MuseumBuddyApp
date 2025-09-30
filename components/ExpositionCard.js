@@ -28,6 +28,35 @@ function pickBoolean(...values) {
   return undefined;
 }
 
+const PLACEHOLDER_IMAGES = [
+  '/images/exposition-art-bridge.svg',
+  '/images/exposition-art-arch.svg',
+  '/images/exposition-art-houses.svg',
+  '/images/exposition-art-windmill.svg',
+  '/images/exposition-art-grid.svg',
+];
+
+function getPlaceholderImage(exposition) {
+  if (!exposition) {
+    return PLACEHOLDER_IMAGES[0];
+  }
+
+  const keyParts = [exposition.id, exposition.museumSlug, exposition.titel].filter(Boolean);
+  if (keyParts.length === 0) {
+    return PLACEHOLDER_IMAGES[0];
+  }
+
+  const key = keyParts.join('|');
+  let hash = 0;
+  for (let i = 0; i < key.length; i += 1) {
+    hash = (hash << 5) - hash + key.charCodeAt(i);
+    hash |= 0;
+  }
+
+  const index = Math.abs(hash) % PLACEHOLDER_IMAGES.length;
+  return PLACEHOLDER_IMAGES[index];
+}
+
 export default function ExpositionCard({ exposition, ticketUrl, affiliateUrl, museumSlug, tags = {} }) {
   if (!exposition) return null;
 
@@ -122,6 +151,7 @@ export default function ExpositionCard({ exposition, ticketUrl, affiliateUrl, mu
   ];
   const activeTags = tagDefinitions.filter((tag) => tag.active);
   const mediaClassName = 'exposition-card__media exposition-card__media--placeholder';
+  const placeholderImage = useMemo(() => getPlaceholderImage(exposition), [exposition]);
 
   return (
     <article
@@ -129,7 +159,7 @@ export default function ExpositionCard({ exposition, ticketUrl, affiliateUrl, mu
     >
       <div className={mediaClassName} aria-hidden="true">
         <img
-          src="/images/exposition-placeholder.svg"
+          src={placeholderImage}
           alt=""
           className="exposition-card__media-placeholder"
           loading="lazy"
