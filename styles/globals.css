@@ -3132,9 +3132,11 @@ button.hero-quick-link {
   pointer-events: none;
 }
 
+
 .exposition-card__media--placeholder {
   color: rgba(100, 116, 139, 0.38);
-  background-color: #13263b;
+  background: var(--surface);
+  padding: 0;
 }
 
 .exposition-card__media--placeholder::before {
@@ -3158,19 +3160,18 @@ button.hero-quick-link {
 }
 
 .exposition-card__media-placeholder {
-  position: absolute;
-  inset: 0;
+  position: relative;
   z-index: 1;
   display: block;
   width: 100%;
   height: 100%;
-  object-fit: cover;
-  filter: none;
+  max-height: 100%;
+  object-fit: contain;
+  object-position: center;
   opacity: 1;
 }
 
 [data-theme='dark'] .exposition-card__media-placeholder {
-  filter: none;
   opacity: 1;
 }
 
