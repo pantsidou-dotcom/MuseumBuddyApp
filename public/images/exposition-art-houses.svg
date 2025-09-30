@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" role="img" aria-hidden="true">
+  <rect width="400" height="400" fill="#f1e4c4" />
+  <rect x="0" y="220" width="400" height="180" fill="#87a2aa" />
+  <g fill="#2f5b73">
+    <rect x="40" y="100" width="80" height="200" />
+    <polygon points="40,100 80,60 120,100" />
+  </g>
+  <g fill="#597b8d">
+    <rect x="140" y="90" width="80" height="210" />
+    <polygon points="140,90 180,40 220,90" />
+  </g>
+  <g fill="#caa76b">
+    <rect x="240" y="110" width="90" height="190" />
+    <polygon points="240,110 240,80 300,80 330,110" />
+  </g>
+  <g fill="#f1e4c4">
+    <rect x="60" y="150" width="30" height="60" />
+    <rect x="160" y="150" width="30" height="60" />
+    <rect x="260" y="160" width="30" height="60" />
+    <rect x="200" y="160" width="30" height="60" />
+  </g>
+  <g fill="#2f5b73">
+    <rect x="60" y="240" width="30" height="50" />
+    <rect x="160" y="240" width="30" height="50" />
+    <rect x="200" y="240" width="30" height="50" />
+    <rect x="260" y="240" width="30" height="50" />
+  </g>
+  <rect x="0" y="300" width="400" height="40" fill="#597b8d" opacity="0.35" />
+</svg>
