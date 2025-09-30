@@ -29,8 +29,21 @@ export function LanguageProvider({ children }) {
   };
 
   const t = (key, vars = {}) => {
-    const str = translations[lang][key] || key;
-    return str.replace(/\{(\w+)\}/g, (_, v) => vars[v] ?? '');
+    const value = translations[lang]?.[key];
+
+    if (typeof value === 'string') {
+      return value.replace(/\{(\w+)\}/g, (_, v) => vars[v] ?? '');
+    }
+
+    if (Array.isArray(value)) {
+      return value.map((item) =>
+        typeof item === 'string'
+          ? item.replace(/\{(\w+)\}/g, (_, v) => vars[v] ?? '')
+          : item
+      );
+    }
+
+    return value ?? key;
   };
 
   return (
