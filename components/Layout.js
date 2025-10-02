@@ -1,5 +1,6 @@
+"use client";
+
 import Link from 'next/link';
-import Head from 'next/head';
 import { useFavorites } from './FavoritesContext';
 import { useLanguage } from './LanguageContext';
 import Footer from './Footer';
@@ -20,9 +21,6 @@ export default function Layout({ children }) {
   };
   return (
     <>
-      <Head>
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-      </Head>
       <header className="header">
         <nav className="navbar container" aria-label={navLabel}>
           <Link href="/" className="header-brand" aria-label={t('homeLabel')}>
