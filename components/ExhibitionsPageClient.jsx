@@ -89,63 +89,100 @@ export default function ExhibitionsPageClient({ initialExhibitions = [], supabas
 
   return (
     <div className="exhibitions-page">
-      <section className="exhibitions-hero" aria-labelledby="exhibitions-page-heading">
-        <div className="exhibitions-hero__content">
-          <h1 id="exhibitions-page-heading" className="exhibitions-hero__title">
-            {t('exhibitionsTitle')}
-          </h1>
-          <p className="exhibitions-hero__subtitle">{t('exhibitionsPageSubtitle')}</p>
-          {!supabaseAvailable && (
-            <p className="exhibitions-hero__note" role="status">
-              {t('exhibitionsFallbackMessage')}
-            </p>
-          )}
-        </div>
-        <div className="exhibitions-hero__filters" role="group" aria-label={t('exhibitionFiltersTitle')}>
-          <span className="exhibitions-hero__filters-label">{t('exhibitionFiltersDescription')}</span>
-          <div className="museum-expositions-chips exhibitions-hero__chips">
-            {FILTER_KEYS.map((key) => {
-              const isActive = Boolean(filters[key]);
-              const labelKey =
-                key === 'free'
-                  ? 'tagFree'
-                  : key === 'childFriendly'
-                  ? 'tagChildFriendly'
-                  : 'tagTemporary';
-              return (
-                <button
-                  key={key}
-                  type="button"
-                  className={`museum-expositions-chip${isActive ? ' is-active' : ''}`}
-                  onClick={() => handleToggleFilter(key)}
-                  aria-pressed={isActive}
-                >
-                  {t(labelKey)}
-                </button>
-              );
-            })}
+      <header
+        className="home-hero home-hero--exhibitions"
+        aria-labelledby="exhibitions-page-heading"
+      >
+        <div className="home-hero__inner">
+          <div className="home-hero__copy">
+            <span className="home-hero__eyebrow">{t('exhibitionsEyebrow')}</span>
+            <h1 id="exhibitions-page-heading" className="home-hero__title">
+              {t('exhibitionsTitle')}
+            </h1>
+            <p className="home-hero__subtitle">{t('exhibitionsPageSubtitle')}</p>
+            {!supabaseAvailable && (
+              <p className="exhibitions-hero__note" role="status">
+                {t('exhibitionsFallbackMessage')}
+              </p>
+            )}
+            <div className="home-hero__cta-row">
+              <a
+                href="#exhibitions-result-list"
+                className="home-hero__cta home-hero__cta--primary"
+              >
+                {t('exhibitionsPrimaryCta')}
+              </a>
+              <Link href="/" className="home-hero__cta home-hero__cta--secondary">
+                {t('exhibitionsSecondaryCta')}
+              </Link>
+            </div>
           </div>
+          <div
+            className="home-hero__form exhibitions-hero__form"
+            role="group"
+            aria-label={t('exhibitionFiltersTitle')}
+          >
+            <span className="exhibitions-hero__filters-label">
+              {t('exhibitionFiltersDescription')}
+            </span>
+            <div className="home-hero__quick-actions exhibitions-hero__quick-actions">
+              {FILTER_KEYS.map((key) => {
+                const isActive = Boolean(filters[key]);
+                const labelKey =
+                  key === 'free'
+                    ? 'tagFree'
+                    : key === 'childFriendly'
+                    ? 'tagChildFriendly'
+                    : 'tagTemporary';
+                return (
+                  <button
+                    key={key}
+                    type="button"
+                    className={`home-hero__toggle exhibitions-hero__toggle${
+                      isActive ? ' is-active' : ''
+                    }`}
+                    onClick={() => handleToggleFilter(key)}
+                    aria-pressed={isActive}
+                  >
+                    {t(labelKey)}
+                  </button>
+                );
+              })}
+            </div>
+            {hasFiltersApplied && (
+              <button
+                type="button"
+                className="home-hero__reset exhibitions-hero__reset"
+                onClick={handleResetFilters}
+              >
+                {t('reset')}
+              </button>
+            )}
+          </div>
+        </div>
+      </header>
+
+      <section
+        id="exhibitions-result-list"
+        className="home-results exhibitions-results"
+        aria-live="polite"
+      >
+        <div className="home-results__meta exhibitions-results__meta">
+          <p className="count">{countLabel}</p>
           {hasFiltersApplied && (
-            <button type="button" className="exhibitions-hero__reset" onClick={handleResetFilters}>
+            <button
+              type="button"
+              className="exhibitions-results__reset"
+              onClick={handleResetFilters}
+            >
               {t('reset')}
             </button>
           )}
         </div>
-      </section>
-
-      <section className="exhibitions-results" aria-live="polite">
-        <header className="exhibitions-results__header">
-          <p className="exhibitions-results__count">{countLabel}</p>
-          {hasFiltersApplied && (
-            <button type="button" className="exhibitions-results__reset" onClick={handleResetFilters}>
-              {t('reset')}
-            </button>
-          )}
-        </header>
         {filteredExhibitions.length === 0 ? (
           <p className="exhibitions-results__empty">{emptyMessage}</p>
         ) : (
-          <ul className="exhibitions-results__list">
+          <ul className="grid exhibitions-results__list">
             {filteredExhibitions.map((expo) => (
               <li key={expo.id} className="exhibitions-results__item">
                 <div className="exhibitions-results__card">
