@@ -876,6 +876,11 @@ button.header-link {
   color: #ffffff;
   border-color: transparent;
   box-shadow: 0 18px 32px rgba(220, 38, 38, 0.35);
+  padding: var(--space-12) var(--space-20);
+  border-radius: var(--radius-md);
+  font-size: 15px;
+  min-height: 48px;
+  letter-spacing: 0.01em;
 }
 
 [data-theme='dark'] .secondary-hero {
@@ -902,10 +907,19 @@ button.header-link {
   .secondary-hero__content {
     max-width: 100%;
     gap: clamp(8px, 4vw, 16px);
+    margin-left: 0;
+    align-items: flex-start;
+    text-align: left;
   }
 
   .secondary-hero__cta {
-    width: auto;
+    width: 100%;
+    max-width: 320px;
+    justify-content: center;
+    font-size: 16px;
+    padding: var(--space-12) var(--space-24);
+    min-height: 52px;
+    box-shadow: 0 14px 28px rgba(220, 38, 38, 0.4);
   }
 }
 
@@ -921,6 +935,11 @@ button.header-link {
 
   .secondary-hero__subtitle {
     font-size: clamp(15px, 4.4vw, 17px);
+  }
+
+  .secondary-hero__cta {
+    max-width: none;
+    width: 100%;
   }
 }
 
