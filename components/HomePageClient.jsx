@@ -63,14 +63,22 @@ function parseBooleanParam(value) {
   return Boolean(value);
 }
 
-export default function HomePageClient({ initialMuseums = [], initialError = null }) {
+export default function HomePageClient({
+  initialMuseums = [],
+  initialError = null,
+  supabaseAvailable = true,
+}) {
   const { t } = useLanguage();
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
   const searchParamsString = searchParams?.toString() ?? '';
-  const hasSupabaseClient = Boolean(supabaseClient);
+  const supabaseClientExists = Boolean(supabaseClient);
+  const [isSupabaseEnabled, setIsSupabaseEnabled] = useState(
+    () => supabaseClientExists && supabaseAvailable
+  );
+  const hasSupabaseClient = supabaseClientExists && isSupabaseEnabled;
 
   const qFromUrl = useMemo(() => {
     if (!searchParams) return '';
@@ -409,6 +417,22 @@ export default function HomePageClient({ initialMuseums = [], initialError = nul
     textQuery,
   ]);
 
+  const fallbackToLocalResults = useCallback(() => {
+    const localResults = locallyFilterMuseums();
+    setIsSupabaseEnabled((prev) => (prev ? false : prev));
+    setIsLoading(false);
+    setError(null);
+    setResults((prev) => {
+      if (
+        prev.length === localResults.length &&
+        prev.every((museum, index) => museum?.slug === localResults[index]?.slug)
+      ) {
+        return prev;
+      }
+      return localResults;
+    });
+  }, [locallyFilterMuseums]);
+
   useEffect(() => {
     const usingDefaultFilters =
       !query &&
@@ -427,9 +451,7 @@ export default function HomePageClient({ initialMuseums = [], initialError = nul
     }
 
     if (!hasSupabaseClient) {
-      setIsLoading(false);
-      setResults(locallyFilterMuseums());
-      setError(null);
+      fallbackToLocalResults();
       return;
     }
 
@@ -535,8 +557,7 @@ export default function HomePageClient({ initialMuseums = [], initialError = nul
 
           if (exError) {
             if (!isCancelled) {
-              setError('queryFailed');
-              setIsLoading(false);
+              fallbackToLocalResults();
             }
             return;
           }
@@ -570,8 +591,7 @@ export default function HomePageClient({ initialMuseums = [], initialError = nul
 
         if (queryError) {
           if (!isCancelled) {
-            setError('queryFailed');
-            setIsLoading(false);
+            fallbackToLocalResults();
           }
           return;
         }
@@ -620,8 +640,7 @@ export default function HomePageClient({ initialMuseums = [], initialError = nul
         }
       } catch {
         if (!isCancelled) {
-          setError('unknown');
-          setIsLoading(false);
+          fallbackToLocalResults();
         }
       }
     };
@@ -656,6 +675,7 @@ export default function HomePageClient({ initialMuseums = [], initialError = nul
     initialError,
     hasSupabaseClient,
     locallyFilterMuseums,
+    fallbackToLocalResults,
   ]);
 
   const handleFilterChange = useCallback(

@@ -13,7 +13,11 @@ export const revalidate = 1800;
 async function fetchInitialMuseums() {
   try {
     if (!supabaseClient) {
-      return { initialMuseums: sortMuseums(fallbackMuseums), initialError: null };
+      return {
+        initialMuseums: sortMuseums(fallbackMuseums),
+        initialError: null,
+        supabaseAvailable: false,
+      };
     }
 
     const columnsWithOptional = `${BASE_MUSEUM_COLUMNS}, ${OPTIONAL_MUSEUM_COLUMNS}`;
@@ -31,21 +35,37 @@ async function fetchInitialMuseums() {
     }
 
     if (error) {
-      return { initialMuseums: sortMuseums(fallbackMuseums), initialError: null };
+      return {
+        initialMuseums: sortMuseums(fallbackMuseums),
+        initialError: null,
+        supabaseAvailable: false,
+      };
     }
 
     const filtered = (data || []).filter((m) => m.slug !== 'amsterdam-tulip-museum-amsterdam');
-    return { initialMuseums: sortMuseums(filtered), initialError: null };
+    return {
+      initialMuseums: sortMuseums(filtered),
+      initialError: null,
+      supabaseAvailable: true,
+    };
   } catch (err) {
-    return { initialMuseums: sortMuseums(fallbackMuseums), initialError: null };
+    return {
+      initialMuseums: sortMuseums(fallbackMuseums),
+      initialError: null,
+      supabaseAvailable: false,
+    };
   }
 }
 
 export default async function Page() {
-  const { initialMuseums, initialError } = await fetchInitialMuseums();
+  const { initialMuseums, initialError, supabaseAvailable } = await fetchInitialMuseums();
   return (
     <Suspense fallback={<div className="min-h-[60vh]" aria-busy="true" aria-live="polite" />}>
-      <HomePageClient initialMuseums={initialMuseums} initialError={initialError} />
+      <HomePageClient
+        initialMuseums={initialMuseums}
+        initialError={initialError}
+        supabaseAvailable={supabaseAvailable}
+      />
     </Suspense>
   );
 }
