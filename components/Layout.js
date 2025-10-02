@@ -35,6 +35,9 @@ export default function Layout({ children }) {
             <Link href="/about" className="header-link">
               {t('aboutLabel')}
             </Link>
+            <Link href="/tentoonstellingen" className="header-link">
+              {t('exhibitions')}
+            </Link>
             <button
               type="button"
               className="header-link header-link--filters"
