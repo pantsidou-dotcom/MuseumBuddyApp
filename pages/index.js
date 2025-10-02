@@ -8,7 +8,6 @@ import museumImageCredits from '../lib/museumImageCredits';
 import museumTicketUrls from '../lib/museumTicketUrls';
 import kidFriendlyMuseums, { isKidFriendly as resolveKidFriendly } from '../lib/kidFriendlyMuseums';
 import { useLanguage } from '../components/LanguageContext';
-import HomeValueProps from '../components/HomeValueProps';
 import { supabase as supabaseClient } from '../lib/supabase';
 import SEO from '../components/SEO';
 import FiltersSheet from '../components/FiltersSheet';
@@ -765,7 +764,30 @@ export default function Home({ initialMuseums = [], initialError = null }) {
         </form>
       </section>
 
-      <HomeValueProps />
+      <section className="secondary-hero" aria-labelledby="museumnacht-hero-heading">
+        <img
+          src="/images/Museumnacht.jpg"
+          alt="Museumnacht Amsterdam visitors enjoying exhibitions"
+          className="secondary-hero__image"
+          loading="lazy"
+        />
+        <div className="secondary-hero__overlay" aria-hidden="true" />
+        <div className="secondary-hero__content">
+          <p className="secondary-hero__tag">{t('museumnachtTag')}</p>
+          <h2 id="museumnacht-hero-heading" className="secondary-hero__title">
+            {t('museumnachtHeading')}
+          </h2>
+          <p className="secondary-hero__subtitle">{t('museumnachtSubtitle')}</p>
+          <a
+            className="hero-quick-link hero-quick-link--primary secondary-hero__cta"
+            href="https://museumnacht.amsterdam/tickets"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {t('buyTickets')}
+          </a>
+        </div>
+      </section>
 
       <p className="count">{results.length} {t('results')}</p>
 
