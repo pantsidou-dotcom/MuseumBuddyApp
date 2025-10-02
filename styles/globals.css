@@ -798,15 +798,17 @@ button.header-link {
 
 .secondary-hero {
   position: relative;
-  margin: clamp(var(--space-40), 8vw, var(--space-64)) 0;
-  border-radius: var(--radius-xl);
+  display: grid;
+  gap: clamp(var(--space-24), 5vw, 48px);
+  align-items: center;
+  margin: clamp(24px, 6vw, 64px) 0 clamp(16px, 5vw, 48px);
+  padding: clamp(var(--space-24), 6vw, var(--space-32));
+  border-radius: var(--radius-md);
   overflow: hidden;
   min-height: clamp(260px, 58vw, 420px);
-  display: flex;
-  align-items: center;
-  padding: clamp(var(--space-24), 7vw, var(--space-48));
   color: #f8fafc;
-  background-color: #0f172a;
+  background: #0f172a;
+  box-shadow: 0 16px 40px rgba(15, 23, 42, 0.28);
   isolation: isolate;
 }
 
@@ -818,18 +820,15 @@ button.header-link {
   object-fit: cover;
   object-position: center;
   filter: saturate(1.05);
+  z-index: -2;
 }
 
 .secondary-hero__overlay {
   position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    110deg,
-    rgba(15, 23, 42, 0.85) 0%,
-    rgba(15, 23, 42, 0.72) 40%,
-    rgba(15, 23, 42, 0.42) 100%
-  );
-  mix-blend-mode: multiply;
+  inset: -2%;
+  background: linear-gradient(180deg, rgba(15, 23, 42, 0.08) 0%, rgba(15, 23, 42, 0.68) 68%),
+    linear-gradient(120deg, rgba(15, 23, 42, 0.54) 0%, rgba(15, 23, 42, 0.12) 55%);
+  z-index: -1;
 }
 
 .secondary-hero__content {
@@ -869,7 +868,10 @@ button.header-link {
 .secondary-hero__cta {
   align-self: flex-start;
   margin-top: clamp(4px, 1vw, 10px);
-  box-shadow: 0 18px 32px rgba(15, 23, 42, 0.25);
+  background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
+  color: #fff;
+  border-color: transparent;
+  box-shadow: 0 18px 32px rgba(185, 28, 28, 0.4);
 }
 
 [data-theme='dark'] .secondary-hero {
@@ -877,12 +879,8 @@ button.header-link {
 }
 
 [data-theme='dark'] .secondary-hero__overlay {
-  background: linear-gradient(
-    110deg,
-    rgba(2, 6, 23, 0.88) 0%,
-    rgba(2, 6, 23, 0.75) 45%,
-    rgba(15, 23, 42, 0.52) 100%
-  );
+  background: linear-gradient(180deg, rgba(2, 6, 23, 0.08) 0%, rgba(2, 6, 23, 0.74) 70%),
+    linear-gradient(120deg, rgba(2, 6, 23, 0.6) 0%, rgba(15, 23, 42, 0.2) 55%);
 }
 
 [data-theme='dark'] .secondary-hero__tag {
