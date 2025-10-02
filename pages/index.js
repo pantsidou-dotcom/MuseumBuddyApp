@@ -779,7 +779,7 @@ export default function Home({ initialMuseums = [], initialError = null }) {
           </h2>
           <p className="secondary-hero__subtitle">{t('museumnachtSubtitle')}</p>
           <a
-            className="hero-quick-link hero-quick-link--primary secondary-hero__cta"
+            className="ticket-button secondary-hero__cta"
             href="https://museumnacht.amsterdam/tickets"
             target="_blank"
             rel="noopener noreferrer"
