@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import MuseumCard from './MuseumCard';
 import SkeletonMuseumCard from './SkeletonMuseumCard';
@@ -284,13 +285,6 @@ export default function HomePageClient({
     },
     []
   );
-
-  const handleQuickShowExhibitions = useCallback(() => {
-    skipNextUrlSync.current = true;
-    setActiveFilters((prev) => ({ ...prev, exhibitions: true }));
-    setSheetFilters((prev) => ({ ...prev, exhibitions: true }));
-    setFiltersSheetOpen(false);
-  }, [setActiveFilters, setSheetFilters, setFiltersSheetOpen]);
 
   useEffect(() => {
     if (!activeFilters.nearby) return;
@@ -743,6 +737,12 @@ export default function HomePageClient({
   }, [activeFilters]);
 
   useEffect(() => {
+    if (typeof router?.prefetch === 'function') {
+      router.prefetch('/exhibitions');
+    }
+  }, [router]);
+
+  useEffect(() => {
     if (typeof window === 'undefined') return undefined;
     const firstTwelve = results.slice(0, 12);
     const prefetchedSlugs = new Set();
@@ -813,16 +813,9 @@ export default function HomePageClient({
               <a href="#museum-result-list" className="home-hero__cta home-hero__cta--primary">
                 {t('homePrimaryCta')}
               </a>
-              <button
-                type="button"
-                className={`home-hero__cta home-hero__cta--secondary${
-                  activeFilters.exhibitions ? ' is-active' : ''
-                }`}
-                onClick={handleQuickShowExhibitions}
-                aria-pressed={activeFilters.exhibitions}
-              >
+              <Link href="/exhibitions" className="home-hero__cta home-hero__cta--secondary">
                 {t('homeSecondaryCta')}
-              </button>
+              </Link>
             </div>
           </div>
           <form className="home-hero__form" onSubmit={(e) => e.preventDefault()}>
