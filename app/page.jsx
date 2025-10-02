@@ -6,15 +6,16 @@ import {
   OPTIONAL_MUSEUM_COLUMNS,
   sortMuseums,
 } from '../lib/homepageConfig';
+import fallbackMuseums from '../lib/museumFallbackData';
 
 export const revalidate = 1800;
 
 async function fetchInitialMuseums() {
-  if (!supabaseClient) {
-    return { initialMuseums: [], initialError: 'missingSupabase' };
-  }
-
   try {
+    if (!supabaseClient) {
+      return { initialMuseums: sortMuseums(fallbackMuseums), initialError: null };
+    }
+
     const columnsWithOptional = `${BASE_MUSEUM_COLUMNS}, ${OPTIONAL_MUSEUM_COLUMNS}`;
 
     let { data, error } = await supabaseClient
@@ -30,13 +31,13 @@ async function fetchInitialMuseums() {
     }
 
     if (error) {
-      return { initialMuseums: [], initialError: 'queryFailed' };
+      return { initialMuseums: sortMuseums(fallbackMuseums), initialError: null };
     }
 
     const filtered = (data || []).filter((m) => m.slug !== 'amsterdam-tulip-museum-amsterdam');
     return { initialMuseums: sortMuseums(filtered), initialError: null };
   } catch (err) {
-    return { initialMuseums: [], initialError: 'unknown' };
+    return { initialMuseums: sortMuseums(fallbackMuseums), initialError: null };
   }
 }
 

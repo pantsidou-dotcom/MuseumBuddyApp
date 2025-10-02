@@ -70,6 +70,7 @@ export default function HomePageClient({ initialMuseums = [], initialError = nul
   const searchParams = useSearchParams();
 
   const searchParamsString = searchParams?.toString() ?? '';
+  const hasSupabaseClient = Boolean(supabaseClient);
 
   const qFromUrl = useMemo(() => {
     if (!searchParams) return '';
@@ -308,6 +309,14 @@ export default function HomePageClient({ initialMuseums = [], initialError = nul
   }, [activeFilters.nearby, requestUserLocation, setActiveFilters, setSheetFilters, userLocation]);
 
   useEffect(() => {
+    if (hasSupabaseClient) return;
+    if (!activeFilters.nearby) return;
+    skipNextUrlSync.current = true;
+    setActiveFilters((prev) => ({ ...prev, nearby: false }));
+    setSheetFilters((prev) => ({ ...prev, nearby: false }));
+  }, [hasSupabaseClient, activeFilters.nearby]);
+
+  useEffect(() => {
     const params = buildQueryParams(query, {
       free: activeFilters.free,
       exhibitions: activeFilters.exhibitions,
@@ -345,6 +354,61 @@ export default function HomePageClient({ initialMuseums = [], initialError = nul
     }
   }, [filtersSheetOpen, activeFilters]);
 
+  const locallyFilterMuseums = useCallback(() => {
+    const excluded = filterMuseumsForDisplay(initialMuseumsWithCategories, {
+      excludeSlugs: ['amsterdam-tulip-museum-amsterdam'],
+      onlyKidFriendly: activeFilters.kidFriendly,
+      isKidFriendlyCheck: (museum) => isKidFriendly(museum),
+    });
+
+    const normalizedQuery = textQuery.trim().toLowerCase();
+    const queryFiltered = normalizedQuery
+      ? excluded.filter((museum) => {
+          const name = (museum.naam || museum.name || '').toLowerCase();
+          const slug = (museum.slug || '').toLowerCase();
+          return name.includes(normalizedQuery) || slug.includes(normalizedQuery);
+        })
+      : excluded;
+
+    const freeFiltered = activeFilters.free
+      ? queryFiltered.filter((museum) => museum.gratis_toegankelijk)
+      : queryFiltered;
+
+    const exhibitionsFiltered = activeFilters.exhibitions
+      ? freeFiltered.filter((museum) => museum.has_active_exhibitions !== false)
+      : freeFiltered;
+
+    const categoryFiltered =
+      categoryFilters.length > 0
+        ? exhibitionsFiltered.filter((museum) =>
+            Array.isArray(museum.categories)
+              ? categoryFilters.every((category) => museum.categories.includes(category))
+              : false
+          )
+        : exhibitionsFiltered;
+
+    const availabilityFiltered = categoryFiltered.filter((museum) => {
+      if (!isOpenForDatePreference(museum.availability, activeFilters.date)) {
+        return false;
+      }
+      if (activeFilters.openNow) {
+        return museum.availability?.openNow === true;
+      }
+      return true;
+    });
+
+    return sortMuseums(availabilityFiltered);
+  }, [
+    initialMuseumsWithCategories,
+    activeFilters.kidFriendly,
+    activeFilters.free,
+    activeFilters.exhibitions,
+    activeFilters.date,
+    activeFilters.openNow,
+    categoryFiltersKey,
+    textQuery,
+  ]);
+
   useEffect(() => {
     const usingDefaultFilters =
       !query &&
@@ -362,10 +426,10 @@ export default function HomePageClient({ initialMuseums = [], initialError = nul
       return;
     }
 
-    if (!supabaseClient) {
-      setResults([]);
-      setError('missingSupabase');
+    if (!hasSupabaseClient) {
       setIsLoading(false);
+      setResults(locallyFilterMuseums());
+      setError(null);
       return;
     }
 
@@ -590,33 +654,8 @@ export default function HomePageClient({ initialMuseums = [], initialError = nul
     userLocation,
     initialMuseumsWithCategories,
     initialError,
-  ]);
-
-  useEffect(() => {
-    if (
-      !query &&
-      !activeFilters.free &&
-      !activeFilters.exhibitions &&
-      !activeFilters.kidFriendly &&
-      !activeFilters.nearby &&
-      activeFilters.date === DEFAULT_FILTERS.date &&
-      !activeFilters.openNow &&
-      initialMuseumsWithCategories.length > 0
-    ) {
-      setResults(initialMuseumsWithCategories);
-      setError(initialError ?? null);
-      setIsLoading(false);
-    }
-  }, [
-    query,
-    activeFilters.free,
-    activeFilters.exhibitions,
-    activeFilters.kidFriendly,
-    activeFilters.nearby,
-    activeFilters.date,
-    activeFilters.openNow,
-    initialMuseumsWithCategories,
-    initialError,
+    hasSupabaseClient,
+    locallyFilterMuseums,
   ]);
 
   const handleFilterChange = useCallback(
