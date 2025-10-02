@@ -8,6 +8,8 @@ import museumImageCredits from '../lib/museumImageCredits';
 import formatImageCredit from '../lib/formatImageCredit';
 import { normalizeImageSource } from '../lib/resolveImageSource';
 import { shouldShowAffiliateNote } from '../lib/nonAffiliateMuseums';
+import museumTicketUrls from '../lib/museumTicketUrls';
+import resolveMuseumSlug from '../lib/resolveMuseumSlug';
 import TicketButtonNote from './TicketButtonNote';
 
 function formatRange(start, end, locale) {
@@ -45,8 +47,14 @@ export default function ExpositionCard({ exposition, ticketUrl, affiliateUrl, mu
   const locale = lang === 'en' ? 'en-US' : 'nl-NL';
   const rangeLabel = formatRange(start, end, locale);
   const isFavorite = favorites.some((f) => f.id === exposition.id && f.type === 'exposition');
-  const slug = museumSlug || exposition.museumSlug;
-  const primaryAffiliateUrl = exposition.ticketAffiliateUrl || affiliateUrl || null;
+  const rawMuseumName =
+    exposition.museumName || exposition.museum_name || exposition.museum || exposition.host || null;
+  const rawMuseumSlug = museumSlug || exposition.museumSlug || exposition.museum_slug || exposition.slug || null;
+  const slug = useMemo(() => resolveMuseumSlug(rawMuseumSlug, rawMuseumName), [rawMuseumSlug, rawMuseumName]);
+  const primaryAffiliateUrl =
+    exposition.ticketAffiliateUrl ||
+    affiliateUrl ||
+    (slug ? museumTicketUrls[slug] || null : null);
   const fallbackTicketUrl = exposition.ticketUrl || ticketUrl || null;
   const sourceUrl = exposition.bron_url || null;
   const buyUrl = primaryAffiliateUrl || fallbackTicketUrl || null;

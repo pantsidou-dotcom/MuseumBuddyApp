@@ -3,6 +3,8 @@ import ExhibitionsPageClient from '../../components/ExhibitionsPageClient.jsx';
 import { supabase as supabaseClient } from '../../lib/supabase';
 import { normaliseExpositionRow } from '../../lib/expositionsUtils';
 import { todayYMD } from '../../lib/homepageConfig';
+import museumTicketUrls from '../../lib/museumTicketUrls';
+import resolveMuseumSlug from '../../lib/resolveMuseumSlug';
 
 export const revalidate = 900;
 
@@ -66,10 +68,16 @@ async function fetchExhibitions() {
         const museum = museumsMap.get(row.museum_id) || null;
         const normalised = normaliseExpositionRow(row, museum?.slug);
         if (!normalised) return null;
+        const canonicalSlug = resolveMuseumSlug(normalised.museumSlug, museum?.naam || row?.museum_naam);
+        const affiliateTicketUrl =
+          normalised.ticketAffiliateUrl ||
+          museum?.ticket_affiliate_url ||
+          (canonicalSlug ? museumTicketUrls[canonicalSlug] : null);
         return {
           ...normalised,
+          museumSlug: canonicalSlug || normalised.museumSlug || null,
           museumName: museum?.naam || null,
-          museumTicketAffiliateUrl: museum?.ticket_affiliate_url || null,
+          museumTicketAffiliateUrl: affiliateTicketUrl || null,
           museumTicketUrl: museum?.ticket_url || null,
         };
       })

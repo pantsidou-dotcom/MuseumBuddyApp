@@ -12,6 +12,8 @@ import {
   hasActiveExpositionFilters,
   parseExpositionFiltersFromSearchParams,
 } from '../lib/expositionsUtils';
+import resolveMuseumSlug from '../lib/resolveMuseumSlug';
+import museumTicketUrls from '../lib/museumTicketUrls';
 
 const FILTER_KEYS = Object.keys(EXPOSITION_FILTER_QUERY_MAP);
 
@@ -36,9 +38,10 @@ export default function ExhibitionsPageClient({ initialExhibitions = [], supabas
     }
     const prefetched = new Set();
     initialExhibitions.slice(0, 12).forEach((expo) => {
-      if (expo?.museumSlug && !prefetched.has(expo.museumSlug)) {
-        prefetched.add(expo.museumSlug);
-        router.prefetch(`/museum/${expo.museumSlug}`);
+      const canonicalSlug = resolveMuseumSlug(expo?.museumSlug, expo?.museumName);
+      if (canonicalSlug && !prefetched.has(canonicalSlug)) {
+        prefetched.add(canonicalSlug);
+        router.prefetch(`/museum/${canonicalSlug}`);
       }
     });
     return () => {
@@ -183,30 +186,39 @@ export default function ExhibitionsPageClient({ initialExhibitions = [], supabas
           <p className="exhibitions-results__empty">{emptyMessage}</p>
         ) : (
           <ul className="grid exhibitions-results__list">
-            {filteredExhibitions.map((expo) => (
-              <li key={expo.id} className="exhibitions-results__item">
-                <div className="exhibitions-results__card">
-                  {expo.museumName && (
-                    <p className="exhibitions-results__museum">
-                      {expo.museumSlug ? (
-                        <Link href={`/museum/${expo.museumSlug}`} prefetch>
-                          {t('exhibitionsHostedBy', { museum: expo.museumName })}
-                        </Link>
-                      ) : (
-                        <span>{t('exhibitionsHostedBy', { museum: expo.museumName })}</span>
-                      )}
-                    </p>
-                  )}
-                  <ExpositionCard
-                    exposition={expo}
-                    affiliateUrl={expo.ticketAffiliateUrl || expo.museumTicketAffiliateUrl}
-                    ticketUrl={expo.ticketUrl || expo.museumTicketUrl}
-                    museumSlug={expo.museumSlug}
-                    tags={expo.tags}
-                  />
-                </div>
-              </li>
-            ))}
+            {filteredExhibitions.map((expo) => {
+              const canonicalSlug = resolveMuseumSlug(expo.museumSlug, expo.museumName);
+              const affiliateLink =
+                expo.ticketAffiliateUrl ||
+                expo.museumTicketAffiliateUrl ||
+                (canonicalSlug ? museumTicketUrls[canonicalSlug] : null);
+              const ticketLink = expo.ticketUrl || expo.museumTicketUrl || null;
+
+              return (
+                <li key={expo.id} className="exhibitions-results__item">
+                  <div className="exhibitions-results__card">
+                    {expo.museumName && (
+                      <p className="exhibitions-results__museum">
+                        {canonicalSlug ? (
+                          <Link href={`/museum/${canonicalSlug}`} prefetch>
+                            {t('exhibitionsHostedBy', { museum: expo.museumName })}
+                          </Link>
+                        ) : (
+                          <span>{t('exhibitionsHostedBy', { museum: expo.museumName })}</span>
+                        )}
+                      </p>
+                    )}
+                    <ExpositionCard
+                      exposition={expo}
+                      affiliateUrl={affiliateLink}
+                      ticketUrl={ticketLink}
+                      museumSlug={canonicalSlug}
+                      tags={expo.tags}
+                    />
+                  </div>
+                </li>
+              );
+            })}
           </ul>
         )}
       </section>
