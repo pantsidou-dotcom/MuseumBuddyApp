@@ -55,7 +55,10 @@ export default function ExpositionCard({ exposition, ticketUrl, affiliateUrl, mu
     exposition.ticketAffiliateUrl ||
     affiliateUrl ||
     (slug ? museumTicketUrls[slug] || null : null);
-  const fallbackTicketUrl = exposition.ticketUrl || ticketUrl || null;
+  const fallbackTicketUrl =
+    exposition.ticketUrl ||
+    ticketUrl ||
+    (slug ? museumTicketUrls[slug] || null : null);
   const sourceUrl = exposition.bron_url || null;
   const buyUrl = primaryAffiliateUrl || fallbackTicketUrl || null;
   const showAffiliateNote = Boolean(primaryAffiliateUrl) && (!slug || shouldShowAffiliateNote(slug));
@@ -80,11 +83,16 @@ export default function ExpositionCard({ exposition, ticketUrl, affiliateUrl, mu
   const ticketNoteId = useId();
   const ctaDescribedBy = ticketContext ? ticketNoteId : undefined;
 
-  const museumImage = slug ? museumImages[slug] : null;
-  const normalizedMuseumImage = useMemo(() => normalizeImageSource(museumImage), [museumImage]);
+  const museumImageSource = exposition.museumImage || (slug ? museumImages[slug] : null);
+  const normalizedMuseumImage = useMemo(
+    () => normalizeImageSource(museumImageSource),
+    [museumImageSource]
+  );
   const hasMuseumImage = Boolean(normalizedMuseumImage);
-  const isStaticMuseumImage = Boolean(museumImage && typeof museumImage === 'object' && 'src' in museumImage);
-  const imageCredit = museumImageCredits[slug];
+  const isStaticMuseumImage = Boolean(
+    museumImageSource && typeof museumImageSource === 'object' && 'src' in museumImageSource
+  );
+  const imageCredit = exposition.museumImageCredit || (slug ? museumImageCredits[slug] : null);
   const isPublicDomainImage = Boolean(imageCredit?.isPublicDomain);
   const formattedCredit = useMemo(
     () => (isPublicDomainImage ? null : formatImageCredit(imageCredit, t)),
@@ -167,12 +175,12 @@ export default function ExpositionCard({ exposition, ticketUrl, affiliateUrl, mu
         {hasMuseumImage ? (
           isStaticMuseumImage ? (
             <Image
-              src={museumImage}
+              src={museumImageSource}
               alt=""
               fill
               sizes="(min-width: 1280px) 340px, (min-width: 1024px) 300px, (min-width: 768px) 45vw, 100vw"
               className="exposition-card__image"
-              placeholder={museumImage.blurDataURL ? 'blur' : undefined}
+              placeholder={museumImageSource.blurDataURL ? 'blur' : undefined}
             />
           ) : (
             <img
@@ -263,7 +271,7 @@ export default function ExpositionCard({ exposition, ticketUrl, affiliateUrl, mu
         <div className="exposition-card__footer-actions">
           {moreInfoUrl ? (
             isInternalMoreInfo ? (
-              <Link href={moreInfoUrl} className="exposition-card__info-button">
+              <Link href={moreInfoUrl} prefetch className="exposition-card__info-button">
                 {t('exhibitionsMoreInfoCta')}
               </Link>
             ) : (

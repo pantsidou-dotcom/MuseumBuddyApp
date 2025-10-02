@@ -5,6 +5,9 @@ import { normaliseExpositionRow } from '../../lib/expositionsUtils';
 import { todayYMD } from '../../lib/homepageConfig';
 import museumTicketUrls from '../../lib/museumTicketUrls';
 import resolveMuseumSlug from '../../lib/resolveMuseumSlug';
+import museumImages from '../../lib/museumImages';
+import museumImageCredits from '../../lib/museumImageCredits';
+import FALLBACK_MUSEUMS from '../../lib/museumFallbackData';
 
 export const revalidate = 900;
 
@@ -68,17 +71,52 @@ async function fetchExhibitions() {
         const museum = museumsMap.get(row.museum_id) || null;
         const normalised = normaliseExpositionRow(row, museum?.slug);
         if (!normalised) return null;
-        const canonicalSlug = resolveMuseumSlug(normalised.museumSlug, museum?.naam || row?.museum_naam);
+        const rawMuseumName =
+          museum?.naam || row?.museum_naam || row?.museumName || row?.museum || null;
+        const slugCandidates = [
+          museum?.slug,
+          row?.museum_slug,
+          row?.museumSlug,
+          row?.museum_slug_current,
+          row?.museumSlugCurrent,
+          normalised.museumSlug,
+          row?.slug,
+        ];
+        let canonicalSlug = null;
+        for (const candidate of slugCandidates) {
+          canonicalSlug = resolveMuseumSlug(candidate, rawMuseumName);
+          if (canonicalSlug) break;
+        }
+        if (!canonicalSlug) {
+          canonicalSlug = resolveMuseumSlug(null, rawMuseumName);
+        }
+
+        const fallbackMuseum = canonicalSlug
+          ? FALLBACK_MUSEUMS.find((item) => item.slug === canonicalSlug)
+          : null;
+
         const affiliateTicketUrl =
           normalised.ticketAffiliateUrl ||
           museum?.ticket_affiliate_url ||
+          fallbackMuseum?.ticket_affiliate_url ||
           (canonicalSlug ? museumTicketUrls[canonicalSlug] : null);
+        const defaultTicketUrl =
+          normalised.ticketUrl ||
+          museum?.ticket_url ||
+          fallbackMuseum?.website_url ||
+          (canonicalSlug ? museumTicketUrls[canonicalSlug] : null);
+
+        const canonicalImage = canonicalSlug ? museumImages[canonicalSlug] || null : null;
+        const canonicalCredit = canonicalSlug ? museumImageCredits[canonicalSlug] || null : null;
+
         return {
           ...normalised,
           museumSlug: canonicalSlug || normalised.museumSlug || null,
-          museumName: museum?.naam || null,
+          museumName: rawMuseumName || fallbackMuseum?.naam || null,
           museumTicketAffiliateUrl: affiliateTicketUrl || null,
-          museumTicketUrl: museum?.ticket_url || null,
+          museumTicketUrl: defaultTicketUrl || null,
+          museumImage: canonicalImage,
+          museumImageCredit: canonicalCredit,
         };
       })
       .filter(Boolean)

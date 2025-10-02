@@ -192,7 +192,10 @@ export default function ExhibitionsPageClient({ initialExhibitions = [], supabas
                 expo.ticketAffiliateUrl ||
                 expo.museumTicketAffiliateUrl ||
                 (canonicalSlug ? museumTicketUrls[canonicalSlug] : null);
-              const ticketLink = expo.ticketUrl || expo.museumTicketUrl || null;
+              const ticketLink =
+                expo.ticketUrl ||
+                expo.museumTicketUrl ||
+                (canonicalSlug ? museumTicketUrls[canonicalSlug] : null);
 
               return (
                 <li key={expo.id} className="exhibitions-results__item">
