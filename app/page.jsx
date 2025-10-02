@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import HomePageClient from '../components/HomePageClient.jsx';
 import { supabase as supabaseClient } from '../lib/supabase';
 import {
@@ -41,5 +42,9 @@ async function fetchInitialMuseums() {
 
 export default async function Page() {
   const { initialMuseums, initialError } = await fetchInitialMuseums();
-  return <HomePageClient initialMuseums={initialMuseums} initialError={initialError} />;
+  return (
+    <Suspense fallback={<div className="min-h-[60vh]" aria-busy="true" aria-live="polite" />}>
+      <HomePageClient initialMuseums={initialMuseums} initialError={initialError} />
+    </Suspense>
+  );
 }
