@@ -31,19 +31,9 @@ async function fetchExhibitions() {
   }
 
   try {
-    const today = todayYMD('Europe/Amsterdam');
-    let expoQuery = supabaseClient
+    const { data: expoRows, error: expoError } = await supabaseClient
       .from('exposities')
-      .select(
-        'id, titel, start_datum, eind_datum, bron_url, beschrijving, omschrijving, gratis, free, kosteloos, freeEntry, kindvriendelijk, childFriendly, familievriendelijk, familyFriendly, tijdelijk, temporary, tijdelijkeTentoonstelling, temporaryExhibition, ticket_affiliate_url, ticket_url, museum_id'
-      )
-      .order('start_datum', { ascending: true });
-
-    if (today) {
-      expoQuery = expoQuery.or(`eind_datum.gte.${today},eind_datum.is.null`);
-    }
-
-    const { data: expoRows, error: expoError } = await expoQuery;
+      .select('*');
 
     if (expoError) {
       return { exhibitions: [], supabaseAvailable: false };
@@ -69,6 +59,8 @@ async function fetchExhibitions() {
       }
     }
 
+    const today = todayYMD('Europe/Amsterdam');
+
     const exhibitions = (expoRows || [])
       .map((row) => {
         const museum = museumsMap.get(row.museum_id) || null;
@@ -81,7 +73,24 @@ async function fetchExhibitions() {
           museumTicketUrl: museum?.ticket_url || null,
         };
       })
-      .filter(Boolean);
+      .filter(Boolean)
+      .filter((expo) => {
+        if (!today) return true;
+        if (expo.eind_datum && expo.eind_datum < today) {
+          return false;
+        }
+        return true;
+      })
+      .sort((a, b) => {
+        const aStart = a.start_datum || '';
+        const bStart = b.start_datum || '';
+        if (aStart && bStart) {
+          return aStart.localeCompare(bStart);
+        }
+        if (aStart) return -1;
+        if (bStart) return 1;
+        return String(a.titel).localeCompare(String(b.titel));
+      });
 
     return { exhibitions, supabaseAvailable: true };
   } catch (error) {
