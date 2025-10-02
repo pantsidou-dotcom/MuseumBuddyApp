@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import ExhibitionsPageClient from '../../components/ExhibitionsPageClient.jsx';
 import { supabase as supabaseClient } from '../../lib/supabase';
 import { normaliseExpositionRow } from '../../lib/expositionsUtils';
@@ -92,9 +93,11 @@ export default async function ExhibitionsPage() {
   const { exhibitions, supabaseAvailable } = await fetchExhibitions();
 
   return (
-    <ExhibitionsPageClient
-      initialExhibitions={exhibitions}
-      supabaseAvailable={supabaseAvailable}
-    />
+    <Suspense fallback={<div className="min-h-[60vh]" aria-busy="true" aria-live="polite" />}> 
+      <ExhibitionsPageClient
+        initialExhibitions={exhibitions}
+        supabaseAvailable={supabaseAvailable}
+      />
+    </Suspense>
   );
 }
