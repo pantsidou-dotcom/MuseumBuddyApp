@@ -43,11 +43,13 @@ function resolveBooleanFlag(...values) {
   return undefined;
 }
 
-function normalizeExhibitionRow(row) {
+function normalizeExhibitionRow(row, museumOverride) {
   if (!row) return null;
 
-  const museum = row.musea || row.museum;
-  if (!museum || !museum.slug) return null;
+  const museum = museumOverride || row.musea || row.museum || {};
+
+  const slug = (museum.slug || row.museum_slug || row.slug || '').toLowerCase();
+  if (!slug) return null;
 
   const tags = {
     free: resolveBooleanFlag(row.gratis, row.free, row.kosteloos, row.freeEntry) === true,
@@ -67,7 +69,6 @@ function normalizeExhibitionRow(row) {
       ) === true || Boolean(row.start_datum && row.eind_datum),
   };
 
-  const slug = museum.slug;
   const fallbackAffiliate = museum.ticket_affiliate_url || museumTicketUrls[slug] || null;
   const affiliateUrl = row.ticket_affiliate_url || fallbackAffiliate;
   const ticketUrl = row.ticket_url || museum.ticket_url || museum.website_url || null;
@@ -83,13 +84,21 @@ function normalizeExhibitionRow(row) {
     ticketAffiliateUrl: affiliateUrl || null,
     ticketUrl: ticketUrl || null,
     museum: {
-      id: museum.id,
+      id: museum.id || row.museum_id || null,
       slug,
-      name: museum.naam,
-      city: museum.stad || null,
-      province: museum.provincie || null,
+      name: museum.naam || museum.name || row.museum_naam || row.museumName || null,
+      city: museum.stad || museum.city || row.museum_stad || row.museumCity || null,
+      province:
+        museum.provincie || museum.province || row.museum_provincie || row.museumProvince || null,
     },
-    image: museumImages[slug] || museum.afbeelding_url || museum.image_url || null,
+    image:
+      museumImages[slug] ||
+      museum.afbeelding_url ||
+      museum.image_url ||
+      museum.image ||
+      row.museum_afbeelding_url ||
+      row.museumImageUrl ||
+      null,
     imageCredit: museumImageCredits[slug] || null,
     tags,
   };
@@ -225,7 +234,9 @@ export async function getStaticProps() {
     const today = todayYMD('Europe/Amsterdam');
     let query = supabaseClient
       .from('exposities')
-      .select('*, musea:museum_id(id, slug, naam, stad, provincie, ticket_affiliate_url, ticket_url, website_url, afbeelding_url)')
+      .select(
+        'id, titel, start_datum, eind_datum, beschrijving, omschrijving, bron_url, ticket_affiliate_url, ticket_url, museum_id'
+      )
       .order('start_datum', { ascending: true });
 
     if (today) {
@@ -243,11 +254,48 @@ export async function getStaticProps() {
       };
     }
 
-    const normalized = Array.isArray(data)
-      ? data
-          .map((row) => normalizeExhibitionRow(row))
-          .filter(Boolean)
-      : [];
+    const rawRows = Array.isArray(data) ? data.filter(Boolean) : [];
+
+    const museumIds = [
+      ...new Set(
+        rawRows
+          .map((row) => row?.museum_id)
+          .filter((value) => typeof value === 'number' && !Number.isNaN(value))
+      ),
+    ];
+
+    let museumMap = new Map();
+
+    if (museumIds.length > 0) {
+      const { data: museumRows, error: museumError } = await supabaseClient
+        .from('musea')
+        .select(
+          'id, slug, naam, stad, provincie, ticket_affiliate_url, ticket_url, website_url, afbeelding_url'
+        )
+        .in('id', museumIds);
+
+      if (museumError) {
+        return {
+          props: {
+            exhibitions: [],
+            error: 'museumQueryFailed',
+          },
+        };
+      }
+
+      if (Array.isArray(museumRows)) {
+        museumMap = new Map(
+          museumRows.filter(Boolean).map((museumRow) => [museumRow.id, museumRow])
+        );
+      }
+    }
+
+    const normalized = rawRows
+      .map((row) => {
+        const museumRow = museumMap.get(row.museum_id);
+        return normalizeExhibitionRow(row, museumRow);
+      })
+      .filter(Boolean);
 
     const sorted = sortExhibitions(normalized);
 
