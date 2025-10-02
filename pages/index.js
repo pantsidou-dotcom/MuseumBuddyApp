@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/router';
 import MuseumCard from '../components/MuseumCard';
 import SkeletonMuseumCard from '../components/SkeletonMuseumCard';
@@ -200,6 +201,8 @@ export default function Home({ initialMuseums = [], initialError = null }) {
   const [isLoading, setIsLoading] = useState(false);
   const [userLocation, setUserLocation] = useState(null);
   const skipNextUrlSync = useRef(false);
+  const prefetchedSlugsRef = useRef(new Set());
+  const prefetchedImagesRef = useRef(new Set());
 
   useEffect(() => {
     if (!router.isReady) return;
@@ -613,6 +616,45 @@ export default function Home({ initialMuseums = [], initialError = null }) {
     initialError,
   ]);
 
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return undefined;
+    }
+
+    const topMuseums = (Array.isArray(results) && results.length > 0
+      ? results
+      : initialMuseumsWithCategories
+    ).slice(0, 12);
+
+    topMuseums.forEach((museum) => {
+      const slug = museum?.slug;
+      if (slug && !prefetchedSlugsRef.current.has(slug)) {
+        prefetchedSlugsRef.current.add(slug);
+        router
+          .prefetch(`/museum/${slug}`)
+          .catch(() => {
+            // Ignore prefetch errors (e.g., offline)
+          });
+      }
+
+      const imageCandidate =
+        (slug && museumImages[slug]) ||
+        museum?.afbeelding_url ||
+        museum?.image_url ||
+        null;
+
+      if (imageCandidate && !prefetchedImagesRef.current.has(imageCandidate)) {
+        prefetchedImagesRef.current.add(imageCandidate);
+        if (typeof window !== 'undefined' && window.Image) {
+          const preloadImage = new window.Image();
+          preloadImage.src = imageCandidate;
+        }
+      }
+    });
+
+    return undefined;
+  }, [results, initialMuseumsWithCategories, router]);
+
   const handleFilterChange = useCallback(
     (name, value) => {
       if (name === 'nearby') {
@@ -711,11 +753,19 @@ export default function Home({ initialMuseums = [], initialError = null }) {
           close: t('filtersClose'),
         }}
       />
-      <section className="hero">
+      <header className="hero" role="banner">
         <div className="hero-content">
           <span className="hero-tagline">{t('heroTagline')}</span>
           <h1 className="hero-title">{t('heroTitle')}</h1>
           <p className="hero-subtext">{t('heroSubtitle')}</p>
+          <div className="hero-cta-group">
+            <Link href="#museum-resultaten" className="hero-quick-link hero-quick-link--primary">
+              {t('heroPrimaryCta')}
+            </Link>
+            <Link href="/tentoonstellingen" className="hero-quick-link hero-quick-link--ghost">
+              {t('heroSecondaryCta')}
+            </Link>
+          </div>
         </div>
         <form className="hero-card hero-search" onSubmit={(e) => e.preventDefault()}>
           <input
@@ -762,7 +812,7 @@ export default function Home({ initialMuseums = [], initialError = null }) {
             )}
           </div>
         </form>
-      </section>
+      </header>
 
       <section className="secondary-hero" aria-labelledby="museumnacht-hero-heading">
         <img
@@ -789,7 +839,9 @@ export default function Home({ initialMuseums = [], initialError = null }) {
         </div>
       </section>
 
-      <p className="count">{results.length} {t('results')}</p>
+      <p className="count" id="museum-resultaten">
+        {results.length} {t('results')}
+      </p>
 
       {isLoading ? (
         <ul className="grid" style={{ listStyle: 'none', padding: 0, margin: 0 }}>

@@ -969,6 +969,12 @@ button.header-link {
   color: rgba(248, 250, 252, 0.85);
   max-width: 560px;
 }
+.hero-cta-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-12, 12px);
+  margin-top: var(--space-12, 12px);
+}
 .hero-card {
   background: var(--panel-bg);
   border-radius: var(--radius-md);
@@ -2561,6 +2567,33 @@ button.hero-quick-link {
 
 .ticket-button--card:focus-visible {
   border-color: rgba(255, 255, 255, 0.7);
+}
+
+.ticket-button--secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: 0.8125rem;
+  background: rgba(15, 23, 42, 0.65);
+  color: var(--body-bg);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  box-shadow: 0 10px 26px rgba(15, 23, 42, 0.22);
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  text-decoration: none;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.ticket-button--secondary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 16px 32px rgba(15, 23, 42, 0.28);
+}
+
+.ticket-button--secondary:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.75);
+  outline-offset: 2px;
 }
 
 .ticket-button--card .ticket-button__label {
