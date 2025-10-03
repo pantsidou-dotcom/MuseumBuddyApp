@@ -7,7 +7,6 @@ import museumTicketUrls from '../../lib/museumTicketUrls';
 import resolveMuseumSlug from '../../lib/resolveMuseumSlug';
 import museumImages from '../../lib/museumImages';
 import museumImageCredits from '../../lib/museumImageCredits';
-import museumOpeningHours from '../../lib/museumOpeningHours';
 import FALLBACK_MUSEUMS from '../../lib/museumFallbackData';
 
 export const revalidate = 900;
@@ -96,78 +95,6 @@ async function fetchExhibitions() {
           ? FALLBACK_MUSEUMS.find((item) => item.slug === canonicalSlug)
           : null;
 
-        const city =
-          row?.stad ||
-          row?.city ||
-          row?.museum_stad ||
-          row?.museumCity ||
-          fallbackMuseum?.stad ||
-          null;
-        const province =
-          row?.provincie ||
-          row?.province ||
-          row?.museum_provincie ||
-          row?.museumProvince ||
-          fallbackMuseum?.provincie ||
-          null;
-
-        const normalisedOpeningHours = (() => {
-          const candidate =
-            row?.openingstijden ||
-            row?.openingHours ||
-            row?.opening_hours ||
-            row?.museum_openingstijden ||
-            row?.museumOpeningHours ||
-            null;
-
-          if (!candidate) return null;
-
-          if (typeof candidate === 'string') {
-            const trimmed = candidate.trim();
-            if (!trimmed) return null;
-            return { en: trimmed, nl: trimmed };
-          }
-
-          if (typeof candidate === 'object') {
-            const enValue =
-              candidate.en ||
-              candidate.En ||
-              candidate.EN ||
-              candidate.english ||
-              candidate.nl ||
-              candidate.NL ||
-              null;
-            const nlValue =
-              candidate.nl ||
-              candidate.NL ||
-              candidate.en ||
-              candidate.En ||
-              candidate.EN ||
-              null;
-
-            if (enValue || nlValue) {
-              return {
-                en: enValue || nlValue || null,
-                nl: nlValue || enValue || null,
-              };
-            }
-          }
-
-          return null;
-        })();
-
-        const fallbackOpeningHours = canonicalSlug
-          ? museumOpeningHours[canonicalSlug] || null
-          : null;
-        const openingHours = normalisedOpeningHours
-          ? normalisedOpeningHours
-          : fallbackOpeningHours
-          ? {
-              en: fallbackOpeningHours.en || fallbackOpeningHours.nl || null,
-              nl: fallbackOpeningHours.nl || fallbackOpeningHours.en || null,
-            }
-          : null;
-
         const affiliateTicketUrl =
           normalised.ticketAffiliateUrl ||
           museum?.ticket_affiliate_url ||
@@ -190,9 +117,6 @@ async function fetchExhibitions() {
           museumTicketUrl: defaultTicketUrl || null,
           museumImage: canonicalImage,
           museumImageCredit: canonicalCredit,
-          museumCity: city || null,
-          museumProvince: province || null,
-          museumOpeningHours: openingHours,
         };
       })
       .filter(Boolean)
