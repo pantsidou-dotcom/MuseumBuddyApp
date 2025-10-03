@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import SEO from '../components/SEO';
 import MuseumCard from '../components/MuseumCard';
 import ExpositionCard from '../components/ExpositionCard';
@@ -16,7 +17,24 @@ export default function FavoritesPage() {
       <SEO title={t('favoritesTitle')} />
       <h1 className="page-title">{t('favoritesTitle')}</h1>
       {favorites.length === 0 ? (
-        <p>{t('noFavorites')}</p>
+        <section
+          className="favorites-empty-state"
+          aria-labelledby="favorites-empty-heading"
+        >
+          <div className="favorites-empty-state__media">
+            <img
+              src="/images/favorites-empty.svg"
+              alt={t('favoritesEmptyIllustrationAlt')}
+            />
+          </div>
+          <div className="favorites-empty-state__content">
+            <h2 id="favorites-empty-heading">{t('favoritesEmptyTitle')}</h2>
+            <p>{t('favoritesEmptyBody')}</p>
+            <Link href="/" className="favorites-empty-state__cta">
+              {t('favoritesEmptyCta')}
+            </Link>
+          </div>
+        </section>
       ) : (
         <>
           {museumFavorites.length > 0 && (
