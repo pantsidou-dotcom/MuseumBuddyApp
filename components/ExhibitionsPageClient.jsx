@@ -199,26 +199,13 @@ export default function ExhibitionsPageClient({ initialExhibitions = [], supabas
 
               return (
                 <li key={expo.id} className="exhibitions-results__item">
-                  <div className="exhibitions-results__card">
-                    {expo.museumName && (
-                      <p className="exhibitions-results__museum">
-                        {canonicalSlug ? (
-                          <Link href={`/museum/${canonicalSlug}`} prefetch>
-                            {t('exhibitionsHostedBy', { museum: expo.museumName })}
-                          </Link>
-                        ) : (
-                          <span>{t('exhibitionsHostedBy', { museum: expo.museumName })}</span>
-                        )}
-                      </p>
-                    )}
-                    <ExpositionCard
-                      exposition={expo}
-                      affiliateUrl={affiliateLink}
-                      ticketUrl={ticketLink}
-                      museumSlug={canonicalSlug}
-                      tags={expo.tags}
-                    />
-                  </div>
+                  <ExpositionCard
+                    exposition={expo}
+                    affiliateUrl={affiliateLink}
+                    ticketUrl={ticketLink}
+                    museumSlug={canonicalSlug}
+                    tags={expo.tags}
+                  />
                 </li>
               );
             })}
