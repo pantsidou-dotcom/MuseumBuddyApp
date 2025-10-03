@@ -13,6 +13,61 @@ import resolveMuseumSlug from '../lib/resolveMuseumSlug';
 import TicketButtonNote from './TicketButtonNote';
 import museumSummaries from '../lib/museumSummaries';
 
+const FALLBACK_SITE_URL = 'https://museumbuddy.nl';
+
+let SITE_ORIGIN = FALLBACK_SITE_URL;
+try {
+  SITE_ORIGIN = new URL(process.env.NEXT_PUBLIC_SITE_URL || FALLBACK_SITE_URL).origin;
+} catch {
+  SITE_ORIGIN = FALLBACK_SITE_URL;
+}
+
+const stripSiteOrigin = (rawUrl) => {
+  if (typeof rawUrl !== 'string') return null;
+  const trimmed = rawUrl.trim();
+  if (!trimmed) return null;
+
+  try {
+    const parsed = new URL(trimmed, SITE_ORIGIN);
+    if (parsed.origin === SITE_ORIGIN) {
+      return `${parsed.pathname}${parsed.search}${parsed.hash}`;
+    }
+    return trimmed;
+  } catch {
+    if (trimmed.startsWith('/')) {
+      return trimmed;
+    }
+    return trimmed;
+  }
+};
+
+const hasMissingMuseumSlug = (path) => {
+  if (typeof path !== 'string' || !path.startsWith('/')) return false;
+  if (!path.startsWith('/museum')) return false;
+
+  const [pathname, searchAndHash = ''] = path.split('?');
+  const [searchPart] = searchAndHash.split('#');
+  const segments = pathname.split('/').filter(Boolean);
+
+  if (segments.length < 2) return true;
+
+  const slugSegment = segments[1];
+  if (!slugSegment || /\[[^\]]*\]/.test(slugSegment)) return true;
+
+  if (searchPart) {
+    const params = new URLSearchParams(searchPart);
+    if (params.has('slug')) {
+      const slugValue = params.get('slug');
+      if (!slugValue) return true;
+      const normalizedSlugValue = slugValue.trim();
+      if (!normalizedSlugValue) return true;
+      if (/\[[^\]]*\]/.test(normalizedSlugValue)) return true;
+    }
+  }
+
+  return false;
+};
+
 function formatRange(start, end, locale) {
   if (!start) return '';
   const opts = { day: '2-digit', month: 'short' };
@@ -52,6 +107,12 @@ export default function ExpositionCard({ exposition, ticketUrl, affiliateUrl, mu
     exposition.museumName || exposition.museum_name || exposition.museum || exposition.host || null;
   const rawMuseumSlug = museumSlug || exposition.museumSlug || exposition.museum_slug || exposition.slug || null;
   const slug = useMemo(() => resolveMuseumSlug(rawMuseumSlug, rawMuseumName), [rawMuseumSlug, rawMuseumName]);
+  const rawLinkSlug = exposition.linkSlug || exposition.link_slug || null;
+  const linkSlug = useMemo(
+    () => resolveMuseumSlug(rawLinkSlug, rawMuseumName),
+    [rawLinkSlug, rawMuseumName]
+  );
+  const canonicalSlug = slug || linkSlug;
   const primaryAffiliateUrl =
     exposition.ticketAffiliateUrl ||
     affiliateUrl ||
@@ -60,7 +121,7 @@ export default function ExpositionCard({ exposition, ticketUrl, affiliateUrl, mu
     exposition.ticketUrl ||
     ticketUrl ||
     (slug ? museumTicketUrls[slug] || null : null);
-  const sourceUrl = exposition.bron_url || null;
+  const sourceUrl = typeof exposition.bron_url === 'string' ? exposition.bron_url.trim() || null : null;
   const buyUrl = primaryAffiliateUrl || fallbackTicketUrl || null;
   const showAffiliateNote = Boolean(primaryAffiliateUrl) && (!slug || shouldShowAffiliateNote(slug));
   const ticketHoverMessage = showAffiliateNote ? t('ticketsAffiliateDisclosure') : undefined;
@@ -138,10 +199,10 @@ export default function ExpositionCard({ exposition, ticketUrl, affiliateUrl, mu
       titel: exposition.titel,
       start_datum: exposition.start_datum,
       eind_datum: exposition.eind_datum,
-      bron_url: sourceUrl,
+      bron_url: favoriteUrl,
       ticketAffiliateUrl: primaryAffiliateUrl,
       ticketUrl: buyUrl,
-      museumSlug: slug,
+      museumSlug: canonicalSlug || slug,
       museumName: exposition.museumName || rawMuseumName || null,
       museumCity,
       museumProvince,
@@ -200,17 +261,68 @@ export default function ExpositionCard({ exposition, ticketUrl, affiliateUrl, mu
     { key: 'temporary', label: t('tagTemporary'), active: temporaryTag === true },
   ];
   const activeTags = tagDefinitions.filter((tag) => tag.active);
-  const moreInfoUrl = sourceUrl || (slug ? `/museum/${slug}` : null);
-  const isInternalMoreInfo = Boolean(moreInfoUrl && moreInfoUrl.startsWith('/'));
+  const canonicalMuseumUrl = canonicalSlug ? `/museum/${canonicalSlug}` : null;
+  const { moreInfoUrl, isInternalMoreInfo, resolvedInternalUrl, externalSourceUrl } = useMemo(() => {
+    const fallbackInternal = canonicalMuseumUrl;
+    const cleanedSource = stripSiteOrigin(sourceUrl);
+
+    if (!cleanedSource) {
+      return {
+        moreInfoUrl: fallbackInternal,
+        isInternalMoreInfo: Boolean(fallbackInternal),
+        resolvedInternalUrl: fallbackInternal,
+        externalSourceUrl: null,
+      };
+    }
+
+    const isInternal = cleanedSource.startsWith('/');
+
+    if (!isInternal) {
+      return {
+        moreInfoUrl: cleanedSource,
+        isInternalMoreInfo: false,
+        resolvedInternalUrl: fallbackInternal,
+        externalSourceUrl: cleanedSource,
+      };
+    }
+
+    if (hasMissingMuseumSlug(cleanedSource)) {
+      return {
+        moreInfoUrl: fallbackInternal,
+        isInternalMoreInfo: Boolean(fallbackInternal),
+        resolvedInternalUrl: fallbackInternal,
+        externalSourceUrl: null,
+      };
+    }
+
+    if (fallbackInternal) {
+      return {
+        moreInfoUrl: fallbackInternal,
+        isInternalMoreInfo: true,
+        resolvedInternalUrl: fallbackInternal,
+        externalSourceUrl: null,
+      };
+    }
+
+    return {
+      moreInfoUrl: cleanedSource,
+      isInternalMoreInfo: true,
+      resolvedInternalUrl: cleanedSource,
+      externalSourceUrl: null,
+    };
+  }, [canonicalMuseumUrl, sourceUrl]);
   const moreInfoTarget = moreInfoUrl && !isInternalMoreInfo ? '_blank' : undefined;
   const moreInfoRel = moreInfoUrl && !isInternalMoreInfo ? 'noopener noreferrer' : undefined;
 
-  const shareUrl = useMemo(() => {
-    if (moreInfoUrl) return moreInfoUrl;
-    if (slug) return `/museum/${slug}`;
-    if (sourceUrl) return sourceUrl;
+  const favoriteUrl = useMemo(() => {
+    if (resolvedInternalUrl) return resolvedInternalUrl;
+    if (!isInternalMoreInfo && moreInfoUrl) return moreInfoUrl;
+    if (canonicalMuseumUrl) return canonicalMuseumUrl;
+    if (externalSourceUrl) return externalSourceUrl;
     return null;
-  }, [moreInfoUrl, slug, sourceUrl]);
+  }, [resolvedInternalUrl, isInternalMoreInfo, moreInfoUrl, canonicalMuseumUrl, externalSourceUrl]);
+
+  const shareUrl = favoriteUrl;
 
   const trimmedMuseumName = exposition.museumName ? String(exposition.museumName).trim() : '';
   const trimmedTitle = exposition.titel ? String(exposition.titel).trim() : '';
