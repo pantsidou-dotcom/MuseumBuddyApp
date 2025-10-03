@@ -9,6 +9,48 @@ import museumTicketUrls from '../lib/museumTicketUrls';
 import { getMuseumCategories } from '../lib/museumCategories';
 import { supabase as supabaseClient } from '../lib/supabase';
 
+const MUSEUM_SELECT_COLUMNS = [
+  'id',
+  'slug',
+  'naam',
+  'stad',
+  'provincie',
+  'gratis_toegankelijk',
+  'ticket_affiliate_url',
+  'website_url',
+  'website',
+  'afbeelding_url',
+  'image_url',
+].join(', ');
+
+const EXHIBITION_SELECT_COLUMNS = [
+  'id',
+  'museum_id',
+  'titel',
+  'start_datum',
+  'eind_datum',
+  'beschrijving',
+  'omschrijving',
+  'description',
+  'gratis',
+  'free',
+  'kosteloos',
+  'freeEntry',
+  'isFree',
+  'is_free',
+  'ticket_affiliate_url',
+  'ticket_url',
+  'bron_url',
+  'afbeelding_url',
+  'image_url',
+  'hero_image_url',
+  'hero_afbeelding_url',
+  'banner_url',
+  'cover_url',
+].join(', ');
+
+const EXHIBITION_SELECT_WITH_MUSEUM = `${EXHIBITION_SELECT_COLUMNS}, museum:musea!inner(${MUSEUM_SELECT_COLUMNS})`;
+
 function todayYMD(tz = 'Europe/Amsterdam') {
   try {
     const fmt = new Intl.DateTimeFormat('sv-SE', {
@@ -255,24 +297,73 @@ export async function getStaticProps() {
 
   try {
     const today = todayYMD('Europe/Amsterdam');
-    const { data, error } = await supabaseClient
+    const baseQuery = supabaseClient
       .from('exposities')
-      .select(
-        `id, museum_id, titel, start_datum, eind_datum, beschrijving, omschrijving, description, gratis, free, kosteloos, freeEntry, isFree, is_free, ticket_affiliate_url, ticket_url, bron_url, afbeelding_url, image_url, hero_image_url, hero_afbeelding_url, banner_url, cover_url, museum:musea!inner(id, slug, naam, stad, provincie, gratis_toegankelijk, ticket_affiliate_url, website_url, website, afbeelding_url, image_url)`
-      )
+      .select(EXHIBITION_SELECT_WITH_MUSEUM)
       .or(`eind_datum.gte.${today},eind_datum.is.null`)
       .order('start_datum', { ascending: true });
 
-    if (error) {
-      return {
-        props: {
-          exhibitions: [],
-          error: 'queryFailed',
-        },
-      };
-    }
+    let { data, error } = await baseQuery;
+    let rows = Array.isArray(data) ? data : [];
 
-    const rows = Array.isArray(data) ? data : [];
+    if (error) {
+      const fallbackQuery = supabaseClient
+        .from('exposities')
+        .select(EXHIBITION_SELECT_COLUMNS)
+        .or(`eind_datum.gte.${today},eind_datum.is.null`)
+        .order('start_datum', { ascending: true });
+
+      const { data: fallbackData, error: fallbackError } = await fallbackQuery;
+      if (fallbackError) {
+        return {
+          props: {
+            exhibitions: [],
+            error: 'queryFailed',
+          },
+        };
+      }
+
+      const fallbackRows = Array.isArray(fallbackData) ? fallbackData : [];
+      const museumIds = Array.from(
+        new Set(
+          fallbackRows
+            .map((row) => row.museum_id)
+            .filter((id) => id !== null && id !== undefined)
+        )
+      );
+
+      let museumMap = new Map();
+      if (museumIds.length > 0) {
+        const { data: museumData, error: museumError } = await supabaseClient
+          .from('musea')
+          .select(MUSEUM_SELECT_COLUMNS)
+          .in('id', museumIds);
+
+        if (museumError) {
+          return {
+            props: {
+              exhibitions: [],
+              error: 'queryFailed',
+            },
+          };
+        }
+
+        museumMap = new Map(
+          (Array.isArray(museumData) ? museumData : [])
+            .map((museumRow) => {
+              const normalised = normalizeMuseumRow(museumRow);
+              return [museumRow.id, normalised];
+            })
+            .filter(([, normalised]) => normalised && normalised.slug)
+        );
+      }
+
+      rows = fallbackRows.map((row) => ({
+        ...row,
+        museum: museumMap.get(row.museum_id) || null,
+      }));
+      error = null;
+    }
 
     const exhibitions = rows
       .map((row) => {
