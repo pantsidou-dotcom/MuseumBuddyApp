@@ -6,11 +6,12 @@ import { useFavorites } from './FavoritesContext';
 import museumImages from '../lib/museumImages';
 import museumImageCredits from '../lib/museumImageCredits';
 import formatImageCredit from '../lib/formatImageCredit';
-import { normalizeImageSource } from '../lib/resolveImageSource';
+import { normalizeImageSource, resolveImageUrl } from '../lib/resolveImageSource';
 import { shouldShowAffiliateNote } from '../lib/nonAffiliateMuseums';
 import museumTicketUrls from '../lib/museumTicketUrls';
 import resolveMuseumSlug from '../lib/resolveMuseumSlug';
 import TicketButtonNote from './TicketButtonNote';
+import museumSummaries from '../lib/museumSummaries';
 
 function formatRange(start, end, locale) {
   if (!start) return '';
@@ -83,6 +84,10 @@ export default function ExpositionCard({ exposition, ticketUrl, affiliateUrl, mu
   const ticketNoteId = useId();
   const ctaDescribedBy = ticketContext ? ticketNoteId : undefined;
 
+  const museumCity = exposition.museumCity || exposition.city || exposition.stad || null;
+  const museumProvince =
+    exposition.museumProvince || exposition.province || exposition.provincie || null;
+
   const museumImageSource = exposition.museumImage || (slug ? museumImages[slug] : null);
   const normalizedMuseumImage = useMemo(
     () => normalizeImageSource(museumImageSource),
@@ -127,6 +132,7 @@ export default function ExpositionCard({ exposition, ticketUrl, affiliateUrl, mu
   };
 
   const handleFavorite = () => {
+    const favoriteImageUrl = resolveImageUrl(exposition.museumImage || museumImageSource);
     toggleFavorite({
       id: exposition.id,
       titel: exposition.titel,
@@ -136,18 +142,53 @@ export default function ExpositionCard({ exposition, ticketUrl, affiliateUrl, mu
       ticketAffiliateUrl: primaryAffiliateUrl,
       ticketUrl: buyUrl,
       museumSlug: slug,
+      museumName: exposition.museumName || rawMuseumName || null,
+      museumCity,
+      museumProvince,
+      museumOpeningHours: exposition.museumOpeningHours || null,
+      description: exposition.description || null,
+      tags: { ...exposition.tags },
+      museumImage: favoriteImageUrl,
+      museumImageCredit: imageCredit || null,
       type: 'exposition',
     });
     triggerFavoriteBounce();
   };
 
+  const fallbackSummary = useMemo(() => {
+    if (!slug) return '';
+    const summary = museumSummaries[slug];
+    if (!summary) return '';
+    return summary[lang] || summary[lang === 'en' ? 'nl' : 'en'] || '';
+  }, [lang, slug]);
+
   const summaryText = useMemo(() => {
-    if (!description) return '';
-    const cleaned = description.replace(/\s+/g, ' ').trim();
+    const source = description || fallbackSummary;
+    if (!source) return '';
+    const cleaned = String(source).replace(/\s+/g, ' ').trim();
     if (!cleaned) return '';
     if (cleaned.length <= 160) return cleaned;
     return `${cleaned.slice(0, 157)}…`;
-  }, [description]);
+  }, [description, fallbackSummary]);
+
+  const locationText = useMemo(() => {
+    const city = museumCity ? String(museumCity).trim() : '';
+    const provinceCandidate = museumProvince ? String(museumProvince).trim() : '';
+    const province = provinceCandidate && provinceCandidate !== city ? provinceCandidate : '';
+    return [city, province].filter(Boolean).join(', ');
+  }, [museumCity, museumProvince]);
+
+  const openingHoursText = useMemo(() => {
+    const hours = exposition.museumOpeningHours;
+    if (!hours) return '';
+    if (typeof hours === 'string') {
+      return hours.trim();
+    }
+    const localeKey = lang === 'en' ? 'en' : 'nl';
+    const fallbackKey = localeKey === 'en' ? 'nl' : 'en';
+    const value = hours?.[localeKey] || hours?.[fallbackKey];
+    return typeof value === 'string' ? value.trim() : '';
+  }, [exposition.museumOpeningHours, lang]);
 
   let temporaryTag = pickBoolean(tags.temporary, exposition?.tijdelijk, exposition?.temporary, exposition?.tijdelijkeTentoonstelling);
   if (temporaryTag === undefined && start && end) {
@@ -164,10 +205,187 @@ export default function ExpositionCard({ exposition, ticketUrl, affiliateUrl, mu
   const moreInfoTarget = moreInfoUrl && !isInternalMoreInfo ? '_blank' : undefined;
   const moreInfoRel = moreInfoUrl && !isInternalMoreInfo ? 'noopener noreferrer' : undefined;
 
+  const shareUrl = useMemo(() => {
+    if (moreInfoUrl) return moreInfoUrl;
+    if (slug) return `/museum/${slug}`;
+    if (sourceUrl) return sourceUrl;
+    return null;
+  }, [moreInfoUrl, slug, sourceUrl]);
+
+  const trimmedMuseumName = exposition.museumName ? String(exposition.museumName).trim() : '';
+  const trimmedTitle = exposition.titel ? String(exposition.titel).trim() : '';
+  const hasDistinctTitle = Boolean(trimmedMuseumName && trimmedTitle && trimmedMuseumName !== trimmedTitle);
+  const primaryTitle = trimmedMuseumName || trimmedTitle;
+  const secondaryTitle = hasDistinctTitle ? trimmedTitle : '';
+
+  const metaItems = useMemo(
+    () =>
+      [
+        rangeLabel ? { key: 'dates', label: rangeLabel } : null,
+        locationText ? { key: 'location', label: locationText } : null,
+        openingHoursText ? { key: 'hours', label: openingHoursText } : null,
+      ].filter(Boolean),
+    [locationText, openingHoursText, rangeLabel]
+  );
+
+  const handleShare = async () => {
+    if (typeof window === 'undefined' || !shareUrl) return;
+
+    const absoluteUrl = shareUrl.startsWith('http')
+      ? shareUrl
+      : `${window.location.origin}${shareUrl.startsWith('/') ? shareUrl : `/${shareUrl}`}`;
+    const shareTitle = primaryTitle || trimmedTitle || 'MuseumBuddy';
+    const shareData = {
+      title: shareTitle,
+      text: `${t('view')} ${shareTitle}`,
+      url: absoluteUrl,
+    };
+
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData);
+        return;
+      } catch {
+        // ignore
+      }
+    }
+
+    if (navigator.clipboard) {
+      try {
+        await navigator.clipboard.writeText(absoluteUrl);
+        alert(t('linkCopied'));
+        return;
+      } catch {
+        // ignore
+      }
+    }
+
+    try {
+      window.open(absoluteUrl, '_blank', 'noopener,noreferrer');
+    } catch {
+      window.prompt(t('copyThisLink'), absoluteUrl);
+    }
+  };
+
+  const renderMetaIcon = (type) => {
+    switch (type) {
+      case 'location':
+        return (
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M12 21s-6-4.8-6-10a6 6 0 0 1 12 0c0 5.2-6 10-6 10Z" />
+            <circle cx="12" cy="11" r="2.5" />
+          </svg>
+        );
+      case 'hours':
+        return (
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <circle cx="12" cy="12" r="8" />
+            <path d="M12 8v4l2.5 1.5" />
+          </svg>
+        );
+      default:
+        return (
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <rect x="4" y="5" width="16" height="15" rx="2" />
+            <path d="M16 3v4" />
+            <path d="M8 3v4" />
+            <path d="M4 11h16" />
+          </svg>
+        );
+    }
+  };
+
+  const renderTicketBadge = () => {
+    const label = <span className="exposition-card__ticket-badge-label">{t('buyTickets')}</span>;
+    const partner = showAffiliateNote ? (
+      <span className="exposition-card__ticket-badge-sub">{t('ticketsPartnerBadge')}</span>
+    ) : null;
+
+    if (buyUrl) {
+      return (
+        <a
+          href={buyUrl}
+          target="_blank"
+          rel={ticketRel}
+          className="exposition-card__ticket-badge"
+          aria-describedby={ctaDescribedBy}
+          title={ticketHoverMessage}
+          aria-label={ticketAriaLabel}
+          data-affiliate={showAffiliateNote ? 'true' : undefined}
+        >
+          {label}
+          {partner}
+        </a>
+      );
+    }
+
+    return (
+      <span className="exposition-card__ticket-badge exposition-card__ticket-badge--disabled" aria-disabled="true">
+        {label}
+      </span>
+    );
+  };
+
+  const renderMoreInfoCta = () => {
+    if (!moreInfoUrl) return null;
+
+    const content = (
+      <>
+        <span>{t('exhibitionsMoreInfoCta')}</span>
+        <span className="exposition-card__overlay-cta-icon" aria-hidden="true">
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M5 12h14" />
+            <path d="M13 6l6 6-6 6" />
+          </svg>
+        </span>
+      </>
+    );
+
+    if (isInternalMoreInfo) {
+      return (
+        <Link href={moreInfoUrl} prefetch className="exposition-card__overlay-cta">
+          {content}
+        </Link>
+      );
+    }
+
+    return (
+      <a href={moreInfoUrl} className="exposition-card__overlay-cta" target={moreInfoTarget} rel={moreInfoRel}>
+        {content}
+      </a>
+    );
+  };
+
   return (
-    <article
-      className={`exposition-card${isFavoriteBouncing ? ' is-bouncing' : ''}`}
-    >
+    <article className={`exposition-card${isFavoriteBouncing ? ' is-bouncing' : ''}`}>
       <div
         className={`exposition-card__media${hasMuseumImage ? '' : ' exposition-card__media--placeholder'}`}
         aria-hidden="true"
@@ -193,71 +411,108 @@ export default function ExpositionCard({ exposition, ticketUrl, affiliateUrl, mu
         ) : (
           <span className="exposition-card__media-placeholder" />
         )}
-        {hasMuseumImage && hasCreditSegments && !isPublicDomainImage ? (
-          <p className="image-credit exposition-card__image-credit" title={creditFullText || undefined}>
-            {creditSegments.map((segment, index) => (
-              <Fragment key={`${slug || exposition.id}-credit-${segment.key}-${index}`}>
-                {index > 0 && (
-                  <span aria-hidden="true" className="image-credit-divider">
-                    •
-                  </span>
-                )}
-                {segment.url ? (
-                  <a
-                    className="image-credit-link"
-                    href={segment.url}
-                    target="_blank"
-                    rel="noreferrer"
+        <div className="exposition-card__media-overlay">
+          <div className="exposition-card__overlay-top">
+            {renderTicketBadge()}
+            <div className="exposition-card__overlay-actions">
+              {shareUrl ? (
+                <button
+                  type="button"
+                  className="icon-button large exposition-card__icon-button"
+                  aria-label={t('share')}
+                  onClick={handleShare}
+                >
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
                   >
-                    {segment.label}
-                  </a>
-                ) : (
-                  <span className="image-credit-part">{segment.label}</span>
-                )}
-              </Fragment>
-            ))}
-          </p>
-        ) : null}
+                    <path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7" />
+                    <path d="M16 7l-4-4-4 4" />
+                    <path d="M12 3v14" />
+                  </svg>
+                </button>
+              ) : null}
+              <button
+                type="button"
+                className={`icon-button large exposition-card__icon-button${
+                  isFavorite ? ' favorited' : ''
+                }${isFavoriteBouncing ? ' icon-button--bounce' : ''}`}
+                aria-label={t('save')}
+                aria-pressed={isFavorite}
+                onClick={handleFavorite}
+              >
+                <svg
+                  viewBox="0 0 24 24"
+                  fill={isFavorite ? 'currentColor' : 'none'}
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M21 8.25c0 4.556-9 11.25-9 11.25S3 12.806 3 8.25a5.25 5.25 0 0 1 9-3.676A5.25 5.25 0 0 1 21 8.25Z" />
+                </svg>
+              </button>
+            </div>
+          </div>
+          <div className="exposition-card__overlay-bottom">
+            {renderMoreInfoCta()}
+            {hasMuseumImage && hasCreditSegments && !isPublicDomainImage ? (
+              <p
+                className="image-credit exposition-card__image-credit exposition-card__image-credit--overlay"
+                title={creditFullText || undefined}
+              >
+                {creditSegments.map((segment, index) => (
+                  <Fragment key={`${slug || exposition.id}-credit-${segment.key}-${index}`}>
+                    {index > 0 && (
+                      <span aria-hidden="true" className="image-credit-divider">
+                        •
+                      </span>
+                    )}
+                    {segment.url ? (
+                      <a
+                        className="image-credit-link"
+                        href={segment.url}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        {segment.label}
+                      </a>
+                    ) : (
+                      <span className="image-credit-part">{segment.label}</span>
+                    )}
+                  </Fragment>
+                ))}
+              </p>
+            ) : null}
+          </div>
+        </div>
       </div>
       <div className="exposition-card__body">
-        <div className="exposition-card__topline">
-          {rangeLabel && (
-            <div className="exposition-card__date">
-              <span className="exposition-card__date-label">{t('duration')}</span>
-              <span className="exposition-card__date-value">{rangeLabel}</span>
-            </div>
-          )}
-          <button
-            className={`icon-button large${isFavorite ? ' favorited' : ''}${
-              isFavoriteBouncing ? ' icon-button--bounce' : ''
-            }`}
-            aria-label={t('save')}
-            aria-pressed={isFavorite}
-            onClick={handleFavorite}
-          >
-            <svg
-              viewBox="0 0 24 24"
-              fill={isFavorite ? 'currentColor' : 'none'}
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M21 8.25c0 4.556-9 11.25-9 11.25S3 12.806 3 8.25a5.25 5.25 0 0 1 9-3.676A5.25 5.25 0 0 1 21 8.25Z" />
-            </svg>
-          </button>
+        <div className="exposition-card__header">
+          {secondaryTitle ? <p className="exposition-card__subtitle">{secondaryTitle}</p> : null}
+          {primaryTitle ? <h3 className="exposition-card__title">{primaryTitle}</h3> : null}
         </div>
-        <h3 className="exposition-card__title">
-          {exposition.bron_url ? (
-            <a href={exposition.bron_url} target="_blank" rel="noreferrer">
-              {exposition.titel}
-            </a>
-          ) : (
-            exposition.titel
-          )}
-        </h3>
-        {summaryText && <p className="exposition-card__summary">{summaryText}</p>}
-        {activeTags.length > 0 && (
+        {metaItems.length > 0 ? (
+          <div className="exposition-card__meta">
+            {metaItems.map((item) => (
+              <div
+                key={item.key}
+                className={`exposition-card__meta-item exposition-card__meta-item--${item.key}`}
+              >
+                <span className="exposition-card__meta-icon" aria-hidden="true">
+                  {renderMetaIcon(item.key)}
+                </span>
+                <span>{item.label}</span>
+              </div>
+            ))}
+          </div>
+        ) : null}
+        {summaryText ? <p className="exposition-card__summary">{summaryText}</p> : null}
+        {activeTags.length > 0 ? (
           <ul className="exposition-card__tags">
             {activeTags.map((tag) => (
               <li key={tag.key}>
@@ -265,67 +520,10 @@ export default function ExpositionCard({ exposition, ticketUrl, affiliateUrl, mu
               </li>
             ))}
           </ul>
-        )}
+        ) : null}
       </div>
-      <div className="exposition-card__footer">
-        <div className="exposition-card__footer-actions">
-          {moreInfoUrl ? (
-            isInternalMoreInfo ? (
-              <Link href={moreInfoUrl} prefetch className="exposition-card__info-button">
-                {t('exhibitionsMoreInfoCta')}
-              </Link>
-            ) : (
-              <a
-                href={moreInfoUrl}
-                className="exposition-card__info-button"
-                target={moreInfoTarget}
-                rel={moreInfoRel}
-              >
-                {t('exhibitionsMoreInfoCta')}
-              </a>
-            )
-          ) : null}
-          {buyUrl ? (
-            <a
-              href={buyUrl}
-              target="_blank"
-              rel={ticketRel}
-              className="ticket-button exposition-card__cta exposition-card__cta--tickets"
-              aria-describedby={ctaDescribedBy}
-              title={ticketHoverMessage}
-              aria-label={ticketAriaLabel}
-              data-affiliate={showAffiliateNote ? 'true' : undefined}
-            >
-              <span
-                className={
-                  showAffiliateNote
-                    ? 'ticket-button__label ticket-button__label--stacked'
-                    : 'ticket-button__label'
-                }
-              >
-                <span className="ticket-button__label-text">{t('buyTickets')}</span>
-                {showAffiliateNote ? (
-                  <span className="ticket-button__badge">
-                    {t('ticketsPartnerBadge')}
-                    <span className="sr-only"> — {t('ticketsAffiliateIntro')}</span>
-                  </span>
-                ) : null}
-              </span>
-            </a>
-          ) : (
-            <button
-              type="button"
-              className="ticket-button exposition-card__cta exposition-card__cta--tickets"
-              disabled
-              aria-disabled="true"
-            >
-              <span className="ticket-button__label">
-                <span className="ticket-button__label-text">{t('buyTickets')}</span>
-              </span>
-            </button>
-          )}
-        </div>
-        {ticketContext ? (
+      {ticketContext ? (
+        <div className="exposition-card__footer">
           <TicketButtonNote
             affiliate={showAffiliateNote}
             showIcon={false}
@@ -334,8 +532,8 @@ export default function ExpositionCard({ exposition, ticketUrl, affiliateUrl, mu
           >
             {ticketContext}
           </TicketButtonNote>
-        ) : null}
-      </div>
+        </div>
+      ) : null}
     </article>
   );
 }
