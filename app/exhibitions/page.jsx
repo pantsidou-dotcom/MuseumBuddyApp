@@ -179,8 +179,16 @@ async function fetchExhibitions() {
           fallbackMuseum?.website_url ||
           (canonicalSlug ? museumTicketUrls[canonicalSlug] : null);
 
-        const canonicalImage = canonicalSlug ? museumImages[canonicalSlug] || null : null;
-        const canonicalCredit = canonicalSlug ? museumImageCredits[canonicalSlug] || null : null;
+        const canonicalImage =
+          canonicalSlug && museumImages[canonicalSlug] ? museumImages[canonicalSlug] : null;
+        const canonicalCredit =
+          canonicalSlug && museumImageCredits[canonicalSlug]
+            ? museumImageCredits[canonicalSlug]
+            : null;
+        const mergedMuseumImage = canonicalImage || normalised.museumImage || null;
+        const mergedMuseumImageCredit = canonicalImage
+          ? canonicalCredit
+          : normalised.museumImageCredit || null;
 
         return {
           ...normalised,
@@ -188,8 +196,8 @@ async function fetchExhibitions() {
           museumName: rawMuseumName || fallbackMuseum?.naam || null,
           museumTicketAffiliateUrl: affiliateTicketUrl || null,
           museumTicketUrl: defaultTicketUrl || null,
-          museumImage: canonicalImage,
-          museumImageCredit: canonicalCredit,
+          museumImage: mergedMuseumImage,
+          museumImageCredit: mergedMuseumImageCredit,
           museumCity: city || null,
           museumProvince: province || null,
           museumOpeningHours: openingHours,
