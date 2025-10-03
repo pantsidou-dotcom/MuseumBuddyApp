@@ -725,28 +725,26 @@ export default function Home({ initialMuseums = [], initialError = null }) {
           close: t('filtersClose'),
         }}
       />
-      <section className="hero" aria-labelledby="home-hero-heading">
-        <div className="hero-layout">
-          <div className="hero-content">
-            <h1 id="home-hero-heading" className="hero-title">
-              {t('heroTitle')}
-            </h1>
-            <p className="hero-subtext">{t('heroSubtitle')}</p>
-            <div className="hero-ctas">
-              <button
-                type="button"
-                className="hero-cta-button hero-cta-button--primary"
-                onClick={handleScrollToResults}
-                aria-controls="museum-results"
-              >
-                {t('heroDiscoverMuseums')}
-              </button>
-              <Link href="/tentoonstellingen" prefetch className="hero-cta-button hero-cta-button--secondary">
-                {t('heroViewExhibitions')}
-              </Link>
-            </div>
+      <section className="hero">
+        <div className="hero-content">
+          <span className="hero-tagline">{t('heroTagline')}</span>
+          <h1 className="hero-title">{t('heroTitle')}</h1>
+          <p className="hero-subtext">{t('heroSubtitle')}</p>
+          <div className="hero-ctas">
+            <button
+              type="button"
+              className="hero-cta-button hero-cta-button--primary"
+              onClick={handleScrollToResults}
+              aria-controls="museum-results"
+            >
+              {t('heroDiscoverMuseums')}
+            </button>
+            <Link href="/tentoonstellingen" prefetch className="hero-cta-button hero-cta-button--secondary">
+              {t('heroViewExhibitions')}
+            </Link>
           </div>
-          <form className="hero-card hero-search" onSubmit={(e) => e.preventDefault()}>
+        </div>
+        <form className="hero-card hero-search" onSubmit={(e) => e.preventDefault()}>
           <input
             type="search"
             className="input hero-input"
@@ -791,7 +789,6 @@ export default function Home({ initialMuseums = [], initialError = null }) {
             )}
           </div>
         </form>
-        </div>
       </section>
 
       <section className="secondary-hero" aria-labelledby="museumnacht-hero-heading">

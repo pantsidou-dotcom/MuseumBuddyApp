@@ -43,6 +43,27 @@ function resolveBooleanFlag(...values) {
   return undefined;
 }
 
+function normalizeMuseumRow(row) {
+  if (!row || !row.id || !row.slug) {
+    return null;
+  }
+
+  const freeAccess = resolveBooleanFlag(row.gratis_toegankelijk);
+
+  return {
+    id: row.id,
+    slug: row.slug,
+    naam: row.naam || null,
+    stad: row.stad || row.city || null,
+    provincie: row.provincie || row.province || null,
+    gratis_toegankelijk: freeAccess === true,
+    ticket_affiliate_url: row.ticket_affiliate_url || null,
+    website_url: row.website_url || row.website || null,
+    afbeelding_url: row.afbeelding_url || null,
+    image_url: row.image_url || null,
+  };
+}
+
 function formatDateRange(start, end, locale) {
   if (!start) return '';
 
@@ -237,7 +258,7 @@ export async function getStaticProps() {
     const { data, error } = await supabaseClient
       .from('exposities')
       .select(
-        `id, titel, start_datum, eind_datum, beschrijving, omschrijving, description, gratis, free, kosteloos, freeEntry, isFree, is_free, ticket_affiliate_url, ticket_url, bron_url, afbeelding_url, image_url, hero_image_url, hero_afbeelding_url, banner_url, cover_url, museum:museum_id(id, slug, naam, stad, provincie, gratis_toegankelijk, ticket_affiliate_url, website_url, website, afbeelding_url, image_url)`
+        'id, museum_id, titel, start_datum, eind_datum, beschrijving, omschrijving, description, gratis, free, kosteloos, freeEntry, isFree, is_free, ticket_affiliate_url, ticket_url, bron_url, afbeelding_url, image_url, hero_image_url, hero_afbeelding_url, banner_url, cover_url'
       )
       .or(`eind_datum.gte.${today},eind_datum.is.null`)
       .order('start_datum', { ascending: true });
@@ -251,10 +272,37 @@ export async function getStaticProps() {
       };
     }
 
-    const exhibitions = (data || [])
+    const rows = Array.isArray(data) ? data : [];
+
+    const museumIds = Array.from(
+      new Set(
+        rows
+          .map((row) => row?.museum_id)
+          .filter((value) => typeof value === 'number' || typeof value === 'string')
+      )
+    );
+
+    const museumMap = new Map();
+
+    if (museumIds.length > 0) {
+      const { data: museumData, error: museumError } = await supabaseClient
+        .from('musea')
+        .select('id, slug, naam, stad, provincie, gratis_toegankelijk, ticket_affiliate_url, website_url, website, afbeelding_url, image_url')
+        .in('id', museumIds);
+
+      if (!museumError && Array.isArray(museumData)) {
+        museumData.forEach((museumRow) => {
+          const normalised = normalizeMuseumRow(museumRow);
+          if (normalised) {
+            museumMap.set(museumRow.id, normalised);
+          }
+        });
+      }
+    }
+
+    const exhibitions = rows
       .map((row) => {
-        if (!row) return null;
-        const museum = row.museum || null;
+        const museum = museumMap.get(row.museum_id);
         if (!museum || !museum.slug) {
           return null;
         }
@@ -282,18 +330,7 @@ export async function getStaticProps() {
           hero_afbeelding_url: row.hero_afbeelding_url || null,
           banner_url: row.banner_url || null,
           cover_url: row.cover_url || null,
-          museum: {
-            id: museum.id,
-            slug: museum.slug,
-            naam: museum.naam || null,
-            stad: museum.stad || museum.city || null,
-            provincie: museum.provincie || museum.province || null,
-            gratis_toegankelijk: museum.gratis_toegankelijk,
-            ticket_affiliate_url: museum.ticket_affiliate_url || null,
-            website_url: museum.website_url || museum.website || null,
-            afbeelding_url: museum.afbeelding_url || null,
-            image_url: museum.image_url || null,
-          },
+          museum,
         };
       })
       .filter((row) => row && row.museum && row.museum.slug);
