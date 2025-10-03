@@ -5,6 +5,12 @@ Deze CI-workflow voert de tests van het project uit zodat de badge de status van
 
 ## Project Structure
 
+## Architecture Notes
+
+- De nieuwe homepage en tentoonstellingsindex draaien op de Next.js App Router in de map `app/`.
+- De bestaande museumdetailpagina onder `/museum/[slug]` blijft via de Pages Router beschikbaar en is ongewijzigd.
+- Gedeelde kaartopmaak wordt verzorgd door `components/EntityCard.tsx` en `components/EntityGrid.tsx` zodat musea en tentoonstellingen dezelfde layout delen.
+
 
 
 ## Environment Variables
