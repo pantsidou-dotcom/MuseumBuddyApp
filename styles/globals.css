@@ -1076,7 +1076,7 @@ button.header-link {
 .hero-ctas {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--space-12);
+  gap: var(--space-16);
   margin-top: var(--space-8);
 }
 .hero-cta-button {
