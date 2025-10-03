@@ -24,25 +24,17 @@ const MUSEUM_SELECT_COLUMNS = [
 
 const EXHIBITION_SELECT_COLUMNS = '*';
 
-const EXHIBITION_SELECT_WITH_MUSEUM = `*, museum:musea!inner(${MUSEUM_SELECT_COLUMNS})`;
-
-function todayYMD(tz = 'Europe/Amsterdam') {
-  try {
-    const fmt = new Intl.DateTimeFormat('sv-SE', {
-      timeZone: tz,
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-    });
-    return fmt.format(new Date());
-  } catch (err) {
-    const now = new Date();
-    const yyyy = now.getFullYear();
-    const mm = String(now.getMonth() + 1).padStart(2, '0');
-    const dd = String(now.getDate()).padStart(2, '0');
-    return `${yyyy}-${mm}-${dd}`;
-  }
-}
+const MUSEUM_SELECT_FALLBACK_COLUMNS = [
+  'id',
+  'slug',
+  'naam',
+  'stad',
+  'provincie',
+  'gratis_toegankelijk',
+  'ticket_affiliate_url',
+  'afbeelding_url',
+  'image_url',
+].join(', ');
 
 function resolveBooleanFlag(...values) {
   for (const value of values) {
@@ -271,88 +263,186 @@ export async function getStaticProps() {
   }
 
   try {
-    const today = todayYMD('Europe/Amsterdam');
-    const baseQuery = supabaseClient
-      .from('exposities')
-      .select(EXHIBITION_SELECT_WITH_MUSEUM)
-      .or(`eind_datum.gte.${today},eind_datum.is.null`)
-      .order('start_datum', { ascending: true });
-
-    let { data, error } = await baseQuery;
-    let rows = Array.isArray(data) ? data : [];
+    const { data, error } = await supabaseClient.from('exposities').select(EXHIBITION_SELECT_COLUMNS);
 
     if (error) {
-      const fallbackQuery = supabaseClient
-        .from('exposities')
-        .select(EXHIBITION_SELECT_COLUMNS)
-        .or(`eind_datum.gte.${today},eind_datum.is.null`)
-        .order('start_datum', { ascending: true });
+      return {
+        props: {
+          exhibitions: [],
+          error: 'queryFailed',
+        },
+      };
+    }
 
-      const { data: fallbackData, error: fallbackError } = await fallbackQuery;
-      if (fallbackError) {
-        return {
-          props: {
-            exhibitions: [],
-            error: 'queryFailed',
-          },
-        };
+    const rows = Array.isArray(data) ? data : [];
+
+    const museumIdSet = new Set();
+    const museumSlugSet = new Set();
+
+    const addIdCandidate = (value) => {
+      if (value === null || value === undefined) return;
+      museumIdSet.add(value);
+    };
+
+    const addSlugCandidate = (value) => {
+      if (typeof value !== 'string') return;
+      const trimmed = value.trim();
+      if (!trimmed) return;
+      museumSlugSet.add(trimmed);
+    };
+
+    rows.forEach((row) => {
+      if (!row || typeof row !== 'object') {
+        return;
       }
 
-      const fallbackRows = Array.isArray(fallbackData) ? fallbackData : [];
-      const museumIds = Array.from(
-        new Set(
-          fallbackRows
-            .map((row) => row.museum_id)
-            .filter((id) => id !== null && id !== undefined)
-        )
-      );
+      addIdCandidate(row.museum_id);
+      addIdCandidate(row.museumId);
+      addIdCandidate(row?.museum?.id);
 
-      let museumMap = new Map();
-      if (museumIds.length > 0) {
-        const { data: museumData, error: museumError } = await supabaseClient
+      addSlugCandidate(row?.museum?.slug);
+      addSlugCandidate(row.museum_slug);
+      addSlugCandidate(row.museumSlug);
+      addSlugCandidate(row.museum_slugnaam);
+      addSlugCandidate(row.slug_museum);
+    });
+
+    let museumMapById = new Map();
+    let museumMapBySlug = new Map();
+
+    const fetchMuseums = async (column, values) => {
+      if (!Array.isArray(values) || values.length === 0) {
+        return [];
+      }
+
+      const { data: museumData, error: museumError } = await supabaseClient
+        .from('musea')
+        .select(MUSEUM_SELECT_COLUMNS)
+        .in(column, values);
+
+      if (museumError && museumError.message && /column|identifier|relationship/i.test(museumError.message)) {
+        const { data: fallbackData, error: fallbackError } = await supabaseClient
           .from('musea')
-          .select(MUSEUM_SELECT_COLUMNS)
-          .in('id', museumIds);
+          .select(MUSEUM_SELECT_FALLBACK_COLUMNS)
+          .in(column, values);
 
-        if (museumError) {
-          return {
-            props: {
-              exhibitions: [],
-              error: 'queryFailed',
-            },
-          };
+        if (!fallbackError) {
+          return Array.isArray(fallbackData) ? fallbackData : [];
         }
 
-        museumMap = new Map(
-          (Array.isArray(museumData) ? museumData : [])
-            .map((museumRow) => {
-              const normalised = normalizeMuseumRow(museumRow);
-              return [museumRow.id, normalised];
-            })
-            .filter(([, normalised]) => normalised && normalised.slug)
-        );
+        return [];
       }
 
-      rows = fallbackRows.map((row) => ({
-        ...row,
-        museum: museumMap.get(row.museum_id) || null,
-      }));
-      error = null;
+      if (museumError) {
+        return [];
+      }
+
+      return Array.isArray(museumData) ? museumData : [];
+    };
+
+    const museumIds = Array.from(museumIdSet);
+    if (museumIds.length > 0) {
+      const museumData = await fetchMuseums('id', museumIds);
+      const normalisedMuseums = museumData
+        .map((museumRow) => normalizeMuseumRow(museumRow))
+        .filter((museum) => museum && museum.slug);
+
+      museumMapById = new Map(normalisedMuseums.map((museum) => [museum.id, museum]));
+      museumMapBySlug = new Map(normalisedMuseums.map((museum) => [museum.slug, museum]));
+    }
+
+    const knownSlugSet = new Set(museumMapBySlug.keys());
+    const missingSlugs = Array.from(museumSlugSet).filter((slug) => !knownSlugSet.has(slug));
+
+    if (missingSlugs.length > 0) {
+      const museumsBySlug = await fetchMuseums('slug', missingSlugs);
+
+      museumsBySlug.forEach((museumRow) => {
+        const normalised = normalizeMuseumRow(museumRow);
+        if (!normalised || !normalised.slug) {
+          return;
+        }
+        museumMapBySlug.set(normalised.slug, normalised);
+        if (normalised.id !== undefined && normalised.id !== null && !museumMapById.has(normalised.id)) {
+          museumMapById.set(normalised.id, normalised);
+        }
+      });
     }
 
     const exhibitions = rows
       .map((row) => {
-        const normalisedMuseum = normalizeMuseumRow(row.museum);
-        if (!normalisedMuseum || !normalisedMuseum.slug) {
+        if (!row || typeof row !== 'object') {
+          return null;
+        }
+
+        const directMuseum = normalizeMuseumRow(row.museum);
+        const idCandidates = [row.museum_id, row.museumId, directMuseum?.id];
+        const slugCandidates = [
+          directMuseum?.slug,
+          row.museum_slug,
+          row.museumSlug,
+          row.museum_slugnaam,
+          row.slug_museum,
+        ];
+
+        let resolvedMuseum = directMuseum;
+
+        for (const idCandidate of idCandidates) {
+          if (resolvedMuseum && resolvedMuseum.slug) break;
+          if (idCandidate === null || idCandidate === undefined) continue;
+          const match = museumMapById.get(idCandidate);
+          if (match) {
+            resolvedMuseum = match;
+          }
+        }
+
+        for (const slugCandidate of slugCandidates) {
+          if (resolvedMuseum && resolvedMuseum.slug) break;
+          if (typeof slugCandidate !== 'string') continue;
+          const trimmed = slugCandidate.trim();
+          if (!trimmed) continue;
+          const match = museumMapBySlug.get(trimmed);
+          if (match) {
+            resolvedMuseum = match;
+          }
+        }
+
+        if (!resolvedMuseum || !resolvedMuseum.slug) {
+          const fallbackSlug = slugCandidates.find((slug) => typeof slug === 'string' && slug.trim());
+          if (fallbackSlug) {
+            const trimmed = fallbackSlug.trim();
+            const fallbackId = idCandidates.find((id) => id !== null && id !== undefined) ?? trimmed;
+            resolvedMuseum = normalizeMuseumRow({
+              id: fallbackId,
+              slug: trimmed,
+              naam: museumNames[trimmed] || row.museum_naam || row.museumName || null,
+              stad: row.museum_stad || row.museumCity || null,
+              provincie: row.museum_provincie || row.museumProvince || null,
+              gratis_toegankelijk: resolveBooleanFlag(
+                row.museum_gratis_toegankelijk,
+                row.museumGratis,
+                row.museum_free,
+                row.museumFree
+              ) === true,
+              ticket_affiliate_url:
+                row.museum_ticket_affiliate_url || row.museumTicketAffiliateUrl || null,
+              website_url: row.museum_website_url || row.museumWebsiteUrl || null,
+              afbeelding_url: row.museum_afbeelding_url || null,
+              image_url: row.museum_image_url || museumImages[trimmed] || null,
+            });
+          }
+        }
+
+        if (!resolvedMuseum || !resolvedMuseum.slug) {
           return null;
         }
 
         return {
           id: row.id,
           titel: row.titel || null,
-          start_datum: row.start_datum || null,
-          eind_datum: row.eind_datum || null,
-          beschrijving: row.beschrijving || null,
+          start_datum: row.start_datum || row.startDatum || null,
+          eind_datum: row.eind_datum || row.eindDatum || null,
+          beschrijving: row.beschrijving || row.omschrijving || row.description || null,
           omschrijving: row.omschrijving || null,
           description: row.description || null,
           gratis: row.gratis,
@@ -361,16 +451,16 @@ export async function getStaticProps() {
           freeEntry: row.freeEntry,
           isFree: row.isFree,
           is_free: row.is_free,
-          ticket_affiliate_url: row.ticket_affiliate_url || null,
-          ticket_url: row.ticket_url || null,
-          bron_url: row.bron_url || null,
-          afbeelding_url: row.afbeelding_url || null,
+          ticket_affiliate_url: row.ticket_affiliate_url || row.ticketAffiliateUrl || null,
+          ticket_url: row.ticket_url || row.ticketUrl || null,
+          bron_url: row.bron_url || row.source_url || null,
+          afbeelding_url: row.afbeelding_url || row.image_url || null,
           image_url: row.image_url || null,
-          hero_image_url: row.hero_image_url || null,
-          hero_afbeelding_url: row.hero_afbeelding_url || null,
+          hero_image_url: row.hero_image_url || row.heroImageUrl || null,
+          hero_afbeelding_url: row.hero_afbeelding_url || row.heroAfbeeldingUrl || null,
           banner_url: row.banner_url || null,
           cover_url: row.cover_url || null,
-          museum: normalisedMuseum,
+          museum: resolvedMuseum,
         };
       })
       .filter((row) => row && row.museum && row.museum.slug);
