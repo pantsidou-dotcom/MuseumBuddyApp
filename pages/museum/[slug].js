@@ -780,17 +780,14 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
               </div>
             )}
 
-            {resolvedMuseum.free && (
+            {(resolvedMuseum.free || isKidFriendlyMuseum) && (
               <div className="museum-info-item">
                 <span className="museum-info-label">{t('visitorInformation')}</span>
-                <p className="museum-info-value">{t('free')}</p>
-              </div>
-            )}
-
-            {isKidFriendlyMuseum && (
-              <div className="museum-info-item">
-                <span className="museum-info-label">{t('filtersKidFriendly')}</span>
-                <p className="museum-info-value">{t('tagChildFriendly')}</p>
+                <p className="museum-info-value">
+                  {[resolvedMuseum.free && t('free'), isKidFriendlyMuseum && t('tagChildFriendly')]
+                    .filter(Boolean)
+                    .join(' · ')}
+                </p>
               </div>
             )}
 
