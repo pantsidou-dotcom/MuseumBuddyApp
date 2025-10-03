@@ -199,10 +199,12 @@ async function fetchExhibitions() {
         const mergedMuseumImageCredit = canonicalImage
           ? canonicalCredit
           : normalised.museumImageCredit || null;
+        const primaryMuseumSlug = canonicalSlug || rawMuseumSlug || null;
 
         return {
           ...normalised,
-          museumSlug: rawMuseumSlug || null,
+          museumSlug: primaryMuseumSlug,
+          rawMuseumSlug: rawMuseumSlug || null,
           canonicalMuseumSlug: canonicalSlug || null,
           museumName: rawMuseumName || fallbackMuseum?.naam || null,
           museumTicketAffiliateUrl: affiliateTicketUrl || null,

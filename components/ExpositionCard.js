@@ -57,16 +57,30 @@ export default function ExpositionCard({
   const isFavorite = favorites.some((f) => f.id === exposition.id && f.type === 'exposition');
   const rawMuseumName =
     exposition.museumName || exposition.museum_name || exposition.museum || exposition.host || null;
+  const providedLinkSlug = museumSlug || null;
+  const expositionLinkSlug = exposition.museumSlug || null;
   const rawMuseumSlug =
-    museumSlug || exposition.museumSlug || exposition.museum_slug || exposition.slug || null;
+    exposition.rawMuseumSlug ||
+    exposition.museumSlugRaw ||
+    exposition.museum_slug ||
+    exposition.slug ||
+    null;
+  const fallbackSlugForResolution =
+    rawMuseumSlug || expositionLinkSlug || providedLinkSlug || null;
   const canonicalSlug = useMemo(
     () =>
       canonicalMuseumSlug ||
       exposition.canonicalMuseumSlug ||
-      resolveMuseumSlug(rawMuseumSlug, rawMuseumName),
-    [canonicalMuseumSlug, exposition.canonicalMuseumSlug, rawMuseumName, rawMuseumSlug]
+      resolveMuseumSlug(fallbackSlugForResolution, rawMuseumName),
+    [
+      canonicalMuseumSlug,
+      exposition.canonicalMuseumSlug,
+      fallbackSlugForResolution,
+      rawMuseumName,
+    ]
   );
-  const linkSlug = rawMuseumSlug || canonicalSlug || null;
+  const linkSlug =
+    providedLinkSlug || expositionLinkSlug || canonicalSlug || fallbackSlugForResolution || null;
   const ticketLookupSlug = canonicalSlug || linkSlug;
   const primaryAffiliateUrl =
     exposition.ticketAffiliateUrl ||
@@ -162,6 +176,7 @@ export default function ExpositionCard({
       ticketUrl: buyUrl,
       museumSlug: linkSlug,
       canonicalMuseumSlug: canonicalSlug,
+      rawMuseumSlug: rawMuseumSlug || null,
       museumName: exposition.museumName || rawMuseumName || null,
       museumCity,
       museumProvince,

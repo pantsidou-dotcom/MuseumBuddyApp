@@ -38,10 +38,10 @@ export default function ExhibitionsPageClient({ initialExhibitions = [], supabas
     }
     const prefetched = new Set();
     initialExhibitions.slice(0, 12).forEach((expo) => {
-      const linkSlug =
-        expo?.museumSlug ||
-        expo?.canonicalMuseumSlug ||
-        resolveMuseumSlug(expo?.museumSlug, expo?.museumName);
+      const rawSlug = expo?.rawMuseumSlug || expo?.museumSlug || null;
+      const canonicalSlug =
+        expo?.canonicalMuseumSlug || resolveMuseumSlug(rawSlug, expo?.museumName);
+      const linkSlug = expo?.museumSlug || canonicalSlug || rawSlug || null;
       if (linkSlug && !prefetched.has(linkSlug)) {
         prefetched.add(linkSlug);
         router.prefetch(`/museum/${linkSlug}`);
@@ -190,9 +190,11 @@ export default function ExhibitionsPageClient({ initialExhibitions = [], supabas
         ) : (
           <ul className="grid exhibitions-results__list">
             {filteredExhibitions.map((expo) => {
+              const rawSlug = expo.rawMuseumSlug || null;
               const canonicalSlug =
-                expo.canonicalMuseumSlug || resolveMuseumSlug(expo.museumSlug, expo.museumName);
-              const linkSlug = expo.museumSlug || canonicalSlug;
+                expo.canonicalMuseumSlug ||
+                resolveMuseumSlug(rawSlug || expo.museumSlug, expo.museumName);
+              const linkSlug = expo.museumSlug || canonicalSlug || rawSlug || null;
               const ticketLookupSlug = canonicalSlug || linkSlug;
               const affiliateLink =
                 expo.ticketAffiliateUrl ||
