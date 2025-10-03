@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/router';
 import MuseumCard from '../components/MuseumCard';
 import SkeletonMuseumCard from '../components/SkeletonMuseumCard';
@@ -198,6 +199,7 @@ export default function Home({ initialMuseums = [], initialError = null }) {
   const [activeFilters, setActiveFilters] = useState(filtersFromUrl);
   const [sheetFilters, setSheetFilters] = useState(filtersFromUrl);
   const [isLoading, setIsLoading] = useState(false);
+  const resultsRef = useRef(null);
   const [userLocation, setUserLocation] = useState(null);
   const skipNextUrlSync = useRef(false);
 
@@ -677,6 +679,18 @@ export default function Home({ initialMuseums = [], initialError = null }) {
     setSheetFilters({ ...DEFAULT_FILTERS, ...activeFilters });
   }, [activeFilters]);
 
+  const handleScrollToResults = useCallback(() => {
+    const node = resultsRef.current;
+    if (node && typeof node.scrollIntoView === 'function') {
+      node.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      return;
+    }
+
+    if (typeof window !== 'undefined') {
+      window.location.hash = '#museum-results';
+    }
+  }, []);
+
   if (error) {
     return (
       <>
@@ -711,13 +725,28 @@ export default function Home({ initialMuseums = [], initialError = null }) {
           close: t('filtersClose'),
         }}
       />
-      <section className="hero">
-        <div className="hero-content">
-          <span className="hero-tagline">{t('heroTagline')}</span>
-          <h1 className="hero-title">{t('heroTitle')}</h1>
-          <p className="hero-subtext">{t('heroSubtitle')}</p>
-        </div>
-        <form className="hero-card hero-search" onSubmit={(e) => e.preventDefault()}>
+      <section className="hero" aria-labelledby="home-hero-heading">
+        <div className="hero-layout">
+          <div className="hero-content">
+            <h1 id="home-hero-heading" className="hero-title">
+              {t('heroTitle')}
+            </h1>
+            <p className="hero-subtext">{t('heroSubtitle')}</p>
+            <div className="hero-ctas">
+              <button
+                type="button"
+                className="hero-cta-button hero-cta-button--primary"
+                onClick={handleScrollToResults}
+                aria-controls="museum-results"
+              >
+                {t('heroDiscoverMuseums')}
+              </button>
+              <Link href="/tentoonstellingen" prefetch className="hero-cta-button hero-cta-button--secondary">
+                {t('heroViewExhibitions')}
+              </Link>
+            </div>
+          </div>
+          <form className="hero-card hero-search" onSubmit={(e) => e.preventDefault()}>
           <input
             type="search"
             className="input hero-input"
@@ -762,6 +791,7 @@ export default function Home({ initialMuseums = [], initialError = null }) {
             )}
           </div>
         </form>
+        </div>
       </section>
 
       <section className="secondary-hero" aria-labelledby="museumnacht-hero-heading">
@@ -789,44 +819,46 @@ export default function Home({ initialMuseums = [], initialError = null }) {
         </div>
       </section>
 
-      <p className="count">{results.length} {t('results')}</p>
+      <section id="museum-results" ref={resultsRef} className="results-section">
+        <p className="count">{results.length} {t('results')}</p>
 
-      {isLoading ? (
-        <ul className="grid" style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-          {Array.from({ length: 6 }).map((_, index) => (
-            <li key={`skeleton-${index}`}>
-              <SkeletonMuseumCard />
-            </li>
-          ))}
-        </ul>
-      ) : results.length === 0 ? (
-        <p>{t('noResults')}</p>
-      ) : (
-        <ul className="grid" style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-          {results.map((m, index) => (
-            <li key={m.id}>
-              <MuseumCard
-                museum={{
-                  id: m.id,
-                  slug: m.slug,
-                  title: museumNames[m.slug] || m.naam,
-                  city: m.stad,
-                  province: m.provincie,
-                  free: m.gratis_toegankelijk,
-                  categories: Array.isArray(m.categories)
-                    ? m.categories
-                    : getMuseumCategories(m.slug),
-                  image: museumImages[m.slug] || m.afbeelding_url || m.image_url || null,
-                  imageCredit: museumImageCredits[m.slug],
-                  ticketUrl: m.ticket_affiliate_url || museumTicketUrls[m.slug] || m.website_url,
-                }}
-                priority={index < 6}
-                onCategoryClick={handleCategoryFilterClick}
-              />
-            </li>
-          ))}
-        </ul>
-      )}
+        {isLoading ? (
+          <ul className="grid" style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+            {Array.from({ length: 6 }).map((_, index) => (
+              <li key={`skeleton-${index}`}>
+                <SkeletonMuseumCard />
+              </li>
+            ))}
+          </ul>
+        ) : results.length === 0 ? (
+          <p>{t('noResults')}</p>
+        ) : (
+          <ul className="grid" style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+            {results.map((m, index) => (
+              <li key={m.id}>
+                <MuseumCard
+                  museum={{
+                    id: m.id,
+                    slug: m.slug,
+                    title: museumNames[m.slug] || m.naam,
+                    city: m.stad,
+                    province: m.provincie,
+                    free: m.gratis_toegankelijk,
+                    categories: Array.isArray(m.categories)
+                      ? m.categories
+                      : getMuseumCategories(m.slug),
+                    image: museumImages[m.slug] || m.afbeelding_url || m.image_url || null,
+                    imageCredit: museumImageCredits[m.slug],
+                    ticketUrl: m.ticket_affiliate_url || museumTicketUrls[m.slug] || m.website_url,
+                  }}
+                  priority={index < 6}
+                  onCategoryClick={handleCategoryFilterClick}
+                />
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
     </>
   );
 }
