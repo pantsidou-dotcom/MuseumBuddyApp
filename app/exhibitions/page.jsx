@@ -74,6 +74,15 @@ async function fetchExhibitions() {
         if (!normalised) return null;
         const rawMuseumName =
           museum?.naam || row?.museum_naam || row?.museumName || row?.museum || null;
+        const rawMuseumSlug =
+          normalised.museumSlug ||
+          museum?.slug ||
+          row?.museum_slug ||
+          row?.museumSlug ||
+          row?.museum_slug_current ||
+          row?.museumSlugCurrent ||
+          row?.slug ||
+          null;
         const slugCandidates = [
           museum?.slug,
           row?.museum_slug,
@@ -82,6 +91,7 @@ async function fetchExhibitions() {
           row?.museumSlugCurrent,
           normalised.museumSlug,
           row?.slug,
+          rawMuseumSlug,
         ];
         let canonicalSlug = null;
         for (const candidate of slugCandidates) {
@@ -192,7 +202,8 @@ async function fetchExhibitions() {
 
         return {
           ...normalised,
-          museumSlug: canonicalSlug || normalised.museumSlug || null,
+          museumSlug: rawMuseumSlug || null,
+          canonicalMuseumSlug: canonicalSlug || null,
           museumName: rawMuseumName || fallbackMuseum?.naam || null,
           museumTicketAffiliateUrl: affiliateTicketUrl || null,
           museumTicketUrl: defaultTicketUrl || null,

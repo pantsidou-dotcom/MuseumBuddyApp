@@ -38,10 +38,13 @@ export default function ExhibitionsPageClient({ initialExhibitions = [], supabas
     }
     const prefetched = new Set();
     initialExhibitions.slice(0, 12).forEach((expo) => {
-      const canonicalSlug = resolveMuseumSlug(expo?.museumSlug, expo?.museumName);
-      if (canonicalSlug && !prefetched.has(canonicalSlug)) {
-        prefetched.add(canonicalSlug);
-        router.prefetch(`/museum/${canonicalSlug}`);
+      const linkSlug =
+        expo?.museumSlug ||
+        expo?.canonicalMuseumSlug ||
+        resolveMuseumSlug(expo?.museumSlug, expo?.museumName);
+      if (linkSlug && !prefetched.has(linkSlug)) {
+        prefetched.add(linkSlug);
+        router.prefetch(`/museum/${linkSlug}`);
       }
     });
     return () => {
@@ -187,15 +190,18 @@ export default function ExhibitionsPageClient({ initialExhibitions = [], supabas
         ) : (
           <ul className="grid exhibitions-results__list">
             {filteredExhibitions.map((expo) => {
-              const canonicalSlug = resolveMuseumSlug(expo.museumSlug, expo.museumName);
+              const canonicalSlug =
+                expo.canonicalMuseumSlug || resolveMuseumSlug(expo.museumSlug, expo.museumName);
+              const linkSlug = expo.museumSlug || canonicalSlug;
+              const ticketLookupSlug = canonicalSlug || linkSlug;
               const affiliateLink =
                 expo.ticketAffiliateUrl ||
                 expo.museumTicketAffiliateUrl ||
-                (canonicalSlug ? museumTicketUrls[canonicalSlug] : null);
+                (ticketLookupSlug ? museumTicketUrls[ticketLookupSlug] : null);
               const ticketLink =
                 expo.ticketUrl ||
                 expo.museumTicketUrl ||
-                (canonicalSlug ? museumTicketUrls[canonicalSlug] : null);
+                (ticketLookupSlug ? museumTicketUrls[ticketLookupSlug] : null);
 
               return (
                 <li key={expo.id} className="exhibitions-results__item">
@@ -203,7 +209,8 @@ export default function ExhibitionsPageClient({ initialExhibitions = [], supabas
                     exposition={expo}
                     affiliateUrl={affiliateLink}
                     ticketUrl={ticketLink}
-                    museumSlug={canonicalSlug}
+                    museumSlug={linkSlug}
+                    canonicalMuseumSlug={canonicalSlug}
                     tags={expo.tags}
                   />
                 </li>

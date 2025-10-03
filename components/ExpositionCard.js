@@ -37,7 +37,14 @@ function pickBoolean(...values) {
   return undefined;
 }
 
-export default function ExpositionCard({ exposition, ticketUrl, affiliateUrl, museumSlug, tags = {} }) {
+export default function ExpositionCard({
+  exposition,
+  ticketUrl,
+  affiliateUrl,
+  museumSlug,
+  canonicalMuseumSlug,
+  tags = {},
+}) {
   if (!exposition) return null;
 
   const start = exposition.start_datum ? new Date(exposition.start_datum + 'T00:00:00') : null;
@@ -50,19 +57,29 @@ export default function ExpositionCard({ exposition, ticketUrl, affiliateUrl, mu
   const isFavorite = favorites.some((f) => f.id === exposition.id && f.type === 'exposition');
   const rawMuseumName =
     exposition.museumName || exposition.museum_name || exposition.museum || exposition.host || null;
-  const rawMuseumSlug = museumSlug || exposition.museumSlug || exposition.museum_slug || exposition.slug || null;
-  const slug = useMemo(() => resolveMuseumSlug(rawMuseumSlug, rawMuseumName), [rawMuseumSlug, rawMuseumName]);
+  const rawMuseumSlug =
+    museumSlug || exposition.museumSlug || exposition.museum_slug || exposition.slug || null;
+  const canonicalSlug = useMemo(
+    () =>
+      canonicalMuseumSlug ||
+      exposition.canonicalMuseumSlug ||
+      resolveMuseumSlug(rawMuseumSlug, rawMuseumName),
+    [canonicalMuseumSlug, exposition.canonicalMuseumSlug, rawMuseumName, rawMuseumSlug]
+  );
+  const linkSlug = rawMuseumSlug || canonicalSlug || null;
+  const ticketLookupSlug = canonicalSlug || linkSlug;
   const primaryAffiliateUrl =
     exposition.ticketAffiliateUrl ||
     affiliateUrl ||
-    (slug ? museumTicketUrls[slug] || null : null);
+    (ticketLookupSlug ? museumTicketUrls[ticketLookupSlug] || null : null);
   const fallbackTicketUrl =
     exposition.ticketUrl ||
     ticketUrl ||
-    (slug ? museumTicketUrls[slug] || null : null);
+    (ticketLookupSlug ? museumTicketUrls[ticketLookupSlug] || null : null);
   const sourceUrl = exposition.bron_url || null;
   const buyUrl = primaryAffiliateUrl || fallbackTicketUrl || null;
-  const showAffiliateNote = Boolean(primaryAffiliateUrl) && (!slug || shouldShowAffiliateNote(slug));
+  const showAffiliateNote =
+    Boolean(primaryAffiliateUrl) && (!ticketLookupSlug || shouldShowAffiliateNote(ticketLookupSlug));
   const ticketHoverMessage = showAffiliateNote ? t('ticketsAffiliateDisclosure') : undefined;
   const ticketDisclosureLine = [t('ticketsAffiliateDisclosure'), t('ticketsAffiliatePricesMayVary')]
     .filter(Boolean)
@@ -88,7 +105,7 @@ export default function ExpositionCard({ exposition, ticketUrl, affiliateUrl, mu
   const museumProvince =
     exposition.museumProvince || exposition.province || exposition.provincie || null;
 
-  const slugMuseumImage = slug ? museumImages[slug] || null : null;
+  const slugMuseumImage = canonicalSlug ? museumImages[canonicalSlug] || null : null;
   const museumImageSource = slugMuseumImage || exposition.museumImage || null;
   const normalizedMuseumImage = useMemo(
     () => normalizeImageSource(museumImageSource),
@@ -98,7 +115,8 @@ export default function ExpositionCard({ exposition, ticketUrl, affiliateUrl, mu
   const isStaticMuseumImage = Boolean(
     museumImageSource && typeof museumImageSource === 'object' && 'src' in museumImageSource
   );
-  const imageCredit = (slug ? museumImageCredits[slug] : null) || exposition.museumImageCredit || null;
+  const imageCredit =
+    (canonicalSlug ? museumImageCredits[canonicalSlug] : null) || exposition.museumImageCredit || null;
   const isPublicDomainImage = Boolean(imageCredit?.isPublicDomain);
   const formattedCredit = useMemo(
     () => (isPublicDomainImage ? null : formatImageCredit(imageCredit, t)),
@@ -142,7 +160,8 @@ export default function ExpositionCard({ exposition, ticketUrl, affiliateUrl, mu
       bron_url: sourceUrl,
       ticketAffiliateUrl: primaryAffiliateUrl,
       ticketUrl: buyUrl,
-      museumSlug: slug,
+      museumSlug: linkSlug,
+      canonicalMuseumSlug: canonicalSlug,
       museumName: exposition.museumName || rawMuseumName || null,
       museumCity,
       museumProvince,
@@ -157,11 +176,11 @@ export default function ExpositionCard({ exposition, ticketUrl, affiliateUrl, mu
   };
 
   const fallbackSummary = useMemo(() => {
-    if (!slug) return '';
-    const summary = museumSummaries[slug];
+    if (!canonicalSlug) return '';
+    const summary = museumSummaries[canonicalSlug];
     if (!summary) return '';
     return summary[lang] || summary[lang === 'en' ? 'nl' : 'en'] || '';
-  }, [lang, slug]);
+  }, [canonicalSlug, lang]);
 
   const summaryText = useMemo(() => {
     const source = description || fallbackSummary;
@@ -201,17 +220,17 @@ export default function ExpositionCard({ exposition, ticketUrl, affiliateUrl, mu
     { key: 'temporary', label: t('tagTemporary'), active: temporaryTag === true },
   ];
   const activeTags = tagDefinitions.filter((tag) => tag.active);
-  const moreInfoUrl = sourceUrl || (slug ? `/museum/${slug}` : null);
+  const moreInfoUrl = sourceUrl || (linkSlug ? `/museum/${linkSlug}` : null);
   const isInternalMoreInfo = Boolean(moreInfoUrl && moreInfoUrl.startsWith('/'));
   const moreInfoTarget = moreInfoUrl && !isInternalMoreInfo ? '_blank' : undefined;
   const moreInfoRel = moreInfoUrl && !isInternalMoreInfo ? 'noopener noreferrer' : undefined;
 
   const shareUrl = useMemo(() => {
     if (moreInfoUrl) return moreInfoUrl;
-    if (slug) return `/museum/${slug}`;
+    if (linkSlug) return `/museum/${linkSlug}`;
     if (sourceUrl) return sourceUrl;
     return null;
-  }, [moreInfoUrl, slug, sourceUrl]);
+  }, [linkSlug, moreInfoUrl, sourceUrl]);
 
   const trimmedMuseumName = exposition.museumName ? String(exposition.museumName).trim() : '';
   const trimmedTitle = exposition.titel ? String(exposition.titel).trim() : '';
@@ -467,7 +486,9 @@ export default function ExpositionCard({ exposition, ticketUrl, affiliateUrl, mu
                 title={creditFullText || undefined}
               >
                 {creditSegments.map((segment, index) => (
-                  <Fragment key={`${slug || exposition.id}-credit-${segment.key}-${index}`}>
+                  <Fragment
+                    key={`${canonicalSlug || linkSlug || exposition.id}-credit-${segment.key}-${index}`}
+                  >
                     {index > 0 && (
                       <span aria-hidden="true" className="image-credit-divider">
                         •
