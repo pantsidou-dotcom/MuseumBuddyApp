@@ -23,33 +23,9 @@ const MUSEUM_SELECT_COLUMNS = [
   'image_url',
 ].join(', ');
 
-const EXHIBITION_SELECT_COLUMNS = [
-  'id',
-  'museum_id',
-  'titel',
-  'start_datum',
-  'eind_datum',
-  'beschrijving',
-  'omschrijving',
-  'description',
-  'gratis',
-  'free',
-  'kosteloos',
-  'freeEntry',
-  'isFree',
-  'is_free',
-  'ticket_affiliate_url',
-  'ticket_url',
-  'bron_url',
-  'afbeelding_url',
-  'image_url',
-  'hero_image_url',
-  'hero_afbeelding_url',
-  'banner_url',
-  'cover_url',
-].join(', ');
+const EXHIBITION_SELECT_COLUMNS = '*';
 
-const EXHIBITION_SELECT_WITH_MUSEUM = `${EXHIBITION_SELECT_COLUMNS}, museum:musea!inner(${MUSEUM_SELECT_COLUMNS})`;
+const EXHIBITION_SELECT_WITH_MUSEUM = `*, museum:musea!inner(${MUSEUM_SELECT_COLUMNS})`;
 
 function todayYMD(tz = 'Europe/Amsterdam') {
   try {
