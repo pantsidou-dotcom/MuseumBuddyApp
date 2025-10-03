@@ -1,7 +1,15 @@
 import { Fragment, useEffect, useId, useMemo, useRef, useState } from 'react';
+import Link from 'next/link';
+import Image from 'next/image';
 import { useLanguage } from './LanguageContext';
 import { useFavorites } from './FavoritesContext';
+import museumImages from '../lib/museumImages';
+import museumImageCredits from '../lib/museumImageCredits';
+import formatImageCredit from '../lib/formatImageCredit';
+import { normalizeImageSource } from '../lib/resolveImageSource';
 import { shouldShowAffiliateNote } from '../lib/nonAffiliateMuseums';
+import museumTicketUrls from '../lib/museumTicketUrls';
+import resolveMuseumSlug from '../lib/resolveMuseumSlug';
 import TicketButtonNote from './TicketButtonNote';
 
 function formatRange(start, end, locale) {
@@ -28,35 +36,6 @@ function pickBoolean(...values) {
   return undefined;
 }
 
-const PLACEHOLDER_IMAGES = [
-  '/images/exposition-art-bridge.svg',
-  '/images/exposition-art-arch.svg',
-  '/images/exposition-art-houses.svg',
-  '/images/exposition-art-windmill.svg',
-  '/images/exposition-art-grid.svg',
-];
-
-function getPlaceholderImage(exposition) {
-  if (!exposition) {
-    return PLACEHOLDER_IMAGES[0];
-  }
-
-  const keyParts = [exposition.id, exposition.museumSlug, exposition.titel].filter(Boolean);
-  if (keyParts.length === 0) {
-    return PLACEHOLDER_IMAGES[0];
-  }
-
-  const key = keyParts.join('|');
-  let hash = 0;
-  for (let i = 0; i < key.length; i += 1) {
-    hash = (hash << 5) - hash + key.charCodeAt(i);
-    hash |= 0;
-  }
-
-  const index = Math.abs(hash) % PLACEHOLDER_IMAGES.length;
-  return PLACEHOLDER_IMAGES[index];
-}
-
 export default function ExpositionCard({ exposition, ticketUrl, affiliateUrl, museumSlug, tags = {} }) {
   if (!exposition) return null;
 
@@ -68,11 +47,20 @@ export default function ExpositionCard({ exposition, ticketUrl, affiliateUrl, mu
   const locale = lang === 'en' ? 'en-US' : 'nl-NL';
   const rangeLabel = formatRange(start, end, locale);
   const isFavorite = favorites.some((f) => f.id === exposition.id && f.type === 'exposition');
-  const slug = museumSlug || exposition.museumSlug;
-  const primaryAffiliateUrl = exposition.ticketAffiliateUrl || affiliateUrl || null;
-  const fallbackTicketUrl = exposition.ticketUrl || ticketUrl || null;
+  const rawMuseumName =
+    exposition.museumName || exposition.museum_name || exposition.museum || exposition.host || null;
+  const rawMuseumSlug = museumSlug || exposition.museumSlug || exposition.museum_slug || exposition.slug || null;
+  const slug = useMemo(() => resolveMuseumSlug(rawMuseumSlug, rawMuseumName), [rawMuseumSlug, rawMuseumName]);
+  const primaryAffiliateUrl =
+    exposition.ticketAffiliateUrl ||
+    affiliateUrl ||
+    (slug ? museumTicketUrls[slug] || null : null);
+  const fallbackTicketUrl =
+    exposition.ticketUrl ||
+    ticketUrl ||
+    (slug ? museumTicketUrls[slug] || null : null);
   const sourceUrl = exposition.bron_url || null;
-  const buyUrl = primaryAffiliateUrl || fallbackTicketUrl || sourceUrl;
+  const buyUrl = primaryAffiliateUrl || fallbackTicketUrl || null;
   const showAffiliateNote = Boolean(primaryAffiliateUrl) && (!slug || shouldShowAffiliateNote(slug));
   const ticketHoverMessage = showAffiliateNote ? t('ticketsAffiliateDisclosure') : undefined;
   const ticketDisclosureLine = [t('ticketsAffiliateDisclosure'), t('ticketsAffiliatePricesMayVary')]
@@ -94,6 +82,27 @@ export default function ExpositionCard({ exposition, ticketUrl, affiliateUrl, mu
     : t('buyTickets');
   const ticketNoteId = useId();
   const ctaDescribedBy = ticketContext ? ticketNoteId : undefined;
+
+  const museumImageSource = exposition.museumImage || (slug ? museumImages[slug] : null);
+  const normalizedMuseumImage = useMemo(
+    () => normalizeImageSource(museumImageSource),
+    [museumImageSource]
+  );
+  const hasMuseumImage = Boolean(normalizedMuseumImage);
+  const isStaticMuseumImage = Boolean(
+    museumImageSource && typeof museumImageSource === 'object' && 'src' in museumImageSource
+  );
+  const imageCredit = exposition.museumImageCredit || (slug ? museumImageCredits[slug] : null);
+  const isPublicDomainImage = Boolean(imageCredit?.isPublicDomain);
+  const formattedCredit = useMemo(
+    () => (isPublicDomainImage ? null : formatImageCredit(imageCredit, t)),
+    [imageCredit, isPublicDomainImage, t]
+  );
+  const creditSegments = formattedCredit?.segments || [];
+  const hasCreditSegments = creditSegments.length > 0;
+  const creditFullText = hasCreditSegments
+    ? creditSegments.map((segment) => segment.label).join(' • ')
+    : null;
 
   const [isFavoriteBouncing, setIsFavoriteBouncing] = useState(false);
   const bounceTimeoutRef = useRef(null);
@@ -150,20 +159,65 @@ export default function ExpositionCard({ exposition, ticketUrl, affiliateUrl, mu
     { key: 'temporary', label: t('tagTemporary'), active: temporaryTag === true },
   ];
   const activeTags = tagDefinitions.filter((tag) => tag.active);
-  const mediaClassName = 'exposition-card__media exposition-card__media--placeholder';
-  const placeholderImage = useMemo(() => getPlaceholderImage(exposition), [exposition]);
+  const moreInfoUrl = sourceUrl || (slug ? `/museum/${slug}` : null);
+  const isInternalMoreInfo = Boolean(moreInfoUrl && moreInfoUrl.startsWith('/'));
+  const moreInfoTarget = moreInfoUrl && !isInternalMoreInfo ? '_blank' : undefined;
+  const moreInfoRel = moreInfoUrl && !isInternalMoreInfo ? 'noopener noreferrer' : undefined;
 
   return (
     <article
       className={`exposition-card${isFavoriteBouncing ? ' is-bouncing' : ''}`}
     >
-      <div className={mediaClassName} aria-hidden="true">
-        <img
-          src={placeholderImage}
-          alt=""
-          className="exposition-card__media-placeholder"
-          loading="lazy"
-        />
+      <div
+        className={`exposition-card__media${hasMuseumImage ? '' : ' exposition-card__media--placeholder'}`}
+        aria-hidden="true"
+      >
+        {hasMuseumImage ? (
+          isStaticMuseumImage ? (
+            <Image
+              src={museumImageSource}
+              alt=""
+              fill
+              sizes="(min-width: 1280px) 340px, (min-width: 1024px) 300px, (min-width: 768px) 45vw, 100vw"
+              className="exposition-card__image"
+              placeholder={museumImageSource.blurDataURL ? 'blur' : undefined}
+            />
+          ) : (
+            <img
+              src={normalizedMuseumImage}
+              alt=""
+              className="exposition-card__image"
+              loading="lazy"
+            />
+          )
+        ) : (
+          <span className="exposition-card__media-placeholder" />
+        )}
+        {hasMuseumImage && hasCreditSegments && !isPublicDomainImage ? (
+          <p className="image-credit exposition-card__image-credit" title={creditFullText || undefined}>
+            {creditSegments.map((segment, index) => (
+              <Fragment key={`${slug || exposition.id}-credit-${segment.key}-${index}`}>
+                {index > 0 && (
+                  <span aria-hidden="true" className="image-credit-divider">
+                    •
+                  </span>
+                )}
+                {segment.url ? (
+                  <a
+                    className="image-credit-link"
+                    href={segment.url}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    {segment.label}
+                  </a>
+                ) : (
+                  <span className="image-credit-part">{segment.label}</span>
+                )}
+              </Fragment>
+            ))}
+          </p>
+        ) : null}
       </div>
       <div className="exposition-card__body">
         <div className="exposition-card__topline">
@@ -212,25 +266,31 @@ export default function ExpositionCard({ exposition, ticketUrl, affiliateUrl, mu
             ))}
           </ul>
         )}
-        {ticketContext ? (
-          <TicketButtonNote
-            affiliate={showAffiliateNote}
-            showIcon={false}
-            id={ticketNoteId}
-            className="exposition-card__affiliate-note"
-          >
-            {ticketContext}
-          </TicketButtonNote>
-        ) : null}
       </div>
       <div className="exposition-card__footer">
-        {buyUrl ? (
-          <Fragment>
+        <div className="exposition-card__footer-actions">
+          {moreInfoUrl ? (
+            isInternalMoreInfo ? (
+              <Link href={moreInfoUrl} prefetch className="exposition-card__info-button">
+                {t('exhibitionsMoreInfoCta')}
+              </Link>
+            ) : (
+              <a
+                href={moreInfoUrl}
+                className="exposition-card__info-button"
+                target={moreInfoTarget}
+                rel={moreInfoRel}
+              >
+                {t('exhibitionsMoreInfoCta')}
+              </a>
+            )
+          ) : null}
+          {buyUrl ? (
             <a
               href={buyUrl}
               target="_blank"
               rel={ticketRel}
-              className="ticket-button exposition-card__cta"
+              className="ticket-button exposition-card__cta exposition-card__cta--tickets"
               aria-describedby={ctaDescribedBy}
               title={ticketHoverMessage}
               aria-label={ticketAriaLabel}
@@ -252,19 +312,29 @@ export default function ExpositionCard({ exposition, ticketUrl, affiliateUrl, mu
                 ) : null}
               </span>
             </a>
-          </Fragment>
-        ) : (
-          <button
-            type="button"
-            className="ticket-button exposition-card__cta"
-            disabled
-            aria-disabled="true"
+          ) : (
+            <button
+              type="button"
+              className="ticket-button exposition-card__cta exposition-card__cta--tickets"
+              disabled
+              aria-disabled="true"
+            >
+              <span className="ticket-button__label">
+                <span className="ticket-button__label-text">{t('buyTickets')}</span>
+              </span>
+            </button>
+          )}
+        </div>
+        {ticketContext ? (
+          <TicketButtonNote
+            affiliate={showAffiliateNote}
+            showIcon={false}
+            id={ticketNoteId}
+            className="exposition-card__affiliate-note"
           >
-            <span className="ticket-button__label">
-              <span className="ticket-button__label-text">{t('buyTickets')}</span>
-            </span>
-          </button>
-        )}
+            {ticketContext}
+          </TicketButtonNote>
+        ) : null}
       </div>
     </article>
   );

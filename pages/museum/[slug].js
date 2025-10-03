@@ -21,6 +21,11 @@ import formatImageCredit from '../../lib/formatImageCredit';
 import { supabase as supabaseClient } from '../../lib/supabase';
 import { shouldShowAffiliateNote } from '../../lib/nonAffiliateMuseums';
 import kidFriendlyMuseums, { isKidFriendly as resolveKidFriendly } from '../../lib/kidFriendlyMuseums';
+import {
+  DEFAULT_EXPOSITION_FILTERS,
+  EXPOSITION_FILTER_QUERY_MAP,
+  normaliseExpositionRow,
+} from '../../lib/expositionsUtils';
 
 function todayYMD(tz = 'Europe/Amsterdam') {
   try {
@@ -69,62 +74,6 @@ function normaliseMuseumRow(row) {
       null,
     openingHours: row.openingstijden || row.opening_hours || null,
     raw: row,
-  };
-}
-
-function resolveBooleanFlag(...values) {
-  for (const value of values) {
-    if (value === undefined || value === null) continue;
-    if (typeof value === 'boolean') return value;
-    if (typeof value === 'number') return value !== 0;
-    if (typeof value === 'string') {
-      const normalized = value.trim().toLowerCase();
-      if (!normalized) continue;
-      if (['1', 'true', 'yes', 'ja', 'waar', 'y'].includes(normalized)) return true;
-      if (['0', 'false', 'nee', 'no', 'n'].includes(normalized)) return false;
-      return true;
-    }
-  }
-  return undefined;
-}
-
-function normaliseExpositionRow(row, museumSlug) {
-  if (!row) return null;
-  const freeFlag = resolveBooleanFlag(row.gratis, row.free, row.kosteloos, row.freeEntry);
-  const childFriendlyFlag = resolveBooleanFlag(
-    row.kindvriendelijk,
-    row.childFriendly,
-    row.familievriendelijk,
-    row.familyFriendly
-  );
-  let temporaryFlag = resolveBooleanFlag(
-    row.tijdelijk,
-    row.temporary,
-    row.tijdelijkeTentoonstelling,
-    row.temporaryExhibition
-  );
-  if (temporaryFlag === undefined && row.start_datum && row.eind_datum) {
-    temporaryFlag = true;
-  }
-  const tags = {
-    free: freeFlag === true,
-    childFriendly: childFriendlyFlag === true,
-    temporary: temporaryFlag === true,
-  };
-  return {
-    id: row.id,
-    titel: row.titel,
-    start_datum: row.start_datum,
-    eind_datum: row.eind_datum,
-    bron_url: row.bron_url,
-    ticketAffiliateUrl: row.ticket_affiliate_url || null,
-    ticketUrl: row.ticket_url || null,
-    museumSlug,
-    description: row.beschrijving || row.omschrijving || null,
-    tags,
-    free: tags.free,
-    childFriendly: tags.childFriendly,
-    temporary: tags.temporary,
   };
 }
 
@@ -186,18 +135,6 @@ function FavoriteButton({ active, onToggle, label }) {
     </button>
   );
 }
-
-const DEFAULT_EXPOSITION_FILTERS = Object.freeze({
-  free: false,
-  childFriendly: false,
-  temporary: false,
-});
-
-const EXPOSITION_FILTER_QUERY_MAP = Object.freeze({
-  free: 'expoGratis',
-  childFriendly: 'expoKindvriendelijk',
-  temporary: 'expoTijdelijk',
-});
 
 const DEFAULT_TAB = 'exhibitions';
 const TAB_IDS = ['exhibitions', 'map'];

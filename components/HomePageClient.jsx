@@ -1,83 +1,34 @@
+"use client";
+
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useRouter } from 'next/router';
-import MuseumCard from '../components/MuseumCard';
-import SkeletonMuseumCard from '../components/SkeletonMuseumCard';
+import Link from 'next/link';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import MuseumCard from './MuseumCard';
+import SkeletonMuseumCard from './SkeletonMuseumCard';
 import museumImages from '../lib/museumImages';
 import museumNames from '../lib/museumNames';
 import museumImageCredits from '../lib/museumImageCredits';
 import museumTicketUrls from '../lib/museumTicketUrls';
 import kidFriendlyMuseums, { isKidFriendly as resolveKidFriendly } from '../lib/kidFriendlyMuseums';
-import { useLanguage } from '../components/LanguageContext';
+import { useLanguage } from './LanguageContext';
 import { supabase as supabaseClient } from '../lib/supabase';
-import SEO from '../components/SEO';
-import FiltersSheet from '../components/FiltersSheet';
+import FiltersSheet, { FILTERS_SHEET_ID } from './FiltersSheet';
 import { filterMuseumsForDisplay } from '../lib/museumFilters';
 import { CATEGORY_TRANSLATION_KEYS, getMuseumCategories } from '../lib/museumCategories';
 import { parseMuseumSearchQuery } from '../lib/museumSearch';
-
-const FEATURED_SLUGS = [
-  'van-gogh-museum-amsterdam',
-  'rijksmuseum-amsterdam',
-  'anne-frank-huis-amsterdam',
-  'stedelijk-museum-amsterdam',
-  'moco-museum-amsterdam',
-  'scheepvaartmuseum-amsterdam',
-  'nemo-science-museum-amsterdam',
-  'hart-museum-amsterdam',
-  'rembrandthuis-amsterdam',
-];
-
-function sortMuseums(museums) {
-  return [...museums].sort((a, b) => {
-    const aIndex = FEATURED_SLUGS.indexOf(a.slug);
-    const bIndex = FEATURED_SLUGS.indexOf(b.slug);
-    const aFeatured = aIndex !== -1;
-    const bFeatured = bIndex !== -1;
-    if (aFeatured || bFeatured) {
-      if (aFeatured && bFeatured) return aIndex - bIndex;
-      return aFeatured ? -1 : 1;
-    }
-    return a.naam.localeCompare(b.naam);
-  });
-}
-
-function sortMuseumsByDistance(museums) {
-  return [...museums].sort((a, b) => {
-    const aDistance = typeof a?.afstand_meter === 'number' ? a.afstand_meter : Number.POSITIVE_INFINITY;
-    const bDistance = typeof b?.afstand_meter === 'number' ? b.afstand_meter : Number.POSITIVE_INFINITY;
-
-    if (aDistance === bDistance) {
-      return a.naam.localeCompare(b.naam);
-    }
-
-    return aDistance - bDistance;
-  });
-}
-
-function todayYMD(tz = 'Europe/Amsterdam') {
-  const fmt = new Intl.DateTimeFormat('sv-SE', {
-    timeZone: tz,
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-  });
-  return fmt.format(new Date());
-}
-
-const FILTERS_EVENT = 'museumBuddy:openFilters';
-
-const DEFAULT_FILTERS = Object.freeze({
-  free: false,
-  exhibitions: false,
-  kidFriendly: false,
-  nearby: false,
-});
-
-const BASE_MUSEUM_COLUMNS =
-  'id, naam, stad, provincie, slug, gratis_toegankelijk, ticket_affiliate_url, website_url';
-const OPTIONAL_MUSEUM_COLUMNS = 'kindvriendelijk, afstand_meter';
-const NEARBY_RPC_NAME = 'musea_within_radius';
-const NEARBY_RADIUS_METERS = 5000;
+import {
+  BASE_MUSEUM_COLUMNS,
+  DEFAULT_FILTERS,
+  FILTERS_EVENT,
+  NEARBY_RADIUS_METERS,
+  NEARBY_RPC_NAME,
+  OPTIONAL_MUSEUM_COLUMNS,
+  sortMuseums,
+  sortMuseumsByDistance,
+  todayYMD,
+} from '../lib/homepageConfig';
+import { resolveAvailability, isOpenForDatePreference } from '../lib/openingHoursUtils';
+import { resolveImageUrl } from '../lib/resolveImageSource';
 
 const KID_FRIENDLY_SLUG_SET = new Set(kidFriendlyMuseums.map((slug) => slug.toLowerCase()));
 
@@ -113,29 +64,50 @@ function parseBooleanParam(value) {
   return Boolean(value);
 }
 
-export default function Home({ initialMuseums = [], initialError = null }) {
+export default function HomePageClient({
+  initialMuseums = [],
+  initialError = null,
+  supabaseAvailable = true,
+}) {
   const { t } = useLanguage();
   const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  const searchParamsString = searchParams?.toString() ?? '';
+  const supabaseClientExists = Boolean(supabaseClient);
+  const [isSupabaseEnabled, setIsSupabaseEnabled] = useState(
+    () => supabaseClientExists && supabaseAvailable
+  );
+  const hasSupabaseClient = supabaseClientExists && isSupabaseEnabled;
 
   const qFromUrl = useMemo(() => {
-    const q = router.query?.q;
-    return typeof q === 'string' ? q.trim() : '';
-  }, [router.query]);
+    if (!searchParams) return '';
+    const value = searchParams.get('q');
+    return typeof value === 'string' ? value.trim() : '';
+  }, [searchParams, searchParamsString]);
 
   const filtersFromUrl = useMemo(() => {
-    const queryFilters = router.query || {};
+    if (!searchParams) return DEFAULT_FILTERS;
+    const dateParam = searchParams.get('date');
+    const normalizedDate = dateParam === 'weekend' ? 'weekend' : DEFAULT_FILTERS.date;
+
     return {
       ...DEFAULT_FILTERS,
-      free: parseBooleanParam(queryFilters.gratis),
-      exhibitions: parseBooleanParam(queryFilters.exposities),
+      free: parseBooleanParam(searchParams.get('gratis')),
+      exhibitions: parseBooleanParam(searchParams.get('exposities')),
       kidFriendly: parseBooleanParam(
-        queryFilters.kindvriendelijk ?? queryFilters.kidFriendly ?? queryFilters.kidfriendly
+        searchParams.get('kindvriendelijk') ??
+          searchParams.get('kidFriendly') ??
+          searchParams.get('kidfriendly')
       ),
       nearby: parseBooleanParam(
-        queryFilters.dichtbij ?? queryFilters.nearby ?? queryFilters.distance
+        searchParams.get('dichtbij') ?? searchParams.get('nearby') ?? searchParams.get('distance')
       ),
+      date: normalizedDate,
+      openNow: parseBooleanParam(searchParams.get('open') ?? searchParams.get('openNow')),
     };
-  }, [router.query]);
+  }, [searchParams, searchParamsString]);
 
   const initialSortedMuseums = useMemo(() => sortMuseums(initialMuseums || []), [initialMuseums]);
   const initialMuseumsWithCategories = useMemo(
@@ -143,6 +115,10 @@ export default function Home({ initialMuseums = [], initialError = null }) {
       initialSortedMuseums.map((museum) => ({
         ...museum,
         categories: getMuseumCategories(museum.slug),
+        availability: resolveAvailability(
+          museum.slug,
+          museum.opening_hours || museum.openingstijden
+        ),
       })),
     [initialSortedMuseums]
   );
@@ -152,6 +128,8 @@ export default function Home({ initialMuseums = [], initialError = null }) {
     !filtersFromUrl.exhibitions &&
     !filtersFromUrl.kidFriendly &&
     !filtersFromUrl.nearby &&
+    filtersFromUrl.date === DEFAULT_FILTERS.date &&
+    !filtersFromUrl.openNow &&
     initialMuseumsWithCategories.length > 0;
 
   const [query, setQuery] = useState('');
@@ -190,6 +168,28 @@ export default function Home({ initialMuseums = [], initialError = null }) {
     },
     [categoryFilters, categoryLabelFromKey, query, textQuery]
   );
+  const handleDateSelect = useCallback(
+    (value) => {
+      if (!value) return;
+      skipNextUrlSync.current = true;
+      setActiveFilters((prev) => ({ ...prev, date: value }));
+      setSheetFilters((prev) => ({ ...prev, date: value }));
+    },
+    []
+  );
+  const handleToggleOpenNow = useCallback(() => {
+    skipNextUrlSync.current = true;
+    setActiveFilters((prev) => ({ ...prev, openNow: !prev.openNow }));
+    setSheetFilters((prev) => ({ ...prev, openNow: !prev.openNow }));
+  }, []);
+  const handleQuickReset = useCallback(() => {
+    skipNextUrlSync.current = true;
+    setQuery('');
+    const nextFilters = { ...DEFAULT_FILTERS };
+    setActiveFilters(nextFilters);
+    setSheetFilters(nextFilters);
+    router.replace(pathname, { scroll: false });
+  }, [pathname, router]);
   const [results, setResults] = useState(() =>
     shouldUseInitialData ? initialMuseumsWithCategories : []
   );
@@ -200,15 +200,27 @@ export default function Home({ initialMuseums = [], initialError = null }) {
   const [isLoading, setIsLoading] = useState(false);
   const [userLocation, setUserLocation] = useState(null);
   const skipNextUrlSync = useRef(false);
+  const dateChoices = useMemo(
+    () => [
+      { value: 'today', label: t('homeDateToday') },
+      { value: 'weekend', label: t('homeDateWeekend') },
+    ],
+    [t]
+  );
+  const hasActiveFiltersApplied =
+    Boolean(query) ||
+    activeFilters.free ||
+    activeFilters.exhibitions ||
+    activeFilters.kidFriendly ||
+    activeFilters.nearby ||
+    activeFilters.date !== DEFAULT_FILTERS.date ||
+    activeFilters.openNow;
 
   useEffect(() => {
-    if (!router.isReady) return;
     setQuery(qFromUrl);
-  }, [router.isReady, qFromUrl]);
+  }, [qFromUrl]);
 
   useEffect(() => {
-    if (!router.isReady) return;
-
     if (skipNextUrlSync.current) {
       if (!filtersSheetOpen) {
         skipNextUrlSync.current = false;
@@ -220,7 +232,7 @@ export default function Home({ initialMuseums = [], initialError = null }) {
     if (!filtersSheetOpen) {
       setSheetFilters(filtersFromUrl);
     }
-  }, [router.isReady, filtersFromUrl, filtersSheetOpen]);
+  }, [filtersFromUrl, filtersSheetOpen]);
 
   useEffect(() => {
     if (typeof window === 'undefined') return undefined;
@@ -265,17 +277,14 @@ export default function Home({ initialMuseums = [], initialError = null }) {
       if (filters?.free) params.set('gratis', '1');
       if (filters?.kidFriendly) params.set('kindvriendelijk', '1');
       if (filters?.nearby) params.set('nearby', '1');
+      if (filters?.date && filters.date !== DEFAULT_FILTERS.date) {
+        params.set('date', filters.date);
+      }
+      if (filters?.openNow) params.set('open', '1');
       return params.toString();
     },
     []
   );
-
-  const handleQuickShowExhibitions = useCallback(() => {
-    skipNextUrlSync.current = true;
-    setActiveFilters((prev) => ({ ...DEFAULT_FILTERS, ...prev, exhibitions: true }));
-    setSheetFilters((prev) => ({ ...DEFAULT_FILTERS, ...prev, exhibitions: true }));
-    setFiltersSheetOpen(false);
-  }, [setActiveFilters, setSheetFilters, setFiltersSheetOpen]);
 
   useEffect(() => {
     if (!activeFilters.nearby) return;
@@ -302,54 +311,43 @@ export default function Home({ initialMuseums = [], initialError = null }) {
   }, [activeFilters.nearby, requestUserLocation, setActiveFilters, setSheetFilters, userLocation]);
 
   useEffect(() => {
-    if (!router.isReady) return;
+    if (hasSupabaseClient) return;
+    if (!activeFilters.nearby) return;
+    skipNextUrlSync.current = true;
+    setActiveFilters((prev) => ({ ...prev, nearby: false }));
+    setSheetFilters((prev) => ({ ...prev, nearby: false }));
+  }, [hasSupabaseClient, activeFilters.nearby]);
+
+  useEffect(() => {
     const params = buildQueryParams(query, {
       free: activeFilters.free,
       exhibitions: activeFilters.exhibitions,
       kidFriendly: activeFilters.kidFriendly,
       nearby: activeFilters.nearby,
+      date: activeFilters.date,
+      openNow: activeFilters.openNow,
     });
-    const nextQuery = {};
-    if (params) {
-      const searchParams = new URLSearchParams(params);
-      searchParams.forEach((value, key) => {
-        nextQuery[key] = value;
-      });
+
+    const target = params ? `${pathname}?${params}` : pathname;
+    const current = searchParamsString ? `${pathname}?${searchParamsString}` : pathname;
+
+    if (target === current) {
+      return;
     }
 
-    const currentQuery = router.query || {};
-    const normalizedCurrent = Object.keys(currentQuery).reduce((acc, key) => {
-      const value = currentQuery[key];
-      acc[key] = Array.isArray(value) ? value[0] : value;
-      return acc;
-    }, {});
-
-    const keys = new Set([...Object.keys(normalizedCurrent), ...Object.keys(nextQuery)]);
-    let hasDiff = false;
-    keys.forEach((key) => {
-      if (!hasDiff && normalizedCurrent[key] !== nextQuery[key]) {
-        hasDiff = true;
-      }
-    });
-
-    if (!hasDiff) return;
-
-    router.replace(
-      {
-        pathname: router.pathname,
-        query: nextQuery,
-      },
-      undefined,
-      { shallow: true, scroll: false }
-    );
+    router.replace(target, { scroll: false });
   }, [
     router,
+    pathname,
+    searchParamsString,
     buildQueryParams,
     query,
     activeFilters.free,
     activeFilters.exhibitions,
     activeFilters.kidFriendly,
     activeFilters.nearby,
+    activeFilters.date,
+    activeFilters.openNow,
   ]);
 
   useEffect(() => {
@@ -358,15 +356,86 @@ export default function Home({ initialMuseums = [], initialError = null }) {
     }
   }, [filtersSheetOpen, activeFilters]);
 
-  useEffect(() => {
-    if (!router.isReady) return;
+  const locallyFilterMuseums = useCallback(() => {
+    const excluded = filterMuseumsForDisplay(initialMuseumsWithCategories, {
+      excludeSlugs: ['amsterdam-tulip-museum-amsterdam'],
+      onlyKidFriendly: activeFilters.kidFriendly,
+      isKidFriendlyCheck: (museum) => isKidFriendly(museum),
+    });
 
+    const normalizedQuery = textQuery.trim().toLowerCase();
+    const queryFiltered = normalizedQuery
+      ? excluded.filter((museum) => {
+          const name = (museum.naam || museum.name || '').toLowerCase();
+          const slug = (museum.slug || '').toLowerCase();
+          return name.includes(normalizedQuery) || slug.includes(normalizedQuery);
+        })
+      : excluded;
+
+    const freeFiltered = activeFilters.free
+      ? queryFiltered.filter((museum) => museum.gratis_toegankelijk)
+      : queryFiltered;
+
+    const exhibitionsFiltered = activeFilters.exhibitions
+      ? freeFiltered.filter((museum) => museum.has_active_exhibitions !== false)
+      : freeFiltered;
+
+    const categoryFiltered =
+      categoryFilters.length > 0
+        ? exhibitionsFiltered.filter((museum) =>
+            Array.isArray(museum.categories)
+              ? categoryFilters.every((category) => museum.categories.includes(category))
+              : false
+          )
+        : exhibitionsFiltered;
+
+    const availabilityFiltered = categoryFiltered.filter((museum) => {
+      if (!isOpenForDatePreference(museum.availability, activeFilters.date)) {
+        return false;
+      }
+      if (activeFilters.openNow) {
+        return museum.availability?.openNow === true;
+      }
+      return true;
+    });
+
+    return sortMuseums(availabilityFiltered);
+  }, [
+    initialMuseumsWithCategories,
+    activeFilters.kidFriendly,
+    activeFilters.free,
+    activeFilters.exhibitions,
+    activeFilters.date,
+    activeFilters.openNow,
+    categoryFiltersKey,
+    textQuery,
+  ]);
+
+  const fallbackToLocalResults = useCallback(() => {
+    const localResults = locallyFilterMuseums();
+    setIsSupabaseEnabled((prev) => (prev ? false : prev));
+    setIsLoading(false);
+    setError(null);
+    setResults((prev) => {
+      if (
+        prev.length === localResults.length &&
+        prev.every((museum, index) => museum?.slug === localResults[index]?.slug)
+      ) {
+        return prev;
+      }
+      return localResults;
+    });
+  }, [locallyFilterMuseums]);
+
+  useEffect(() => {
     const usingDefaultFilters =
       !query &&
       !activeFilters.free &&
       !activeFilters.exhibitions &&
       !activeFilters.kidFriendly &&
-      !activeFilters.nearby;
+      !activeFilters.nearby &&
+      activeFilters.date === DEFAULT_FILTERS.date &&
+      !activeFilters.openNow;
 
     if (usingDefaultFilters && initialMuseumsWithCategories.length > 0) {
       setResults(initialMuseumsWithCategories);
@@ -375,10 +444,8 @@ export default function Home({ initialMuseums = [], initialError = null }) {
       return;
     }
 
-    if (!supabaseClient) {
-      setResults([]);
-      setError('missingSupabase');
-      setIsLoading(false);
+    if (!hasSupabaseClient) {
+      fallbackToLocalResults();
       return;
     }
 
@@ -484,8 +551,7 @@ export default function Home({ initialMuseums = [], initialError = null }) {
 
           if (exError) {
             if (!isCancelled) {
-              setError('queryFailed');
-              setIsLoading(false);
+              fallbackToLocalResults();
             }
             return;
           }
@@ -519,8 +585,7 @@ export default function Home({ initialMuseums = [], initialError = null }) {
 
         if (queryError) {
           if (!isCancelled) {
-            setError('queryFailed');
-            setIsLoading(false);
+            fallbackToLocalResults();
           }
           return;
         }
@@ -534,6 +599,10 @@ export default function Home({ initialMuseums = [], initialError = null }) {
         const preparedWithCategories = filtered.map((museum) => ({
           ...museum,
           categories: getMuseumCategories(museum.slug),
+          availability: resolveAvailability(
+            museum.slug,
+            museum.opening_hours || museum.openingstijden
+          ),
         }));
 
         const categoryFilteredResults =
@@ -543,10 +612,20 @@ export default function Home({ initialMuseums = [], initialError = null }) {
               )
             : preparedWithCategories;
 
+        const availabilityFilteredResults = categoryFilteredResults.filter((museum) => {
+          if (!isOpenForDatePreference(museum.availability, activeFilters.date)) {
+            return false;
+          }
+          if (activeFilters.openNow) {
+            return museum.availability?.openNow === true;
+          }
+          return true;
+        });
+
         const sortedResults =
           activeFilters.nearby && usedNearbyResults
-            ? sortMuseumsByDistance(categoryFilteredResults)
-            : sortMuseums(categoryFilteredResults);
+            ? sortMuseumsByDistance(availabilityFilteredResults)
+            : sortMuseums(availabilityFilteredResults);
 
         if (!isCancelled) {
           setResults(sortedResults);
@@ -555,8 +634,7 @@ export default function Home({ initialMuseums = [], initialError = null }) {
         }
       } catch {
         if (!isCancelled) {
-          setError('unknown');
-          setIsLoading(false);
+          fallbackToLocalResults();
         }
       }
     };
@@ -566,7 +644,9 @@ export default function Home({ initialMuseums = [], initialError = null }) {
       activeFilters.free ||
       activeFilters.exhibitions ||
       activeFilters.kidFriendly ||
-      activeFilters.nearby
+      activeFilters.nearby ||
+      activeFilters.date !== DEFAULT_FILTERS.date ||
+      activeFilters.openNow
         ? 200
         : 0;
     const timer = setTimeout(run, delay);
@@ -575,7 +655,6 @@ export default function Home({ initialMuseums = [], initialError = null }) {
       clearTimeout(timer);
     };
   }, [
-    router.isReady,
     query,
     textQuery,
     categoryFiltersKey,
@@ -583,34 +662,14 @@ export default function Home({ initialMuseums = [], initialError = null }) {
     activeFilters.exhibitions,
     activeFilters.kidFriendly,
     activeFilters.nearby,
+    activeFilters.date,
+    activeFilters.openNow,
     userLocation,
     initialMuseumsWithCategories,
     initialError,
-  ]);
-
-  useEffect(() => {
-    if (!router.isReady) return;
-    if (
-      !query &&
-      !activeFilters.free &&
-      !activeFilters.exhibitions &&
-      !activeFilters.kidFriendly &&
-      !activeFilters.nearby &&
-      initialMuseumsWithCategories.length > 0
-    ) {
-      setResults(initialMuseumsWithCategories);
-      setError(initialError ?? null);
-      setIsLoading(false);
-    }
-  }, [
-    router.isReady,
-    query,
-    activeFilters.free,
-    activeFilters.exhibitions,
-    activeFilters.kidFriendly,
-    activeFilters.nearby,
-    initialMuseumsWithCategories,
-    initialError,
+    hasSupabaseClient,
+    locallyFilterMuseums,
+    fallbackToLocalResults,
   ]);
 
   const handleFilterChange = useCallback(
@@ -677,20 +736,51 @@ export default function Home({ initialMuseums = [], initialError = null }) {
     setSheetFilters({ ...DEFAULT_FILTERS, ...activeFilters });
   }, [activeFilters]);
 
+  useEffect(() => {
+    if (typeof router?.prefetch === 'function') {
+      router.prefetch('/exhibitions');
+    }
+  }, [router]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return undefined;
+    const firstTwelve = results.slice(0, 12);
+    const prefetchedSlugs = new Set();
+    const prefetchedImages = new Set();
+
+    firstTwelve.forEach((museum) => {
+      if (!museum) return;
+      if (museum.slug && !prefetchedSlugs.has(museum.slug)) {
+        prefetchedSlugs.add(museum.slug);
+        router.prefetch(`/museum/${museum.slug}`);
+      }
+
+      const resolvedImage = resolveImageUrl(
+        museumImages[museum.slug] || museum.afbeelding_url || museum.image_url || museum.image
+      );
+      if (resolvedImage && !prefetchedImages.has(resolvedImage)) {
+        prefetchedImages.add(resolvedImage);
+        const img = new window.Image();
+        img.src = resolvedImage;
+      }
+    });
+
+    return () => {
+      prefetchedSlugs.clear();
+      prefetchedImages.clear();
+    };
+  }, [results, router]);
+
   if (error) {
     return (
-      <>
-        <SEO title={t('homeTitle')} description={t('homeDescription')} />
-        <main className="container" style={{ maxWidth: 800 }}>
-          <p>{t('somethingWrong')}</p>
-        </main>
-      </>
+      <main className="container" style={{ maxWidth: 800 }}>
+        <p>{t('somethingWrong')}</p>
+      </main>
     );
   }
 
   return (
     <>
-      <SEO title={t('homeTitle')} description={t('homeDescription')} />
       <FiltersSheet
         open={filtersSheetOpen}
         filters={sheetFilters}
@@ -711,58 +801,87 @@ export default function Home({ initialMuseums = [], initialError = null }) {
           close: t('filtersClose'),
         }}
       />
-      <section className="hero">
-        <div className="hero-content">
-          <span className="hero-tagline">{t('heroTagline')}</span>
-          <h1 className="hero-title">{t('heroTitle')}</h1>
-          <p className="hero-subtext">{t('heroSubtitle')}</p>
-        </div>
-        <form className="hero-card hero-search" onSubmit={(e) => e.preventDefault()}>
-          <input
-            type="search"
-            className="input hero-input"
-            placeholder={t('searchPlaceholder')}
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            aria-label={t('searchPlaceholder')}
-          />
-          <div className="hero-actions">
-            <button
-              type="button"
-              className="hero-quick-link hero-quick-link--ghost hero-quick-link--filters"
-              onClick={() => setFiltersSheetOpen(true)}
-            >
-              <svg
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                aria-hidden="true"
-              >
-                <path d="M4 4h16" />
-                <path d="M7 12h10" />
-                <path d="M10 20h4" />
-              </svg>
-              <span>{t('filtersButton')}</span>
-            </button>
-            <button
-              type="button"
-              className="hero-quick-link hero-quick-link--primary"
-              onClick={handleQuickShowExhibitions}
-              aria-pressed={activeFilters.exhibitions}
-            >
-              {t('exhibitions')}
-            </button>
-            {(query || activeFilters.free || activeFilters.exhibitions) && (
-              <a href="/" className="hero-quick-link hero-quick-link--ghost">
-                {t('reset')}
+      <header className="home-hero" aria-labelledby="home-hero-heading">
+        <div className="home-hero__inner">
+          <div className="home-hero__copy">
+            <span className="home-hero__eyebrow">{t('heroTagline')}</span>
+            <h1 id="home-hero-heading" className="home-hero__title">
+              {t('heroTitle')}
+            </h1>
+            <p className="home-hero__subtitle">{t('heroSubtitle')}</p>
+            <div className="home-hero__cta-row">
+              <a href="#museum-result-list" className="home-hero__cta home-hero__cta--primary">
+                {t('homePrimaryCta')}
               </a>
-            )}
+              <Link href="/exhibitions" className="home-hero__cta home-hero__cta--secondary">
+                {t('homeSecondaryCta')}
+              </Link>
+            </div>
           </div>
-        </form>
-      </section>
+          <form className="home-hero__form" onSubmit={(e) => e.preventDefault()}>
+            <label className="sr-only" htmlFor="home-search-input">
+              {t('searchPlaceholder')}
+            </label>
+            <input
+              id="home-search-input"
+              type="search"
+              className="input home-hero__input"
+              placeholder={t('searchPlaceholder')}
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              aria-label={t('searchPlaceholder')}
+            />
+            <div className="home-hero__filters">
+              <fieldset className="home-hero__date">
+                <legend className="home-hero__legend">{t('homeDateLegend')}</legend>
+                <div className="home-hero__date-options">
+                  {dateChoices.map((choice) => (
+                    <label
+                      key={choice.value}
+                      className={`home-hero__date-option${
+                        activeFilters.date === choice.value ? ' is-active' : ''
+                      }`}
+                    >
+                      <input
+                        type="radio"
+                        name="home-date"
+                        value={choice.value}
+                        checked={activeFilters.date === choice.value}
+                        onChange={() => handleDateSelect(choice.value)}
+                      />
+                      <span>{choice.label}</span>
+                    </label>
+                  ))}
+                </div>
+              </fieldset>
+              <div className="home-hero__quick-actions">
+                <button
+                  type="button"
+                  className={`home-hero__toggle${activeFilters.openNow ? ' is-active' : ''}`}
+                  onClick={handleToggleOpenNow}
+                  aria-pressed={activeFilters.openNow}
+                >
+                  {t('homeOpenNow')}
+                </button>
+                <button
+                  type="button"
+                  className="home-hero__toggle home-hero__toggle--ghost"
+                  onClick={() => setFiltersSheetOpen(true)}
+                  aria-controls={FILTERS_SHEET_ID}
+                  aria-haspopup="dialog"
+                >
+                  {t('filtersButton')}
+                </button>
+                {hasActiveFiltersApplied && (
+                  <button type="button" className="home-hero__reset" onClick={handleQuickReset}>
+                    {t('reset')}
+                  </button>
+                )}
+              </div>
+            </div>
+          </form>
+        </div>
+      </header>
 
       <section className="secondary-hero" aria-labelledby="museumnacht-hero-heading">
         <img
@@ -789,96 +908,47 @@ export default function Home({ initialMuseums = [], initialError = null }) {
         </div>
       </section>
 
-      <p className="count">{results.length} {t('results')}</p>
-
-      {isLoading ? (
-        <ul className="grid" style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-          {Array.from({ length: 6 }).map((_, index) => (
-            <li key={`skeleton-${index}`}>
-              <SkeletonMuseumCard />
-            </li>
-          ))}
-        </ul>
-      ) : results.length === 0 ? (
-        <p>{t('noResults')}</p>
-      ) : (
-        <ul className="grid" style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-          {results.map((m, index) => (
-            <li key={m.id}>
-              <MuseumCard
-                museum={{
-                  id: m.id,
-                  slug: m.slug,
-                  title: museumNames[m.slug] || m.naam,
-                  city: m.stad,
-                  province: m.provincie,
-                  free: m.gratis_toegankelijk,
-                  categories: Array.isArray(m.categories)
-                    ? m.categories
-                    : getMuseumCategories(m.slug),
-                  image: museumImages[m.slug] || m.afbeelding_url || m.image_url || null,
-                  imageCredit: museumImageCredits[m.slug],
-                  ticketUrl: m.ticket_affiliate_url || museumTicketUrls[m.slug] || m.website_url,
-                }}
-                priority={index < 6}
-                onCategoryClick={handleCategoryFilterClick}
-              />
-            </li>
-          ))}
-        </ul>
-      )}
+      <section id="museum-result-list" className="home-results" aria-live="polite">
+        <div className="home-results__meta">
+          <p className="count">{results.length} {t('results')}</p>
+        </div>
+        {isLoading ? (
+          <ul className="grid" style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+            {Array.from({ length: 6 }).map((_, index) => (
+              <li key={`skeleton-${index}`}>
+                <SkeletonMuseumCard />
+              </li>
+            ))}
+          </ul>
+        ) : results.length === 0 ? (
+          <p>{t('noResults')}</p>
+        ) : (
+          <ul className="grid" style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+            {results.map((m, index) => (
+              <li key={m.id}>
+                <MuseumCard
+                  museum={{
+                    id: m.id,
+                    slug: m.slug,
+                    title: museumNames[m.slug] || m.naam,
+                    city: m.stad,
+                    province: m.provincie,
+                    free: m.gratis_toegankelijk,
+                    categories: Array.isArray(m.categories)
+                      ? m.categories
+                      : getMuseumCategories(m.slug),
+                    image: museumImages[m.slug] || m.afbeelding_url || m.image_url || null,
+                    imageCredit: museumImageCredits[m.slug],
+                    ticketUrl: m.ticket_affiliate_url || museumTicketUrls[m.slug] || m.website_url,
+                  }}
+                  priority={index < 6}
+                  onCategoryClick={handleCategoryFilterClick}
+                />
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
     </>
   );
-}
-
-export async function getStaticProps() {
-  if (!supabaseClient) {
-    return {
-      props: {
-        initialMuseums: [],
-        initialError: 'missingSupabase',
-      },
-    };
-  }
-
-  try {
-    const columnsWithOptional = `${BASE_MUSEUM_COLUMNS}, ${OPTIONAL_MUSEUM_COLUMNS}`;
-
-    let { data, error } = await supabaseClient
-      .from('musea')
-      .select(columnsWithOptional)
-      .order('naam', { ascending: true });
-
-    if (error && error.message && /column|identifier|relationship/i.test(error.message)) {
-      ({ data, error } = await supabaseClient
-        .from('musea')
-        .select(BASE_MUSEUM_COLUMNS)
-        .order('naam', { ascending: true }));
-    }
-
-    if (error) {
-      return {
-        props: {
-          initialMuseums: [],
-          initialError: 'queryFailed',
-        },
-      };
-    }
-
-    const filtered = (data || []).filter((m) => m.slug !== 'amsterdam-tulip-museum-amsterdam');
-
-    return {
-      props: {
-        initialMuseums: sortMuseums(filtered),
-        initialError: null,
-      },
-    };
-  } catch (err) {
-    return {
-      props: {
-        initialMuseums: [],
-        initialError: 'unknown',
-      },
-    };
-  }
 }
