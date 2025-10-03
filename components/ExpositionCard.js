@@ -88,7 +88,8 @@ export default function ExpositionCard({ exposition, ticketUrl, affiliateUrl, mu
   const museumProvince =
     exposition.museumProvince || exposition.province || exposition.provincie || null;
 
-  const museumImageSource = exposition.museumImage || (slug ? museumImages[slug] : null);
+  const slugMuseumImage = slug ? museumImages[slug] || null : null;
+  const museumImageSource = slugMuseumImage || exposition.museumImage || null;
   const normalizedMuseumImage = useMemo(
     () => normalizeImageSource(museumImageSource),
     [museumImageSource]
@@ -97,7 +98,7 @@ export default function ExpositionCard({ exposition, ticketUrl, affiliateUrl, mu
   const isStaticMuseumImage = Boolean(
     museumImageSource && typeof museumImageSource === 'object' && 'src' in museumImageSource
   );
-  const imageCredit = exposition.museumImageCredit || (slug ? museumImageCredits[slug] : null);
+  const imageCredit = (slug ? museumImageCredits[slug] : null) || exposition.museumImageCredit || null;
   const isPublicDomainImage = Boolean(imageCredit?.isPublicDomain);
   const formattedCredit = useMemo(
     () => (isPublicDomainImage ? null : formatImageCredit(imageCredit, t)),
