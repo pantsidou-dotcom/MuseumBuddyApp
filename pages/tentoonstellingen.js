@@ -18,7 +18,6 @@ const MUSEUM_SELECT_COLUMNS = [
   'gratis_toegankelijk',
   'ticket_affiliate_url',
   'website_url',
-  'website',
   'afbeelding_url',
   'image_url',
 ].join(', ');
