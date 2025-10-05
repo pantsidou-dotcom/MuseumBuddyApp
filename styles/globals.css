@@ -1073,6 +1073,50 @@ button.header-link {
   color: rgba(248, 250, 252, 0.85);
   max-width: 560px;
 }
+.hero-ctas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-16);
+  margin-top: var(--space-8);
+}
+.hero-cta-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-8);
+  padding: 11px 22px;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  background: rgba(15, 23, 42, 0.2);
+  color: #f8fafc;
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.22);
+  cursor: pointer;
+}
+.hero-cta-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 16px 32px rgba(15, 23, 42, 0.28);
+}
+.hero-cta-button:focus-visible {
+  outline: 2px solid rgba(248, 250, 252, 0.85);
+  outline-offset: 2px;
+}
+.hero-cta-button--primary {
+  background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+  border-color: transparent;
+  color: #0f172a;
+  box-shadow: 0 16px 34px rgba(234, 88, 12, 0.36);
+}
+.hero-cta-button--secondary {
+  background: rgba(248, 250, 252, 0.08);
+  color: rgba(248, 250, 252, 0.92);
+}
+.hero-cta-button--secondary:hover {
+  background: rgba(248, 250, 252, 0.14);
+}
 .hero-card {
   background: var(--panel-bg);
   border-radius: var(--radius-md);
