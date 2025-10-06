@@ -3346,6 +3346,29 @@ button.hero-quick-link {
   overflow: hidden;
 }
 
+.museum-card-meta {
+  margin: 0.5rem 0 0;
+  font-size: 0.94rem;
+  line-height: 1.45;
+  color: rgba(71, 85, 105, 0.92);
+  letter-spacing: 0.01em;
+}
+
+.museum-card-meta-tag {
+  margin: 0.75rem 0 0;
+  display: inline-flex;
+  align-items: center;
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background: rgba(129, 140, 248, 0.18);
+  color: #4338ca;
+  width: fit-content;
+}
+
 .museum-card-badges {
   display: flex;
   flex-wrap: wrap;
@@ -3355,6 +3378,15 @@ button.hero-quick-link {
 
 [data-theme='dark'] .museum-card-summary {
   color: rgba(226, 232, 240, 0.9);
+}
+
+[data-theme='dark'] .museum-card-meta {
+  color: rgba(226, 232, 240, 0.78);
+}
+
+[data-theme='dark'] .museum-card-meta-tag {
+  background: rgba(99, 102, 241, 0.28);
+  color: rgba(224, 231, 255, 0.95);
 }
 
 .museum-card-hours {

@@ -167,7 +167,14 @@ export default function MuseumCard({
     return blurDataUrl;
   }, [blurDataUrl, normalizedImage]);
 
-  const summary = museumSummaries[museum.slug]?.[lang] || museum.summary;
+  const isExhibitionCard = Array.isArray(museum.categories)
+    ? museum.categories.includes('exhibition')
+    : false;
+  const summary = isExhibitionCard
+    ? museum.summary
+    : museumSummaries[museum.slug]?.[lang] || museum.summary;
+  const meta = museum.meta;
+  const metaTag = museum.metaTag;
   const hours = museumOpeningHours[museum.slug]?.[lang];
   const [openingStatus, setOpeningStatus] = useState(() => {
     if (!hours) return null;
@@ -221,6 +228,9 @@ export default function MuseumCard({
   const ticketNoteId = useId();
   const headingId = museum.slug ? `museum-card-${museum.slug}-heading` : `${headingAutoId}-heading`;
   const summaryId = summary ? `${headingId}-summary` : undefined;
+  const metaTagId = metaTag ? `${headingId}-meta-tag` : undefined;
+  const metaId = meta ? `${headingId}-meta` : undefined;
+  const describedById = [summaryId, metaTagId, metaId].filter(Boolean).join(' ') || undefined;
   const detailHref = useMemo(
     () => ({ pathname: '/museum/[slug]', query: { slug: museum.slug } }),
     [museum.slug]
@@ -494,7 +504,7 @@ export default function MuseumCard({
       role="link"
       tabIndex={0}
       aria-labelledby={headingId}
-      aria-describedby={summaryId}
+      aria-describedby={describedById}
       onClick={handleCardClick}
       onAuxClick={handleCardAuxClick}
       onKeyDown={handleCardKeyDown}
@@ -591,6 +601,16 @@ export default function MuseumCard({
           {summary && (
             <p className="museum-card-summary" id={summaryId}>
               {summary}
+            </p>
+          )}
+          {metaTag && (
+            <div className="museum-card-meta-tag" id={metaTagId}>
+              {metaTag}
+            </div>
+          )}
+          {meta && (
+            <p className="museum-card-meta" id={metaId}>
+              {meta}
             </p>
           )}
         </div>
