@@ -1,4 +1,5 @@
-import { useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
+import { useRouter } from 'next/router';
 import MuseumCard from '../components/MuseumCard';
 import SEO from '../components/SEO';
 import { useLanguage } from '../components/LanguageContext';
@@ -8,6 +9,9 @@ import museumImageCredits from '../lib/museumImageCredits';
 import museumTicketUrls from '../lib/museumTicketUrls';
 import { getMuseumCategories } from '../lib/museumCategories';
 import { supabase as supabaseClient } from '../lib/supabase';
+import Button from '../components/ui/Button';
+import parseBooleanParam from '../lib/parseBooleanParam.js';
+import { isMuseumOpenNow } from '../lib/openingHours.js';
 
 const MUSEUM_SELECT_COLUMNS = [
   'id',
@@ -469,14 +473,48 @@ async function loadExhibitionsForStaticProps() {
 
 export default function ExhibitionsPage({ exhibitions = [], error = null }) {
   const { t, lang } = useLanguage();
+  const router = useRouter();
 
-  const cards = useMemo(
+  const allCards = useMemo(
     () =>
       (Array.isArray(exhibitions) ? exhibitions : [])
         .map((exhibition) => mapExhibitionToCard(exhibition, lang, t))
         .filter(Boolean),
     [exhibitions, lang, t]
   );
+
+  const openNowActive = useMemo(() => {
+    const query = router?.query || {};
+    return parseBooleanParam(query.open_now ?? query.openNow ?? query.open);
+  }, [router.query]);
+
+  const visibleCards = useMemo(() => {
+    if (!openNowActive) return allCards;
+    return allCards.filter((card) => isMuseumOpenNow(card) === true);
+  }, [allCards, openNowActive]);
+
+  const handleToggleOpenNow = useCallback(() => {
+    if (!router?.isReady) return;
+    const current = router.query || {};
+    const nextQuery = { ...current };
+    delete nextQuery.open_now;
+    delete nextQuery.openNow;
+    delete nextQuery.open;
+    if (!openNowActive) {
+      nextQuery.open_now = '1';
+    }
+    router.replace(
+      {
+        pathname: router.pathname,
+        query: nextQuery,
+      },
+      undefined,
+      { shallow: true, scroll: false }
+    );
+  }, [openNowActive, router]);
+
+  const hasBaseCards = allCards.length > 0;
+  const hasVisibleCards = visibleCards.length > 0;
 
   return (
     <>
@@ -488,17 +526,30 @@ export default function ExhibitionsPage({ exhibitions = [], error = null }) {
         <p className="page-subtitle">{t('exhibitionsPageSubtitle')}</p>
       </section>
       <p className="count">
-        {cards.length} {t('exhibitions')}
+        {visibleCards.length} {t('exhibitions')}
       </p>
+      <div className="filters-inline">
+        <Button
+          type="button"
+          variant={openNowActive ? 'primary' : 'ghost'}
+          size="sm"
+          onClick={handleToggleOpenNow}
+          aria-pressed={openNowActive}
+        >
+          {t('filtersOpenNow')}
+        </Button>
+      </div>
       {error ? (
         <p>{t('somethingWrong')}</p>
-      ) : cards.length === 0 ? (
+      ) : !hasBaseCards ? (
         <p>{t('noExhibitions')}</p>
+      ) : !hasVisibleCards ? (
+        <p>{t('noFilteredExhibitions')}</p>
       ) : (
         <ul className="grid" style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-          {cards.map((museum, index) => (
+          {visibleCards.map((museum, index) => (
             <li key={`exhibition-${museum.exhibitionId || museum.slug || index}`}>
-              <MuseumCard museum={museum} priority={index < 6} />
+              <MuseumCard museum={museum} priority={index < 6} highlightOpenNow={openNowActive} />
             </li>
           ))}
         </ul>
