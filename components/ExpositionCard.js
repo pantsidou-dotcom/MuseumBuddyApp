@@ -141,14 +141,41 @@ export default function ExpositionCard({ exposition, ticketUrl, affiliateUrl, mu
     return `${cleaned.slice(0, 157)}…`;
   }, [description]);
 
-  let temporaryTag = pickBoolean(tags.temporary, exposition?.tijdelijk, exposition?.temporary, exposition?.tijdelijkeTentoonstelling);
+  let temporaryTag = pickBoolean(
+    tags?.tijdelijk,
+    exposition?.tijdelijk,
+    exposition?.temporary,
+    exposition?.tijdelijkeTentoonstelling
+  );
   if (temporaryTag === undefined && start && end) {
     temporaryTag = true;
   }
   const tagDefinitions = [
-    { key: 'childFriendly', label: t('tagChildFriendly'), active: pickBoolean(tags.childFriendly, exposition?.kindvriendelijk, exposition?.childFriendly, exposition?.familievriendelijk, exposition?.familyFriendly) === true },
-    { key: 'free', label: t('tagFree'), active: pickBoolean(tags.free, exposition?.gratis, exposition?.free, exposition?.kosteloos, exposition?.freeEntry) === true },
-    { key: 'temporary', label: t('tagTemporary'), active: temporaryTag === true },
+    {
+      key: 'kindvriendelijk',
+      label: t('tagChildFriendly'),
+      active:
+        pickBoolean(
+          tags?.kindvriendelijk,
+          exposition?.kindvriendelijk,
+          exposition?.childFriendly,
+          exposition?.familievriendelijk,
+          exposition?.familyFriendly
+        ) === true,
+    },
+    {
+      key: 'gratis',
+      label: t('tagFree'),
+      active:
+        pickBoolean(
+          tags?.gratis,
+          exposition?.gratis,
+          exposition?.free,
+          exposition?.kosteloos,
+          exposition?.freeEntry
+        ) === true,
+    },
+    { key: 'tijdelijk', label: t('tagTemporary'), active: temporaryTag === true },
   ];
   const activeTags = tagDefinitions.filter((tag) => tag.active);
   const mediaClassName = 'exposition-card__media exposition-card__media--placeholder';

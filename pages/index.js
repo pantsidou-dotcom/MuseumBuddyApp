@@ -17,6 +17,8 @@ import { filterMuseumsForDisplay } from '../lib/museumFilters';
 import { CATEGORY_TRANSLATION_KEYS, getMuseumCategories } from '../lib/museumCategories';
 import { parseMuseumSearchQuery } from '../lib/museumSearch';
 import Button from '../components/ui/Button';
+import { parseTagsParam, serializeTags, TAGS } from '../lib/tags';
+import { logLegacyFilterUsage } from '../lib/analytics';
 
 const FEATURED_SLUGS = [
   'van-gogh-museum-amsterdam',
@@ -70,9 +72,7 @@ function todayYMD(tz = 'Europe/Amsterdam') {
 const FILTERS_EVENT = 'museumBuddy:openFilters';
 
 const DEFAULT_FILTERS = Object.freeze({
-  free: false,
   exhibitions: false,
-  kidFriendly: false,
   nearby: false,
 });
 
@@ -129,15 +129,23 @@ export default function Home({ initialMuseums = [], initialError = null }) {
     const queryFilters = router.query || {};
     return {
       ...DEFAULT_FILTERS,
-      free: parseBooleanParam(queryFilters.gratis),
       exhibitions: parseBooleanParam(queryFilters.exposities),
-      kidFriendly: parseBooleanParam(
-        queryFilters.kindvriendelijk ?? queryFilters.kidFriendly ?? queryFilters.kidfriendly
-      ),
       nearby: parseBooleanParam(
         queryFilters.dichtbij ?? queryFilters.nearby ?? queryFilters.distance
       ),
     };
+  }, [router.query]);
+
+  const tagFiltersFromUrl = useMemo(() => {
+    const queryFilters = router.query || {};
+    const tags = new Set(parseTagsParam(queryFilters.tags));
+    const legacyKindFriendly = parseBooleanParam(
+      queryFilters.kindvriendelijk ?? queryFilters.kidFriendly ?? queryFilters.kidfriendly
+    );
+    if (legacyKindFriendly) {
+      tags.add(TAGS.KIND_FRIENDLY);
+    }
+    return Array.from(tags);
   }, [router.query]);
 
   const initialSortedMuseums = useMemo(() => sortMuseums(initialMuseums || []), [initialMuseums]);
@@ -151,10 +159,9 @@ export default function Home({ initialMuseums = [], initialError = null }) {
   );
   const shouldUseInitialData =
     !qFromUrl &&
-    !filtersFromUrl.free &&
     !filtersFromUrl.exhibitions &&
-    !filtersFromUrl.kidFriendly &&
     !filtersFromUrl.nearby &&
+    tagFiltersFromUrl.length === 0 &&
     initialMuseumsWithCategories.length > 0;
 
   const [query, setQuery] = useState('');
@@ -204,6 +211,7 @@ export default function Home({ initialMuseums = [], initialError = null }) {
   const resultsRef = useRef(null);
   const [userLocation, setUserLocation] = useState(null);
   const skipNextUrlSync = useRef(false);
+  const legacyFiltersLoggedRef = useRef(new Set());
 
   useEffect(() => {
     if (!router.isReady) return;
@@ -262,13 +270,13 @@ export default function Home({ initialMuseums = [], initialError = null }) {
   }, []);
 
   const buildQueryParams = useCallback(
-    (searchValue, filters) => {
+    (searchValue, filters, tagFilters) => {
       const params = new URLSearchParams();
       if (searchValue) params.set('q', searchValue);
       if (filters?.exhibitions) params.set('exposities', '1');
-      if (filters?.free) params.set('gratis', '1');
-      if (filters?.kidFriendly) params.set('kindvriendelijk', '1');
       if (filters?.nearby) params.set('nearby', '1');
+      const serializedTags = serializeTags(tagFilters);
+      if (serializedTags) params.set('tags', serializedTags);
       return params.toString();
     },
     []
@@ -307,12 +315,14 @@ export default function Home({ initialMuseums = [], initialError = null }) {
 
   useEffect(() => {
     if (!router.isReady) return;
-    const params = buildQueryParams(query, {
-      free: activeFilters.free,
-      exhibitions: activeFilters.exhibitions,
-      kidFriendly: activeFilters.kidFriendly,
-      nearby: activeFilters.nearby,
-    });
+    const params = buildQueryParams(
+      query,
+      {
+        exhibitions: activeFilters.exhibitions,
+        nearby: activeFilters.nearby,
+      },
+      tagFiltersFromUrl
+    );
     const nextQuery = {};
     if (params) {
       const searchParams = new URLSearchParams(params);
@@ -346,15 +356,14 @@ export default function Home({ initialMuseums = [], initialError = null }) {
       undefined,
       { shallow: true, scroll: false }
     );
-  }, [
-    router,
-    buildQueryParams,
-    query,
-    activeFilters.free,
-    activeFilters.exhibitions,
-    activeFilters.kidFriendly,
-    activeFilters.nearby,
-  ]);
+    }, [
+      router,
+      buildQueryParams,
+      query,
+      activeFilters.exhibitions,
+      activeFilters.nearby,
+      tagFiltersFromUrl,
+    ]);
 
   useEffect(() => {
     if (filtersSheetOpen) {
@@ -367,10 +376,9 @@ export default function Home({ initialMuseums = [], initialError = null }) {
 
     const usingDefaultFilters =
       !query &&
-      !activeFilters.free &&
       !activeFilters.exhibitions &&
-      !activeFilters.kidFriendly &&
-      !activeFilters.nearby;
+      !activeFilters.nearby &&
+      tagFiltersFromUrl.length === 0;
 
     if (usingDefaultFilters && initialMuseumsWithCategories.length > 0) {
       setResults(initialMuseumsWithCategories);
@@ -409,7 +417,6 @@ export default function Home({ initialMuseums = [], initialError = null }) {
         const createBaseQuery = (columns, expositionIds) => {
           let db = supabaseClient.from('musea').select(columns).order('naam', { ascending: true });
           if (textQuery) db = db.ilike('naam', `%${textQuery}%`);
-          if (activeFilters.free) db = db.eq('gratis_toegankelijk', true);
           if (Array.isArray(expositionIds) && expositionIds.length > 0) {
             db = db.in('id', expositionIds);
           }
@@ -425,7 +432,6 @@ export default function Home({ initialMuseums = [], initialError = null }) {
             radius_meters: NEARBY_RADIUS_METERS,
           });
           if (textQuery) db = db.ilike('naam', `%${textQuery}%`);
-          if (activeFilters.free) db = db.eq('gratis_toegankelijk', true);
           if (Array.isArray(expositionIds) && expositionIds.length > 0) {
             db = db.in('id', expositionIds);
           }
@@ -531,7 +537,7 @@ export default function Home({ initialMuseums = [], initialError = null }) {
 
         const filtered = filterMuseumsForDisplay(data || [], {
           excludeSlugs: ['amsterdam-tulip-museum-amsterdam'],
-          onlyKidFriendly: activeFilters.kidFriendly,
+          requiredTags: tagFiltersFromUrl,
           isNearbyActive: activeFilters.nearby && usedNearbyResults,
           isKidFriendlyCheck: (museum) => isKidFriendly(museum),
         });
@@ -566,11 +572,7 @@ export default function Home({ initialMuseums = [], initialError = null }) {
     };
 
     const delay =
-      query ||
-      activeFilters.free ||
-      activeFilters.exhibitions ||
-      activeFilters.kidFriendly ||
-      activeFilters.nearby
+      query || activeFilters.exhibitions || activeFilters.nearby || tagFiltersFromUrl.length > 0
         ? 200
         : 0;
     const timer = setTimeout(run, delay);
@@ -583,10 +585,9 @@ export default function Home({ initialMuseums = [], initialError = null }) {
     query,
     textQuery,
     categoryFiltersKey,
-    activeFilters.free,
     activeFilters.exhibitions,
-    activeFilters.kidFriendly,
     activeFilters.nearby,
+    tagFiltersFromUrl,
     userLocation,
     initialMuseumsWithCategories,
     initialError,
@@ -596,10 +597,9 @@ export default function Home({ initialMuseums = [], initialError = null }) {
     if (!router.isReady) return;
     if (
       !query &&
-      !activeFilters.free &&
       !activeFilters.exhibitions &&
-      !activeFilters.kidFriendly &&
       !activeFilters.nearby &&
+      tagFiltersFromUrl.length === 0 &&
       initialMuseumsWithCategories.length > 0
     ) {
       setResults(initialMuseumsWithCategories);
@@ -609,10 +609,9 @@ export default function Home({ initialMuseums = [], initialError = null }) {
   }, [
     router.isReady,
     query,
-    activeFilters.free,
     activeFilters.exhibitions,
-    activeFilters.kidFriendly,
     activeFilters.nearby,
+    tagFiltersFromUrl,
     initialMuseumsWithCategories,
     initialError,
   ]);
@@ -718,9 +717,7 @@ export default function Home({ initialMuseums = [], initialError = null }) {
           title: t('filtersTitle'),
           description: t('filtersDescription'),
           availability: t('filtersAvailability'),
-          free: t('filtersFree'),
           exhibitions: t('filtersExhibitions'),
-          kidFriendly: t('filtersKidFriendly'),
           distance: t('filtersDistance'),
           apply: t('filtersApply'),
           reset: t('filtersReset'),
@@ -792,7 +789,7 @@ export default function Home({ initialMuseums = [], initialError = null }) {
             >
               {t('exhibitions')}
             </button>
-            {(query || activeFilters.free || activeFilters.exhibitions) && (
+            {(query || activeFilters.exhibitions || activeFilters.nearby || tagFiltersFromUrl.length > 0) && (
               <a href="/" className="hero-quick-link hero-quick-link--ghost">
                 {t('reset')}
               </a>
@@ -923,3 +920,78 @@ export async function getStaticProps() {
     };
   }
 }
+  useEffect(() => {
+    if (!router.isReady) return;
+
+    const queryFilters = router.query || {};
+    const baseQuery = Object.entries(queryFilters).reduce((acc, [key, value]) => {
+      acc[key] = Array.isArray(value) ? value[0] : value;
+      return acc;
+    }, {});
+
+    const nextTags = new Set(parseTagsParam(queryFilters.tags));
+    let shouldReplace = false;
+
+    const legacyKindFriendly = parseBooleanParam(
+      queryFilters.kindvriendelijk ?? queryFilters.kidFriendly ?? queryFilters.kidfriendly
+    );
+    if (legacyKindFriendly) {
+      const logKey = `kindvriendelijk:${TAGS.KIND_FRIENDLY}`;
+      if (!legacyFiltersLoggedRef.current.has(logKey)) {
+        legacyFiltersLoggedRef.current.add(logKey);
+        logLegacyFilterUsage(TAGS.KIND_FRIENDLY, 'home');
+      }
+      nextTags.add(TAGS.KIND_FRIENDLY);
+      ['kindvriendelijk', 'kidFriendly', 'kidfriendly'].forEach((key) => {
+        if (key in baseQuery) {
+          delete baseQuery[key];
+          shouldReplace = true;
+        }
+      });
+    }
+
+    const legacyGratis = parseBooleanParam(queryFilters.gratis);
+    if (legacyGratis) {
+      const logKey = `gratis:${TAGS.FREE}`;
+      if (!legacyFiltersLoggedRef.current.has(logKey)) {
+        legacyFiltersLoggedRef.current.add(logKey);
+        logLegacyFilterUsage(TAGS.FREE, 'home');
+      }
+      if ('gratis' in baseQuery) {
+        delete baseQuery.gratis;
+        shouldReplace = true;
+      }
+    }
+
+    const legacyTemporary = parseBooleanParam(queryFilters.tijdelijk);
+    if (legacyTemporary) {
+      const logKey = `tijdelijk:${TAGS.TEMPORARY}`;
+      if (!legacyFiltersLoggedRef.current.has(logKey)) {
+        legacyFiltersLoggedRef.current.add(logKey);
+        logLegacyFilterUsage(TAGS.TEMPORARY, 'home');
+      }
+      if ('tijdelijk' in baseQuery) {
+        delete baseQuery.tijdelijk;
+        shouldReplace = true;
+      }
+    }
+
+    const serializedTags = serializeTags(Array.from(nextTags));
+    if (serializedTags) {
+      if (baseQuery.tags !== serializedTags) {
+        baseQuery.tags = serializedTags;
+        shouldReplace = true;
+      }
+    } else if (baseQuery.tags) {
+      delete baseQuery.tags;
+      shouldReplace = true;
+    }
+
+    if (!shouldReplace) return;
+
+    router.replace(
+      { pathname: router.pathname, query: baseQuery },
+      undefined,
+      { shallow: true, scroll: false }
+    );
+  }, [router]);

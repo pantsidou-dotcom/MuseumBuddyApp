@@ -17,7 +17,7 @@ async function run() {
 
   const filtered = filterMuseumsForDisplay(museums, {
     excludeSlugs: [],
-    onlyKidFriendly: false,
+    requiredTags: [],
     isNearbyActive: true,
     isKidFriendlyCheck: () => true,
   });
