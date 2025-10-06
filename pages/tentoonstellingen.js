@@ -175,30 +175,12 @@ function mapExhibitionToCard(exhibition, lang, t) {
     : exhibitionTitle;
   const locale = lang === 'en' ? 'en-GB' : 'nl-NL';
   const rangeLabel = formatDateRange(exhibition.start_datum, exhibition.eind_datum, locale);
-  const hostedBy = museumName ? t('exhibitionsListHostedBy', { museum: museumName }) : '';
   const descriptionText = truncate(
     exhibition.beschrijving || exhibition.omschrijving || exhibition.description || ''
   );
   const cardTitle = titleBase;
-  let summary = descriptionText || '';
-  if (!summary) {
-    summary = hostedBy || '';
-  }
-  if (!summary) {
-    summary = rangeLabel || '';
-  }
-  if (!summary) {
-    summary = null;
-  }
+  const summary = descriptionText || null;
   const metaTag = rangeLabel || null;
-  const metaParts = [];
-  if (hostedBy && hostedBy !== summary) {
-    metaParts.push(hostedBy);
-  }
-  if (!metaParts.length && rangeLabel && rangeLabel !== summary) {
-    metaParts.push(rangeLabel);
-  }
-  const metaLine = metaParts.join(' • ');
 
   const imageFromData = pickImage(exhibition, museum);
   const resolvedImage = imageFromData || museumImages[slug] || null;
@@ -235,7 +217,6 @@ function mapExhibitionToCard(exhibition, lang, t) {
     imageCredit: museumImageCredits[slug],
     ticketUrl,
     summary,
-    meta: metaLine || null,
     metaTag,
   };
 }

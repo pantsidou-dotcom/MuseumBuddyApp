@@ -167,7 +167,12 @@ export default function MuseumCard({
     return blurDataUrl;
   }, [blurDataUrl, normalizedImage]);
 
-  const summary = museumSummaries[museum.slug]?.[lang] || museum.summary;
+  const isExhibitionCard = Array.isArray(museum.categories)
+    ? museum.categories.includes('exhibition')
+    : false;
+  const summary = isExhibitionCard
+    ? museum.summary
+    : museumSummaries[museum.slug]?.[lang] || museum.summary;
   const meta = museum.meta;
   const metaTag = museum.metaTag;
   const hours = museumOpeningHours[museum.slug]?.[lang];
