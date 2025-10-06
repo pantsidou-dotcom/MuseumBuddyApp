@@ -187,6 +187,8 @@ function FavoriteButton({ active, onToggle, label }) {
   );
 }
 
+const FILTERS_EVENT = 'museumBuddy:openFilters';
+
 const DEFAULT_EXPOSITION_FILTERS = Object.freeze({
   free: false,
   childFriendly: false,
@@ -936,6 +938,18 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
     setFiltersSheetOpen(true);
     setFiltersPopoverOpen(false);
   }, []);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return undefined;
+    const handleOpen = () => {
+      setFiltersPopoverOpen(false);
+      handleOpenFiltersSheet();
+    };
+    window.addEventListener(FILTERS_EVENT, handleOpen);
+    return () => {
+      window.removeEventListener(FILTERS_EVENT, handleOpen);
+    };
+  }, [handleOpenFiltersSheet]);
 
   const handleToggleFiltersPopover = useCallback(() => {
     setFiltersSheetOpen(false);
