@@ -496,6 +496,10 @@ img { max-width: 100%; height: auto; display: block; }
   transition: color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
 }
 
+.ds-nav__brand {
+  min-width: 0;
+}
+
 .ds-brand:hover {
   background: var(--ds-color-surface-subtle);
 }
@@ -621,21 +625,84 @@ img { max-width: 100%; height: auto; display: block; }
 }
 
 @media (max-width: 720px) {
+  .ds-app-header .container {
+    padding-block: clamp(14px, 5vw, 18px);
+  }
+
   .ds-nav {
+    display: flex;
+    align-items: center;
+    gap: var(--ds-space-1);
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .ds-nav::-webkit-scrollbar {
+    display: none;
+  }
+
+  .ds-nav__brand {
+    flex: 0 0 auto;
+    display: inline-flex;
     flex-direction: column;
-    align-items: stretch;
-    gap: var(--ds-space-3);
+    align-items: flex-start;
+    gap: 0;
+    padding: 4px 8px;
+    border-radius: var(--ds-radius-sm);
+    min-width: 0;
+    line-height: 1.02;
   }
 
-  .ds-nav__section,
-  .ds-nav__section--actions {
-    width: 100%;
-    justify-content: flex-start;
-    gap: var(--ds-space-2);
+  .ds-nav__brand .ds-brand__line {
+    font-size: 0.98rem;
+  }
+
+  .ds-nav__section {
+    gap: var(--ds-space-1);
+    min-width: 0;
+    flex: 0 0 auto;
+  }
+
+  .ds-nav__section--primary {
+    flex: 0 0 auto;
+    justify-content: center;
+  }
+
+  .ds-nav__section--primary .ds-nav__link {
+    width: auto;
+    justify-content: center;
+    flex: 0 0 auto;
+    padding-inline: 10px;
+    font-size: 0.875rem;
+    line-height: 1.1;
   }
 
   .ds-nav__section--actions {
-    margin-left: 0;
+    flex: 0 0 auto;
+    justify-content: flex-end;
+    gap: 6px;
+    min-width: 0;
+  }
+
+  .ds-nav__section--actions .ds-nav__link,
+  .ds-nav__section--actions .ds-nav__link--button,
+  .ds-nav__section--actions .ds-button {
+    flex: 0 0 auto;
+    padding-inline: 8px;
+    height: 32px;
+    white-space: nowrap;
+    min-width: 0;
+    font-size: 0.8125rem;
+    line-height: 1.1;
+  }
+
+  .ds-nav__section--actions .ds-nav__label {
+    display: inline-flex;
+    align-items: center;
+    line-height: 1.05;
   }
 }
 
