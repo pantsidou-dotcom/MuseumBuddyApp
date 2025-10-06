@@ -631,13 +631,10 @@ img { max-width: 100%; height: auto; display: block; }
 
   .ds-nav {
     display: grid;
-    grid-template-columns: auto minmax(0, 1fr);
-    grid-template-areas:
-      'brand actions'
-      'primary actions';
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    grid-template-areas: 'brand primary actions';
     align-items: center;
     column-gap: var(--ds-space-2);
-    row-gap: var(--ds-space-2);
   }
 
   .ds-nav__brand {
@@ -646,7 +643,7 @@ img { max-width: 100%; height: auto; display: block; }
     flex-direction: column;
     align-items: flex-start;
     gap: 0;
-    padding: 8px 12px;
+    padding: 6px 10px;
     border-radius: var(--ds-radius-sm);
     flex-shrink: 0;
     min-width: 0;
@@ -654,7 +651,7 @@ img { max-width: 100%; height: auto; display: block; }
   }
 
   .ds-nav__brand .ds-brand__line {
-    font-size: 1.125rem;
+    font-size: 1.0625rem;
   }
 
   .ds-nav__section {
@@ -665,28 +662,37 @@ img { max-width: 100%; height: auto; display: block; }
   .ds-nav__section--primary {
     grid-area: primary;
     flex-wrap: nowrap;
+    justify-content: flex-start;
+    gap: var(--ds-space-1);
   }
 
   .ds-nav__section--primary .ds-nav__link {
     white-space: nowrap;
-    padding-inline: 10px;
+    padding-inline: 8px;
+    font-size: 0.9rem;
   }
 
   .ds-nav__section--actions {
     grid-area: actions;
     justify-content: flex-end;
-    gap: var(--ds-space-2);
-    align-self: stretch;
+    gap: var(--ds-space-1);
+    align-self: center;
+    flex-wrap: nowrap;
   }
 
   .ds-nav__section--actions .ds-nav__link,
   .ds-nav__section--actions .ds-nav__link--button,
   .ds-nav__section--actions .ds-button {
     flex: 0 1 auto;
-    padding-inline: 10px;
-    height: 40px;
+    padding-inline: 8px;
+    height: 36px;
     white-space: nowrap;
     min-width: 0;
+    font-size: 0.875rem;
+  }
+
+  .ds-nav__section--actions .ds-nav__label {
+    line-height: 1.1;
   }
 }
 
