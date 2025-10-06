@@ -18,6 +18,7 @@ export default function ExpositionCarousel({
   const slides = useMemo(() => (Array.isArray(items) ? items.filter(Boolean) : []), [items]);
   const totalSlides = slides.length;
   const viewportRef = useRef(null);
+  const [isScrollable, setIsScrollable] = useState(false);
   const isControlled = typeof controlledActiveSlide === 'number' && !Number.isNaN(controlledActiveSlide);
   const getSafeIndex = useCallback(
     (index) => {
@@ -197,7 +198,7 @@ export default function ExpositionCarousel({
 
   const handleViewportKeyDown = useCallback(
     (event) => {
-      if (totalSlides <= 1) return;
+      if (totalSlides <= 1 || !isScrollable) return;
       if (event.key === 'ArrowRight') {
         event.preventDefault();
         updateActiveSlide(activeSlide + 1);
@@ -212,7 +213,7 @@ export default function ExpositionCarousel({
         updateActiveSlide(totalSlides - 1);
       }
     },
-    [activeSlide, totalSlides, updateActiveSlide]
+    [activeSlide, isScrollable, totalSlides, updateActiveSlide]
   );
 
   const carouselId = useId();
@@ -220,6 +221,7 @@ export default function ExpositionCarousel({
   const trackId = `${carouselId}-track`;
   const instructionsId = `${carouselId}-instructions`;
   const liveRegionId = `${carouselId}-live-region`;
+  const showControls = totalSlides > 1 && isScrollable;
   const instructionsText = useMemo(() => {
     if (typeof instructions === 'function') {
       return instructions(totalSlides);
@@ -229,9 +231,9 @@ export default function ExpositionCarousel({
   const describedBy = useMemo(() => {
     const ids = [];
     if (instructionsText) ids.push(instructionsId);
-    if (totalSlides > 1) ids.push(liveRegionId);
+    if (showControls) ids.push(liveRegionId);
     return ids.join(' ');
-  }, [instructionsId, instructionsText, liveRegionId, totalSlides]);
+  }, [instructionsId, instructionsText, liveRegionId, showControls]);
   const controlledIds = useMemo(
     () =>
       [viewportId, trackId]
@@ -240,20 +242,66 @@ export default function ExpositionCarousel({
     [trackId, viewportId]
   );
   const [liveAnnouncement, setLiveAnnouncement] = useState(() => {
-    if (totalSlides <= 0) {
+    if (!showControls) {
       return '';
     }
     return getSlideLabel(activeSlide);
   });
 
-  useEffect(() => {
+  const updateScrollableState = useCallback(() => {
     if (totalSlides <= 1) {
+      setIsScrollable(false);
+      return;
+    }
+    const element = viewportRef.current;
+    if (!element) {
+      setIsScrollable(false);
+      return;
+    }
+    const tolerance = 1;
+    const hasOverflow = element.scrollWidth - element.clientWidth > tolerance;
+    setIsScrollable(hasOverflow);
+  }, [totalSlides]);
+
+  useEffect(() => {
+    const element = viewportRef.current;
+    if (!element) {
+      setIsScrollable(false);
+      return undefined;
+    }
+
+    updateScrollableState();
+
+    window.addEventListener('resize', updateScrollableState);
+
+    let observer;
+    if (typeof ResizeObserver === 'function') {
+      observer = new ResizeObserver(() => {
+        updateScrollableState();
+      });
+      observer.observe(element);
+      const trackNode = element.querySelector('.exposition-carousel__track');
+      if (trackNode) {
+        observer.observe(trackNode);
+      }
+    }
+
+    return () => {
+      window.removeEventListener('resize', updateScrollableState);
+      if (observer) {
+        observer.disconnect();
+      }
+    };
+  }, [slides, updateScrollableState]);
+
+  useEffect(() => {
+    if (!showControls) {
       setLiveAnnouncement('');
       return;
     }
     const nextAnnouncement = getSlideLabel(activeSlide);
     setLiveAnnouncement((previous) => (previous === nextAnnouncement ? previous : nextAnnouncement));
-  }, [activeSlide, getSlideLabel, totalSlides]);
+  }, [activeSlide, getSlideLabel, showControls]);
 
   const regionLabel = typeof ariaLabel === 'string' && ariaLabel.trim() ? ariaLabel : 'Carousel';
 
@@ -274,7 +322,7 @@ export default function ExpositionCarousel({
           {instructionsText}
         </p>
       ) : null}
-      {totalSlides > 1 ? (
+      {showControls ? (
         <p id={liveRegionId} className="sr-only" role="status" aria-live="polite" aria-atomic="true">
           {liveAnnouncement}
         </p>
@@ -307,7 +355,7 @@ export default function ExpositionCarousel({
           })}
         </ul>
       </div>
-      {totalSlides > 1 && (
+      {showControls && (
         <>
           <div className="exposition-carousel__navigation">
             <button
