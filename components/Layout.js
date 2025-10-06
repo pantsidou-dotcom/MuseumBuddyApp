@@ -35,13 +35,13 @@ export default function Layout({ children }) {
       <header className="ds-app-header">
         <div className="container">
           <NavBar aria-label={navLabel}>
-            <Link href="/" className="ds-brand" aria-label={t('homeLabel')}>
+            <Link href="/" className="ds-brand ds-nav__brand" aria-label={t('homeLabel')}>
               <span className="ds-brand__lockup" aria-hidden="true">
                 <span className="ds-brand__line">Museum</span>
                 <span className="ds-brand__line">Buddy</span>
               </span>
             </Link>
-            <NavSection>
+            <NavSection className="ds-nav__section--primary">
               <NavLink href="/about" active={aboutActive}>
                 {t('aboutLabel')}
               </NavLink>
@@ -52,6 +52,7 @@ export default function Layout({ children }) {
                 aria-label={t('filtersButton')}
                 aria-controls={FILTERS_SHEET_ID}
                 aria-haspopup="dialog"
+                className="ds-nav__link--filters"
               >
                 {t('filtersButton')}
               </NavButton>
