@@ -195,14 +195,14 @@ function mapExhibitionToCard(exhibition, lang, t) {
   );
   const categories = ['exhibition', ...getMuseumCategories(slug)].filter(Boolean);
   const uniqueCategories = Array.from(new Set(categories));
-  const ticketUrl =
+  const affiliateTicketUrl =
     exhibition.ticket_affiliate_url ||
-    exhibition.ticket_url ||
-    exhibition.bron_url ||
     museum.ticket_affiliate_url ||
     museumTicketUrls[slug] ||
-    museum.website_url ||
     null;
+  const directTicketUrl = exhibition.ticket_url || museum.website_url || null;
+  const infoTicketUrl = exhibition.bron_url || null;
+  const ticketUrl = affiliateTicketUrl || directTicketUrl || infoTicketUrl;
 
   return {
     exhibitionId: exhibition.id,
@@ -216,6 +216,7 @@ function mapExhibitionToCard(exhibition, lang, t) {
     image: resolvedImage,
     imageCredit: museumImageCredits[slug],
     ticketUrl,
+    ticketAffiliateUrl: affiliateTicketUrl,
     summary,
     metaTag,
   };
