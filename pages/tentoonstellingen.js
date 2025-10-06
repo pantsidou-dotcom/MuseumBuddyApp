@@ -190,12 +190,13 @@ function mapExhibitionToCard(exhibition, lang, t) {
   if (!summary) {
     summary = null;
   }
+  const metaTag = rangeLabel || null;
   const metaParts = [];
-  if (rangeLabel && rangeLabel !== summary) {
-    metaParts.push(rangeLabel);
-  }
   if (hostedBy && hostedBy !== summary) {
     metaParts.push(hostedBy);
+  }
+  if (!metaParts.length && rangeLabel && rangeLabel !== summary) {
+    metaParts.push(rangeLabel);
   }
   const metaLine = metaParts.join(' • ');
 
@@ -235,6 +236,7 @@ function mapExhibitionToCard(exhibition, lang, t) {
     ticketUrl,
     summary,
     meta: metaLine || null,
+    metaTag,
   };
 }
 
