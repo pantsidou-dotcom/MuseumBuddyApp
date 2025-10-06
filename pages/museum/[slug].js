@@ -329,6 +329,7 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
       image: heroImageUrl,
       imageCredit,
       ticketUrl,
+      ticketAffiliateUrl: affiliateTicketUrl,
       type: 'museum',
     }),
     [
@@ -341,6 +342,7 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
       heroImageUrl,
       imageCredit,
       ticketUrl,
+      affiliateTicketUrl,
     ]
   );
 

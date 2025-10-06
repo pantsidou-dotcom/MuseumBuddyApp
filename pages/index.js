@@ -905,29 +905,35 @@ export default function Home({ initialMuseums = [], initialError = null }) {
           <p>{t('noResults')}</p>
         ) : (
           <ul className="grid" style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-            {results.map((m, index) => (
-              <li key={m.id}>
-                <MuseumCard
-                  museum={{
-                    id: m.id,
-                    slug: m.slug,
-                    title: museumNames[m.slug] || m.naam,
-                    city: m.stad,
-                    province: m.provincie,
-                    free: m.gratis_toegankelijk,
-                    categories: Array.isArray(m.categories)
-                      ? m.categories
-                      : getMuseumCategories(m.slug),
-                    image: museumImages[m.slug] || m.afbeelding_url || m.image_url || null,
-                    imageCredit: museumImageCredits[m.slug],
-                    ticketUrl: m.ticket_affiliate_url || museumTicketUrls[m.slug] || m.website_url,
-                  }}
-                  priority={index < 6}
-                  onCategoryClick={handleCategoryFilterClick}
-                  highlightOpenNow={activeFilters.openNow}
-                />
-              </li>
-            ))}
+            {results.map((m, index) => {
+              const ticketAffiliateUrl = m.ticket_affiliate_url || museumTicketUrls[m.slug] || null;
+              const ticketUrl = ticketAffiliateUrl || m.website_url || null;
+
+              return (
+                <li key={m.id}>
+                  <MuseumCard
+                    museum={{
+                      id: m.id,
+                      slug: m.slug,
+                      title: museumNames[m.slug] || m.naam,
+                      city: m.stad,
+                      province: m.provincie,
+                      free: m.gratis_toegankelijk,
+                      categories: Array.isArray(m.categories)
+                        ? m.categories
+                        : getMuseumCategories(m.slug),
+                      image: museumImages[m.slug] || m.afbeelding_url || m.image_url || null,
+                      imageCredit: museumImageCredits[m.slug],
+                      ticketUrl,
+                      ticketAffiliateUrl,
+                    }}
+                    priority={index < 6}
+                    onCategoryClick={handleCategoryFilterClick}
+                    highlightOpenNow={activeFilters.openNow}
+                  />
+                </li>
+              );
+            })}
           </ul>
         )}
       </section>

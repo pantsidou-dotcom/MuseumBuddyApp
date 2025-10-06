@@ -221,7 +221,8 @@ export default function MuseumCard({
   }, [museum.categories, t]);
   const hasTags = museum.free || resolvedCategories.length > 0;
   const locationText = [museum.city, museum.province].filter(Boolean).join(', ');
-  const showAffiliateNote = Boolean(museum.ticketUrl) && shouldShowAffiliateNote(museum.slug);
+  const hasAffiliateTicket = Boolean(museum.ticketAffiliateUrl);
+  const showAffiliateNote = hasAffiliateTicket && shouldShowAffiliateNote(museum.slug);
   const showOpenNowBadge =
     highlightOpenNow && openingStatus && openingStatus.state === 'open' && !openingStatus.fallback;
   const headingAutoId = useId();
