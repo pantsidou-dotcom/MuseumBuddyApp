@@ -17,9 +17,7 @@ function resolveSections(sections, labels) {
       id: 'availability',
       title: labels?.availability,
       options: [
-        { name: 'free', label: labels?.free },
         { name: 'exhibitions', label: labels?.exhibitions },
-        { name: 'kidFriendly', label: labels?.kidFriendly },
         { name: 'nearby', label: labels?.distance, hidden: true },
       ],
     },
