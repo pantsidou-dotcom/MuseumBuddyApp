@@ -179,14 +179,25 @@ function mapExhibitionToCard(exhibition, lang, t) {
   const descriptionText = truncate(
     exhibition.beschrijving || exhibition.omschrijving || exhibition.description || ''
   );
-  const metaLine = [hostedBy, rangeLabel].filter(Boolean).join(' • ');
-  const cardTitle = rangeLabel ? `${titleBase} (${rangeLabel})` : titleBase;
-  let summary = descriptionText;
-  if (!summary && metaLine) {
-    summary = metaLine;
-  } else if (summary && metaLine) {
-    summary = summary.endsWith('.') ? `${summary} ${metaLine}` : `${summary} — ${metaLine}`;
+  const cardTitle = titleBase;
+  let summary = descriptionText || '';
+  if (!summary) {
+    summary = hostedBy || '';
   }
+  if (!summary) {
+    summary = rangeLabel || '';
+  }
+  if (!summary) {
+    summary = null;
+  }
+  const metaParts = [];
+  if (rangeLabel && rangeLabel !== summary) {
+    metaParts.push(rangeLabel);
+  }
+  if (hostedBy && hostedBy !== summary) {
+    metaParts.push(hostedBy);
+  }
+  const metaLine = metaParts.join(' • ');
 
   const imageFromData = pickImage(exhibition, museum);
   const resolvedImage = imageFromData || museumImages[slug] || null;
@@ -223,6 +234,7 @@ function mapExhibitionToCard(exhibition, lang, t) {
     imageCredit: museumImageCredits[slug],
     ticketUrl,
     summary,
+    meta: metaLine || null,
   };
 }
 

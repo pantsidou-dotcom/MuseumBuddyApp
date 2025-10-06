@@ -3346,6 +3346,14 @@ button.hero-quick-link {
   overflow: hidden;
 }
 
+.museum-card-meta {
+  margin: 0.5rem 0 0;
+  font-size: 0.94rem;
+  line-height: 1.45;
+  color: rgba(71, 85, 105, 0.92);
+  letter-spacing: 0.01em;
+}
+
 .museum-card-badges {
   display: flex;
   flex-wrap: wrap;
@@ -3355,6 +3363,10 @@ button.hero-quick-link {
 
 [data-theme='dark'] .museum-card-summary {
   color: rgba(226, 232, 240, 0.9);
+}
+
+[data-theme='dark'] .museum-card-meta {
+  color: rgba(226, 232, 240, 0.78);
 }
 
 .museum-card-hours {
