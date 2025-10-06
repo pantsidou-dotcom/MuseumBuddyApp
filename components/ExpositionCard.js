@@ -1,4 +1,5 @@
 import { Fragment, useEffect, useId, useMemo, useRef, useState } from 'react';
+import Image from 'next/image';
 import { useLanguage } from './LanguageContext';
 import { useFavorites } from './FavoritesContext';
 import { shouldShowAffiliateNote } from '../lib/nonAffiliateMuseums';
@@ -154,15 +155,15 @@ export default function ExpositionCard({ exposition, ticketUrl, affiliateUrl, mu
   const placeholderImage = useMemo(() => getPlaceholderImage(exposition), [exposition]);
 
   return (
-    <article
-      className={`exposition-card${isFavoriteBouncing ? ' is-bouncing' : ''}`}
-    >
+    <article className={`ds-card exposition-card${isFavoriteBouncing ? ' is-bouncing' : ''}`}>
       <div className={mediaClassName} aria-hidden="true">
-        <img
+        <Image
           src={placeholderImage}
           alt=""
+          fill
           className="exposition-card__media-placeholder"
-          loading="lazy"
+          sizes="(min-width: 1024px) 360px, (min-width: 640px) 50vw, 90vw"
+          priority={false}
         />
       </div>
       <div className="exposition-card__body">

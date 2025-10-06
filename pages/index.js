@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter } from 'next/router';
 import MuseumCard from '../components/MuseumCard';
 import SkeletonMuseumCard from '../components/SkeletonMuseumCard';
@@ -15,6 +16,7 @@ import FiltersSheet from '../components/FiltersSheet';
 import { filterMuseumsForDisplay } from '../lib/museumFilters';
 import { CATEGORY_TRANSLATION_KEYS, getMuseumCategories } from '../lib/museumCategories';
 import { parseMuseumSearchQuery } from '../lib/museumSearch';
+import Button from '../components/ui/Button';
 
 const FEATURED_SLUGS = [
   'van-gogh-museum-amsterdam',
@@ -731,17 +733,25 @@ export default function Home({ initialMuseums = [], initialError = null }) {
           <h1 className="hero-title">{t('heroTitle')}</h1>
           <p className="hero-subtext">{t('heroSubtitle')}</p>
           <div className="hero-ctas">
-            <button
+            <Button
               type="button"
-              className="hero-cta-button hero-cta-button--primary"
+              size="lg"
+              variant="primary"
+              className="hero-cta-button"
               onClick={handleScrollToResults}
               aria-controls="museum-results"
             >
               {t('heroDiscoverMuseums')}
-            </button>
-            <Link href="/tentoonstellingen" prefetch className="hero-cta-button hero-cta-button--secondary">
+            </Button>
+            <Button
+              href="/tentoonstellingen"
+              size="lg"
+              variant="secondary"
+              className="hero-cta-button hero-cta-button--secondary"
+              prefetch
+            >
               {t('heroViewExhibitions')}
-            </Link>
+            </Button>
           </div>
         </div>
         <form className="hero-card hero-search" onSubmit={(e) => e.preventDefault()}>
@@ -792,11 +802,13 @@ export default function Home({ initialMuseums = [], initialError = null }) {
       </section>
 
       <section className="secondary-hero" aria-labelledby="museumnacht-hero-heading">
-        <img
+        <Image
           src="/images/Museumnacht.jpg"
           alt="Museumnacht Amsterdam visitors enjoying exhibitions"
+          fill
           className="secondary-hero__image"
-          loading="lazy"
+          sizes="(min-width: 768px) 80vw, 100vw"
+          priority={false}
         />
         <div className="secondary-hero__overlay" aria-hidden="true" />
         <div className="secondary-hero__content">

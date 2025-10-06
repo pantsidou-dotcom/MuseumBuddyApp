@@ -1,9 +1,10 @@
-import Link from 'next/link';
+import Image from 'next/image';
 import SEO from '../components/SEO';
 import MuseumCard from '../components/MuseumCard';
 import ExpositionCard from '../components/ExpositionCard';
 import { useFavorites } from '../components/FavoritesContext';
 import { useLanguage } from '../components/LanguageContext';
+import Button from '../components/ui/Button';
 
 export default function FavoritesPage() {
   const { favorites } = useFavorites();
@@ -22,17 +23,20 @@ export default function FavoritesPage() {
           aria-labelledby="favorites-empty-heading"
         >
           <div className="favorites-empty-state__media">
-            <img
+            <Image
               src="/images/favorites-empty.svg"
               alt={t('favoritesEmptyIllustrationAlt')}
+              width={320}
+              height={240}
+              priority
             />
           </div>
           <div className="favorites-empty-state__content">
             <h2 id="favorites-empty-heading">{t('favoritesEmptyTitle')}</h2>
             <p>{t('favoritesEmptyBody')}</p>
-            <Link href="/" className="favorites-empty-state__cta">
+            <Button href="/" variant="primary" size="lg" className="favorites-empty-state__cta" prefetch>
               {t('favoritesEmptyCta')}
-            </Link>
+            </Button>
           </div>
         </section>
       ) : (
