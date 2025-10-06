@@ -634,6 +634,14 @@ img { max-width: 100%; height: auto; display: block; }
     align-items: center;
     gap: var(--ds-space-1);
     flex-wrap: nowrap;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .ds-nav::-webkit-scrollbar {
+    display: none;
   }
 
   .ds-nav__brand {
@@ -655,23 +663,25 @@ img { max-width: 100%; height: auto; display: block; }
   .ds-nav__section {
     gap: var(--ds-space-1);
     min-width: 0;
+    flex: 0 0 auto;
   }
 
   .ds-nav__section--primary {
-    flex: 1 1 auto;
+    flex: 0 0 auto;
     justify-content: center;
   }
 
   .ds-nav__section--primary .ds-nav__link {
-    width: 100%;
+    width: auto;
     justify-content: center;
+    flex: 0 0 auto;
     padding-inline: 10px;
     font-size: 0.875rem;
     line-height: 1.1;
   }
 
   .ds-nav__section--actions {
-    flex: 0 1 auto;
+    flex: 0 0 auto;
     justify-content: flex-end;
     gap: 6px;
     min-width: 0;
@@ -680,7 +690,7 @@ img { max-width: 100%; height: auto; display: block; }
   .ds-nav__section--actions .ds-nav__link,
   .ds-nav__section--actions .ds-nav__link--button,
   .ds-nav__section--actions .ds-button {
-    flex: 0 1 auto;
+    flex: 0 0 auto;
     padding-inline: 8px;
     height: 32px;
     white-space: nowrap;
