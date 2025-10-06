@@ -8,6 +8,7 @@ export default function SkeletonMuseumCard() {
         <div className="skeleton-block skeleton-line skeleton-line--title" />
         <div className="skeleton-block skeleton-line" />
         <div className="skeleton-block skeleton-line skeleton-line--short" />
+        <div className="skeleton-block skeleton-line skeleton-line--short" />
       </div>
     </article>
   );

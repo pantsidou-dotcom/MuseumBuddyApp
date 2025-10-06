@@ -1,6 +1,6 @@
-import Link from 'next/link';
 import Image from 'next/image';
-import { Fragment, useEffect, useId, useMemo, useRef, useState } from 'react';
+import { Fragment, useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
+import { useRouter } from 'next/router';
 import { useFavorites } from './FavoritesContext';
 import { useLanguage } from './LanguageContext';
 import museumSummaries from '../lib/museumSummaries';
@@ -12,6 +12,7 @@ import { normalizeImageSource, resolveImageUrl } from '../lib/resolveImageSource
 import TicketButtonNote from './TicketButtonNote';
 
 const HOVER_COLORS = ['#A7D8F0', '#77DDDD', '#F7C59F', '#D8BFD8', '#EAE0C8'];
+const LOCAL_TIME_ZONE = 'Europe/Amsterdam';
 
 function hashKey(value) {
   if (!value) return 0;
@@ -46,9 +47,103 @@ function createBlurDataUrl(color) {
   return `data:image/svg+xml,${encodeURIComponent(svg)}`;
 }
 
+function parseTime(value) {
+  if (!value || typeof value !== 'string') return null;
+  const normalised = value.trim().replace('.', ':');
+  const [hoursPart, minutesPart] = normalised.split(':');
+  const hours = Number.parseInt(hoursPart, 10);
+  const minutes = Number.parseInt(minutesPart, 10);
+  if (Number.isNaN(hours) || Number.isNaN(minutes)) return null;
+  if (hours < 0 || hours > 29) return null;
+  if (minutes < 0 || minutes > 59) return null;
+  const total = hours * 60 + minutes;
+  return {
+    minutes: total,
+    label: `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`,
+  };
+}
+
+function getLocalMinutes(timeZone = LOCAL_TIME_ZONE) {
+  try {
+    const formatter = new Intl.DateTimeFormat('en-GB', {
+      timeZone,
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+    });
+    const parts = formatter.formatToParts(new Date());
+    const hourPart = parts.find((part) => part.type === 'hour');
+    const minutePart = parts.find((part) => part.type === 'minute');
+    const hours = hourPart ? Number.parseInt(hourPart.value, 10) : NaN;
+    const minutes = minutePart ? Number.parseInt(minutePart.value, 10) : NaN;
+    if (!Number.isNaN(hours) && !Number.isNaN(minutes)) {
+      return hours * 60 + minutes;
+    }
+  } catch (err) {
+    // ignore and fallback to local time
+  }
+  const now = new Date();
+  return now.getHours() * 60 + now.getMinutes();
+}
+
+function resolveOpeningStatus(hoursText, t) {
+  if (!hoursText) return null;
+
+  const timeMatch = hoursText.match(/(\d{1,2}[:.]\d{2})\s*[–-]\s*(\d{1,2}[:.]\d{2})/);
+  if (!timeMatch) {
+    return {
+      text: hoursText,
+      state: 'unknown',
+      fallback: true,
+    };
+  }
+
+  const start = parseTime(timeMatch[1]);
+  const end = parseTime(timeMatch[2]);
+
+  if (!start || !end) {
+    return {
+      text: hoursText,
+      state: 'unknown',
+      fallback: true,
+    };
+  }
+
+  let startMinutes = start.minutes;
+  let endMinutes = end.minutes;
+  let crossesMidnight = false;
+
+  if (endMinutes <= startMinutes) {
+    endMinutes += 24 * 60;
+    crossesMidnight = true;
+  }
+
+  const nowMinutesBase = getLocalMinutes();
+  const nowMinutes = crossesMidnight && nowMinutesBase < startMinutes ? nowMinutesBase + 24 * 60 : nowMinutesBase;
+  const isOpen = nowMinutes >= startMinutes && nowMinutes < endMinutes;
+  const rangeLabel = `${start.label}–${end.label}`;
+
+  if (isOpen) {
+    return {
+      text: t('cardOpenToday', { range: rangeLabel }),
+      state: 'open',
+      range: rangeLabel,
+      fallback: false,
+    };
+  }
+
+  return {
+    text: t('cardClosedNow', { time: start.label }),
+    state: 'closed',
+    range: rangeLabel,
+    fallback: false,
+  };
+}
+
 export default function MuseumCard({ museum, priority = false, onCategoryClick }) {
   if (!museum) return null;
 
+  const router = useRouter();
   const { favorites, toggleFavorite } = useFavorites();
   const { t, lang } = useLanguage();
   const isFavorite = favorites.some((f) => f.id === museum.id && f.type === 'museum');
@@ -68,6 +163,38 @@ export default function MuseumCard({ museum, priority = false, onCategoryClick }
 
   const summary = museumSummaries[museum.slug]?.[lang] || museum.summary;
   const hours = museumOpeningHours[museum.slug]?.[lang];
+  const [openingStatus, setOpeningStatus] = useState(() => {
+    if (!hours) return null;
+    return {
+      text: hours,
+      state: 'unknown',
+      fallback: true,
+    };
+  });
+
+  useEffect(() => {
+    if (!hours) {
+      setOpeningStatus(null);
+      return undefined;
+    }
+
+    const fallbackStatus = {
+      text: hours,
+      state: 'unknown',
+      fallback: true,
+    };
+    setOpeningStatus(fallbackStatus);
+
+    let mounted = true;
+    const nextStatus = resolveOpeningStatus(hours, t);
+    if (mounted) {
+      setOpeningStatus(nextStatus);
+    }
+
+    return () => {
+      mounted = false;
+    };
+  }, [hours, t]);
   const resolvedCategories = useMemo(() => {
     if (!Array.isArray(museum.categories)) return [];
     return museum.categories
@@ -82,7 +209,15 @@ export default function MuseumCard({ museum, priority = false, onCategoryClick }
   const hasTags = museum.free || resolvedCategories.length > 0;
   const locationText = [museum.city, museum.province].filter(Boolean).join(', ');
   const showAffiliateNote = Boolean(museum.ticketUrl) && shouldShowAffiliateNote(museum.slug);
+  const headingAutoId = useId();
   const ticketNoteId = useId();
+  const headingId = museum.slug ? `museum-card-${museum.slug}-heading` : `${headingAutoId}-heading`;
+  const summaryId = summary ? `${headingId}-summary` : undefined;
+  const detailHref = useMemo(
+    () => ({ pathname: '/museum/[slug]', query: { slug: museum.slug } }),
+    [museum.slug]
+  );
+  const detailUrl = useMemo(() => (museum.slug ? `/museum/${museum.slug}` : '/'), [museum.slug]);
   const ticketHoverMessage = showAffiliateNote ? t('ticketsAffiliateDisclosure') : undefined;
   const ticketDisclosureLine = [t('ticketsAffiliateDisclosure'), t('ticketsAffiliatePricesMayVary')]
     .filter(Boolean)
@@ -144,7 +279,10 @@ export default function MuseumCard({ museum, priority = false, onCategoryClick }
       type="button"
       className={`icon-button${className ? ` ${className}` : ''}`}
       aria-label={t('share')}
-      onClick={shareMuseum}
+      onClick={(event) => {
+        event.stopPropagation();
+        shareMuseum();
+      }}
     >
       <svg
         viewBox="0 0 24 24"
@@ -170,7 +308,10 @@ export default function MuseumCard({ museum, priority = false, onCategoryClick }
       }${className ? ` ${className}` : ''}`}
       aria-label={t('save')}
       aria-pressed={isFavorite}
-      onClick={handleFavorite}
+      onClick={(event) => {
+        event.stopPropagation();
+        handleFavorite();
+      }}
     >
       <svg
         viewBox="0 0 24 24"
@@ -212,6 +353,7 @@ export default function MuseumCard({ museum, priority = false, onCategoryClick }
             aria-label={ticketAriaLabel}
             aria-describedby={showAffiliateNote ? ticketNoteId : undefined}
             data-affiliate={showAffiliateNote ? 'true' : undefined}
+            onClick={(event) => event.stopPropagation()}
           >
             <span className={labelClassName}>
               <span className="ticket-button__label-text">{t('buyTickets')}</span>
@@ -223,7 +365,13 @@ export default function MuseumCard({ museum, priority = false, onCategoryClick }
     }
 
     return (
-      <button type="button" className={classNames} disabled aria-disabled="true">
+      <button
+        type="button"
+        className={classNames}
+        disabled
+        aria-disabled="true"
+        onClick={(event) => event.stopPropagation()}
+      >
         <span className="ticket-button__label">
           <span className="ticket-button__label-text">{t('buyTickets')}</span>
         </span>
@@ -267,43 +415,118 @@ export default function MuseumCard({ museum, priority = false, onCategoryClick }
     }
   };
 
+  const navigateToMuseum = useCallback(
+    (openInNewTab = false) => {
+      if (!museum.slug) return;
+      if (openInNewTab) {
+        if (typeof window !== 'undefined') {
+          window.open(detailUrl, '_blank', 'noopener,noreferrer');
+        }
+        return;
+      }
+      router.push(detailHref);
+    },
+    [detailHref, detailUrl, museum.slug, router]
+  );
+
+  const isInteractiveEvent = useCallback((event) => {
+    if (!event) return false;
+    let node = event.target;
+    while (node && node !== event.currentTarget) {
+      if (node && node.nodeType === 1 && typeof node.getAttribute === 'function') {
+        if (node.getAttribute('data-card-interactive') === 'true') {
+          return true;
+        }
+      }
+      node = node?.parentNode || null;
+    }
+    return false;
+  }, []);
+
+  const handleCardClick = useCallback(
+    (event) => {
+      if (event.defaultPrevented) return;
+      if (isInteractiveEvent(event)) return;
+      if (event.button && event.button !== 0) return;
+      const openInNewTab = event.metaKey || event.ctrlKey;
+      if (openInNewTab) {
+        event.preventDefault();
+      }
+      navigateToMuseum(openInNewTab);
+    },
+    [isInteractiveEvent, navigateToMuseum]
+  );
+
+  const handleCardAuxClick = useCallback(
+    (event) => {
+      if (isInteractiveEvent(event)) return;
+      if (event.button === 1) {
+        event.preventDefault();
+        navigateToMuseum(true);
+      }
+    },
+    [isInteractiveEvent, navigateToMuseum]
+  );
+
+  const handleCardKeyDown = useCallback(
+    (event) => {
+      if (event.defaultPrevented) return;
+      if (event.key !== 'Enter' && event.key !== ' ') return;
+      if (isInteractiveEvent(event)) return;
+      event.preventDefault();
+      navigateToMuseum(false);
+    },
+    [isInteractiveEvent, navigateToMuseum]
+  );
+
   return (
-    <article className="museum-card" style={{ '--hover-bg': hoverColor }}>
+    <article
+      className="museum-card"
+      style={{ '--hover-bg': hoverColor }}
+      role="link"
+      tabIndex={0}
+      aria-labelledby={headingId}
+      aria-describedby={summaryId}
+      onClick={handleCardClick}
+      onAuxClick={handleCardAuxClick}
+      onKeyDown={handleCardKeyDown}
+    >
       <div className="museum-card-image">
-        <Link
-          href={{ pathname: '/museum/[slug]', query: { slug: museum.slug } }}
-          className="museum-card-media-link"
-          aria-label={`${t('view')} ${museum.title}`}
-        >
-          {normalizedImage && (
-            <Image
-              src={normalizedImage}
-              alt={museum.title}
-              fill
-              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-              className="museum-card-media"
-              style={{ objectFit: 'cover' }}
-              {...(placeholderDataUrl
-                ? { placeholder: 'blur', blurDataURL: placeholderDataUrl }
-                : {})}
-              priority={priority}
-              loading={priority ? 'eager' : 'lazy'}
-              fetchPriority={priority ? 'high' : 'auto'}
-              quality={70}
-            />
-          )}
-          <div className="museum-card-overlay" aria-hidden="true">
-            <span className="museum-card-overlay-label">{t('view')}</span>
-            <span className="museum-card-overlay-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M5 12h14" />
-                <path d="M13 6l6 6-6 6" />
-              </svg>
-            </span>
-          </div>
-        </Link>
-        <div className="museum-card-ticket">{renderTicketButton('ticket-button--card')}</div>
-        <div className="museum-card-actions">
+        {normalizedImage && (
+          <Image
+            src={normalizedImage}
+            alt=""
+            fill
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+            className="museum-card-media"
+            style={{ objectFit: 'cover' }}
+            {...(placeholderDataUrl ? { placeholder: 'blur', blurDataURL: placeholderDataUrl } : {})}
+            priority={priority}
+            loading={priority ? 'eager' : 'lazy'}
+            fetchPriority={priority ? 'high' : 'auto'}
+            quality={70}
+          />
+        )}
+        <div className="museum-card-overlay" aria-hidden="true">
+          <span className="museum-card-overlay-label">{t('view')}</span>
+          <span className="museum-card-overlay-icon">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M5 12h14" />
+              <path d="M13 6l6 6-6 6" />
+            </svg>
+          </span>
+        </div>
+        <div className="museum-card-ticket" data-card-interactive="true">
+          {renderTicketButton('ticket-button--card')}
+        </div>
+        <div className="museum-card-actions" data-card-interactive="true">
           {renderShareButton()}
           {renderFavoriteButton()}
         </div>
@@ -323,6 +546,7 @@ export default function MuseumCard({ museum, priority = false, onCategoryClick }
                   href={segment.url}
                   target="_blank"
                   rel="noreferrer"
+                  data-card-interactive="true"
                 >
                   {segment.label}
                 </a>
@@ -334,47 +558,59 @@ export default function MuseumCard({ museum, priority = false, onCategoryClick }
         </p>
       )}
       <div className="museum-card-info">
-        <h3 className="museum-card-title">
-          <Link
-            href={{ pathname: '/museum/[slug]', query: { slug: museum.slug } }}
-            style={{ color: 'inherit', textDecoration: 'none' }}
-          >
-            {museum.title}
-          </Link>
-        </h3>
-        <div className="museum-card-meta">
+        <div className="museum-card-header">
           {locationText && (
-            <p className="museum-card-meta-item">
-              <span className="museum-card-meta-icon" aria-hidden="true">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <p className="museum-card-location">
+              <span className="museum-card-location-icon" aria-hidden="true">
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
                   <path d="M12 11.25a2.25 2.25 0 1 0 0-4.5 2.25 2.25 0 0 0 0 4.5Z" />
                   <path d="M12 21s-7.5-7.048-7.5-11.25a7.5 7.5 0 1 1 15 0C19.5 13.952 12 21 12 21Z" />
                 </svg>
               </span>
-              <span className="museum-card-meta-text">{locationText}</span>
+              <span>{locationText}</span>
             </p>
           )}
-          {hours && (
-            <p className="museum-card-meta-item">
-              <span className="museum-card-meta-icon" aria-hidden="true">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                  <circle cx="12" cy="12" r="8.25" />
-                  <path d="M12 7.5v4.5l2.5 1.5" />
-                </svg>
-              </span>
-              <span className="museum-card-meta-text">{hours}</span>
+          <h3 className="museum-card-title" id={headingId}>
+            {museum.title}
+          </h3>
+          {summary && (
+            <p className="museum-card-summary" id={summaryId}>
+              {summary}
             </p>
           )}
         </div>
-        {summary && <p className="museum-card-summary">{summary}</p>}
+        {openingStatus && (
+          <p
+            className={`museum-card-hours${
+              openingStatus.state === 'closed'
+                ? ' museum-card-hours--closed'
+                : openingStatus.fallback
+                ? ' museum-card-hours--fallback'
+                : ''
+            }`}
+          >
+            <span className="museum-card-hours-indicator" aria-hidden="true" />
+            <span>{openingStatus.text}</span>
+          </p>
+        )}
         {hasTags && (
-          <div className="museum-card-tags">
+          <div className="museum-card-tags" data-card-interactive="true">
             {resolvedCategories.map(({ key, label }, index) => (
               <button
                 key={`${museum.slug}-category-${index}`}
                 type="button"
                 className="tag tag-button"
-                onClick={() => onCategoryClick?.(key, label, museum)}
+                onClick={(event) => {
+                  event.stopPropagation();
+                  onCategoryClick?.(key, label, museum);
+                }}
               >
                 {label}
               </button>
@@ -383,14 +619,16 @@ export default function MuseumCard({ museum, priority = false, onCategoryClick }
           </div>
         )}
         {ticketContext ? (
-          <TicketButtonNote
-            affiliate={showAffiliateNote}
-            showIcon={false}
-            id={ticketNoteId}
-            className="museum-card__affiliate-note"
-          >
-            {ticketContext}
-          </TicketButtonNote>
+          <div data-card-interactive="true">
+            <TicketButtonNote
+              affiliate={showAffiliateNote}
+              showIcon={false}
+              id={ticketNoteId}
+              className="museum-card__affiliate-note"
+            >
+              {ticketContext}
+            </TicketButtonNote>
+          </div>
         ) : null}
       </div>
     </article>

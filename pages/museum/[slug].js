@@ -667,8 +667,6 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
   const hasVisitorDetails =
     Boolean(openingHours) ||
     locationLines.length > 0 ||
-    resolvedMuseum.free ||
-    isKidFriendlyMuseum ||
     resolvedMuseum.phone ||
     resolvedMuseum.email ||
     socialLinks.length > 0;
@@ -776,17 +774,6 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
                       {index < locationLines.length - 1 && <br />}
                     </span>
                   ))}
-                </p>
-              </div>
-            )}
-
-            {(resolvedMuseum.free || isKidFriendlyMuseum) && (
-              <div className="museum-info-item">
-                <span className="museum-info-label">{t('visitorInformation')}</span>
-                <p className="museum-info-value">
-                  {[resolvedMuseum.free && t('free'), isKidFriendlyMuseum && t('tagChildFriendly')]
-                    .filter(Boolean)
-                    .join(' · ')}
                 </p>
               </div>
             )}
