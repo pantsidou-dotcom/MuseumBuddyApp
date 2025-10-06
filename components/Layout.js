@@ -26,6 +26,7 @@ export default function Layout({ children }) {
   const favoritesCount = favorites.length;
   const favoritesActive = router.pathname.startsWith('/favorites');
   const aboutActive = router.pathname === '/about';
+  const exhibitionsActive = router.pathname === '/tentoonstellingen';
   const onMuseumDetailPage = router.pathname === '/museum/[slug]';
   const onExhibitionsPage = router.pathname === '/tentoonstellingen';
   const showFiltersControl = !(onMuseumDetailPage || onExhibitionsPage);
@@ -45,6 +46,9 @@ export default function Layout({ children }) {
               </span>
             </Link>
             <NavSection className="ds-nav__section--primary">
+              <NavLink href="/tentoonstellingen" active={exhibitionsActive}>
+                {t('exhibitionsNavLabel')}
+              </NavLink>
               <NavLink href="/about" active={aboutActive}>
                 {t('aboutLabel')}
               </NavLink>
