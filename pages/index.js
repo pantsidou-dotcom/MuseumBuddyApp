@@ -13,7 +13,11 @@ import { supabase as supabaseClient } from '../lib/supabase';
 import SEO from '../components/SEO';
 import FiltersSheet from '../components/FiltersSheet';
 import { filterMuseumsForDisplay } from '../lib/museumFilters';
-import { CATEGORY_TRANSLATION_KEYS, getMuseumCategories } from '../lib/museumCategories';
+import {
+  CATEGORY_ORDER,
+  CATEGORY_TRANSLATION_KEYS,
+  getMuseumCategories,
+} from '../lib/museumCategories';
 import { parseMuseumSearchQuery } from '../lib/museumSearch';
 import Button from '../components/ui/Button';
 import parseBooleanParam from '../lib/parseBooleanParam.js';
@@ -70,36 +74,24 @@ function todayYMD(tz = 'Europe/Amsterdam') {
 
 const FILTERS_EVENT = 'museumBuddy:openFilters';
 
-const TYPE_FILTERS = Object.freeze([
-  {
-    id: 'kunst',
-    paramValue: 'kunst',
-    stateKey: 'type:kunst',
-    labelKey: 'filterTypeArt',
-    categories: ['art', 'modern-art', 'photography', 'film'],
-  },
-  {
-    id: 'geschiedenis',
-    paramValue: 'geschiedenis',
-    stateKey: 'type:geschiedenis',
-    labelKey: 'filterTypeHistory',
-    categories: ['history', 'culture', 'religion', 'maritime'],
-  },
-  {
-    id: 'wetenschap-tech',
-    paramValue: 'wetenschap-tech',
-    stateKey: 'type:wetenschap-tech',
-    labelKey: 'filterTypeScienceTech',
-    categories: ['science'],
-  },
-  {
-    id: 'design-architectuur',
-    paramValue: 'design-architectuur',
-    stateKey: 'type:design-architectuur',
-    labelKey: 'filterTypeDesignArchitecture',
-    categories: ['architecture'],
-  },
-]);
+const ORDERED_TYPE_CATEGORIES = CATEGORY_ORDER.filter(
+  (category) => category !== 'exhibition' && CATEGORY_TRANSLATION_KEYS[category]
+);
+const REMAINING_TYPE_CATEGORIES = Object.keys(CATEGORY_TRANSLATION_KEYS).filter(
+  (category) =>
+    category !== 'exhibition' && !ORDERED_TYPE_CATEGORIES.includes(category)
+);
+const TYPE_CATEGORY_KEYS = [...ORDERED_TYPE_CATEGORIES, ...REMAINING_TYPE_CATEGORIES];
+
+const TYPE_FILTERS = Object.freeze(
+  TYPE_CATEGORY_KEYS.map((category) => ({
+    id: category,
+    paramValue: category,
+    stateKey: `type:${category}`,
+    labelKey: CATEGORY_TRANSLATION_KEYS[category],
+    category,
+  }))
+);
 
 const DEFAULT_FILTERS = Object.freeze({
   exhibitions: false,
@@ -572,14 +564,18 @@ export default function Home({ initialMuseums = [], initialError = null }) {
         const activeTypeFiltersList = TYPE_FILTERS.filter(
           (type) => activeFilters[type.stateKey]
         );
-        const typeFilteredResults =
+        const activeTypeCategories =
           activeTypeFiltersList.length > 0
+            ? new Set(activeTypeFiltersList.map((type) => type.category))
+            : null;
+        const typeFilteredResults =
+          activeTypeCategories && activeTypeCategories.size > 0
             ? categoryFilteredResults.filter((museum) => {
                 const museumCategories = Array.isArray(museum.categories)
                   ? museum.categories
                   : [];
-                return activeTypeFiltersList.some((type) =>
-                  type.categories.some((category) => museumCategories.includes(category))
+                return museumCategories.some((category) =>
+                  activeTypeCategories.has(category)
                 );
               })
             : categoryFilteredResults;
