@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useRouter } from 'next/router';
 import MuseumCard from '../components/MuseumCard';
 import SEO from '../components/SEO';
@@ -12,6 +12,8 @@ import { supabase as supabaseClient } from '../lib/supabase';
 import Button from '../components/ui/Button';
 import parseBooleanParam from '../lib/parseBooleanParam.js';
 import { isMuseumOpenNow } from '../lib/openingHours.js';
+
+const FILTERS_EVENT = 'museumBuddy:openFilters';
 
 const MUSEUM_SELECT_COLUMNS = [
   'id',
@@ -493,6 +495,27 @@ export default function ExhibitionsPage({ exhibitions = [], error = null }) {
     return allCards.filter((card) => isMuseumOpenNow(card) === true);
   }, [allCards, openNowActive]);
 
+  const filtersContainerRef = useRef(null);
+  const openNowButtonRef = useRef(null);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return undefined;
+    const handleOpen = () => {
+      const container = filtersContainerRef.current;
+      if (container?.scrollIntoView) {
+        container.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+      const button = openNowButtonRef.current;
+      if (button) {
+        button.focus({ preventScroll: true });
+      }
+    };
+    window.addEventListener(FILTERS_EVENT, handleOpen);
+    return () => {
+      window.removeEventListener(FILTERS_EVENT, handleOpen);
+    };
+  }, []);
+
   const handleToggleOpenNow = useCallback(() => {
     if (!router?.isReady) return;
     const current = router.query || {};
@@ -528,13 +551,14 @@ export default function ExhibitionsPage({ exhibitions = [], error = null }) {
       <p className="count">
         {visibleCards.length} {t('exhibitions')}
       </p>
-      <div className="filters-inline">
+      <div className="filters-inline" ref={filtersContainerRef}>
         <Button
           type="button"
           variant={openNowActive ? 'primary' : 'ghost'}
           size="sm"
           onClick={handleToggleOpenNow}
           aria-pressed={openNowActive}
+          ref={openNowButtonRef}
         >
           {t('filtersOpenNow')}
         </Button>

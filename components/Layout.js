@@ -26,6 +26,9 @@ export default function Layout({ children }) {
   const favoritesCount = favorites.length;
   const favoritesActive = router.pathname.startsWith('/favorites');
   const aboutActive = router.pathname === '/about';
+  const onMuseumDetailPage = router.pathname === '/museum/[slug]';
+  const onExhibitionsPage = router.pathname === '/tentoonstellingen';
+  const showFiltersControl = !(onMuseumDetailPage || onExhibitionsPage);
 
   return (
     <>
@@ -47,15 +50,17 @@ export default function Layout({ children }) {
               </NavLink>
             </NavSection>
             <NavSection className="ds-nav__section--actions">
-              <NavButton
-                onClick={handleFiltersClick}
-                aria-label={t('filtersButton')}
-                aria-controls={FILTERS_SHEET_ID}
-                aria-haspopup="dialog"
-                className="ds-nav__link--filters"
-              >
-                {t('filtersButton')}
-              </NavButton>
+              {showFiltersControl ? (
+                <NavButton
+                  onClick={handleFiltersClick}
+                  aria-label={t('filtersButton')}
+                  aria-controls={FILTERS_SHEET_ID}
+                  aria-haspopup="dialog"
+                  className="ds-nav__link--filters"
+                >
+                  {t('filtersButton')}
+                </NavButton>
+              ) : null}
               <NavLink
                 href="/favorites"
                 active={favoritesActive}
