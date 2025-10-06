@@ -163,7 +163,38 @@ export default function MuseumCard({ museum, priority = false, onCategoryClick }
 
   const summary = museumSummaries[museum.slug]?.[lang] || museum.summary;
   const hours = museumOpeningHours[museum.slug]?.[lang];
-  const openingStatus = useMemo(() => resolveOpeningStatus(hours, t), [hours, t]);
+  const [openingStatus, setOpeningStatus] = useState(() => {
+    if (!hours) return null;
+    return {
+      text: hours,
+      state: 'unknown',
+      fallback: true,
+    };
+  });
+
+  useEffect(() => {
+    if (!hours) {
+      setOpeningStatus(null);
+      return undefined;
+    }
+
+    const fallbackStatus = {
+      text: hours,
+      state: 'unknown',
+      fallback: true,
+    };
+    setOpeningStatus(fallbackStatus);
+
+    let mounted = true;
+    const nextStatus = resolveOpeningStatus(hours, t);
+    if (mounted) {
+      setOpeningStatus(nextStatus);
+    }
+
+    return () => {
+      mounted = false;
+    };
+  }, [hours, t]);
   const resolvedCategories = useMemo(() => {
     if (!Array.isArray(museum.categories)) return [];
     return museum.categories
