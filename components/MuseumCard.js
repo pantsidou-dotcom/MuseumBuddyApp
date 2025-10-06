@@ -10,6 +10,7 @@ import { shouldShowAffiliateNote } from '../lib/nonAffiliateMuseums';
 import formatImageCredit from '../lib/formatImageCredit';
 import { normalizeImageSource, resolveImageUrl } from '../lib/resolveImageSource';
 import TicketButtonNote from './TicketButtonNote';
+import Badge from './ui/Badge';
 
 const HOVER_COLORS = ['#A7D8F0', '#77DDDD', '#F7C59F', '#D8BFD8', '#EAE0C8'];
 const LOCAL_TIME_ZONE = 'Europe/Amsterdam';
@@ -140,7 +141,12 @@ function resolveOpeningStatus(hoursText, t) {
   };
 }
 
-export default function MuseumCard({ museum, priority = false, onCategoryClick }) {
+export default function MuseumCard({
+  museum,
+  priority = false,
+  onCategoryClick,
+  highlightOpenNow = false,
+}) {
   if (!museum) return null;
 
   const router = useRouter();
@@ -209,6 +215,8 @@ export default function MuseumCard({ museum, priority = false, onCategoryClick }
   const hasTags = museum.free || resolvedCategories.length > 0;
   const locationText = [museum.city, museum.province].filter(Boolean).join(', ');
   const showAffiliateNote = Boolean(museum.ticketUrl) && shouldShowAffiliateNote(museum.slug);
+  const showOpenNowBadge =
+    highlightOpenNow && openingStatus && openingStatus.state === 'open' && !openingStatus.fallback;
   const headingAutoId = useId();
   const ticketNoteId = useId();
   const headingId = museum.slug ? `museum-card-${museum.slug}-heading` : `${headingAutoId}-heading`;
@@ -586,6 +594,13 @@ export default function MuseumCard({ museum, priority = false, onCategoryClick }
             </p>
           )}
         </div>
+        {showOpenNowBadge && (
+          <div className="museum-card-badges">
+            <Badge variant="solid" size="sm" tone="brand">
+              {t('openNowBadge')}
+            </Badge>
+          </div>
+        )}
         {openingStatus && (
           <p
             className={`museum-card-hours${

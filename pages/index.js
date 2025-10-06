@@ -16,6 +16,8 @@ import { filterMuseumsForDisplay } from '../lib/museumFilters';
 import { CATEGORY_TRANSLATION_KEYS, getMuseumCategories } from '../lib/museumCategories';
 import { parseMuseumSearchQuery } from '../lib/museumSearch';
 import Button from '../components/ui/Button';
+import parseBooleanParam from '../lib/parseBooleanParam.js';
+import { DEFAULT_TIME_ZONE } from '../lib/openingHours.js';
 
 const FEATURED_SLUGS = [
   'van-gogh-museum-amsterdam',
@@ -71,6 +73,7 @@ const FILTERS_EVENT = 'museumBuddy:openFilters';
 const DEFAULT_FILTERS = Object.freeze({
   exhibitions: false,
   nearby: false,
+  openNow: false,
 });
 
 const BASE_MUSEUM_COLUMNS =
@@ -78,33 +81,6 @@ const BASE_MUSEUM_COLUMNS =
 const OPTIONAL_MUSEUM_COLUMNS = 'afstand_meter';
 const NEARBY_RPC_NAME = 'musea_within_radius';
 const NEARBY_RADIUS_METERS = 5000;
-
-function parseBooleanParam(value) {
-  if (Array.isArray(value)) {
-    return value.some((item) => parseBooleanParam(item));
-  }
-
-  if (value === undefined) return false;
-
-  if (value === null) return false;
-
-  if (typeof value === 'number') {
-    return value === 1;
-  }
-
-  if (typeof value === 'boolean') {
-    return value;
-  }
-
-  if (typeof value === 'string') {
-    const normalized = value.trim().toLowerCase();
-    if (!normalized) return true;
-    if (['1', 'true', 'yes', 'ja', 'waar'].includes(normalized)) return true;
-    return false;
-  }
-
-  return Boolean(value);
-}
 
 export default function Home({ initialMuseums = [], initialError = null }) {
   const { t } = useLanguage();
@@ -123,6 +99,9 @@ export default function Home({ initialMuseums = [], initialError = null }) {
       nearby: parseBooleanParam(
         queryFilters.dichtbij ?? queryFilters.nearby ?? queryFilters.distance
       ),
+      openNow: parseBooleanParam(
+        queryFilters.open_now ?? queryFilters.openNow ?? queryFilters.open
+      ),
     };
   }, [router.query]);
 
@@ -139,6 +118,7 @@ export default function Home({ initialMuseums = [], initialError = null }) {
     !qFromUrl &&
     !filtersFromUrl.exhibitions &&
     !filtersFromUrl.nearby &&
+    !filtersFromUrl.openNow &&
     initialMuseumsWithCategories.length > 0;
 
   const [query, setQuery] = useState('');
@@ -251,6 +231,7 @@ export default function Home({ initialMuseums = [], initialError = null }) {
       if (searchValue) params.set('q', searchValue);
       if (filters?.exhibitions) params.set('exposities', '1');
       if (filters?.nearby) params.set('nearby', '1');
+      if (filters?.openNow) params.set('open_now', '1');
       return params.toString();
     },
     []
@@ -292,6 +273,7 @@ export default function Home({ initialMuseums = [], initialError = null }) {
     const params = buildQueryParams(query, {
       exhibitions: activeFilters.exhibitions,
       nearby: activeFilters.nearby,
+      openNow: activeFilters.openNow,
     });
     const nextQuery = {};
     if (params) {
@@ -332,6 +314,7 @@ export default function Home({ initialMuseums = [], initialError = null }) {
     query,
     activeFilters.exhibitions,
     activeFilters.nearby,
+    activeFilters.openNow,
   ]);
 
   useEffect(() => {
@@ -346,7 +329,8 @@ export default function Home({ initialMuseums = [], initialError = null }) {
     const usingDefaultFilters =
       !query &&
       !activeFilters.exhibitions &&
-      !activeFilters.nearby;
+      !activeFilters.nearby &&
+      !activeFilters.openNow;
 
     if (usingDefaultFilters && initialMuseumsWithCategories.length > 0) {
       setResults(initialMuseumsWithCategories);
@@ -506,6 +490,8 @@ export default function Home({ initialMuseums = [], initialError = null }) {
         const filtered = filterMuseumsForDisplay(data || [], {
           excludeSlugs: ['amsterdam-tulip-museum-amsterdam'],
           isNearbyActive: activeFilters.nearby && usedNearbyResults,
+          onlyOpenNow: activeFilters.openNow,
+          openNowTimeZone: DEFAULT_TIME_ZONE,
         });
         const preparedWithCategories = filtered.map((museum) => ({
           ...museum,
@@ -540,7 +526,8 @@ export default function Home({ initialMuseums = [], initialError = null }) {
     const delay =
       query ||
       activeFilters.exhibitions ||
-      activeFilters.nearby
+      activeFilters.nearby ||
+      activeFilters.openNow
         ? 200
         : 0;
     const timer = setTimeout(run, delay);
@@ -555,6 +542,7 @@ export default function Home({ initialMuseums = [], initialError = null }) {
     categoryFiltersKey,
     activeFilters.exhibitions,
     activeFilters.nearby,
+    activeFilters.openNow,
     userLocation,
     initialMuseumsWithCategories,
     initialError,
@@ -566,6 +554,7 @@ export default function Home({ initialMuseums = [], initialError = null }) {
       !query &&
       !activeFilters.exhibitions &&
       !activeFilters.nearby &&
+      !activeFilters.openNow &&
       initialMuseumsWithCategories.length > 0
     ) {
       setResults(initialMuseumsWithCategories);
@@ -577,6 +566,7 @@ export default function Home({ initialMuseums = [], initialError = null }) {
     query,
     activeFilters.exhibitions,
     activeFilters.nearby,
+    activeFilters.openNow,
     initialMuseumsWithCategories,
     initialError,
   ]);
@@ -684,6 +674,7 @@ export default function Home({ initialMuseums = [], initialError = null }) {
           availability: t('filtersAvailability'),
           exhibitions: t('filtersExhibitions'),
           distance: t('filtersDistance'),
+          openNow: t('filtersOpenNow'),
           apply: t('filtersApply'),
           reset: t('filtersReset'),
           close: t('filtersClose'),
@@ -754,7 +745,7 @@ export default function Home({ initialMuseums = [], initialError = null }) {
             >
               {t('exhibitions')}
             </button>
-            {(query || activeFilters.exhibitions || activeFilters.nearby) && (
+            {(query || activeFilters.exhibitions || activeFilters.nearby || activeFilters.openNow) && (
               <a href="/" className="hero-quick-link hero-quick-link--ghost">
                 {t('reset')}
               </a>
@@ -824,6 +815,7 @@ export default function Home({ initialMuseums = [], initialError = null }) {
                   }}
                   priority={index < 6}
                   onCategoryClick={handleCategoryFilterClick}
+                  highlightOpenNow={activeFilters.openNow}
                 />
               </li>
             ))}
