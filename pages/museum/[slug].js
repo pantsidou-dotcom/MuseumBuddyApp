@@ -2,14 +2,11 @@ import { Fragment, useCallback, useEffect, useId, useMemo, useRef, useState } fr
 import { Capacitor } from '@capacitor/core';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useRouter } from 'next/router';
 import SEO from '../../components/SEO';
 import ExpositionCard from '../../components/ExpositionCard';
 import ExpositionCarousel from '../../components/ExpositionCarousel';
 import { useLanguage } from '../../components/LanguageContext';
 import { useFavorites } from '../../components/FavoritesContext';
-import FiltersSheet from '../../components/FiltersSheet';
-import FiltersPopover from '../../components/FiltersPopover';
 import TicketButtonNote from '../../components/TicketButtonNote';
 import museumImages from '../../lib/museumImages';
 import { normalizeImageSource, resolveImageUrl } from '../../lib/resolveImageSource';
@@ -187,20 +184,6 @@ function FavoriteButton({ active, onToggle, label }) {
   );
 }
 
-const FILTERS_EVENT = 'museumBuddy:openFilters';
-
-const DEFAULT_EXPOSITION_FILTERS = Object.freeze({
-  free: false,
-  childFriendly: false,
-  temporary: false,
-});
-
-const EXPOSITION_FILTER_QUERY_MAP = Object.freeze({
-  free: 'expoGratis',
-  childFriendly: 'expoKindvriendelijk',
-  temporary: 'expoTijdelijk',
-});
-
 const DEFAULT_TAB = 'exhibitions';
 const TAB_IDS = ['exhibitions', 'map'];
 const TAB_HASHES = {
@@ -231,75 +214,9 @@ const CONFIGURED_LANDING_SLUG =
 const LANDING_MUSEUM_SLUG = CONFIGURED_LANDING_SLUG || DEFAULT_LANDING_MUSEUM_SLUG;
 const KID_FRIENDLY_SLUG_SET = new Set(kidFriendlyMuseums.map((slug) => slug.toLowerCase()));
 
-function parseBooleanQueryParam(value) {
-  if (Array.isArray(value)) {
-    return value.some((item) => parseBooleanQueryParam(item));
-  }
-  if (value === undefined || value === null) return false;
-  if (typeof value === 'number') return value === 1;
-  if (typeof value === 'boolean') return value;
-  if (typeof value === 'string') {
-    const normalized = value.trim().toLowerCase();
-    if (!normalized) return true;
-    if (['1', 'true', 'yes', 'ja', 'waar'].includes(normalized)) return true;
-    return false;
-  }
-  return Boolean(value);
-}
-
-function parseExpositionFiltersFromQuery(query = {}) {
-  const filters = { ...DEFAULT_EXPOSITION_FILTERS };
-  Object.entries(EXPOSITION_FILTER_QUERY_MAP).forEach(([key, param]) => {
-    if (query[param] !== undefined) {
-      filters[key] = parseBooleanQueryParam(query[param]);
-    }
-  });
-  return filters;
-}
-
-function buildQueryString(query) {
-  const params = new URLSearchParams();
-  Object.entries(query || {}).forEach(([key, value]) => {
-    if (value === undefined || value === null) return;
-    if (Array.isArray(value)) {
-      value.forEach((item) => {
-        if (item !== undefined && item !== null) {
-          params.append(key, String(item));
-        }
-      });
-      return;
-    }
-    params.set(key, String(value));
-  });
-  return params.toString();
-}
-
-function buildQueryWithFilters(baseQuery, filters) {
-  const nextQuery = { ...(baseQuery || {}) };
-  Object.values(EXPOSITION_FILTER_QUERY_MAP).forEach((param) => {
-    delete nextQuery[param];
-  });
-  Object.entries(EXPOSITION_FILTER_QUERY_MAP).forEach(([key, param]) => {
-    if (filters?.[key]) {
-      nextQuery[param] = '1';
-    }
-  });
-  return nextQuery;
-}
-
-function areFilterStatesEqual(a, b) {
-  const keys = Object.keys(EXPOSITION_FILTER_QUERY_MAP);
-  return keys.every((key) => Boolean(a?.[key]) === Boolean(b?.[key]));
-}
-
-function hasActiveExpositionFilters(filters) {
-  return Object.keys(EXPOSITION_FILTER_QUERY_MAP).some((key) => Boolean(filters?.[key]));
-}
-
 export default function MuseumDetailPage({ museum, expositions, error }) {
   const { lang, t } = useLanguage();
   const { favorites, toggleFavorite } = useFavorites();
-  const router = useRouter();
 
   const resolvedMuseum = useMemo(() => (museum ? { ...museum } : null), [museum]);
   const isKidFriendlyMuseum = useMemo(
@@ -400,44 +317,6 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
   const locationLabel = [resolvedMuseum.city, resolvedMuseum.province].filter(Boolean).join(', ');
   const hasWebsite = Boolean(resolvedMuseum.websiteUrl);
   const hasTicketLink = Boolean(ticketUrl);
-
-  const filtersTriggerRef = useRef(null);
-  const skipNextFilterSyncRef = useRef(false);
-  const expositionFiltersRef = useRef(DEFAULT_EXPOSITION_FILTERS);
-  const [expositionFilters, setExpositionFilters] = useState(DEFAULT_EXPOSITION_FILTERS);
-  const [pendingExpositionFilters, setPendingExpositionFilters] = useState(
-    DEFAULT_EXPOSITION_FILTERS
-  );
-  const [filtersSheetOpen, setFiltersSheetOpen] = useState(false);
-  const [filtersPopoverOpen, setFiltersPopoverOpen] = useState(false);
-
-  const syncExpositionFiltersToUrl = useCallback(
-    (nextFilters) => {
-      if (!router || !router.isReady) return;
-      const currentQuery = router.query || {};
-      const baseQuery = Object.keys(currentQuery).reduce((acc, key) => {
-        if (key === 'slug') return acc;
-        acc[key] = currentQuery[key];
-        return acc;
-      }, {});
-      const currentFilters = parseExpositionFiltersFromQuery(currentQuery);
-      const normalizedCurrentQuery = buildQueryWithFilters(baseQuery, currentFilters);
-      const nextQuery = buildQueryWithFilters(baseQuery, nextFilters);
-      const currentQueryString = buildQueryString(normalizedCurrentQuery);
-      const nextQueryString = buildQueryString(nextQuery);
-      if (currentQueryString === nextQueryString) return;
-      skipNextFilterSyncRef.current = true;
-      router.replace(
-        {
-          pathname: `/museum/${slug}`,
-          query: nextQuery,
-        },
-        undefined,
-        { shallow: true, scroll: false }
-      );
-    },
-    [router, slug]
-  );
 
   const favoritePayload = useMemo(
     () => ({
@@ -601,19 +480,7 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
         : [],
     [expositions, slug]
   );
-  const filteredExpositionItems = useMemo(() => {
-    const activeKeys = Object.keys(EXPOSITION_FILTER_QUERY_MAP).filter(
-      (key) => expositionFilters[key]
-    );
-    if (activeKeys.length === 0) return expositionItems;
-    return expositionItems.filter((exposition) =>
-      activeKeys.every((key) => Boolean(exposition?.tags?.[key]))
-    );
-  }, [expositionItems, expositionFilters]);
-  const hasActiveExpositionFilter = useMemo(
-    () => hasActiveExpositionFilters(expositionFilters),
-    [expositionFilters]
-  );
+  const filteredExpositionItems = expositionItems;
   const [activeExpositionSlide, setActiveExpositionSlide] = useState(0);
 
   useEffect(() => {
@@ -624,15 +491,6 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
         : prev;
     });
   }, [filteredExpositionItems.length]);
-
-  const expositionFiltersSignature = useMemo(
-    () => JSON.stringify(expositionFilters),
-    [expositionFilters]
-  );
-
-  useEffect(() => {
-    setActiveExpositionSlide(0);
-  }, [expositionFiltersSignature]);
 
   const expositionCarouselLabels = useMemo(
     () => ({
@@ -862,152 +720,6 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
     return DEFAULT_TAB;
   });
 
-  const applyActiveExpositionFilters = useCallback(
-    (updater) => {
-      const current = expositionFiltersRef.current;
-      const next =
-        typeof updater === 'function' ? updater(current) : { ...current, ...updater };
-      expositionFiltersRef.current = next;
-      setExpositionFilters(next);
-      setPendingExpositionFilters(next);
-      syncExpositionFiltersToUrl(next);
-      if (hasActiveExpositionFilters(next)) {
-        setActiveTab('exhibitions');
-      }
-    },
-    [setActiveTab, syncExpositionFiltersToUrl]
-  );
-
-  useEffect(() => {
-    expositionFiltersRef.current = expositionFilters;
-  }, [expositionFilters]);
-
-  useEffect(() => {
-    if (!router || !router.isReady) return;
-    const nextFilters = parseExpositionFiltersFromQuery(router.query);
-    setPendingExpositionFilters(nextFilters);
-    if (skipNextFilterSyncRef.current) {
-      skipNextFilterSyncRef.current = false;
-      return;
-    }
-    if (!areFilterStatesEqual(nextFilters, expositionFiltersRef.current)) {
-      expositionFiltersRef.current = nextFilters;
-      setExpositionFilters(nextFilters);
-      if (hasActiveExpositionFilters(nextFilters)) {
-        setActiveTab('exhibitions');
-      }
-    }
-  }, [
-    router,
-    router?.isReady,
-    router?.query?.expoGratis,
-    router?.query?.expoKindvriendelijk,
-    router?.query?.expoTijdelijk,
-    setActiveTab,
-  ]);
-
-  const handleChipToggle = useCallback(
-    (key) => {
-      applyActiveExpositionFilters((prev) => ({ ...prev, [key]: !prev[key] }));
-    },
-    [applyActiveExpositionFilters]
-  );
-
-  const handleExpositionFilterChange = useCallback((name, value) => {
-    setPendingExpositionFilters((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  }, []);
-
-  const handleApplyExpositionFilters = useCallback(() => {
-    applyActiveExpositionFilters(pendingExpositionFilters);
-    setFiltersSheetOpen(false);
-    setFiltersPopoverOpen(false);
-  }, [pendingExpositionFilters, applyActiveExpositionFilters]);
-
-  const handleResetExpositionFilters = useCallback(() => {
-    setPendingExpositionFilters(DEFAULT_EXPOSITION_FILTERS);
-    applyActiveExpositionFilters(DEFAULT_EXPOSITION_FILTERS);
-    setFiltersSheetOpen(false);
-    setFiltersPopoverOpen(false);
-  }, [applyActiveExpositionFilters]);
-
-  const handleOpenFiltersSheet = useCallback(() => {
-    setPendingExpositionFilters(expositionFiltersRef.current);
-    setFiltersSheetOpen(true);
-    setFiltersPopoverOpen(false);
-  }, []);
-
-  useEffect(() => {
-    if (typeof window === 'undefined') return undefined;
-    const handleOpen = () => {
-      setFiltersPopoverOpen(false);
-      handleOpenFiltersSheet();
-    };
-    window.addEventListener(FILTERS_EVENT, handleOpen);
-    return () => {
-      window.removeEventListener(FILTERS_EVENT, handleOpen);
-    };
-  }, [handleOpenFiltersSheet]);
-
-  const handleToggleFiltersPopover = useCallback(() => {
-    setFiltersSheetOpen(false);
-    setFiltersPopoverOpen((prev) => {
-      const next = !prev;
-      if (next) {
-        setPendingExpositionFilters(expositionFiltersRef.current);
-      }
-      return next;
-    });
-  }, []);
-
-  const handleCloseFiltersSheet = useCallback(() => {
-    setFiltersSheetOpen(false);
-    setPendingExpositionFilters(expositionFiltersRef.current);
-  }, []);
-
-  const handleCloseFiltersPopover = useCallback(() => {
-    setFiltersPopoverOpen(false);
-    setPendingExpositionFilters(expositionFiltersRef.current);
-  }, []);
-
-  const filterChipDefinitions = useMemo(
-    () => [
-      { key: 'free', label: t('tagFree') },
-      { key: 'childFriendly', label: t('tagChildFriendly') },
-      { key: 'temporary', label: t('tagTemporary') },
-    ],
-    [t]
-  );
-
-  const expositionFilterSections = useMemo(
-    () => [
-      {
-        id: 'exposition-filters',
-        title: t('exhibitionFiltersGroupTitle'),
-        options: [
-          { name: 'free', label: t('tagFree') },
-          { name: 'childFriendly', label: t('tagChildFriendly') },
-          { name: 'temporary', label: t('tagTemporary') },
-        ],
-      },
-    ],
-    [t]
-  );
-
-  const expositionFilterLabels = useMemo(
-    () => ({
-      title: t('exhibitionFiltersTitle'),
-      description: t('exhibitionFiltersDescription'),
-      apply: t('filtersApply'),
-      reset: t('filtersReset'),
-      close: t('filtersClose'),
-    }),
-    [t]
-  );
-
-  const expositionFiltersButtonLabel = t('exhibitionFiltersButton');
 
   useEffect(() => {
     if (typeof window === 'undefined') return undefined;
@@ -1101,18 +813,6 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
         image={heroImageUrl}
         canonical={canonical}
       />
-      <FiltersSheet
-        open={filtersSheetOpen}
-        filters={pendingExpositionFilters}
-        onChange={handleExpositionFilterChange}
-        onApply={handleApplyExpositionFilters}
-        onReset={handleResetExpositionFilters}
-        onClose={handleCloseFiltersSheet}
-        labels={expositionFilterLabels}
-        sections={expositionFilterSections}
-        idPrefix="exposition-filters-sheet"
-      />
-
       <div className="museum-detail-container museum-hero-heading-container">
         <div className="museum-hero-heading">
           <nav className="museum-breadcrumbs" aria-label={t('breadcrumbsLabel')}>
@@ -1213,82 +913,6 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
               <div className="museum-expositions-card">
                 <div className="museum-expositions-body">
                   <h2 className="museum-expositions-heading">{t('exhibitionsTitle')}</h2>
-                  <div className="museum-expositions-filters">
-                    <div className="museum-expositions-chips">
-                      {filterChipDefinitions.map((chip) => {
-                        const isActive = Boolean(expositionFilters[chip.key]);
-                        return (
-                          <button
-                            key={chip.key}
-                            type="button"
-                            className={`museum-expositions-chip${isActive ? ' is-active' : ''}`}
-                            onClick={() => handleChipToggle(chip.key)}
-                            aria-pressed={isActive}
-                          >
-                            {chip.label}
-                          </button>
-                        );
-                      })}
-                    </div>
-                    <div className="museum-expositions-filter-actions">
-                      <button
-                        type="button"
-                        className="museum-expositions-filter-button museum-expositions-filter-button--popover"
-                        onClick={handleToggleFiltersPopover}
-                        aria-haspopup="dialog"
-                        aria-expanded={filtersPopoverOpen}
-                        ref={filtersTriggerRef}
-                      >
-                        <svg
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="1.5"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          aria-hidden="true"
-                        >
-                          <path d="M4 4h16" />
-                          <path d="M7 12h10" />
-                          <path d="M10 20h4" />
-                        </svg>
-                        <span>{expositionFiltersButtonLabel}</span>
-                      </button>
-                      <button
-                        type="button"
-                        className="museum-expositions-filter-button museum-expositions-filter-button--sheet"
-                        onClick={handleOpenFiltersSheet}
-                        aria-haspopup="dialog"
-                      >
-                        <svg
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="1.5"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          aria-hidden="true"
-                        >
-                          <path d="M4 4h16" />
-                          <path d="M7 12h10" />
-                          <path d="M10 20h4" />
-                        </svg>
-                        <span>{expositionFiltersButtonLabel}</span>
-                      </button>
-                      <FiltersPopover
-                        open={filtersPopoverOpen}
-                        filters={pendingExpositionFilters}
-                        onChange={handleExpositionFilterChange}
-                        onApply={handleApplyExpositionFilters}
-                        onReset={handleResetExpositionFilters}
-                        onClose={handleCloseFiltersPopover}
-                        labels={expositionFilterLabels}
-                        sections={expositionFilterSections}
-                        triggerRef={filtersTriggerRef}
-                        idPrefix="exposition-filters-popover"
-                      />
-                    </div>
-                  </div>
                   {filteredExpositionItems.length > 0 ? (
                     <ExpositionCarousel
                       items={filteredExpositionItems}
@@ -1308,9 +932,7 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
                       )}
                     />
                   ) : (
-                    <p className="museum-expositions-empty">
-                      {hasActiveExpositionFilter ? t('noFilteredExhibitions') : t('noExhibitions')}
-                    </p>
+                    <p className="museum-expositions-empty">{t('noExhibitions')}</p>
                   )}
                 </div>
               </div>
