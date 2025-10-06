@@ -70,11 +70,55 @@ function todayYMD(tz = 'Europe/Amsterdam') {
 
 const FILTERS_EVENT = 'museumBuddy:openFilters';
 
+const TYPE_FILTERS = Object.freeze([
+  {
+    id: 'kunst',
+    paramValue: 'kunst',
+    stateKey: 'type:kunst',
+    labelKey: 'filterTypeArt',
+    categories: ['art', 'modern-art', 'photography', 'film'],
+  },
+  {
+    id: 'geschiedenis',
+    paramValue: 'geschiedenis',
+    stateKey: 'type:geschiedenis',
+    labelKey: 'filterTypeHistory',
+    categories: ['history', 'culture', 'religion', 'maritime'],
+  },
+  {
+    id: 'wetenschap-tech',
+    paramValue: 'wetenschap-tech',
+    stateKey: 'type:wetenschap-tech',
+    labelKey: 'filterTypeScienceTech',
+    categories: ['science'],
+  },
+  {
+    id: 'design-architectuur',
+    paramValue: 'design-architectuur',
+    stateKey: 'type:design-architectuur',
+    labelKey: 'filterTypeDesignArchitecture',
+    categories: ['architecture'],
+  },
+]);
+
 const DEFAULT_FILTERS = Object.freeze({
   exhibitions: false,
   nearby: false,
   openNow: false,
+  ...TYPE_FILTERS.reduce((acc, type) => {
+    acc[type.stateKey] = false;
+    return acc;
+  }, {}),
 });
+
+function getSelectedTypeIds(filters) {
+  if (!filters) return [];
+  return TYPE_FILTERS.filter((type) => filters[type.stateKey]).map((type) => type.paramValue);
+}
+
+function hasActiveTypeFilters(filters) {
+  return getSelectedTypeIds(filters).length > 0;
+}
 
 const BASE_MUSEUM_COLUMNS =
   'id, naam, stad, provincie, slug, gratis_toegankelijk, ticket_affiliate_url, website_url';
@@ -93,8 +137,23 @@ export default function Home({ initialMuseums = [], initialError = null }) {
 
   const filtersFromUrl = useMemo(() => {
     const queryFilters = router.query || {};
+    const rawTypes = queryFilters.types;
+    const typeValue = Array.isArray(rawTypes) ? rawTypes[0] : rawTypes;
+    const parsedTypes = typeof typeValue === 'string'
+      ? typeValue
+          .split(',')
+          .map((value) => value.trim().toLowerCase())
+          .filter(Boolean)
+      : [];
+
+    const typeFiltersFromQuery = TYPE_FILTERS.reduce((acc, type) => {
+      acc[type.stateKey] = parsedTypes.includes(type.paramValue);
+      return acc;
+    }, {});
+
     return {
       ...DEFAULT_FILTERS,
+      ...typeFiltersFromQuery,
       exhibitions: parseBooleanParam(queryFilters.exposities),
       nearby: parseBooleanParam(
         queryFilters.dichtbij ?? queryFilters.nearby ?? queryFilters.distance
@@ -119,6 +178,7 @@ export default function Home({ initialMuseums = [], initialError = null }) {
     !filtersFromUrl.exhibitions &&
     !filtersFromUrl.nearby &&
     !filtersFromUrl.openNow &&
+    !hasActiveTypeFilters(filtersFromUrl) &&
     initialMuseumsWithCategories.length > 0;
 
   const [query, setQuery] = useState('');
@@ -168,6 +228,11 @@ export default function Home({ initialMuseums = [], initialError = null }) {
   const resultsRef = useRef(null);
   const [userLocation, setUserLocation] = useState(null);
   const skipNextUrlSync = useRef(false);
+  const activeTypeFilterKey = useMemo(
+    () => getSelectedTypeIds(activeFilters).join('|'),
+    [activeFilters]
+  );
+  const hasSelectedTypeFilters = activeTypeFilterKey.length > 0;
 
   useEffect(() => {
     if (!router.isReady) return;
@@ -225,17 +290,18 @@ export default function Home({ initialMuseums = [], initialError = null }) {
     });
   }, []);
 
-  const buildQueryParams = useCallback(
-    (searchValue, filters) => {
-      const params = new URLSearchParams();
-      if (searchValue) params.set('q', searchValue);
-      if (filters?.exhibitions) params.set('exposities', '1');
-      if (filters?.nearby) params.set('nearby', '1');
-      if (filters?.openNow) params.set('open_now', '1');
-      return params.toString();
-    },
-    []
-  );
+  const buildQueryParams = useCallback((searchValue, filters) => {
+    const params = new URLSearchParams();
+    if (searchValue) params.set('q', searchValue);
+    if (filters?.exhibitions) params.set('exposities', '1');
+    if (filters?.nearby) params.set('nearby', '1');
+    if (filters?.openNow) params.set('open_now', '1');
+    const selectedTypes = getSelectedTypeIds(filters);
+    if (selectedTypes.length > 0) {
+      params.set('types', selectedTypes.join(','));
+    }
+    return params.toString();
+  }, []);
 
   const handleQuickShowExhibitions = useCallback(() => {
     skipNextUrlSync.current = true;
@@ -270,11 +336,7 @@ export default function Home({ initialMuseums = [], initialError = null }) {
 
   useEffect(() => {
     if (!router.isReady) return;
-    const params = buildQueryParams(query, {
-      exhibitions: activeFilters.exhibitions,
-      nearby: activeFilters.nearby,
-      openNow: activeFilters.openNow,
-    });
+    const params = buildQueryParams(query, activeFilters);
     const nextQuery = {};
     if (params) {
       const searchParams = new URLSearchParams(params);
@@ -315,6 +377,7 @@ export default function Home({ initialMuseums = [], initialError = null }) {
     activeFilters.exhibitions,
     activeFilters.nearby,
     activeFilters.openNow,
+    activeTypeFilterKey,
   ]);
 
   useEffect(() => {
@@ -330,7 +393,8 @@ export default function Home({ initialMuseums = [], initialError = null }) {
       !query &&
       !activeFilters.exhibitions &&
       !activeFilters.nearby &&
-      !activeFilters.openNow;
+      !activeFilters.openNow &&
+      !hasSelectedTypeFilters;
 
     if (usingDefaultFilters && initialMuseumsWithCategories.length > 0) {
       setResults(initialMuseumsWithCategories);
@@ -505,10 +569,25 @@ export default function Home({ initialMuseums = [], initialError = null }) {
               )
             : preparedWithCategories;
 
+        const activeTypeFiltersList = TYPE_FILTERS.filter(
+          (type) => activeFilters[type.stateKey]
+        );
+        const typeFilteredResults =
+          activeTypeFiltersList.length > 0
+            ? categoryFilteredResults.filter((museum) => {
+                const museumCategories = Array.isArray(museum.categories)
+                  ? museum.categories
+                  : [];
+                return activeTypeFiltersList.some((type) =>
+                  type.categories.some((category) => museumCategories.includes(category))
+                );
+              })
+            : categoryFilteredResults;
+
         const sortedResults =
           activeFilters.nearby && usedNearbyResults
-            ? sortMuseumsByDistance(categoryFilteredResults)
-            : sortMuseums(categoryFilteredResults);
+            ? sortMuseumsByDistance(typeFilteredResults)
+            : sortMuseums(typeFilteredResults);
 
         if (!isCancelled) {
           setResults(sortedResults);
@@ -527,7 +606,8 @@ export default function Home({ initialMuseums = [], initialError = null }) {
       query ||
       activeFilters.exhibitions ||
       activeFilters.nearby ||
-      activeFilters.openNow
+      activeFilters.openNow ||
+      hasSelectedTypeFilters
         ? 200
         : 0;
     const timer = setTimeout(run, delay);
@@ -543,6 +623,8 @@ export default function Home({ initialMuseums = [], initialError = null }) {
     activeFilters.exhibitions,
     activeFilters.nearby,
     activeFilters.openNow,
+    activeTypeFilterKey,
+    hasSelectedTypeFilters,
     userLocation,
     initialMuseumsWithCategories,
     initialError,
@@ -555,6 +637,7 @@ export default function Home({ initialMuseums = [], initialError = null }) {
       !activeFilters.exhibitions &&
       !activeFilters.nearby &&
       !activeFilters.openNow &&
+      !hasSelectedTypeFilters &&
       initialMuseumsWithCategories.length > 0
     ) {
       setResults(initialMuseumsWithCategories);
@@ -567,6 +650,7 @@ export default function Home({ initialMuseums = [], initialError = null }) {
     activeFilters.exhibitions,
     activeFilters.nearby,
     activeFilters.openNow,
+    hasSelectedTypeFilters,
     initialMuseumsWithCategories,
     initialError,
   ]);
@@ -647,6 +731,29 @@ export default function Home({ initialMuseums = [], initialError = null }) {
     }
   }, []);
 
+  const filterSections = useMemo(
+    () => [
+      {
+        id: 'availability',
+        title: t('filtersAvailability'),
+        options: [
+          { name: 'openNow', label: t('filtersOpenNow') },
+          { name: 'exhibitions', label: t('filtersExhibitions') },
+          { name: 'nearby', label: t('filtersDistance'), hidden: true },
+        ],
+      },
+      {
+        id: 'types',
+        title: t('filtersTypeTitle'),
+        options: TYPE_FILTERS.map((type) => ({
+          name: type.stateKey,
+          label: t(type.labelKey),
+        })),
+      },
+    ],
+    [t]
+  );
+
   if (error) {
     return (
       <>
@@ -668,6 +775,7 @@ export default function Home({ initialMuseums = [], initialError = null }) {
         onApply={handleApplyFilters}
         onReset={handleResetFilters}
         onClose={handleCloseSheet}
+        sections={filterSections}
         labels={{
           title: t('filtersTitle'),
           description: t('filtersDescription'),
@@ -675,6 +783,7 @@ export default function Home({ initialMuseums = [], initialError = null }) {
           exhibitions: t('filtersExhibitions'),
           distance: t('filtersDistance'),
           openNow: t('filtersOpenNow'),
+          typeTitle: t('filtersTypeTitle'),
           apply: t('filtersApply'),
           reset: t('filtersReset'),
           close: t('filtersClose'),
@@ -745,7 +854,11 @@ export default function Home({ initialMuseums = [], initialError = null }) {
             >
               {t('exhibitions')}
             </button>
-            {(query || activeFilters.exhibitions || activeFilters.nearby || activeFilters.openNow) && (
+            {(query ||
+              activeFilters.exhibitions ||
+              activeFilters.nearby ||
+              activeFilters.openNow ||
+              hasSelectedTypeFilters) && (
               <a href="/" className="hero-quick-link hero-quick-link--ghost">
                 {t('reset')}
               </a>
