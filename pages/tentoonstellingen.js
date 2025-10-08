@@ -797,8 +797,9 @@ export default function ExhibitionsPage({ exhibitions = [], error = null }) {
       <div className="filters-inline" ref={filtersContainerRef}>
         <Button
           type="button"
-          variant={hasAdditionalFilters ? 'primary' : 'ghost'}
-          size="sm"
+          variant={hasAdditionalFilters ? 'primary' : 'secondary'}
+          size="lg"
+          className="filters-inline__button"
           onClick={() => setFiltersSheetOpen(true)}
           ref={filtersButtonRef}
           aria-haspopup="dialog"
@@ -808,8 +809,9 @@ export default function ExhibitionsPage({ exhibitions = [], error = null }) {
         </Button>
         <Button
           type="button"
-          variant={openNowActive ? 'primary' : 'ghost'}
-          size="sm"
+          variant={openNowActive ? 'primary' : 'secondary'}
+          size="lg"
+          className="filters-inline__button"
           onClick={handleToggleOpenNow}
           aria-pressed={openNowActive}
           ref={openNowButtonRef}
