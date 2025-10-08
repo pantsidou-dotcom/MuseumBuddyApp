@@ -12,7 +12,7 @@ import { supabase as supabaseClient } from '../lib/supabase';
 import Button from '../components/ui/Button';
 import parseBooleanParam from '../lib/parseBooleanParam.js';
 import { isMuseumOpenNow } from '../lib/openingHours.js';
-import { formatDutchDateRange } from '../lib/formatDateRange';
+import { formatDateRange } from '../lib/formatDateRange';
 
 const FILTERS_EVENT = 'museumBuddy:openFilters';
 
@@ -127,7 +127,7 @@ function pickImage(row, museum) {
   return null;
 }
 
-function mapExhibitionToCard(exhibition, t) {
+function mapExhibitionToCard(exhibition, t, language) {
   if (!exhibition?.museum || !exhibition.museum.slug) {
     return null;
   }
@@ -139,7 +139,9 @@ function mapExhibitionToCard(exhibition, t) {
   const titleBase = museumName
     ? t('exhibitionsListCardTitle', { exhibition: exhibitionTitle, museum: museumName })
     : exhibitionTitle;
-  const rangeLabel = formatDutchDateRange(exhibition.start_datum, exhibition.eind_datum);
+  const rangeLabel = formatDateRange(exhibition.start_datum, exhibition.eind_datum, {
+    language,
+  });
   const descriptionText = truncate(
     exhibition.beschrijving || exhibition.omschrijving || exhibition.description || ''
   );
@@ -435,15 +437,15 @@ async function loadExhibitionsForStaticProps() {
 }
 
 export default function ExhibitionsPage({ exhibitions = [], error = null }) {
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
   const router = useRouter();
 
   const allCards = useMemo(
     () =>
       (Array.isArray(exhibitions) ? exhibitions : [])
-        .map((exhibition) => mapExhibitionToCard(exhibition, t))
+        .map((exhibition) => mapExhibitionToCard(exhibition, t, lang))
         .filter(Boolean),
-    [exhibitions, t]
+    [exhibitions, t, lang]
   );
 
   const openNowActive = useMemo(() => {

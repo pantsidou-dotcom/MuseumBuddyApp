@@ -5,7 +5,7 @@ import { useFavorites } from './FavoritesContext';
 import { shouldShowAffiliateNote } from '../lib/nonAffiliateMuseums';
 import createBlurDataUrl from '../lib/createBlurDataUrl';
 import TicketButtonNote from './TicketButtonNote';
-import { formatDutchDateRange } from '../lib/formatDateRange';
+import { formatDateRange } from '../lib/formatDateRange';
 
 function pickBoolean(...values) {
   for (const value of values) {
@@ -47,9 +47,9 @@ export default function ExpositionCard({ exposition, ticketUrl, affiliateUrl, mu
   if (!exposition) return null;
 
   const description = typeof exposition.description === 'string' ? exposition.description.trim() : '';
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
   const { favorites, toggleFavorite } = useFavorites();
-  const rangeLabel = formatDutchDateRange(exposition.start_datum, exposition.eind_datum);
+  const rangeLabel = formatDateRange(exposition.start_datum, exposition.eind_datum, { language: lang });
   const isFavorite = favorites.some((f) => f.id === exposition.id && f.type === 'exposition');
   const slug = museumSlug || exposition.museumSlug;
   const primaryAffiliateUrl = exposition.ticketAffiliateUrl || affiliateUrl || null;
