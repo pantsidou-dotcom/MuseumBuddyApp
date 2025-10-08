@@ -155,6 +155,22 @@ export default function MuseumCard({
     return blurDataUrl;
   }, [blurDataUrl, normalizedImage]);
 
+  const displayName = useMemo(() => {
+    const name = museum.name || museum.naam || museum.title || museum.displayName;
+    if (typeof name === 'string' && name.trim()) {
+      return name.trim();
+    }
+    if (typeof museum.slug === 'string' && museum.slug.trim()) {
+      return museum.slug
+        .trim()
+        .split('-')
+        .map((segment) => segment.charAt(0).toUpperCase() + segment.slice(1))
+        .join(' ');
+    }
+    return t('unknown');
+  }, [museum.displayName, museum.name, museum.naam, museum.slug, museum.title, t]);
+  const imageAlt = museum.imageAlt || t('museumCardImageAlt', { name: displayName });
+
   const isExhibitionCard = Array.isArray(museum.categories)
     ? museum.categories.includes('exhibition')
     : false;
@@ -502,7 +518,7 @@ export default function MuseumCard({
         {normalizedImage && (
           <Image
             src={normalizedImage}
-            alt=""
+            alt={imageAlt}
             fill
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
             className="museum-card-media"

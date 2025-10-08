@@ -149,15 +149,18 @@ export default function ExpositionCard({ exposition, ticketUrl, affiliateUrl, mu
   const activeTags = tagDefinitions.filter((tag) => tag.active);
   const mediaClassName = 'exposition-card__media exposition-card__media--placeholder';
   const placeholderImage = useMemo(() => getPlaceholderImage(exposition), [exposition]);
+  const placeholderAlt = t('expositionIllustrationAlt', {
+    title: exposition.titel || t('unknown'),
+  });
 
   const blurPlaceholder = useMemo(() => createBlurDataUrl('#cbd5f5'), []);
 
   return (
     <article className={`ds-card exposition-card${isFavoriteBouncing ? ' is-bouncing' : ''}`}>
-      <div className={mediaClassName} aria-hidden="true">
+      <div className={mediaClassName}>
         <Image
           src={placeholderImage}
-          alt=""
+          alt={placeholderAlt}
           fill
           className="exposition-card__media-placeholder"
           sizes="(min-width: 1024px) 360px, (min-width: 640px) 50vw, 90vw"
