@@ -23,6 +23,7 @@ import { parseMuseumSearchQuery } from '../lib/museumSearch';
 import Button from '../components/ui/Button';
 import parseBooleanParam from '../lib/parseBooleanParam.js';
 import { DEFAULT_TIME_ZONE } from '../lib/openingHours.js';
+import { trackCtaExhibitions, trackTicketsClick } from '../lib/analytics';
 
 const FEATURED_SLUGS = [
   'van-gogh-museum-amsterdam',
@@ -120,7 +121,7 @@ const NEARBY_RPC_NAME = 'musea_within_radius';
 const NEARBY_RADIUS_METERS = 5000;
 
 export default function Home({ initialMuseums = [], initialError = null }) {
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
   const router = useRouter();
   const museumnachtBlurDataURL = useMemo(() => createBlurDataUrl('#1e293b'), []);
 
@@ -819,6 +820,12 @@ export default function Home({ initialMuseums = [], initialError = null }) {
               variant="secondary"
               className="hero-cta-button hero-cta-button--secondary"
               prefetch
+              onClick={() =>
+                trackCtaExhibitions({
+                  location: 'hero',
+                  language: lang,
+                })
+              }
             >
               {t('heroViewExhibitions')}
             </Button>
@@ -899,6 +906,13 @@ export default function Home({ initialMuseums = [], initialError = null }) {
             href="https://museumnacht.amsterdam/tickets"
             target="_blank"
             rel="noopener noreferrer"
+            onClick={() =>
+              trackTicketsClick({
+                location: 'museumnacht',
+                language: lang,
+                url: 'https://museumnacht.amsterdam/tickets',
+              })
+            }
           >
             {t('buyTickets')}
           </a>

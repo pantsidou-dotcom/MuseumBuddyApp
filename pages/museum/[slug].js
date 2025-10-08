@@ -19,6 +19,7 @@ import formatImageCredit from '../../lib/formatImageCredit';
 import { supabase as supabaseClient } from '../../lib/supabase';
 import { shouldShowAffiliateNote } from '../../lib/nonAffiliateMuseums';
 import kidFriendlyMuseums, { isKidFriendly as resolveKidFriendly } from '../../lib/kidFriendlyMuseums';
+import { trackFavoriteAdd, trackTicketsClick } from '../../lib/analytics';
 
 function todayYMD(tz = 'Europe/Amsterdam') {
   try {
@@ -353,6 +354,16 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
     ]
   );
 
+  const analyticsData = useMemo(
+    () => ({
+      type: 'museum',
+      id: resolvedMuseum.id ?? null,
+      slug,
+      title: displayName,
+    }),
+    [displayName, resolvedMuseum.id, slug]
+  );
+
   const triggerHapticFeedback = useCallback(
     async (intensity = 'medium') => {
       if (typeof window === 'undefined') return;
@@ -424,9 +435,12 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
   const isFavorite = favorites.some((fav) => fav.id === resolvedMuseum.id && fav.type === 'museum');
 
   const handleFavorite = useCallback(() => {
+    if (!isFavorite) {
+      trackFavoriteAdd(analyticsData);
+    }
     toggleFavorite(favoritePayload);
     triggerHapticFeedback(isFavorite ? 'light' : 'medium');
-  }, [favoritePayload, isFavorite, toggleFavorite, triggerHapticFeedback]);
+  }, [analyticsData, favoritePayload, isFavorite, toggleFavorite, triggerHapticFeedback]);
 
   const handleShare = useCallback(async () => {
     if (typeof window === 'undefined') return;
@@ -466,9 +480,15 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
   const handleTicketLinkClick = useCallback(
     (event) => {
       if (!ticketUrl) return;
+      trackTicketsClick({
+        ...analyticsData,
+        url: ticketUrl,
+        affiliate: affiliateTicketUrl ? 'affiliate' : 'direct',
+        location: 'museum_detail_hero',
+      });
       openExternalLink(ticketUrl, event);
     },
-    [openExternalLink, ticketUrl]
+    [affiliateTicketUrl, analyticsData, openExternalLink, ticketUrl]
   );
 
   const handleWebsiteLinkClick = useCallback(
