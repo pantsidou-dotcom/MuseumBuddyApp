@@ -537,7 +537,12 @@ export default function ExhibitionsPage({ exhibitions = [], error = null }) {
 
   return (
     <>
-      <SEO title={t('exhibitionsPageTitle')} description={t('exhibitionsPageDescription')} />
+      <SEO
+        title={t('exhibitionsPageTitle')}
+        description={t('exhibitionsPageDescription')}
+        canonical="/tentoonstellingen"
+        image="/images/og-exhibitions.svg"
+      />
       <section className="page-intro" aria-labelledby="exhibitions-heading">
         <h1 id="exhibitions-heading" className="page-title">
           {t('exhibitionsPageHeading')}
