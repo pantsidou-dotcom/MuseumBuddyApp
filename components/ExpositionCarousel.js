@@ -198,40 +198,6 @@ export default function ExpositionCarousel({
     [gotoSlideLabel, totalSlides]
   );
 
-  const handlePrev = useCallback(() => {
-    pauseAutoplay();
-    updateActiveSlide(activeSlide - 1);
-  }, [activeSlide, pauseAutoplay, updateActiveSlide]);
-
-  const handleNext = useCallback(() => {
-    pauseAutoplay();
-    updateActiveSlide(activeSlide + 1);
-  }, [activeSlide, pauseAutoplay, updateActiveSlide]);
-
-  const handleViewportKeyDown = useCallback(
-    (event) => {
-      if (totalSlides <= 1 || !isScrollable) return;
-      if (event.key === 'ArrowRight') {
-        event.preventDefault();
-        pauseAutoplay();
-        updateActiveSlide(activeSlide + 1);
-      } else if (event.key === 'ArrowLeft') {
-        event.preventDefault();
-        pauseAutoplay();
-        updateActiveSlide(activeSlide - 1);
-      } else if (event.key === 'Home') {
-        event.preventDefault();
-        pauseAutoplay();
-        updateActiveSlide(0);
-      } else if (event.key === 'End') {
-        event.preventDefault();
-        pauseAutoplay();
-        updateActiveSlide(totalSlides - 1);
-      }
-    },
-    [activeSlide, isScrollable, pauseAutoplay, totalSlides, updateActiveSlide]
-  );
-
   const carouselId = useId();
   const viewportId = `${carouselId}-viewport`;
   const trackId = `${carouselId}-track`;
@@ -323,6 +289,40 @@ export default function ExpositionCarousel({
     if (!autoPlay) return;
     setIsPaused((previous) => !previous);
   }, [autoPlay]);
+
+  const handlePrev = useCallback(() => {
+    pauseAutoplay();
+    updateActiveSlide(activeSlide - 1);
+  }, [activeSlide, pauseAutoplay, updateActiveSlide]);
+
+  const handleNext = useCallback(() => {
+    pauseAutoplay();
+    updateActiveSlide(activeSlide + 1);
+  }, [activeSlide, pauseAutoplay, updateActiveSlide]);
+
+  const handleViewportKeyDown = useCallback(
+    (event) => {
+      if (totalSlides <= 1 || !isScrollable) return;
+      if (event.key === 'ArrowRight') {
+        event.preventDefault();
+        pauseAutoplay();
+        updateActiveSlide(activeSlide + 1);
+      } else if (event.key === 'ArrowLeft') {
+        event.preventDefault();
+        pauseAutoplay();
+        updateActiveSlide(activeSlide - 1);
+      } else if (event.key === 'Home') {
+        event.preventDefault();
+        pauseAutoplay();
+        updateActiveSlide(0);
+      } else if (event.key === 'End') {
+        event.preventDefault();
+        pauseAutoplay();
+        updateActiveSlide(totalSlides - 1);
+      }
+    },
+    [activeSlide, isScrollable, pauseAutoplay, totalSlides, updateActiveSlide]
+  );
 
   useEffect(() => {
     if (!showControls) {
