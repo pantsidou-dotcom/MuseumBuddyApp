@@ -2,7 +2,9 @@ node_modules
 .next
 .out
 dist
+# Environment configuration files
 .env*
+.env.local
 # Legacy files
 museum-buddy-app/
 main.js
