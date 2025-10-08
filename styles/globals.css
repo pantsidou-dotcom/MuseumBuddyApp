@@ -1052,6 +1052,7 @@ img { max-width: 100%; height: auto; display: block; }
   border-radius: var(--radius-md);
   overflow: hidden;
   min-height: clamp(260px, 58vw, 420px);
+  aspect-ratio: 3 / 2;
   color: #ffffff;
   background: #0f172a;
   box-shadow: 0 16px 40px rgba(15, 23, 42, 0.28);
@@ -1749,6 +1750,7 @@ button.hero-quick-link {
 .museum-hero-media-inner {
   position: relative;
   min-height: clamp(260px, 52vw, 420px);
+  aspect-ratio: 3 / 2;
   border-radius: var(--radius-md);
   overflow: hidden;
   box-shadow: 0 18px 42px rgba(15, 23, 42, 0.18);
@@ -3655,7 +3657,7 @@ button.hero-quick-link {
 .exposition-card__media {
   position: relative;
   overflow: hidden;
-  aspect-ratio: 21 / 10;
+  aspect-ratio: 3 / 2;
   border-bottom: 1px solid rgba(148, 163, 184, 0.22);
   border-radius: var(--radius-md) var(--radius-md) 0 0;
   background: var(--surface);
@@ -3716,12 +3718,6 @@ button.hero-quick-link {
 
 [data-theme='dark'] .exposition-card__media-placeholder {
   opacity: 1;
-}
-
-@media (max-width: 640px) {
-  .exposition-card__media {
-    aspect-ratio: 16 / 9;
-  }
 }
 
 .exposition-card__skeleton {

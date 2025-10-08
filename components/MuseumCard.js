@@ -9,6 +9,7 @@ import { CATEGORY_TRANSLATION_KEYS } from '../lib/museumCategories';
 import { shouldShowAffiliateNote } from '../lib/nonAffiliateMuseums';
 import formatImageCredit from '../lib/formatImageCredit';
 import { normalizeImageSource, resolveImageUrl } from '../lib/resolveImageSource';
+import createBlurDataUrl from '../lib/createBlurDataUrl';
 import TicketButtonNote from './TicketButtonNote';
 import Badge from './ui/Badge';
 
@@ -33,19 +34,6 @@ function getHoverColor(slug, id) {
   }
   const index = hashKey(key) % HOVER_COLORS.length;
   return HOVER_COLORS[index];
-}
-
-function createBlurDataUrl(color) {
-  if (typeof color !== 'string' || !color) {
-    return 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 20"%3E%3Crect width="32" height="20" fill="%23e2e8f0" /%3E%3C/svg%3E';
-  }
-
-  const normalized = color.startsWith('#') ? color : `#${color}`;
-  const sanitized = /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(normalized)
-    ? normalized
-    : '#e2e8f0';
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 20"><rect width="32" height="20" fill="${sanitized}" /></svg>`;
-  return `data:image/svg+xml,${encodeURIComponent(svg)}`;
 }
 
 function parseTime(value) {

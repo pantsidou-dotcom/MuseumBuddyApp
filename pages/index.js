@@ -8,6 +8,7 @@ import museumImages from '../lib/museumImages';
 import museumNames from '../lib/museumNames';
 import museumImageCredits from '../lib/museumImageCredits';
 import museumTicketUrls from '../lib/museumTicketUrls';
+import createBlurDataUrl from '../lib/createBlurDataUrl';
 import { useLanguage } from '../components/LanguageContext';
 import { supabase as supabaseClient } from '../lib/supabase';
 import SEO from '../components/SEO';
@@ -121,6 +122,7 @@ const NEARBY_RADIUS_METERS = 5000;
 export default function Home({ initialMuseums = [], initialError = null }) {
   const { t } = useLanguage();
   const router = useRouter();
+  const museumnachtBlurDataURL = useMemo(() => createBlurDataUrl('#1e293b'), []);
 
   const qFromUrl = useMemo(() => {
     const q = router.query?.q;
@@ -870,7 +872,10 @@ export default function Home({ initialMuseums = [], initialError = null }) {
           fill
           className="secondary-hero__image"
           sizes="(min-width: 768px) 80vw, 100vw"
+          placeholder="blur"
+          blurDataURL={museumnachtBlurDataURL}
           priority={false}
+          style={{ objectFit: 'cover' }}
         />
         <div className="secondary-hero__overlay" aria-hidden="true" />
         <div className="secondary-hero__content">
