@@ -8,14 +8,14 @@ This project relies on a Supabase backend. Local development requires a `.env.lo
 cp .env.example .env.local
 ```
 
-The example file intentionally contains empty placeholders so secrets do not leak.
+The example file intentionally contains placeholder strings (`your_supabase_url`, `your_supabase_anon_key`) so secrets do not leak.
 
 ## 2. Retrieve the Supabase credentials
 
 1. Sign in to the Supabase dashboard and open the project used for MuseumBuddy.
 2. Navigate to **Project Settings → API**.
-3. Copy the **Project URL** value into `NEXT_PUBLIC_SUPABASE_URL`.
-4. Copy the **anon public** key into `NEXT_PUBLIC_SUPABASE_ANON_KEY`.
+3. Copy the **Project URL** value into `NEXT_PUBLIC_SUPABASE_URL` (replacing the `your_supabase_url` placeholder).
+4. Copy the **anon public** key into `NEXT_PUBLIC_SUPABASE_ANON_KEY` (replacing `your_supabase_anon_key`).
 
 > ℹ️ If you do not have access to the Supabase project, request the credentials from the project maintainers. They are also stored alongside the production deployment secrets in the team's password manager.
 
