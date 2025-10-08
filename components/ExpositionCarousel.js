@@ -14,6 +14,8 @@ export default function ExpositionCarousel({
   initialActiveSlide = 0,
   getItemKey,
   labels = {},
+  autoPlay = true,
+  autoPlayInterval = 8000,
 }) {
   const slides = useMemo(() => (Array.isArray(items) ? items.filter(Boolean) : []), [items]);
   const totalSlides = slides.length;
@@ -35,13 +37,21 @@ export default function ExpositionCarousel({
     goToSlide: gotoSlideLabel,
     slide: slideLabel,
     instructions,
+    pause,
+    play,
+    autoplayPaused,
+    autoplayPlaying,
   } = useMemo(
     () => ({
       previous: 'Scroll to previous slide',
       next: 'Scroll to next slide',
       pagination: 'Slides',
       instructions:
-        'Use the arrow keys to browse slides. Press Home to jump to the first slide and End to go to the last slide.',
+        'Use the arrow keys to browse slides. Press Home to jump to the first slide and End to go to the last slide. Use the pause button to stop autoplay.',
+      pause: 'Pause carousel autoplay',
+      play: 'Resume carousel autoplay',
+      autoplayPaused: 'Carousel autoplay paused',
+      autoplayPlaying: 'Carousel autoplay playing',
       ...labels,
     }),
     [labels]
@@ -189,31 +199,37 @@ export default function ExpositionCarousel({
   );
 
   const handlePrev = useCallback(() => {
+    pauseAutoplay();
     updateActiveSlide(activeSlide - 1);
-  }, [activeSlide, updateActiveSlide]);
+  }, [activeSlide, pauseAutoplay, updateActiveSlide]);
 
   const handleNext = useCallback(() => {
+    pauseAutoplay();
     updateActiveSlide(activeSlide + 1);
-  }, [activeSlide, updateActiveSlide]);
+  }, [activeSlide, pauseAutoplay, updateActiveSlide]);
 
   const handleViewportKeyDown = useCallback(
     (event) => {
       if (totalSlides <= 1 || !isScrollable) return;
       if (event.key === 'ArrowRight') {
         event.preventDefault();
+        pauseAutoplay();
         updateActiveSlide(activeSlide + 1);
       } else if (event.key === 'ArrowLeft') {
         event.preventDefault();
+        pauseAutoplay();
         updateActiveSlide(activeSlide - 1);
       } else if (event.key === 'Home') {
         event.preventDefault();
+        pauseAutoplay();
         updateActiveSlide(0);
       } else if (event.key === 'End') {
         event.preventDefault();
+        pauseAutoplay();
         updateActiveSlide(totalSlides - 1);
       }
     },
-    [activeSlide, isScrollable, totalSlides, updateActiveSlide]
+    [activeSlide, isScrollable, pauseAutoplay, totalSlides, updateActiveSlide]
   );
 
   const carouselId = useId();
@@ -221,7 +237,9 @@ export default function ExpositionCarousel({
   const trackId = `${carouselId}-track`;
   const instructionsId = `${carouselId}-instructions`;
   const liveRegionId = `${carouselId}-live-region`;
+  const autoplayStatusId = `${carouselId}-autoplay-status`;
   const showControls = totalSlides > 1 && isScrollable;
+  const [isPaused, setIsPaused] = useState(() => !autoPlay);
   const instructionsText = useMemo(() => {
     if (typeof instructions === 'function') {
       return instructions(totalSlides);
@@ -232,8 +250,9 @@ export default function ExpositionCarousel({
     const ids = [];
     if (instructionsText) ids.push(instructionsId);
     if (showControls) ids.push(liveRegionId);
+    if (showControls && autoPlay) ids.push(autoplayStatusId);
     return ids.join(' ');
-  }, [instructionsId, instructionsText, liveRegionId, showControls]);
+  }, [autoPlay, autoplayStatusId, instructionsId, instructionsText, liveRegionId, showControls]);
   const controlledIds = useMemo(
     () =>
       [viewportId, trackId]
@@ -247,6 +266,7 @@ export default function ExpositionCarousel({
     }
     return getSlideLabel(activeSlide);
   });
+  const [autoplayAnnouncement, setAutoplayAnnouncement] = useState('');
 
   const updateScrollableState = useCallback(() => {
     if (totalSlides <= 1) {
@@ -294,6 +314,16 @@ export default function ExpositionCarousel({
     };
   }, [slides, updateScrollableState]);
 
+  const pauseAutoplay = useCallback(() => {
+    if (!autoPlay) return;
+    setIsPaused(true);
+  }, [autoPlay]);
+
+  const handleTogglePause = useCallback(() => {
+    if (!autoPlay) return;
+    setIsPaused((previous) => !previous);
+  }, [autoPlay]);
+
   useEffect(() => {
     if (!showControls) {
       setLiveAnnouncement('');
@@ -302,6 +332,45 @@ export default function ExpositionCarousel({
     const nextAnnouncement = getSlideLabel(activeSlide);
     setLiveAnnouncement((previous) => (previous === nextAnnouncement ? previous : nextAnnouncement));
   }, [activeSlide, getSlideLabel, showControls]);
+
+  useEffect(() => {
+    if (!autoPlay) return undefined;
+    if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') return undefined;
+    const media = window.matchMedia('(prefers-reduced-motion: reduce)');
+    if (media.matches) {
+      setIsPaused(true);
+    }
+    const handleChange = (event) => {
+      if (event.matches) {
+        setIsPaused(true);
+      }
+    };
+    media.addEventListener('change', handleChange);
+    return () => {
+      media.removeEventListener('change', handleChange);
+    };
+  }, [autoPlay]);
+
+  useEffect(() => {
+    if (!autoPlay || isPaused || !showControls) return undefined;
+    if (typeof window === 'undefined') return undefined;
+    const timer = window.setInterval(() => {
+      const nextIndex = activeSlide + 1 >= totalSlides ? 0 : activeSlide + 1;
+      updateActiveSlide(nextIndex);
+    }, autoPlayInterval);
+    return () => {
+      window.clearInterval(timer);
+    };
+  }, [activeSlide, autoPlay, autoPlayInterval, isPaused, showControls, totalSlides, updateActiveSlide]);
+
+  useEffect(() => {
+    if (!autoPlay || !showControls) {
+      setAutoplayAnnouncement('');
+      return;
+    }
+    const statusText = isPaused ? autoplayPaused : autoplayPlaying;
+    setAutoplayAnnouncement(statusText || '');
+  }, [autoPlay, autoplayPaused, autoplayPlaying, isPaused, showControls]);
 
   const regionLabel = typeof ariaLabel === 'string' && ariaLabel.trim() ? ariaLabel : 'Carousel';
 
@@ -327,12 +396,19 @@ export default function ExpositionCarousel({
           {liveAnnouncement}
         </p>
       ) : null}
+      {showControls && autoPlay ? (
+        <p id={autoplayStatusId} className="sr-only" role="status" aria-live="polite" aria-atomic="true">
+          {autoplayAnnouncement}
+        </p>
+      ) : null}
       <div
         className="exposition-carousel__viewport"
         ref={viewportRef}
         id={viewportId}
         tabIndex={0}
         onKeyDown={handleViewportKeyDown}
+        onPointerDown={pauseAutoplay}
+        onFocus={pauseAutoplay}
         aria-describedby={describedBy || undefined}
       >
         <ul className="exposition-carousel__track" role="list" id={trackId}>
@@ -379,25 +455,43 @@ export default function ExpositionCarousel({
               <span aria-hidden="true">›</span>
             </button>
           </div>
-          <div className="exposition-carousel__pagination" role="tablist" aria-label={pagination}>
-            {slides.map((item, index) => {
-              const isActive = index === activeSlide;
-              const key = typeof getItemKey === 'function' ? getItemKey(item, index) : item?.id ?? index;
-              return (
-                <button
-                  key={`indicator-${key}`}
-                  type="button"
-                  role="tab"
-                  aria-selected={isActive}
-                  aria-controls={controlledIds}
-                  className={`exposition-carousel__dot${isActive ? ' is-active' : ''}`}
-                  onClick={() => updateActiveSlide(index)}
-                  aria-label={getGotoSlideLabel(index)}
-                >
-                  <span aria-hidden="true" />
-                </button>
-              );
-            })}
+          <div className="exposition-carousel__controls">
+            {autoPlay ? (
+              <button
+                type="button"
+                className={`exposition-carousel__pause${isPaused ? ' is-paused' : ''}`}
+                onClick={handleTogglePause}
+                aria-pressed={isPaused}
+              >
+                <span className="exposition-carousel__pause-icon" aria-hidden="true">
+                  {isPaused ? '▶' : '❚❚'}
+                </span>
+                <span className="exposition-carousel__pause-label">{isPaused ? play : pause}</span>
+              </button>
+            ) : null}
+            <div className="exposition-carousel__pagination" role="tablist" aria-label={pagination}>
+              {slides.map((item, index) => {
+                const isActive = index === activeSlide;
+                const key = typeof getItemKey === 'function' ? getItemKey(item, index) : item?.id ?? index;
+                return (
+                  <button
+                    key={`indicator-${key}`}
+                    type="button"
+                    role="tab"
+                    aria-selected={isActive}
+                    aria-controls={controlledIds}
+                    className={`exposition-carousel__dot${isActive ? ' is-active' : ''}`}
+                    onClick={() => {
+                      pauseAutoplay();
+                      updateActiveSlide(index);
+                    }}
+                    aria-label={getGotoSlideLabel(index)}
+                  >
+                    <span aria-hidden="true" />
+                  </button>
+                );
+              })}
+            </div>
           </div>
         </>
       )}

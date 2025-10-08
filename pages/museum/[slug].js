@@ -509,9 +509,23 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
       goToSlide: (target) => t('carouselGoTo', { target }),
       slide: (current, total) => t('carouselSlide', { current, total }),
       instructions: t('carouselInstructions'),
+      pause: t('carouselPause'),
+      play: t('carouselPlay'),
+      autoplayPaused: t('carouselAutoplayPaused'),
+      autoplayPlaying: t('carouselAutoplayPlaying'),
     }),
     [t]
   );
+
+  const renderHeroHeading = useCallback(() => (
+    <>
+      {locationLabel && <p className="detail-sub museum-hero-location">{locationLabel}</p>}
+      <h1 className="detail-title museum-hero-title">{displayName}</h1>
+      {summary && <p className="detail-sub museum-hero-tagline">{summary}</p>}
+    </>
+  ), [displayName, locationLabel, summary]);
+
+  const heroImageAlt = t('museumHeroImageAlt', { name: displayName });
 
   const socialLinks = useMemo(() => {
     const links = [];
@@ -844,12 +858,12 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
           </nav>
 
           <div className={`museum-hero-layout${heroImage ? '' : ' museum-hero-layout--no-image'}`}>
-            {heroImage ? (
-              <div className="museum-hero-media">
+            <div className="museum-hero-media">
+              {heroImage ? (
                 <div className="museum-hero-media-inner">
                   <Image
                     src={heroImage}
-                    alt={displayName}
+                    alt={heroImageAlt}
                     fill
                     className="museum-hero-image"
                     sizes="(max-width: 640px) 100vw, (max-width: 1200px) 90vw, 1200px"
@@ -860,22 +874,12 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
                     blurDataURL={heroBlurDataURL}
                     style={{ objectFit: 'cover' }}
                   />
-                  <div className="museum-hero-text museum-hero-overlay">
-                    {locationLabel && <p className="detail-sub museum-hero-location">{locationLabel}</p>}
-                    <h1 className="detail-title museum-hero-title">{displayName}</h1>
-                    {summary && <p className="detail-sub museum-hero-tagline">{summary}</p>}
-                  </div>
+                  <div className="museum-hero-text museum-hero-overlay">{renderHeroHeading()}</div>
                 </div>
-              </div>
-            ) : (
-              <div className="museum-hero-media">
-                <div className="museum-hero-text museum-hero-text--standalone">
-                  {locationLabel && <p className="detail-sub museum-hero-location">{locationLabel}</p>}
-                  <h1 className="detail-title museum-hero-title">{displayName}</h1>
-                  {summary && <p className="detail-sub museum-hero-tagline">{summary}</p>}
-                </div>
-              </div>
-            )}
+              ) : (
+                <div className="museum-hero-text museum-hero-text--standalone">{renderHeroHeading()}</div>
+              )}
+            </div>
 
             {visitorInformationCard ? (
               <div className="museum-hero-sidebar">{visitorInformationCard}</div>
