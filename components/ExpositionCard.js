@@ -5,23 +5,7 @@ import { useFavorites } from './FavoritesContext';
 import { shouldShowAffiliateNote } from '../lib/nonAffiliateMuseums';
 import createBlurDataUrl from '../lib/createBlurDataUrl';
 import TicketButtonNote from './TicketButtonNote';
-
-function formatRange(start, end, locale) {
-  if (!start) return '';
-  const opts = { day: '2-digit', month: 'short' };
-  const startFmt = start.toLocaleDateString(locale, opts).toUpperCase();
-  if (!end) return startFmt;
-  const endFmt = end.toLocaleDateString(locale, opts).toUpperCase();
-  const sameMonth = start.getMonth() === end.getMonth() && start.getFullYear() === end.getFullYear();
-  if (sameMonth) {
-    const month = startFmt.split(' ')[1];
-    return `${start.getDate().toString().padStart(2, '0')} - ${end
-      .getDate()
-      .toString()
-      .padStart(2, '0')} ${month}`;
-  }
-  return `${startFmt} - ${endFmt}`;
-}
+import { formatDateRange } from '../lib/formatDateRange';
 
 function pickBoolean(...values) {
   for (const value of values) {
@@ -62,13 +46,10 @@ function getPlaceholderImage(exposition) {
 export default function ExpositionCard({ exposition, ticketUrl, affiliateUrl, museumSlug, tags = {} }) {
   if (!exposition) return null;
 
-  const start = exposition.start_datum ? new Date(exposition.start_datum + 'T00:00:00') : null;
-  const end = exposition.eind_datum ? new Date(exposition.eind_datum + 'T00:00:00') : null;
   const description = typeof exposition.description === 'string' ? exposition.description.trim() : '';
-  const { lang, t } = useLanguage();
+  const { t, lang } = useLanguage();
   const { favorites, toggleFavorite } = useFavorites();
-  const locale = lang === 'en' ? 'en-US' : 'nl-NL';
-  const rangeLabel = formatRange(start, end, locale);
+  const rangeLabel = formatDateRange(exposition.start_datum, exposition.eind_datum, { language: lang });
   const isFavorite = favorites.some((f) => f.id === exposition.id && f.type === 'exposition');
   const slug = museumSlug || exposition.museumSlug;
   const primaryAffiliateUrl = exposition.ticketAffiliateUrl || affiliateUrl || null;
