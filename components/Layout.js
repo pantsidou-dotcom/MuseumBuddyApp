@@ -28,8 +28,7 @@ export default function Layout({ children }) {
   const aboutActive = router.pathname === '/about';
   const exhibitionsActive = router.pathname === '/tentoonstellingen';
   const onMuseumDetailPage = router.pathname === '/museum/[slug]';
-  const onExhibitionsPage = router.pathname === '/tentoonstellingen';
-  const showFiltersControl = !(onMuseumDetailPage || onExhibitionsPage);
+  const showFiltersControl = !onMuseumDetailPage;
 
   return (
     <>
