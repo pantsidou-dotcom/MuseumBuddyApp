@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
+import dynamic from 'next/dynamic';
 import MuseumCard from '../components/MuseumCard';
 import SkeletonMuseumCard from '../components/SkeletonMuseumCard';
 import museumImages from '../lib/museumImages';
@@ -24,6 +24,20 @@ import Button from '../components/ui/Button';
 import parseBooleanParam from '../lib/parseBooleanParam.js';
 import { DEFAULT_TIME_ZONE } from '../lib/openingHours.js';
 import { trackCtaExhibitions, trackTicketsClick } from '../lib/analytics';
+
+function MuseumsMapLoading() {
+  const { t } = useLanguage();
+  return (
+    <div className="map-loading-placeholder" role="status" aria-live="polite">
+      {t('mapLoading')}
+    </div>
+  );
+}
+
+const MuseumsMap = dynamic(() => import('../components/MuseumsMap'), {
+  ssr: false,
+  loading: MuseumsMapLoading,
+});
 
 const FEATURED_SLUGS = [
   'van-gogh-museum-amsterdam',
@@ -116,7 +130,7 @@ function hasActiveTypeFilters(filters) {
 
 const BASE_MUSEUM_COLUMNS =
   'id, naam, stad, provincie, slug, gratis_toegankelijk, ticket_affiliate_url, website_url';
-const OPTIONAL_MUSEUM_COLUMNS = 'afstand_meter';
+const OPTIONAL_MUSEUM_COLUMNS = 'afstand_meter, latitude, longitude';
 const NEARBY_RPC_NAME = 'musea_within_radius';
 const NEARBY_RADIUS_METERS = 5000;
 
@@ -124,6 +138,7 @@ export default function Home({ initialMuseums = [], initialError = null }) {
   const { t, lang } = useLanguage();
   const router = useRouter();
   const museumnachtBlurDataURL = useMemo(() => createBlurDataUrl('#1e293b'), []);
+  const [viewMode, setViewMode] = useState('list');
 
   const qFromUrl = useMemo(() => {
     const q = router.query?.q;
@@ -228,6 +243,13 @@ export default function Home({ initialMuseums = [], initialError = null }) {
     [activeFilters]
   );
   const hasSelectedTypeFilters = activeTypeFilterKey.length > 0;
+
+  useEffect(() => {
+    if (isLoading) return;
+    if (results.length === 0 && viewMode !== 'list') {
+      setViewMode('list');
+    }
+  }, [isLoading, results.length, viewMode]);
 
   useEffect(() => {
     if (!router.isReady) return;
@@ -920,7 +942,29 @@ export default function Home({ initialMuseums = [], initialError = null }) {
       </section>
 
       <section id="museum-results" ref={resultsRef} className="results-section">
-        <p className="count">{results.length} {t('results')}</p>
+        <div className="results-header">
+          <p className="count">{results.length} {t('results')}</p>
+          {!isLoading && results.length > 0 ? (
+            <div className="results-toggle" role="group" aria-label={t('mapToggleLabel')}>
+              <button
+                type="button"
+                className={`results-toggle__button${viewMode === 'list' ? ' is-active' : ''}`}
+                onClick={() => setViewMode('list')}
+                aria-pressed={viewMode === 'list'}
+              >
+                {t('mapViewList')}
+              </button>
+              <button
+                type="button"
+                className={`results-toggle__button${viewMode === 'map' ? ' is-active' : ''}`}
+                onClick={() => setViewMode('map')}
+                aria-pressed={viewMode === 'map'}
+              >
+                {t('mapViewMap')}
+              </button>
+            </div>
+          ) : null}
+        </div>
 
         {isLoading ? (
           <ul className="grid" style={{ listStyle: 'none', padding: 0, margin: 0 }}>
@@ -932,6 +976,8 @@ export default function Home({ initialMuseums = [], initialError = null }) {
           </ul>
         ) : results.length === 0 ? (
           <p>{t('noResults')}</p>
+        ) : viewMode === 'map' ? (
+          <MuseumsMap museums={results} />
         ) : (
           <ul className="grid" style={{ listStyle: 'none', padding: 0, margin: 0 }}>
             {results.map((m, index) => {
