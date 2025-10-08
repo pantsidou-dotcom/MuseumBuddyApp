@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useId, useMemo, useRef, useState } from 'react';
+import { Fragment, useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
 import Image from 'next/image';
 import { useLanguage } from './LanguageContext';
 import { useFavorites } from './FavoritesContext';
@@ -6,6 +6,7 @@ import { shouldShowAffiliateNote } from '../lib/nonAffiliateMuseums';
 import createBlurDataUrl from '../lib/createBlurDataUrl';
 import TicketButtonNote from './TicketButtonNote';
 import { formatDateRange } from '../lib/formatDateRange';
+import { trackFavoriteAdd, trackTicketsClick } from '../lib/analytics';
 
 function pickBoolean(...values) {
   for (const value of values) {
@@ -100,7 +101,20 @@ export default function ExpositionCard({ exposition, ticketUrl, affiliateUrl, mu
     }, 420);
   };
 
+  const analyticsData = useMemo(
+    () => ({
+      type: 'exposition',
+      id: exposition.id ?? null,
+      slug,
+      title: exposition.titel || exposition.naam || exposition.title || null,
+    }),
+    [exposition.id, exposition.naam, exposition.titel, exposition.title, slug]
+  );
+
   const handleFavorite = () => {
+    if (!isFavorite) {
+      trackFavoriteAdd(analyticsData);
+    }
     toggleFavorite({
       id: exposition.id,
       titel: exposition.titel,
@@ -135,6 +149,14 @@ export default function ExpositionCard({ exposition, ticketUrl, affiliateUrl, mu
   });
 
   const blurPlaceholder = useMemo(() => createBlurDataUrl('#cbd5f5'), []);
+
+  const handleTicketClick = useCallback(() => {
+    trackTicketsClick({
+      ...analyticsData,
+      url: buyUrl,
+      affiliate: showAffiliateNote ? 'affiliate' : 'direct',
+    });
+  }, [analyticsData, buyUrl, showAffiliateNote]);
 
   return (
     <article className={`ds-card exposition-card${isFavoriteBouncing ? ' is-bouncing' : ''}`}>
@@ -221,6 +243,7 @@ export default function ExpositionCard({ exposition, ticketUrl, affiliateUrl, mu
               title={ticketHoverMessage}
               aria-label={ticketAriaLabel}
               data-affiliate={showAffiliateNote ? 'true' : undefined}
+              onClick={handleTicketClick}
             >
               <span
                 className={

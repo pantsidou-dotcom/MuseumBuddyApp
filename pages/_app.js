@@ -1,4 +1,5 @@
 import Head from 'next/head';
+import Script from 'next/script';
 import '../styles/globals.css';
 import Layout from '../components/Layout';
 import { FavoritesProvider } from '../components/FavoritesContext';
@@ -9,6 +10,24 @@ const fontStylesheetHref =
 const tailwindCdnHref = 'https://cdn.jsdelivr.net/npm/tailwindcss@3.4.10/dist/tailwind.min.css';
 
 export default function MyApp({ Component, pageProps }) {
+  const plausibleDomain = process.env.NEXT_PUBLIC_PLAUSIBLE_DOMAIN;
+  const plausibleSrc = process.env.NEXT_PUBLIC_PLAUSIBLE_SRC || 'https://plausible.io/js/script.js';
+  const plausibleApiHost = process.env.NEXT_PUBLIC_PLAUSIBLE_API_HOST;
+
+  const umamiWebsiteId = process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID;
+  const umamiSrc = process.env.NEXT_PUBLIC_UMAMI_SRC;
+  const umamiDataHost = process.env.NEXT_PUBLIC_UMAMI_DATA_HOST;
+
+  const plausibleProps = {};
+  if (plausibleApiHost) {
+    plausibleProps['data-api'] = plausibleApiHost;
+  }
+
+  const umamiProps = {};
+  if (umamiDataHost) {
+    umamiProps['data-host-url'] = umamiDataHost;
+  }
+
   return (
     <LanguageProvider>
       <FavoritesProvider>
@@ -23,6 +42,22 @@ export default function MyApp({ Component, pageProps }) {
             <link rel="stylesheet" href={tailwindCdnHref} />
           </noscript>
         </Head>
+        {plausibleDomain ? (
+          <Script
+            strategy="afterInteractive"
+            data-domain={plausibleDomain}
+            src={plausibleSrc}
+            {...plausibleProps}
+          />
+        ) : null}
+        {umamiWebsiteId && umamiSrc ? (
+          <Script
+            strategy="afterInteractive"
+            src={umamiSrc}
+            data-website-id={umamiWebsiteId}
+            {...umamiProps}
+          />
+        ) : null}
         <Layout>
           <Component {...pageProps} />
         </Layout>

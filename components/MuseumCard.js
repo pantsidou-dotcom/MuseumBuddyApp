@@ -12,6 +12,7 @@ import { normalizeImageSource, resolveImageUrl } from '../lib/resolveImageSource
 import createBlurDataUrl from '../lib/createBlurDataUrl';
 import TicketButtonNote from './TicketButtonNote';
 import Badge from './ui/Badge';
+import { trackCardClick, trackFavoriteAdd, trackTicketsClick } from '../lib/analytics';
 
 const HOVER_COLORS = ['#A7D8F0', '#77DDDD', '#F7C59F', '#D8BFD8', '#EAE0C8'];
 const LOCAL_TIME_ZONE = 'Europe/Amsterdam';
@@ -171,6 +172,16 @@ export default function MuseumCard({
   }, [museum.displayName, museum.name, museum.naam, museum.slug, museum.title, t]);
   const imageAlt = museum.imageAlt || t('museumCardImageAlt', { name: displayName });
 
+  const analyticsData = useMemo(
+    () => ({
+      type: 'museum',
+      id: museum.id ?? null,
+      slug: museum.slug ?? null,
+      title: displayName,
+    }),
+    [displayName, museum.id, museum.slug]
+  );
+
   const isExhibitionCard = Array.isArray(museum.categories)
     ? museum.categories.includes('exhibition')
     : false;
@@ -293,6 +304,9 @@ export default function MuseumCard({
   };
 
   const handleFavorite = () => {
+    if (!isFavorite) {
+      trackFavoriteAdd(analyticsData);
+    }
     toggleFavorite({ ...museum, image: favoriteImageUrl, type: 'museum' });
     triggerFavoriteBounce();
   };
@@ -376,7 +390,14 @@ export default function MuseumCard({
             aria-label={ticketAriaLabel}
             aria-describedby={showAffiliateNote ? ticketNoteId : undefined}
             data-affiliate={showAffiliateNote ? 'true' : undefined}
-            onClick={(event) => event.stopPropagation()}
+            onClick={(event) => {
+              event.stopPropagation();
+              trackTicketsClick({
+                ...analyticsData,
+                url: museum.ticketUrl,
+                affiliate: showAffiliateNote ? 'affiliate' : 'direct',
+              });
+            }}
           >
             <span className={labelClassName}>
               <span className="ticket-button__label-text">{t('buyTickets')}</span>
@@ -441,6 +462,11 @@ export default function MuseumCard({
   const navigateToMuseum = useCallback(
     (openInNewTab = false) => {
       if (!museum.slug) return;
+      trackCardClick({
+        ...analyticsData,
+        openInNewTab,
+      });
+
       if (openInNewTab) {
         if (typeof window !== 'undefined') {
           window.open(detailUrl, '_blank', 'noopener,noreferrer');
@@ -449,7 +475,7 @@ export default function MuseumCard({
       }
       router.push(detailHref);
     },
-    [detailHref, detailUrl, museum.slug, router]
+    [analyticsData, detailHref, detailUrl, router]
   );
 
   const isInteractiveEvent = useCallback((event) => {
