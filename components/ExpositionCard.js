@@ -3,6 +3,7 @@ import Image from 'next/image';
 import { useLanguage } from './LanguageContext';
 import { useFavorites } from './FavoritesContext';
 import { shouldShowAffiliateNote } from '../lib/nonAffiliateMuseums';
+import createBlurDataUrl from '../lib/createBlurDataUrl';
 import TicketButtonNote from './TicketButtonNote';
 
 function formatRange(start, end, locale) {
@@ -149,6 +150,8 @@ export default function ExpositionCard({ exposition, ticketUrl, affiliateUrl, mu
   const mediaClassName = 'exposition-card__media exposition-card__media--placeholder';
   const placeholderImage = useMemo(() => getPlaceholderImage(exposition), [exposition]);
 
+  const blurPlaceholder = useMemo(() => createBlurDataUrl('#cbd5f5'), []);
+
   return (
     <article className={`ds-card exposition-card${isFavoriteBouncing ? ' is-bouncing' : ''}`}>
       <div className={mediaClassName} aria-hidden="true">
@@ -158,7 +161,10 @@ export default function ExpositionCard({ exposition, ticketUrl, affiliateUrl, mu
           fill
           className="exposition-card__media-placeholder"
           sizes="(min-width: 1024px) 360px, (min-width: 640px) 50vw, 90vw"
+          placeholder="blur"
+          blurDataURL={blurPlaceholder}
           priority={false}
+          style={{ objectFit: 'cover' }}
         />
       </div>
       <div className="exposition-card__body">

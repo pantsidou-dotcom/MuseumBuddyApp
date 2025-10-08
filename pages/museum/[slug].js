@@ -10,6 +10,7 @@ import { useFavorites } from '../../components/FavoritesContext';
 import TicketButtonNote from '../../components/TicketButtonNote';
 import museumImages from '../../lib/museumImages';
 import { normalizeImageSource, resolveImageUrl } from '../../lib/resolveImageSource';
+import createBlurDataUrl from '../../lib/createBlurDataUrl';
 import museumImageCredits from '../../lib/museumImageCredits';
 import museumSummaries from '../../lib/museumSummaries';
 import museumOpeningHours from '../../lib/museumOpeningHours';
@@ -256,6 +257,12 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
     null;
   const heroImage = useMemo(() => normalizeImageSource(rawImage), [rawImage]);
   const heroImageUrl = useMemo(() => resolveImageUrl(rawImage), [rawImage]);
+  const heroBlurDataURL = useMemo(() => {
+    if (heroImage && typeof heroImage === 'object' && 'blurDataURL' in heroImage && heroImage.blurDataURL) {
+      return heroImage.blurDataURL;
+    }
+    return createBlurDataUrl('#1f2937');
+  }, [heroImage]);
   const imageCredit = museumImageCredits[slug];
   const isPublicDomainImage = Boolean(imageCredit?.isPublicDomain);
   const formattedCredit = useMemo(
@@ -849,9 +856,9 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
                     priority={isLandingMuseum}
                     loading={isLandingMuseum ? 'eager' : 'lazy'}
                     fetchPriority={isLandingMuseum ? 'high' : 'auto'}
-                    {...(heroImage && typeof heroImage === 'object' && 'blurDataURL' in heroImage && heroImage.blurDataURL
-                      ? { placeholder: 'blur', blurDataURL: heroImage.blurDataURL }
-                      : {})}
+                    placeholder="blur"
+                    blurDataURL={heroBlurDataURL}
+                    style={{ objectFit: 'cover' }}
                   />
                   <div className="museum-hero-text museum-hero-overlay">
                     {locationLabel && <p className="detail-sub museum-hero-location">{locationLabel}</p>}

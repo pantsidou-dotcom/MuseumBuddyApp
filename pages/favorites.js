@@ -5,6 +5,7 @@ import ExpositionCard from '../components/ExpositionCard';
 import { useFavorites } from '../components/FavoritesContext';
 import { useLanguage } from '../components/LanguageContext';
 import Button from '../components/ui/Button';
+import createBlurDataUrl from '../lib/createBlurDataUrl';
 
 export default function FavoritesPage() {
   const { favorites } = useFavorites();
@@ -12,6 +13,7 @@ export default function FavoritesPage() {
 
   const museumFavorites = favorites.filter((f) => f.type === 'museum');
   const expositionFavorites = favorites.filter((f) => f.type === 'exposition');
+  const favoritesBlurDataURL = createBlurDataUrl('#cbd5f5');
 
   return (
     <>
@@ -26,9 +28,11 @@ export default function FavoritesPage() {
             <Image
               src="/images/favorites-empty.svg"
               alt={t('favoritesEmptyIllustrationAlt')}
-              width={320}
+              width={360}
               height={240}
               priority
+              placeholder="blur"
+              blurDataURL={favoritesBlurDataURL}
             />
           </div>
           <div className="favorites-empty-state__content">
