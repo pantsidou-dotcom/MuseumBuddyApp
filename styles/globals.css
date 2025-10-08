@@ -1052,7 +1052,6 @@ img { max-width: 100%; height: auto; display: block; }
   border-radius: var(--radius-md);
   overflow: hidden;
   min-height: clamp(260px, 58vw, 420px);
-  aspect-ratio: 3 / 2;
   color: #ffffff;
   background: #0f172a;
   box-shadow: 0 16px 40px rgba(15, 23, 42, 0.28);
@@ -1750,7 +1749,6 @@ button.hero-quick-link {
 .museum-hero-media-inner {
   position: relative;
   min-height: clamp(260px, 52vw, 420px);
-  aspect-ratio: 3 / 2;
   border-radius: var(--radius-md);
   overflow: hidden;
   box-shadow: 0 18px 42px rgba(15, 23, 42, 0.18);
