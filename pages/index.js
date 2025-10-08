@@ -755,7 +755,12 @@ export default function Home({ initialMuseums = [], initialError = null }) {
   if (error) {
     return (
       <>
-        <SEO title={t('homeTitle')} description={t('homeDescription')} />
+        <SEO
+          title={t('homeTitle')}
+          description={t('homeDescription')}
+          canonical="/"
+          image="/images/og-home.svg"
+        />
         <main className="container" style={{ maxWidth: 800 }}>
           <p>{t('somethingWrong')}</p>
         </main>
@@ -765,7 +770,12 @@ export default function Home({ initialMuseums = [], initialError = null }) {
 
   return (
     <>
-      <SEO title={t('homeTitle')} description={t('homeDescription')} />
+      <SEO
+        title={t('homeTitle')}
+        description={t('homeDescription')}
+        canonical="/"
+        image="/images/og-home.svg"
+      />
       <FiltersSheet
         open={filtersSheetOpen}
         filters={sheetFilters}

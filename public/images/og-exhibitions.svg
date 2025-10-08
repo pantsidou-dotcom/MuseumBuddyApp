@@ -1,0 +1,24 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Tentoonstelling tijdelijke afbeelding</title>
+  <desc id="desc">Diepblauwe verloopachtergrond met subtiel kader als tijdelijke afbeelding voor een tentoonstelling.</desc>
+  <defs>
+    <linearGradient id="background" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#304458" />
+      <stop offset="45%" stop-color="#223142" />
+      <stop offset="100%" stop-color="#141c28" />
+    </linearGradient>
+    <linearGradient id="gloss" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.12" />
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0" />
+    </linearGradient>
+    <radialGradient id="vignette" cx="50%" cy="45%" r="70%">
+      <stop offset="0%" stop-color="#000000" stop-opacity="0" />
+      <stop offset="75%" stop-color="#000000" stop-opacity="0.22" />
+      <stop offset="100%" stop-color="#000000" stop-opacity="0.35" />
+    </radialGradient>
+  </defs>
+  <rect width="1024" height="1024" fill="url(#background)" rx="64" />
+  <rect x="32" y="32" width="960" height="960" rx="56" fill="none" stroke="#243243" stroke-width="4" />
+  <rect x="32" y="32" width="960" height="960" rx="56" fill="url(#gloss)" opacity="0.18" />
+  <rect width="1024" height="1024" fill="url(#vignette)" rx="64" />
+</svg>

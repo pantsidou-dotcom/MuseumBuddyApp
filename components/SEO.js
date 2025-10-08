@@ -27,11 +27,21 @@ function resolveCanonical(customCanonical, baseUrl, fallbackPath) {
   return toAbsoluteUrl(baseUrl, customCanonical);
 }
 
+function resolveImageUrl(image, baseUrl) {
+  if (!image) return null;
+  if (/^https?:\/\//i.test(image)) {
+    return image;
+  }
+  const normalizedPath = image.startsWith('/') ? image : `/${image}`;
+  return `${baseUrl}${normalizedPath}`;
+}
+
 export default function SEO({ title, description, image, canonical }) {
   const { asPath } = useRouter();
   const pathname = stripQueryAndHash(asPath || '/');
   const url = toAbsoluteUrl(SITE_URL, pathname);
   const canonicalUrl = resolveCanonical(canonical, SITE_URL, pathname);
+  const ogImage = resolveImageUrl(image, SITE_URL);
 
   return (
     <Head>
@@ -41,11 +51,11 @@ export default function SEO({ title, description, image, canonical }) {
       {title && <meta property="og:title" content={title} />}
       {description && <meta property="og:description" content={description} />}
       <meta property="og:url" content={url} />
-      {image && <meta property="og:image" content={image} />}
+      {ogImage && <meta property="og:image" content={ogImage} />}
       <meta name="twitter:card" content="summary_large_image" />
       {title && <meta name="twitter:title" content={title} />}
       {description && <meta name="twitter:description" content={description} />}
-      {image && <meta name="twitter:image" content={image} />}
+      {ogImage && <meta name="twitter:image" content={ogImage} />}
       <link rel="canonical" href={canonicalUrl} />
     </Head>
   );
