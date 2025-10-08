@@ -12,6 +12,7 @@ import { supabase as supabaseClient } from '../lib/supabase';
 import Button from '../components/ui/Button';
 import parseBooleanParam from '../lib/parseBooleanParam.js';
 import { isMuseumOpenNow } from '../lib/openingHours.js';
+import { formatDutchDateRange } from '../lib/formatDateRange';
 
 const FILTERS_EVENT = 'museumBuddy:openFilters';
 
@@ -98,41 +99,6 @@ function normalizeMuseumRow(row) {
   };
 }
 
-function formatDateRange(start, end, locale) {
-  if (!start) return '';
-
-  try {
-    const startDate = new Date(`${start}T00:00:00`);
-    if (Number.isNaN(startDate.getTime())) return '';
-
-    const formatter = new Intl.DateTimeFormat(locale, {
-      day: '2-digit',
-      month: 'short',
-      year: startDate.getFullYear() !== new Date().getFullYear() ? 'numeric' : undefined,
-    });
-    const startLabel = formatter.format(startDate);
-
-    if (!end) {
-      return startLabel;
-    }
-
-    const endDate = new Date(`${end}T00:00:00`);
-    if (Number.isNaN(endDate.getTime())) {
-      return startLabel;
-    }
-
-    const differentYear = startDate.getFullYear() !== endDate.getFullYear();
-    const endFormatter = differentYear
-      ? new Intl.DateTimeFormat(locale, { day: '2-digit', month: 'short', year: 'numeric' })
-      : formatter;
-    const endLabel = endFormatter.format(endDate);
-
-    return `${startLabel} – ${endLabel}`;
-  } catch (err) {
-    return '';
-  }
-}
-
 function truncate(text, maxLength = 180) {
   if (typeof text !== 'string') return '';
   const cleaned = text.replace(/\s+/g, ' ').trim();
@@ -161,7 +127,7 @@ function pickImage(row, museum) {
   return null;
 }
 
-function mapExhibitionToCard(exhibition, lang, t) {
+function mapExhibitionToCard(exhibition, t) {
   if (!exhibition?.museum || !exhibition.museum.slug) {
     return null;
   }
@@ -173,8 +139,7 @@ function mapExhibitionToCard(exhibition, lang, t) {
   const titleBase = museumName
     ? t('exhibitionsListCardTitle', { exhibition: exhibitionTitle, museum: museumName })
     : exhibitionTitle;
-  const locale = lang === 'en' ? 'en-GB' : 'nl-NL';
-  const rangeLabel = formatDateRange(exhibition.start_datum, exhibition.eind_datum, locale);
+  const rangeLabel = formatDutchDateRange(exhibition.start_datum, exhibition.eind_datum);
   const descriptionText = truncate(
     exhibition.beschrijving || exhibition.omschrijving || exhibition.description || ''
   );
@@ -470,15 +435,15 @@ async function loadExhibitionsForStaticProps() {
 }
 
 export default function ExhibitionsPage({ exhibitions = [], error = null }) {
-  const { t, lang } = useLanguage();
+  const { t } = useLanguage();
   const router = useRouter();
 
   const allCards = useMemo(
     () =>
       (Array.isArray(exhibitions) ? exhibitions : [])
-        .map((exhibition) => mapExhibitionToCard(exhibition, lang, t))
+        .map((exhibition) => mapExhibitionToCard(exhibition, t))
         .filter(Boolean),
-    [exhibitions, lang, t]
+    [exhibitions, t]
   );
 
   const openNowActive = useMemo(() => {

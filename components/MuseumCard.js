@@ -54,7 +54,7 @@ function parseTime(value) {
 
 function getLocalMinutes(timeZone = LOCAL_TIME_ZONE) {
   try {
-    const formatter = new Intl.DateTimeFormat('en-GB', {
+    const formatter = new Intl.DateTimeFormat('nl-NL', {
       timeZone,
       hour: '2-digit',
       minute: '2-digit',
