@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
 import MuseumCard from '../components/MuseumCard';
 import SEO from '../components/SEO';
@@ -11,8 +11,13 @@ import { getMuseumCategories } from '../lib/museumCategories';
 import { supabase as supabaseClient } from '../lib/supabase';
 import Button from '../components/ui/Button';
 import parseBooleanParam from '../lib/parseBooleanParam.js';
-import { isMuseumOpenNow } from '../lib/openingHours.js';
+import { DEFAULT_TIME_ZONE, isMuseumOpenNow } from '../lib/openingHours.js';
 import { formatDateRange } from '../lib/formatDateRange';
+import FiltersSheet from '../components/FiltersSheet';
+import {
+  CATEGORY_ORDER,
+  CATEGORY_TRANSLATION_KEYS,
+} from '../lib/museumCategories';
 
 const FILTERS_EVENT = 'museumBuddy:openFilters';
 
@@ -43,6 +48,25 @@ const MUSEUM_FALLBACK_COLUMNS = [
 const EXHIBITION_SELECT_WITH_RELATION = `*, museum:museum_id (${MUSEUM_SELECT_COLUMNS})`;
 const EXHIBITION_SELECT_WITH_RELATION_FALLBACK = `*, museum:museum_id (${MUSEUM_FALLBACK_COLUMNS})`;
 const EXHIBITION_SELECT_NO_RELATION = '*';
+
+const ORDERED_TYPE_CATEGORIES = CATEGORY_ORDER.filter(
+  (category) => category !== 'exhibition' && CATEGORY_TRANSLATION_KEYS[category]
+);
+const REMAINING_TYPE_CATEGORIES = Object.keys(CATEGORY_TRANSLATION_KEYS).filter(
+  (category) =>
+    category !== 'exhibition' && !ORDERED_TYPE_CATEGORIES.includes(category)
+);
+const TYPE_CATEGORY_KEYS = [...ORDERED_TYPE_CATEGORIES, ...REMAINING_TYPE_CATEGORIES];
+
+const TYPE_FILTERS = Object.freeze(
+  TYPE_CATEGORY_KEYS.map((category) => ({
+    id: category,
+    paramValue: category,
+    stateKey: `type:${category}`,
+    labelKey: CATEGORY_TRANSLATION_KEYS[category],
+    category,
+  }))
+);
 
 function todayYMD(tz = 'Europe/Amsterdam') {
   try {
@@ -170,6 +194,8 @@ function mapExhibitionToCard(exhibition, t, language) {
   const directTicketUrl = exhibition.ticket_url || museum.website_url || null;
   const infoTicketUrl = exhibition.bron_url || null;
   const ticketUrl = affiliateTicketUrl || directTicketUrl || infoTicketUrl;
+  const startDate = exhibition.start_datum || exhibition.startDatum || null;
+  const endDate = exhibition.eind_datum || exhibition.eindDatum || null;
 
   return {
     exhibitionId: exhibition.id,
@@ -186,6 +212,9 @@ function mapExhibitionToCard(exhibition, t, language) {
     ticketAffiliateUrl: affiliateTicketUrl,
     summary,
     metaTag,
+    museumName,
+    startDate,
+    endDate,
   };
 }
 
@@ -448,18 +477,222 @@ export default function ExhibitionsPage({ exhibitions = [], error = null }) {
     [exhibitions, t, lang]
   );
 
-  const openNowActive = useMemo(() => {
+  const museumOptions = useMemo(() => {
+    const seen = new Map();
+    for (const card of allCards) {
+      if (!card?.slug) continue;
+      if (seen.has(card.slug)) continue;
+      const labelCandidates = [card.museumName, museumNames[card.slug], card.title, card.slug];
+      let label = '';
+      for (const candidate of labelCandidates) {
+        if (typeof candidate === 'string' && candidate.trim()) {
+          label = candidate.trim();
+          break;
+        }
+      }
+      seen.set(card.slug, {
+        name: `museum:${card.slug}`,
+        label,
+        slug: card.slug,
+      });
+    }
+    const formatter = new Intl.Collator(lang === 'nl' ? 'nl-NL' : 'en-US', {
+      sensitivity: 'base',
+    });
+    return Array.from(seen.values()).sort((a, b) => formatter.compare(a.label, b.label));
+  }, [allCards, lang]);
+
+  const emptyFilters = useMemo(() => {
+    const base = { openNow: false, exhibitions: false };
+    TYPE_FILTERS.forEach((type) => {
+      base[type.stateKey] = false;
+    });
+    museumOptions.forEach((option) => {
+      base[option.name] = false;
+    });
+    return base;
+  }, [museumOptions]);
+
+  const filtersFromUrl = useMemo(() => {
     const query = router?.query || {};
-    return parseBooleanParam(query.open_now ?? query.openNow ?? query.open);
-  }, [router.query]);
+    const next = { ...emptyFilters };
+
+    next.openNow = parseBooleanParam(query.open_now ?? query.openNow ?? query.open);
+    next.exhibitions = parseBooleanParam(query.exhibitions ?? query.exposities);
+
+    const rawTypes = query.types;
+    const typeValue = Array.isArray(rawTypes) ? rawTypes[0] : rawTypes;
+    const parsedTypes = typeof typeValue === 'string'
+      ? typeValue
+          .split(',')
+          .map((value) => value.trim().toLowerCase())
+          .filter(Boolean)
+      : [];
+    TYPE_FILTERS.forEach((type) => {
+      next[type.stateKey] = parsedTypes.includes(type.paramValue);
+    });
+
+    const rawMuseums = query.museums ?? query.museum ?? query.musea;
+    const museumValue = Array.isArray(rawMuseums) ? rawMuseums[0] : rawMuseums;
+    const parsedMuseums = typeof museumValue === 'string'
+      ? museumValue
+          .split(',')
+          .map((value) => value.trim().toLowerCase())
+          .filter(Boolean)
+      : [];
+    museumOptions.forEach((option) => {
+      next[option.name] = parsedMuseums.includes(option.slug.toLowerCase());
+    });
+
+    return next;
+  }, [router?.query, emptyFilters, museumOptions]);
+
+  const [filtersSheetOpen, setFiltersSheetOpen] = useState(false);
+  const [activeFilters, setActiveFilters] = useState(filtersFromUrl);
+  const [sheetFilters, setSheetFilters] = useState(filtersFromUrl);
+
+  useEffect(() => {
+    setActiveFilters(filtersFromUrl);
+    setSheetFilters(filtersFromUrl);
+  }, [filtersFromUrl]);
+
+  const updateQueryWithFilters = useCallback(
+    (nextFilters) => {
+      if (!router?.isReady) return;
+      const current = router.query || {};
+      const nextQuery = { ...current };
+
+      delete nextQuery.open_now;
+      delete nextQuery.openNow;
+      delete nextQuery.open;
+      delete nextQuery.exhibitions;
+      delete nextQuery.exposities;
+      delete nextQuery.types;
+      delete nextQuery.museums;
+      delete nextQuery.museum;
+      delete nextQuery.musea;
+
+      if (nextFilters.openNow) {
+        nextQuery.open_now = '1';
+      }
+      if (nextFilters.exhibitions) {
+        nextQuery.exhibitions = '1';
+      }
+
+      const selectedTypes = TYPE_FILTERS.filter((type) => nextFilters[type.stateKey]).map(
+        (type) => type.paramValue
+      );
+      if (selectedTypes.length > 0) {
+        nextQuery.types = selectedTypes.join(',');
+      }
+
+      const selectedMuseums = museumOptions
+        .filter((option) => nextFilters[option.name])
+        .map((option) => option.slug);
+      if (selectedMuseums.length > 0) {
+        nextQuery.museums = selectedMuseums.join(',');
+      }
+
+      router.replace(
+        {
+          pathname: router.pathname,
+          query: nextQuery,
+        },
+        undefined,
+        { shallow: true, scroll: false }
+      );
+    },
+    [router, museumOptions]
+  );
+
+  const handleFilterChange = useCallback((name, value) => {
+    setSheetFilters((prev) => ({ ...prev, [name]: value }));
+  }, []);
+
+  const handleApplyFilters = useCallback(() => {
+    const merged = { ...emptyFilters, ...sheetFilters };
+    setActiveFilters(merged);
+    setFiltersSheetOpen(false);
+    updateQueryWithFilters(merged);
+  }, [emptyFilters, sheetFilters, updateQueryWithFilters]);
+
+  const handleResetFilters = useCallback(() => {
+    setSheetFilters(emptyFilters);
+    setActiveFilters(emptyFilters);
+    setFiltersSheetOpen(false);
+    updateQueryWithFilters(emptyFilters);
+  }, [emptyFilters, updateQueryWithFilters]);
+
+  const handleCloseSheet = useCallback(() => {
+    setFiltersSheetOpen(false);
+    setSheetFilters(activeFilters);
+  }, [activeFilters]);
+
+  const openNowActive = Boolean(activeFilters.openNow);
+
+  const selectedTypeIds = useMemo(
+    () =>
+      TYPE_FILTERS.filter((type) => activeFilters[type.stateKey]).map((type) => type.paramValue),
+    [activeFilters]
+  );
+
+  const selectedMuseumSlugs = useMemo(
+    () => museumOptions.filter((option) => activeFilters[option.name]).map((option) => option.slug),
+    [activeFilters, museumOptions]
+  );
+
+  const selectedTypeCount = selectedTypeIds.length;
+  const selectedMuseumCount = selectedMuseumSlugs.length;
+  const hasAdditionalFilters = Boolean(
+    activeFilters.exhibitions || selectedTypeCount > 0 || selectedMuseumCount > 0
+  );
+
+  const todayYmd = useMemo(() => todayYMD(DEFAULT_TIME_ZONE), []);
+  const todayTimestamp = useMemo(() => {
+    const parsed = Date.parse(todayYmd);
+    return Number.isNaN(parsed) ? null : parsed;
+  }, [todayYmd]);
 
   const visibleCards = useMemo(() => {
-    if (!openNowActive) return allCards;
-    return allCards.filter((card) => isMuseumOpenNow(card) === true);
-  }, [allCards, openNowActive]);
+    return allCards.filter((card) => {
+      if (!card) return false;
+
+      if (activeFilters.openNow && isMuseumOpenNow(card) !== true) {
+        return false;
+      }
+
+      if (activeFilters.exhibitions && todayTimestamp !== null) {
+        const startValue = card.startDate ? Date.parse(card.startDate) : null;
+        const endValue = card.endDate ? Date.parse(card.endDate) : null;
+
+        if (typeof startValue === 'number' && !Number.isNaN(startValue) && startValue > todayTimestamp) {
+          return false;
+        }
+
+        if (typeof endValue === 'number' && !Number.isNaN(endValue) && endValue < todayTimestamp) {
+          return false;
+        }
+      }
+
+      if (selectedTypeIds.length > 0) {
+        const categories = Array.isArray(card.categories) ? card.categories : [];
+        const matchesType = selectedTypeIds.some((typeId) => categories.includes(typeId));
+        if (!matchesType) {
+          return false;
+        }
+      }
+
+      if (selectedMuseumSlugs.length > 0 && (!card.slug || !selectedMuseumSlugs.includes(card.slug))) {
+        return false;
+      }
+
+      return true;
+    });
+  }, [allCards, activeFilters, selectedTypeIds, selectedMuseumSlugs, todayTimestamp]);
 
   const filtersContainerRef = useRef(null);
   const openNowButtonRef = useRef(null);
+  const filtersButtonRef = useRef(null);
 
   useEffect(() => {
     if (typeof window === 'undefined') return undefined;
@@ -468,8 +701,9 @@ export default function ExhibitionsPage({ exhibitions = [], error = null }) {
       if (container?.scrollIntoView) {
         container.scrollIntoView({ behavior: 'smooth', block: 'center' });
       }
-      const button = openNowButtonRef.current;
-      if (button) {
+      setFiltersSheetOpen(true);
+      const button = filtersButtonRef.current || openNowButtonRef.current;
+      if (button?.focus) {
         button.focus({ preventScroll: true });
       }
     };
@@ -480,24 +714,43 @@ export default function ExhibitionsPage({ exhibitions = [], error = null }) {
   }, []);
 
   const handleToggleOpenNow = useCallback(() => {
-    if (!router?.isReady) return;
-    const current = router.query || {};
-    const nextQuery = { ...current };
-    delete nextQuery.open_now;
-    delete nextQuery.openNow;
-    delete nextQuery.open;
-    if (!openNowActive) {
-      nextQuery.open_now = '1';
-    }
-    router.replace(
+    const nextValue = !openNowActive;
+    const merged = { ...activeFilters, openNow: nextValue };
+    setActiveFilters(merged);
+    setSheetFilters((prev) => ({ ...prev, openNow: nextValue }));
+    updateQueryWithFilters(merged);
+  }, [activeFilters, openNowActive, updateQueryWithFilters]);
+
+  const filterSections = useMemo(() => {
+    const sections = [
       {
-        pathname: router.pathname,
-        query: nextQuery,
+        id: 'availability',
+        title: t('filtersAvailability'),
+        options: [
+          { name: 'openNow', label: t('filtersOpenNow') },
+          { name: 'exhibitions', label: t('filtersExhibitions') },
+        ],
       },
-      undefined,
-      { shallow: true, scroll: false }
-    );
-  }, [openNowActive, router]);
+      {
+        id: 'types',
+        title: t('filtersTypeTitle'),
+        options: TYPE_FILTERS.map((type) => ({
+          name: type.stateKey,
+          label: t(type.labelKey),
+        })),
+      },
+    ];
+
+    if (museumOptions.length > 0) {
+      sections.push({
+        id: 'museums',
+        title: t('filtersMuseums'),
+        options: museumOptions,
+      });
+    }
+
+    return sections;
+  }, [museumOptions, t]);
 
   const hasBaseCards = allCards.length > 0;
   const hasVisibleCards = visibleCards.length > 0;
@@ -509,6 +762,28 @@ export default function ExhibitionsPage({ exhibitions = [], error = null }) {
         description={t('exhibitionsPageDescription')}
         canonical="/tentoonstellingen"
         image="/images/og-exhibitions.svg"
+      />
+      <FiltersSheet
+        open={filtersSheetOpen}
+        filters={sheetFilters}
+        onChange={handleFilterChange}
+        onApply={handleApplyFilters}
+        onReset={handleResetFilters}
+        onClose={handleCloseSheet}
+        sections={filterSections}
+        labels={{
+          title: t('exhibitionFiltersTitle'),
+          description: t('exhibitionFiltersDescription'),
+          availability: t('filtersAvailability'),
+          exhibitions: t('filtersExhibitions'),
+          openNow: t('filtersOpenNow'),
+          distance: t('filtersDistance'),
+          typeTitle: t('filtersTypeTitle'),
+          apply: t('filtersApply'),
+          reset: t('filtersReset'),
+          close: t('filtersClose'),
+        }}
+        idPrefix="exhibitions-filters"
       />
       <section className="page-intro" aria-labelledby="exhibitions-heading">
         <h1 id="exhibitions-heading" className="page-title">
@@ -522,8 +797,21 @@ export default function ExhibitionsPage({ exhibitions = [], error = null }) {
       <div className="filters-inline" ref={filtersContainerRef}>
         <Button
           type="button"
-          variant={openNowActive ? 'primary' : 'ghost'}
-          size="sm"
+          variant={hasAdditionalFilters ? 'primary' : 'secondary'}
+          size="lg"
+          className="filters-inline__button"
+          onClick={() => setFiltersSheetOpen(true)}
+          ref={filtersButtonRef}
+          aria-haspopup="dialog"
+          aria-expanded={filtersSheetOpen}
+        >
+          {t('exhibitionFiltersButton')}
+        </Button>
+        <Button
+          type="button"
+          variant={openNowActive ? 'primary' : 'secondary'}
+          size="lg"
+          className="filters-inline__button"
           onClick={handleToggleOpenNow}
           aria-pressed={openNowActive}
           ref={openNowButtonRef}
