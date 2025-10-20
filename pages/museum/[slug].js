@@ -20,6 +20,7 @@ import { supabase as supabaseClient } from '../../lib/supabase';
 import { shouldShowAffiliateNote } from '../../lib/nonAffiliateMuseums';
 import kidFriendlyMuseums, { isKidFriendly as resolveKidFriendly } from '../../lib/kidFriendlyMuseums';
 import { trackFavoriteAdd, trackTicketsClick } from '../../lib/analytics';
+import { getStaticMuseumBySlug, getStaticMuseums } from '../../lib/staticMuseums';
 
 function todayYMD(tz = 'Europe/Amsterdam') {
   try {
@@ -1028,11 +1029,17 @@ export async function getStaticProps({ params }) {
     return { notFound: true };
   }
 
+  const fallbackStaticRow = getStaticMuseumBySlug(slug);
+
   if (!supabaseClient) {
+    if (!fallbackStaticRow) {
+      return { notFound: true };
+    }
+    const museum = normaliseMuseumRow({ ...fallbackStaticRow });
     return {
       props: {
-        error: 'missingSupabase',
-        museum: null,
+        error: null,
+        museum,
         expositions: [],
       },
     };
@@ -1046,6 +1053,16 @@ export async function getStaticProps({ params }) {
       .maybeSingle();
 
     if (museumError) {
+      if (fallbackStaticRow) {
+        const museum = normaliseMuseumRow({ ...fallbackStaticRow });
+        return {
+          props: {
+            error: null,
+            museum,
+            expositions: [],
+          },
+        };
+      }
       if (museumError.code === 'PGRST116') {
         return { notFound: true };
       }
@@ -1059,6 +1076,16 @@ export async function getStaticProps({ params }) {
     }
 
     if (!museumRow) {
+      if (fallbackStaticRow) {
+        const museum = normaliseMuseumRow({ ...fallbackStaticRow });
+        return {
+          props: {
+            error: null,
+            museum,
+            expositions: [],
+          },
+        };
+      }
       return { notFound: true };
     }
 
@@ -1089,6 +1116,16 @@ export async function getStaticProps({ params }) {
       },
     };
   } catch (err) {
+    if (fallbackStaticRow) {
+      const museum = normaliseMuseumRow({ ...fallbackStaticRow });
+      return {
+        props: {
+          error: null,
+          museum,
+          expositions: [],
+        },
+      };
+    }
     return {
       props: {
         error: 'unknown',
@@ -1118,8 +1155,22 @@ export async function getStaticPaths() {
   }
 
   if (slugs.size === 0) {
-    [museumImages, museumSummaries, museumOpeningHours, museumTicketUrls].forEach((collection) => {
+    [
+      museumImages,
+      museumSummaries,
+      museumOpeningHours,
+      museumTicketUrls,
+      getStaticMuseums(),
+    ].forEach((collection) => {
       if (!collection) return;
+      if (Array.isArray(collection)) {
+        collection.forEach((item) => {
+          if (item?.slug) {
+            slugs.add(item.slug);
+          }
+        });
+        return;
+      }
       Object.keys(collection).forEach((key) => {
         if (key) {
           slugs.add(key);
