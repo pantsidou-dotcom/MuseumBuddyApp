@@ -88,6 +88,8 @@ export default function Layout({ children }) {
               >
                 {t('favoritesLabel')}
               </NavLink>
+            </NavSection>
+            <NavSection className="ds-nav__section--lang">
               <Button
                 variant="ghost"
                 tone="brand"

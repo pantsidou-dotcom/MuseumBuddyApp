@@ -687,6 +687,10 @@ img { max-width: 100%; height: auto; display: block; }
     min-width: 0;
   }
 
+  .ds-nav__section--lang {
+    order: -1;
+  }
+
   .ds-nav__section--actions .ds-nav__link,
   .ds-nav__section--actions .ds-nav__link--button,
   .ds-nav__section--actions .ds-button {
