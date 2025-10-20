@@ -21,6 +21,7 @@ import { shouldShowAffiliateNote } from '../../lib/nonAffiliateMuseums';
 import kidFriendlyMuseums, { isKidFriendly as resolveKidFriendly } from '../../lib/kidFriendlyMuseums';
 import { trackFavoriteAdd, trackTicketsClick } from '../../lib/analytics';
 import { getStaticMuseumBySlug, getStaticMuseums } from '../../lib/staticMuseums';
+import { getStaticExhibitionsByMuseumSlug } from '../../lib/staticExhibitions';
 
 function todayYMD(tz = 'Europe/Amsterdam') {
   try {
@@ -1030,6 +1031,7 @@ export async function getStaticProps({ params }) {
   }
 
   const fallbackStaticRow = getStaticMuseumBySlug(slug);
+  const fallbackExpositions = getStaticExhibitionsByMuseumSlug(slug);
 
   if (!supabaseClient) {
     if (!fallbackStaticRow) {
@@ -1040,7 +1042,7 @@ export async function getStaticProps({ params }) {
       props: {
         error: null,
         museum,
-        expositions: [],
+        expositions: fallbackExpositions,
       },
     };
   }
@@ -1059,7 +1061,7 @@ export async function getStaticProps({ params }) {
           props: {
             error: null,
             museum,
-            expositions: [],
+            expositions: fallbackExpositions,
           },
         };
       }
@@ -1082,7 +1084,7 @@ export async function getStaticProps({ params }) {
           props: {
             error: null,
             museum,
-            expositions: [],
+            expositions: fallbackExpositions,
           },
         };
       }
@@ -1108,10 +1110,12 @@ export async function getStaticProps({ params }) {
       expoRows = expoData;
     }
 
+    const resolvedExpositions = expoRows.length > 0 ? expoRows : fallbackExpositions;
+
     return {
       props: {
         museum,
-        expositions: expoRows,
+        expositions: resolvedExpositions,
         error: null,
       },
     };
@@ -1122,7 +1126,7 @@ export async function getStaticProps({ params }) {
         props: {
           error: null,
           museum,
-          expositions: [],
+          expositions: fallbackExpositions,
         },
       };
     }
