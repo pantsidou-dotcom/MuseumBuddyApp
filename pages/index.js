@@ -169,6 +169,16 @@ export default function Home({ initialMuseums = [], initialError = null }) {
       })),
     [initialSortedMuseums]
   );
+  const staticMuseumsWithCategories = useMemo(() => {
+    const fallbackMuseums = getStaticMuseums();
+    if (!Array.isArray(fallbackMuseums)) {
+      return [];
+    }
+    return fallbackMuseums.map((museum) => ({
+      ...museum,
+      categories: getMuseumCategories(museum.slug),
+    }));
+  }, []);
   const shouldUseInitialData =
     !qFromUrl &&
     !filtersFromUrl.exhibitions &&
@@ -223,6 +233,100 @@ export default function Home({ initialMuseums = [], initialError = null }) {
   const [isLoading, setIsLoading] = useState(false);
   const resultsRef = useRef(null);
   const [userLocation, setUserLocation] = useState(null);
+
+  const computeStaticResults = useCallback(() => {
+    const excludeSlugs = new Set(['amsterdam-tulip-museum-amsterdam']);
+    const baseMuseumsSource =
+      initialMuseumsWithCategories.length > 0
+        ? initialMuseumsWithCategories
+        : staticMuseumsWithCategories;
+
+    const baseMuseums = baseMuseumsSource.filter(
+      (museum) => museum && !excludeSlugs.has(museum.slug)
+    );
+
+    const normalizedQuery = textQuery.toLowerCase();
+    const queryTerms = normalizedQuery
+      ? normalizedQuery.split(/\s+/).filter(Boolean)
+      : [];
+
+    let filtered = baseMuseums;
+
+    if (queryTerms.length > 0) {
+      filtered = filtered.filter((museum) => {
+        const textSources = [
+          museum?.naam,
+          museum?.name,
+          museum?.title,
+          museum?.stad,
+          museum?.city,
+          museum?.provincie,
+          museum?.province,
+          museum?.samenvatting,
+          museum?.korte_beschrijving,
+          museum?.beschrijving,
+          museum?.summary,
+          museum?.slug?.replace(/-/g, ' '),
+        ]
+          .filter((value) => typeof value === 'string' && value.trim())
+          .map((value) => value.toLowerCase());
+
+        if (textSources.length === 0) {
+          return false;
+        }
+
+        return queryTerms.every((term) =>
+          textSources.some((source) => source.includes(term))
+        );
+      });
+    }
+
+    if (categoryFilters.length > 0) {
+      filtered = filtered.filter((museum) => {
+        const categories = Array.isArray(museum?.categories)
+          ? museum.categories
+          : [];
+        return categoryFilters.every((category) => categories.includes(category));
+      });
+    }
+
+    const activeTypeFiltersList = TYPE_FILTERS.filter(
+      (type) => activeFilters[type.stateKey]
+    );
+    if (activeTypeFiltersList.length > 0) {
+      const activeTypeCategories = new Set(
+        activeTypeFiltersList.map((type) => type.category)
+      );
+      filtered = filtered.filter((museum) => {
+        const categories = Array.isArray(museum?.categories)
+          ? museum.categories
+          : [];
+        return categories.some((category) => activeTypeCategories.has(category));
+      });
+    }
+
+    const preparedResults = filterMuseumsForDisplay(filtered, {
+      excludeSlugs: ['amsterdam-tulip-museum-amsterdam'],
+      onlyOpenNow: activeFilters.openNow,
+      openNowTimeZone: DEFAULT_TIME_ZONE,
+    });
+
+    return sortMuseums(preparedResults);
+  }, [
+    activeFilters,
+    categoryFilters,
+    initialMuseumsWithCategories,
+    staticMuseumsWithCategories,
+    textQuery,
+  ]);
+
+  const applyStaticResults = useCallback(() => {
+    const staticResults = computeStaticResults();
+    setResults(staticResults);
+    setError(null);
+    setIsLoading(false);
+    return staticResults;
+  }, [computeStaticResults]);
   const skipNextUrlSync = useRef(false);
   const activeTypeFilterKey = useMemo(
     () => getSelectedTypeIds(activeFilters).join('|'),
@@ -400,82 +504,7 @@ export default function Home({ initialMuseums = [], initialError = null }) {
     }
 
     if (!supabaseClient) {
-      const excludeSlugs = new Set(['amsterdam-tulip-museum-amsterdam']);
-      const baseMuseums = initialMuseumsWithCategories.filter((museum) =>
-        museum && !excludeSlugs.has(museum.slug)
-      );
-
-      const normalizedQuery = textQuery.toLowerCase();
-      const queryTerms = normalizedQuery
-        ? normalizedQuery.split(/\s+/).filter(Boolean)
-        : [];
-
-      let filtered = baseMuseums;
-
-      if (queryTerms.length > 0) {
-        filtered = filtered.filter((museum) => {
-          const textSources = [
-            museum?.naam,
-            museum?.name,
-            museum?.title,
-            museum?.stad,
-            museum?.city,
-            museum?.provincie,
-            museum?.province,
-            museum?.samenvatting,
-            museum?.korte_beschrijving,
-            museum?.beschrijving,
-            museum?.summary,
-            museum?.slug?.replace(/-/g, ' '),
-          ]
-            .filter((value) => typeof value === 'string' && value.trim())
-            .map((value) => value.toLowerCase());
-
-          if (textSources.length === 0) {
-            return false;
-          }
-
-          return queryTerms.every((term) =>
-            textSources.some((source) => source.includes(term))
-          );
-        });
-      }
-
-      if (categoryFilters.length > 0) {
-        filtered = filtered.filter((museum) => {
-          const categories = Array.isArray(museum?.categories)
-            ? museum.categories
-            : [];
-          return categoryFilters.every((category) => categories.includes(category));
-        });
-      }
-
-      const activeTypeFiltersList = TYPE_FILTERS.filter(
-        (type) => activeFilters[type.stateKey]
-      );
-      if (activeTypeFiltersList.length > 0) {
-        const activeTypeCategories = new Set(
-          activeTypeFiltersList.map((type) => type.category)
-        );
-        filtered = filtered.filter((museum) => {
-          const categories = Array.isArray(museum?.categories)
-            ? museum.categories
-            : [];
-          return categories.some((category) => activeTypeCategories.has(category));
-        });
-      }
-
-      filtered = filterMuseumsForDisplay(filtered, {
-        excludeSlugs: ['amsterdam-tulip-museum-amsterdam'],
-        onlyOpenNow: activeFilters.openNow,
-        openNowTimeZone: DEFAULT_TIME_ZONE,
-      });
-
-      const sortedResults = sortMuseums(filtered);
-
-      setResults(sortedResults);
-      setError(null);
-      setIsLoading(false);
+      applyStaticResults();
       return;
     }
 
@@ -579,8 +608,7 @@ export default function Home({ initialMuseums = [], initialError = null }) {
 
           if (exError) {
             if (!isCancelled) {
-              setError('queryFailed');
-              setIsLoading(false);
+              applyStaticResults();
             }
             return;
           }
@@ -614,8 +642,7 @@ export default function Home({ initialMuseums = [], initialError = null }) {
 
         if (queryError) {
           if (!isCancelled) {
-            setError('queryFailed');
-            setIsLoading(false);
+            applyStaticResults();
           }
           return;
         }
@@ -669,8 +696,7 @@ export default function Home({ initialMuseums = [], initialError = null }) {
         }
       } catch {
         if (!isCancelled) {
-          setError('unknown');
-          setIsLoading(false);
+          applyStaticResults();
         }
       }
     };
@@ -701,6 +727,7 @@ export default function Home({ initialMuseums = [], initialError = null }) {
     userLocation,
     initialMuseumsWithCategories,
     initialError,
+    applyStaticResults,
   ]);
 
   useEffect(() => {
@@ -1071,10 +1098,11 @@ export async function getStaticProps() {
     }
 
     if (error) {
+      const fallbackMuseums = getStaticMuseums();
       return {
         props: {
-          initialMuseums: [],
-          initialError: 'queryFailed',
+          initialMuseums: sortMuseums(fallbackMuseums),
+          initialError: null,
         },
       };
     }
@@ -1088,10 +1116,11 @@ export async function getStaticProps() {
       },
     };
   } catch (err) {
+    const fallbackMuseums = getStaticMuseums();
     return {
       props: {
-        initialMuseums: [],
-        initialError: 'unknown',
+        initialMuseums: sortMuseums(fallbackMuseums),
+        initialError: null,
       },
     };
   }
