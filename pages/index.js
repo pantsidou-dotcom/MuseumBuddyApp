@@ -24,6 +24,7 @@ import Button from '../components/ui/Button';
 import parseBooleanParam from '../lib/parseBooleanParam.js';
 import { DEFAULT_TIME_ZONE } from '../lib/openingHours.js';
 import { trackCtaExhibitions, trackTicketsClick } from '../lib/analytics';
+import { getStaticMuseums } from '../lib/staticMuseums';
 
 const FEATURED_SLUGS = [
   'van-gogh-museum-amsterdam',
@@ -399,8 +400,81 @@ export default function Home({ initialMuseums = [], initialError = null }) {
     }
 
     if (!supabaseClient) {
-      setResults([]);
-      setError('missingSupabase');
+      const excludeSlugs = new Set(['amsterdam-tulip-museum-amsterdam']);
+      const baseMuseums = initialMuseumsWithCategories.filter((museum) =>
+        museum && !excludeSlugs.has(museum.slug)
+      );
+
+      const normalizedQuery = textQuery.toLowerCase();
+      const queryTerms = normalizedQuery
+        ? normalizedQuery.split(/\s+/).filter(Boolean)
+        : [];
+
+      let filtered = baseMuseums;
+
+      if (queryTerms.length > 0) {
+        filtered = filtered.filter((museum) => {
+          const textSources = [
+            museum?.naam,
+            museum?.name,
+            museum?.title,
+            museum?.stad,
+            museum?.city,
+            museum?.provincie,
+            museum?.province,
+            museum?.samenvatting,
+            museum?.korte_beschrijving,
+            museum?.beschrijving,
+            museum?.summary,
+            museum?.slug?.replace(/-/g, ' '),
+          ]
+            .filter((value) => typeof value === 'string' && value.trim())
+            .map((value) => value.toLowerCase());
+
+          if (textSources.length === 0) {
+            return false;
+          }
+
+          return queryTerms.every((term) =>
+            textSources.some((source) => source.includes(term))
+          );
+        });
+      }
+
+      if (categoryFilters.length > 0) {
+        filtered = filtered.filter((museum) => {
+          const categories = Array.isArray(museum?.categories)
+            ? museum.categories
+            : [];
+          return categoryFilters.every((category) => categories.includes(category));
+        });
+      }
+
+      const activeTypeFiltersList = TYPE_FILTERS.filter(
+        (type) => activeFilters[type.stateKey]
+      );
+      if (activeTypeFiltersList.length > 0) {
+        const activeTypeCategories = new Set(
+          activeTypeFiltersList.map((type) => type.category)
+        );
+        filtered = filtered.filter((museum) => {
+          const categories = Array.isArray(museum?.categories)
+            ? museum.categories
+            : [];
+          return categories.some((category) => activeTypeCategories.has(category));
+        });
+      }
+
+      filtered = filterMuseumsForDisplay(filtered, {
+        excludeSlugs: ['amsterdam-tulip-museum-amsterdam'],
+        onlyOpenNow: activeFilters.openNow,
+        openNowTimeZone: DEFAULT_TIME_ZONE,
+      });
+
+      const sortedResults = sortMuseums(filtered);
+
+      setResults(sortedResults);
+      setError(null);
       setIsLoading(false);
       return;
     }
@@ -972,10 +1046,11 @@ export default function Home({ initialMuseums = [], initialError = null }) {
 
 export async function getStaticProps() {
   if (!supabaseClient) {
+    const fallbackMuseums = getStaticMuseums();
     return {
       props: {
-        initialMuseums: [],
-        initialError: 'missingSupabase',
+        initialMuseums: sortMuseums(fallbackMuseums),
+        initialError: null,
       },
     };
   }

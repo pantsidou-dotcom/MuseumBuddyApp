@@ -341,7 +341,7 @@ async function fetchMuseumsBySlugs(slugs) {
 
 async function loadExhibitionsForStaticProps() {
   if (!supabaseClient) {
-    return { exhibitions: [], error: 'missingSupabase' };
+    return { exhibitions: [], error: null };
   }
 
   const today = todayYMD('Europe/Amsterdam');

@@ -20,6 +20,7 @@ import { supabase as supabaseClient } from '../../lib/supabase';
 import { shouldShowAffiliateNote } from '../../lib/nonAffiliateMuseums';
 import kidFriendlyMuseums, { isKidFriendly as resolveKidFriendly } from '../../lib/kidFriendlyMuseums';
 import { trackFavoriteAdd, trackTicketsClick } from '../../lib/analytics';
+import { getStaticMuseumBySlug } from '../../lib/staticMuseums';
 
 function todayYMD(tz = 'Europe/Amsterdam') {
   try {
@@ -1029,10 +1030,15 @@ export async function getStaticProps({ params }) {
   }
 
   if (!supabaseClient) {
+    const fallbackRow = getStaticMuseumBySlug(slug);
+    if (!fallbackRow) {
+      return { notFound: true };
+    }
+    const museum = normaliseMuseumRow({ ...fallbackRow });
     return {
       props: {
-        error: 'missingSupabase',
-        museum: null,
+        error: null,
+        museum,
         expositions: [],
       },
     };
