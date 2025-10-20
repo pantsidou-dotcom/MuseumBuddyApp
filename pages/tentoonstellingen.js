@@ -18,6 +18,7 @@ import {
   CATEGORY_ORDER,
   CATEGORY_TRANSLATION_KEYS,
 } from '../lib/museumCategories';
+import { getStaticExhibitions } from '../lib/staticExhibitions';
 
 const FILTERS_EVENT = 'museumBuddy:openFilters';
 
@@ -340,8 +341,10 @@ async function fetchMuseumsBySlugs(slugs) {
 }
 
 async function loadExhibitionsForStaticProps() {
+  const fallbackExhibitions = getStaticExhibitions();
+
   if (!supabaseClient) {
-    return { exhibitions: [], error: null };
+    return { exhibitions: fallbackExhibitions, error: null };
   }
 
   const today = todayYMD('Europe/Amsterdam');
@@ -380,6 +383,9 @@ async function loadExhibitionsForStaticProps() {
   }
 
   if (lastError) {
+    if (fallbackExhibitions.length > 0) {
+      return { exhibitions: fallbackExhibitions, error: null };
+    }
     return { exhibitions: [], error: 'queryFailed' };
   }
 
@@ -461,6 +467,10 @@ async function loadExhibitionsForStaticProps() {
     }
     return aStart - bStart;
   });
+
+  if (exhibitions.length === 0 && fallbackExhibitions.length > 0) {
+    return { exhibitions: fallbackExhibitions, error: null };
+  }
 
   return { exhibitions, error: null };
 }
