@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://museumbuddy.nl/sitemap.xml
