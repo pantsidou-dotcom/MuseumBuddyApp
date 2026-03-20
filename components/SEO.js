@@ -1,8 +1,9 @@
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 
-const RAW_SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://museumbuddy.nl';
-const SITE_URL = RAW_SITE_URL.replace(/\/+$/, '');
+import { getSiteUrl } from '../lib/siteUrl';
+
+const SITE_URL = getSiteUrl();
 
 function stripQueryAndHash(pathname = '/') {
   if (!pathname) return '/';

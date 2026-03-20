@@ -2,6 +2,8 @@
   "name": "museum-buddy-app",
   "private": true,
   "scripts": {
+    "generate:seo": "node scripts/generateSeoFiles.mjs",
+    "predev": "npm run generate:seo",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
@@ -9,7 +11,8 @@
     "test": "node tests/ticketCta.test.cjs && node tests/kidFriendlyFilter.test.cjs && node tests/nearbyFilter.test.cjs && node tests/museumSearch.test.cjs",
     "build:web": "next build",
     "cap:copy": "npx cap copy",
-    "cap:sync": "npx cap sync"
+    "cap:sync": "npx cap sync",
+    "prebuild": "npm run generate:seo"
   },
   "engines": {
     "node": "20.x"
