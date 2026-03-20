@@ -8,7 +8,6 @@ import museumImages from '../lib/museumImages';
 import museumNames from '../lib/museumNames';
 import museumImageCredits from '../lib/museumImageCredits';
 import museumTicketUrls from '../lib/museumTicketUrls';
-import createBlurDataUrl from '../lib/createBlurDataUrl';
 import { useLanguage } from '../components/LanguageContext';
 import { supabase as supabaseClient } from '../lib/supabase';
 import SEO from '../components/SEO';
@@ -23,7 +22,7 @@ import { parseMuseumSearchQuery } from '../lib/museumSearch';
 import Button from '../components/ui/Button';
 import parseBooleanParam from '../lib/parseBooleanParam.js';
 import { DEFAULT_TIME_ZONE } from '../lib/openingHours.js';
-import { trackCtaExhibitions, trackTicketsClick } from '../lib/analytics';
+import { trackCtaExhibitions } from '../lib/analytics';
 import { getStaticMuseums } from '../lib/staticMuseums';
 
 const FEATURED_SLUGS = [
@@ -124,7 +123,6 @@ const NEARBY_RADIUS_METERS = 5000;
 export default function Home({ initialMuseums = [], initialError = null }) {
   const { t, lang } = useLanguage();
   const router = useRouter();
-  const museumnachtBlurDataURL = useMemo(() => createBlurDataUrl('#1e293b'), []);
 
   const qFromUrl = useMemo(() => {
     const q = router.query?.q;
@@ -981,43 +979,6 @@ export default function Home({ initialMuseums = [], initialError = null }) {
             )}
           </div>
         </form>
-      </section>
-
-      <section className="secondary-hero" aria-labelledby="museumnacht-hero-heading">
-        <Image
-          src="/images/Museumnacht.jpg"
-          alt="Museumnacht Amsterdam visitors enjoying exhibitions"
-          fill
-          className="secondary-hero__image"
-          sizes="(min-width: 768px) 80vw, 100vw"
-          placeholder="blur"
-          blurDataURL={museumnachtBlurDataURL}
-          priority={false}
-          style={{ objectFit: 'cover' }}
-        />
-        <div className="secondary-hero__overlay" aria-hidden="true" />
-        <div className="secondary-hero__content">
-          <p className="secondary-hero__tag">{t('museumnachtTag')}</p>
-          <h2 id="museumnacht-hero-heading" className="secondary-hero__title">
-            {t('museumnachtHeading')}
-          </h2>
-          <p className="secondary-hero__subtitle">{t('museumnachtSubtitle')}</p>
-          <a
-            className="ticket-button secondary-hero__cta"
-            href="https://museumnacht.amsterdam/tickets"
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={() =>
-              trackTicketsClick({
-                location: 'museumnacht',
-                language: lang,
-                url: 'https://museumnacht.amsterdam/tickets',
-              })
-            }
-          >
-            {t('buyTickets')}
-          </a>
-        </div>
       </section>
 
       <section id="museum-results" ref={resultsRef} className="results-section">
