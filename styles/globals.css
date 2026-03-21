@@ -145,6 +145,7 @@ body {
   margin: 0;
   background: var(--body-bg);
   color: var(--text);
+  overflow-x: hidden;
 }
 
 body {
@@ -155,6 +156,15 @@ body {
   line-height: 1.65;
   letter-spacing: 0;
   transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+@media (min-width: 768px) {
+  .app-scale-shell {
+    width: 100%;
+    transform: scale(0.9);
+    transform-origin: top center;
+    margin: 0 auto;
+  }
 }
 
 h1,
@@ -4258,5 +4268,3 @@ button.hero-quick-link {
   background: linear-gradient(145deg, rgba(30, 41, 59, 0.78), rgba(15, 23, 42, 0.82));
   border-color: rgba(71, 85, 105, 0.42);
 }
-
-

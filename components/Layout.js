@@ -35,90 +35,92 @@ export default function Layout({ children }) {
       <Head>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
-      <header className="ds-app-header">
-        <div className="container">
-          <NavBar aria-label={navLabel}>
-            <Link href="/" className="ds-brand ds-nav__brand" aria-label={t('homeLabel')}>
-              <span className="ds-brand__lockup" aria-hidden="true">
-                <span className="ds-brand__line">Museum</span>
-                <span className="ds-brand__line">Buddy</span>
-              </span>
-            </Link>
-            <NavSection className="ds-nav__section--primary">
-              <NavLink href="/tentoonstellingen" active={exhibitionsActive}>
-                {t('exhibitionsNavLabel')}
-              </NavLink>
-              <NavLink href="/about" active={aboutActive}>
-                {t('aboutLabel')}
-              </NavLink>
-            </NavSection>
-            <NavSection className="ds-nav__section--actions">
-              {showFiltersControl ? (
-                <NavButton
-                  onClick={handleFiltersClick}
-                  aria-label={t('filtersButton')}
-                  aria-controls={FILTERS_SHEET_ID}
-                  aria-haspopup="dialog"
-                  className="ds-nav__link--filters"
-                >
-                  {t('filtersButton')}
-                </NavButton>
-              ) : null}
-              <NavLink
-                href="/favorites"
-                active={favoritesActive}
-                aria-label={
-                  favoritesCount > 0
-                    ? `${t('favoritesLabel')} (${favoritesCount})`
-                    : t('favoritesLabel')
-                }
-                badge={favoritesCount > 0 ? favoritesCount : null}
-                icon={
-                  <svg
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
+      <div className="app-scale-shell">
+        <header className="ds-app-header">
+          <div className="container">
+            <NavBar aria-label={navLabel}>
+              <Link href="/" className="ds-brand ds-nav__brand" aria-label={t('homeLabel')}>
+                <span className="ds-brand__lockup" aria-hidden="true">
+                  <span className="ds-brand__line">Museum</span>
+                  <span className="ds-brand__line">Buddy</span>
+                </span>
+              </Link>
+              <NavSection className="ds-nav__section--primary">
+                <NavLink href="/tentoonstellingen" active={exhibitionsActive}>
+                  {t('exhibitionsNavLabel')}
+                </NavLink>
+                <NavLink href="/about" active={aboutActive}>
+                  {t('aboutLabel')}
+                </NavLink>
+              </NavSection>
+              <NavSection className="ds-nav__section--actions">
+                {showFiltersControl ? (
+                  <NavButton
+                    onClick={handleFiltersClick}
+                    aria-label={t('filtersButton')}
+                    aria-controls={FILTERS_SHEET_ID}
+                    aria-haspopup="dialog"
+                    className="ds-nav__link--filters"
                   >
-                    <path d="M21 8.25c0 4.556-9 11.25-9 11.25S3 12.806 3 8.25a5.25 5.25 0 0 1 9-3.676A5.25 5.25 0 0 1 21 8.25Z" />
-                  </svg>
-                }
-              >
-                {t('favoritesLabel')}
-              </NavLink>
-            </NavSection>
-            <NavSection className="ds-nav__section--lang">
-              <Button
-                variant="ghost"
-                tone="brand"
-                size="sm"
-                className="ds-lang-toggle"
-                onClick={() => switchLang(lang === 'en' ? 'nl' : 'en')}
-                aria-label={lang === 'en' ? 'Switch to Dutch' : 'Wissel naar Engels'}
-                iconPosition="right"
-                icon={
-                  <svg viewBox="0 0 12 8" aria-hidden="true">
-                    <path
-                      d="M1 1l5 5 5-5"
+                    {t('filtersButton')}
+                  </NavButton>
+                ) : null}
+                <NavLink
+                  href="/favorites"
+                  active={favoritesActive}
+                  aria-label={
+                    favoritesCount > 0
+                      ? `${t('favoritesLabel')} (${favoritesCount})`
+                      : t('favoritesLabel')
+                  }
+                  badge={favoritesCount > 0 ? favoritesCount : null}
+                  icon={
+                    <svg
+                      viewBox="0 0 24 24"
                       fill="none"
                       stroke="currentColor"
                       strokeWidth="1.5"
                       strokeLinecap="round"
                       strokeLinejoin="round"
-                    />
-                  </svg>
-                }
-              >
-                {lang === 'en' ? 'EN' : 'NL'}
-              </Button>
-            </NavSection>
-          </NavBar>
-        </div>
-      </header>
-      <main className="container">{children}</main>
-      <Footer />
+                    >
+                      <path d="M21 8.25c0 4.556-9 11.25-9 11.25S3 12.806 3 8.25a5.25 5.25 0 0 1 9-3.676A5.25 5.25 0 0 1 21 8.25Z" />
+                    </svg>
+                  }
+                >
+                  {t('favoritesLabel')}
+                </NavLink>
+              </NavSection>
+              <NavSection className="ds-nav__section--lang">
+                <Button
+                  variant="ghost"
+                  tone="brand"
+                  size="sm"
+                  className="ds-lang-toggle"
+                  onClick={() => switchLang(lang === 'en' ? 'nl' : 'en')}
+                  aria-label={lang === 'en' ? 'Switch to Dutch' : 'Wissel naar Engels'}
+                  iconPosition="right"
+                  icon={
+                    <svg viewBox="0 0 12 8" aria-hidden="true">
+                      <path
+                        d="M1 1l5 5 5-5"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="1.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  }
+                >
+                  {lang === 'en' ? 'EN' : 'NL'}
+                </Button>
+              </NavSection>
+            </NavBar>
+          </div>
+        </header>
+        <main className="container">{children}</main>
+        <Footer />
+      </div>
     </>
   );
 }
