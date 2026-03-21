@@ -24,6 +24,7 @@ import parseBooleanParam from '../lib/parseBooleanParam.js';
 import { DEFAULT_TIME_ZONE } from '../lib/openingHours.js';
 import { trackCtaExhibitions } from '../lib/analytics';
 import { getStaticMuseums } from '../lib/staticMuseums';
+import { getSiteUrl } from '../lib/siteUrl';
 
 const FEATURED_SLUGS = [
   'van-gogh-museum-amsterdam',
@@ -36,6 +37,7 @@ const FEATURED_SLUGS = [
   'hart-museum-amsterdam',
   'rembrandthuis-amsterdam',
 ];
+const SITE_URL = getSiteUrl();
 
 function sortMuseums(museums) {
   return [...museums].sort((a, b) => {
@@ -857,7 +859,7 @@ export default function Home({ initialMuseums = [], initialError = null }) {
       '@type': 'CollectionPage',
       name: t('homeTitle'),
       description: t('homeDescription'),
-      url: 'https://www.museumbuddy.app/',
+      url: `${SITE_URL}/`,
       inLanguage: lang === 'nl' ? 'nl-NL' : 'en',
       about: {
         '@type': 'Place',
