@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { useLanguage } from './LanguageContext';
 
 export default function Footer() {
-  const { t } = useLanguage();
+  const { lang, t } = useLanguage();
   return (
     <footer className="footer">
       <div className="container footer-inner">
@@ -20,6 +20,12 @@ export default function Footer() {
           <nav className="footer-links" aria-label="Footer">
             <Link href="/privacy">{t('privacy')}</Link>
             <Link href="/disclaimer">{t('disclaimer')}</Link>
+            <Link href="/kindvriendelijke-musea-amsterdam">
+              {lang === 'en' ? 'Kid-friendly museums' : 'Kindvriendelijke musea'}
+            </Link>
+            <Link href="/gratis-musea-amsterdam">
+              {lang === 'en' ? 'Free museums' : 'Gratis musea'}
+            </Link>
           </nav>
           <p className="footer-smallprint">{t('affiliateDisclaimer')}</p>
         </div>

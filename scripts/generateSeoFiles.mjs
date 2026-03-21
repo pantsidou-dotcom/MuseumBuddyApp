@@ -8,7 +8,16 @@ const __dirname = path.dirname(__filename);
 const projectRoot = path.resolve(__dirname, '..');
 const publicDir = path.join(projectRoot, 'public');
 
-const STATIC_ROUTES = ['/', '/about', '/privacy', '/favorites', '/disclaimer', '/tentoonstellingen'];
+const STATIC_ROUTES = [
+  '/',
+  '/about',
+  '/privacy',
+  '/favorites',
+  '/disclaimer',
+  '/tentoonstellingen',
+  '/kindvriendelijke-musea-amsterdam',
+  '/gratis-musea-amsterdam',
+];
 const DEFAULT_SITE_URL = 'https://museumbuddy.nl';
 const ROUTE_SOURCE_FILES = {
   '/': ['pages/index.js', 'lib/staticMuseums.js'],
@@ -17,6 +26,12 @@ const ROUTE_SOURCE_FILES = {
   '/favorites': ['pages/favorites.js'],
   '/disclaimer': ['pages/disclaimer.js'],
   '/tentoonstellingen': ['pages/tentoonstellingen.js', 'lib/staticExhibitions.js'],
+  '/kindvriendelijke-musea-amsterdam': [
+    'pages/kindvriendelijke-musea-amsterdam.js',
+    'lib/staticMuseums.js',
+    'lib/kidFriendlyMuseums.js',
+  ],
+  '/gratis-musea-amsterdam': ['pages/gratis-musea-amsterdam.js', 'lib/staticMuseums.js'],
 };
 const MUSEUM_SOURCE_FILES = ['pages/museum/[slug].js', 'lib/staticMuseums.js', 'lib/museumSummaries.js'];
 
