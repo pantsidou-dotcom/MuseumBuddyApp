@@ -851,6 +851,25 @@ export default function Home({ initialMuseums = [], initialError = null }) {
     ],
     [t]
   );
+  const homeStructuredData = useMemo(
+    () => ({
+      '@context': 'https://schema.org',
+      '@type': 'CollectionPage',
+      name: t('homeTitle'),
+      description: t('homeDescription'),
+      url: 'https://www.museumbuddy.app/',
+      inLanguage: lang === 'nl' ? 'nl-NL' : 'en',
+      about: {
+        '@type': 'Place',
+        name: 'Amsterdam',
+      },
+      mainEntity: {
+        '@type': 'ItemList',
+        name: lang === 'nl' ? 'Musea in Amsterdam' : 'Museums in Amsterdam',
+      },
+    }),
+    [lang, t]
+  );
 
   if (error) {
     return (
@@ -860,6 +879,7 @@ export default function Home({ initialMuseums = [], initialError = null }) {
           description={t('homeDescription')}
           canonical="/"
           image="/images/og-home.svg"
+          structuredData={homeStructuredData}
         />
         <main className="container" style={{ maxWidth: 800 }}>
           <p>{t('somethingWrong')}</p>
@@ -875,6 +895,7 @@ export default function Home({ initialMuseums = [], initialError = null }) {
         description={t('homeDescription')}
         canonical="/"
         image="/images/og-home.svg"
+        structuredData={homeStructuredData}
       />
       <FiltersSheet
         open={filtersSheetOpen}
@@ -902,6 +923,7 @@ export default function Home({ initialMuseums = [], initialError = null }) {
           <span className="hero-tagline">{t('heroTagline')}</span>
           <h1 className="hero-title">{t('heroTitle')}</h1>
           <p className="hero-subtext">{t('heroSubtitle')}</p>
+          <p className="hero-subtext">{t('homeSeoIntro')}</p>
           <div className="hero-ctas">
             <Button
               type="button"
@@ -1027,6 +1049,14 @@ export default function Home({ initialMuseums = [], initialError = null }) {
             })}
           </ul>
         )}
+      </section>
+      <section className="page-intro" aria-label="SEO content">
+        <p className="page-subtitle">
+          {t('homeSeoFooter')}{' '}
+          <Link href="/tentoonstellingen">{
+            lang === 'nl' ? 'Tentoonstellingen in Amsterdam' : 'Exhibitions in Amsterdam'
+          }</Link>.
+        </p>
       </section>
     </>
   );
