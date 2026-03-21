@@ -196,8 +196,7 @@ function mapExhibitionToCard(exhibition, t, language) {
     museumTicketUrls[slug] ||
     null;
   const directTicketUrl = exhibition.ticket_url || museum.website_url || null;
-  const infoTicketUrl = exhibition.bron_url || null;
-  const ticketUrl = affiliateTicketUrl || directTicketUrl || infoTicketUrl;
+  const ticketUrl = affiliateTicketUrl || directTicketUrl;
   const startDate = exhibition.start_datum || exhibition.startDatum || null;
   const endDate = exhibition.eind_datum || exhibition.eindDatum || null;
 
