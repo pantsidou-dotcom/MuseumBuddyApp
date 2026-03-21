@@ -823,6 +823,7 @@ export default function ExhibitionsPage({ exhibitions = [], error = null }) {
           {t('exhibitionsPageHeading')}
         </h1>
         <p className="page-subtitle">{t('exhibitionsPageSubtitle')}</p>
+        <h2 className="page-subtitle">{t('exhibitionsSeoIntroHeading')}</h2>
         <p className="page-subtitle">{t('exhibitionsSeoIntro')}</p>
       </section>
       <p className="count">
@@ -869,9 +870,10 @@ export default function ExhibitionsPage({ exhibitions = [], error = null }) {
         </ul>
       )}
       <section className="page-intro" aria-label="SEO content">
+        <h2 className="page-subtitle">{t('exhibitionsSeoFooterHeading')}</h2>
         <p className="page-subtitle">
           {t('exhibitionsSeoFooter')}{' '}
-          <Link href="/">{lang === 'nl' ? 'Musea in Amsterdam' : 'Museums in Amsterdam'}</Link>.
+          <Link href="/">{lang === 'nl' ? 'Bekijk alle musea in Amsterdam' : 'View all museums in Amsterdam'}</Link>.
         </p>
       </section>
     </>
