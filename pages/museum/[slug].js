@@ -503,6 +503,37 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
   const seoDescription = summary || t('museumDescription', { name: displayName });
   const seoTitle = `${displayName} in Amsterdam | MuseumBuddy`;
   const canonical = `/museum/${slug}`;
+  const museumStructuredData = useMemo(
+    () => ({
+      '@context': 'https://schema.org',
+      '@type': 'Museum',
+      name: displayName,
+      description: seoDescription,
+      url: `https://www.museumbuddy.app${canonical}`,
+      image: heroImageUrl || undefined,
+      address: locationLines.length
+        ? {
+            '@type': 'PostalAddress',
+            streetAddress: resolvedMuseum.address || undefined,
+            postalCode: resolvedMuseum.postalCode || undefined,
+            addressLocality: resolvedMuseum.city || 'Amsterdam',
+            addressRegion: resolvedMuseum.province || undefined,
+            addressCountry: 'NL',
+          }
+        : undefined,
+    }),
+    [
+      canonical,
+      displayName,
+      heroImageUrl,
+      locationLines.length,
+      resolvedMuseum.address,
+      resolvedMuseum.city,
+      resolvedMuseum.postalCode,
+      resolvedMuseum.province,
+      seoDescription,
+    ]
+  );
 
   const expositionItems = useMemo(
     () =>
@@ -857,6 +888,7 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
         description={seoDescription}
         image={heroImageUrl}
         canonical={canonical}
+        structuredData={museumStructuredData}
       />
       <div className="museum-detail-container museum-hero-heading-container">
         <div className="museum-hero-heading">

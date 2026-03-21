@@ -765,6 +765,25 @@ export default function ExhibitionsPage({ exhibitions = [], error = null }) {
 
   const hasBaseCards = allCards.length > 0;
   const hasVisibleCards = visibleCards.length > 0;
+  const exhibitionsStructuredData = useMemo(
+    () => ({
+      '@context': 'https://schema.org',
+      '@type': 'CollectionPage',
+      name: t('exhibitionsPageTitle'),
+      description: t('exhibitionsPageDescription'),
+      url: 'https://www.museumbuddy.app/tentoonstellingen',
+      inLanguage: lang === 'nl' ? 'nl-NL' : 'en',
+      about: {
+        '@type': 'Place',
+        name: 'Amsterdam',
+      },
+      mainEntity: {
+        '@type': 'ItemList',
+        name: lang === 'nl' ? 'Tentoonstellingen in Amsterdam' : 'Exhibitions in Amsterdam',
+      },
+    }),
+    [lang, t]
+  );
 
   return (
     <>
@@ -773,6 +792,7 @@ export default function ExhibitionsPage({ exhibitions = [], error = null }) {
         description={t('exhibitionsPageDescription')}
         canonical="/tentoonstellingen"
         image="/images/og-exhibitions.svg"
+        structuredData={exhibitionsStructuredData}
       />
       <FiltersSheet
         open={filtersSheetOpen}
