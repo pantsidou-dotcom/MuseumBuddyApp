@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/router';
 import MuseumCard from '../components/MuseumCard';
 import SEO from '../components/SEO';
@@ -800,6 +801,7 @@ export default function ExhibitionsPage({ exhibitions = [], error = null }) {
           {t('exhibitionsPageHeading')}
         </h1>
         <p className="page-subtitle">{t('exhibitionsPageSubtitle')}</p>
+        <p className="page-subtitle">{t('exhibitionsSeoIntro')}</p>
       </section>
       <p className="count">
         {visibleCards.length} {t('exhibitions')}
@@ -844,6 +846,12 @@ export default function ExhibitionsPage({ exhibitions = [], error = null }) {
           ))}
         </ul>
       )}
+      <section className="page-intro" aria-label="SEO content">
+        <p className="page-subtitle">
+          {t('exhibitionsSeoFooter')}{' '}
+          <Link href="/">{lang === 'nl' ? 'Musea in Amsterdam' : 'Museums in Amsterdam'}</Link>.
+        </p>
+      </section>
     </>
   );
 }
