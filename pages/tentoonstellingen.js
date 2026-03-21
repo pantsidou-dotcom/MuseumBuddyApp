@@ -470,8 +470,37 @@ async function loadExhibitionsForStaticProps() {
     return aStart - bStart;
   });
 
-  if (exhibitions.length === 0 && fallbackExhibitions.length > 0) {
-    return { exhibitions: fallbackExhibitions, error: null };
+  if (fallbackExhibitions.length > 0) {
+    const seen = new Set(
+      exhibitions.map((row) => {
+        const slug = row?.museum?.slug || '';
+        const title = row?.titel || '';
+        const start = row?.start_datum || '';
+        const end = row?.eind_datum || '';
+        return `${slug.toLowerCase()}|${title.toLowerCase()}|${start}|${end}`;
+      })
+    );
+
+    fallbackExhibitions.forEach((row) => {
+      const slug = row?.museum?.slug || '';
+      const title = row?.titel || '';
+      const start = row?.start_datum || '';
+      const end = row?.eind_datum || '';
+      const key = `${slug.toLowerCase()}|${title.toLowerCase()}|${start}|${end}`;
+      if (!seen.has(key)) {
+        seen.add(key);
+        exhibitions.push(row);
+      }
+    });
+
+    exhibitions.sort((a, b) => {
+      const aStart = a.start_datum ? Date.parse(a.start_datum) : Number.POSITIVE_INFINITY;
+      const bStart = b.start_datum ? Date.parse(b.start_datum) : Number.POSITIVE_INFINITY;
+      if (aStart === bStart) {
+        return (a.titel || '').localeCompare(b.titel || '');
+      }
+      return aStart - bStart;
+    });
   }
 
   return { exhibitions, error: null };

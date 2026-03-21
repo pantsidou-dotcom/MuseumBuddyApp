@@ -130,6 +130,20 @@ function normaliseExpositionRow(row, museumSlug) {
   };
 }
 
+function getStaticExpositionRowsForSlug(slug) {
+  return getStaticExhibitionsForMuseumSlug(slug).map((entry) => ({
+    id: entry.id,
+    titel: entry.titel,
+    start_datum: entry.start_datum,
+    eind_datum: entry.eind_datum,
+    bron_url: entry.bron_url,
+    beschrijving: entry.beschrijving || entry.omschrijving || entry.description || null,
+    omschrijving: entry.omschrijving || entry.beschrijving || entry.description || null,
+    ticket_affiliate_url: entry.ticket_affiliate_url || null,
+    ticket_url: entry.ticket_url || null,
+  }));
+}
+
 function getLocationLines(museum) {
   if (!museum) return [];
   const lines = [];
@@ -1079,6 +1093,7 @@ export async function getStaticProps({ params }) {
   }
 
   const fallbackStaticRow = getStaticMuseumBySlug(slug);
+  const staticExpoRows = getStaticExpositionRowsForSlug(slug);
 
   if (!supabaseClient) {
     if (!fallbackStaticRow) {
@@ -1089,7 +1104,7 @@ export async function getStaticProps({ params }) {
       props: {
         error: null,
         museum,
-        expositions: [],
+        expositions: staticExpoRows,
       },
     };
   }
@@ -1108,7 +1123,7 @@ export async function getStaticProps({ params }) {
           props: {
             error: null,
             museum,
-            expositions: [],
+            expositions: staticExpoRows,
           },
         };
       }
@@ -1119,7 +1134,7 @@ export async function getStaticProps({ params }) {
         props: {
           error: 'museumQueryFailed',
           museum: null,
-          expositions: [],
+          expositions: staticExpoRows,
         },
       };
     }
@@ -1131,7 +1146,7 @@ export async function getStaticProps({ params }) {
           props: {
             error: null,
             museum,
-            expositions: [],
+            expositions: staticExpoRows,
           },
         };
       }
@@ -1156,18 +1171,6 @@ export async function getStaticProps({ params }) {
     if (!expoError && Array.isArray(expoData)) {
       expoRows = expoData;
     }
-
-    const staticExpoRows = getStaticExhibitionsForMuseumSlug(slug).map((entry) => ({
-      id: entry.id,
-      titel: entry.titel,
-      start_datum: entry.start_datum,
-      eind_datum: entry.eind_datum,
-      bron_url: entry.bron_url,
-      beschrijving: entry.beschrijving || entry.omschrijving || entry.description || null,
-      omschrijving: entry.omschrijving || entry.beschrijving || entry.description || null,
-      ticket_affiliate_url: entry.ticket_affiliate_url || null,
-      ticket_url: entry.ticket_url || null,
-    }));
 
     if (staticExpoRows.length > 0) {
       const seen = new Set(
@@ -1202,7 +1205,7 @@ export async function getStaticProps({ params }) {
         props: {
           error: null,
           museum,
-          expositions: [],
+          expositions: staticExpoRows,
         },
       };
     }
@@ -1210,7 +1213,7 @@ export async function getStaticProps({ params }) {
       props: {
         error: 'unknown',
         museum: null,
-        expositions: [],
+        expositions: staticExpoRows,
       },
     };
   }
