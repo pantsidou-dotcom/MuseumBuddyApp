@@ -851,6 +851,9 @@ export default function ExhibitionsPage({ exhibitions = [], error = null }) {
           {t('exhibitionsPageHeading')}
         </h1>
         <p className="page-subtitle">{t('exhibitionsPageSubtitle')}</p>
+        <Button href="/" variant="secondary" size="sm">
+          {t('exhibitionsBackHome')}
+        </Button>
         <h2 className="page-subtitle">{t('exhibitionsSeoIntroHeading')}</h2>
         <p className="page-subtitle">{t('exhibitionsSeoIntro')}</p>
       </section>
