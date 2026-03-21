@@ -8,6 +8,12 @@ export function LanguageProvider({ children }) {
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
+      const urlLang = new URLSearchParams(window.location.search).get('lang');
+      if (urlLang && translations[urlLang]) {
+        setLang(urlLang);
+        window.localStorage.setItem('lang', urlLang);
+        return;
+      }
       const stored = window.localStorage.getItem('lang');
       if (stored && translations[stored]) {
         setLang(stored);
@@ -56,4 +62,3 @@ export function LanguageProvider({ children }) {
 export function useLanguage() {
   return useContext(LanguageContext);
 }
-

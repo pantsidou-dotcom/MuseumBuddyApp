@@ -8,8 +8,32 @@ const __dirname = path.dirname(__filename);
 const projectRoot = path.resolve(__dirname, '..');
 const publicDir = path.join(projectRoot, 'public');
 
-const STATIC_ROUTES = ['/', '/about', '/privacy', '/favorites', '/disclaimer', '/tentoonstellingen'];
+const STATIC_ROUTES = [
+  '/',
+  '/about',
+  '/privacy',
+  '/favorites',
+  '/disclaimer',
+  '/tentoonstellingen',
+  '/kindvriendelijke-musea-amsterdam',
+  '/gratis-musea-amsterdam',
+];
 const DEFAULT_SITE_URL = 'https://museumbuddy.nl';
+const ROUTE_SOURCE_FILES = {
+  '/': ['pages/index.js', 'lib/staticMuseums.js'],
+  '/about': ['pages/about.js'],
+  '/privacy': ['pages/privacy.js'],
+  '/favorites': ['pages/favorites.js'],
+  '/disclaimer': ['pages/disclaimer.js'],
+  '/tentoonstellingen': ['pages/tentoonstellingen.js', 'lib/staticExhibitions.js'],
+  '/kindvriendelijke-musea-amsterdam': [
+    'pages/kindvriendelijke-musea-amsterdam.js',
+    'lib/staticMuseums.js',
+    'lib/kidFriendlyMuseums.js',
+  ],
+  '/gratis-musea-amsterdam': ['pages/gratis-musea-amsterdam.js', 'lib/staticMuseums.js'],
+};
+const MUSEUM_SOURCE_FILES = ['pages/museum/[slug].js', 'lib/staticMuseums.js', 'lib/museumSummaries.js'];
 
 function getSiteUrl() {
   const rawSiteUrl = process.env.NEXT_PUBLIC_SITE_URL || process.env.SITE_URL || DEFAULT_SITE_URL;
@@ -30,19 +54,52 @@ function toAbsoluteUrl(baseUrl, pathname) {
   return `${baseUrl}${normalizedPath}`;
 }
 
-function createSitemapXml(siteUrl) {
+async function getMostRecentMtimeIso(relativeFilePaths, fallbackIsoDate) {
+  const stats = await Promise.all(
+    relativeFilePaths.map(async (relativePath) => {
+      const filePath = path.join(projectRoot, relativePath);
+      try {
+        return await fs.stat(filePath);
+      } catch (error) {
+        return null;
+      }
+    })
+  );
+
+  const latestMtimeMs = stats.reduce((latest, stat) => {
+    if (!stat?.mtimeMs) return latest;
+    return Math.max(latest, stat.mtimeMs);
+  }, 0);
+
+  if (!latestMtimeMs) {
+    return fallbackIsoDate;
+  }
+
+  return new Date(latestMtimeMs).toISOString();
+}
+
+async function createSitemapXml(siteUrl) {
   const museumRoutes = getStaticMuseums()
     .map((museum) => museum?.slug)
     .filter(Boolean)
     .map((slug) => `/museum/${slug}`);
 
-  const allRoutes = [...STATIC_ROUTES, ...museumRoutes];
   const nowIsoDate = new Date().toISOString();
+  const routeLastmodEntries = await Promise.all(
+    STATIC_ROUTES.map(async (route) => {
+      const sourceFiles = ROUTE_SOURCE_FILES[route] || [];
+      const lastmod = await getMostRecentMtimeIso(sourceFiles, nowIsoDate);
+      return [route, lastmod];
+    })
+  );
+  const museumLastmod = await getMostRecentMtimeIso(MUSEUM_SOURCE_FILES, nowIsoDate);
+  const lastmodByRoute = new Map(routeLastmodEntries);
 
-  const urls = allRoutes
+  const urls = [...STATIC_ROUTES, ...museumRoutes]
     .map((route) => {
       const loc = xmlEscape(toAbsoluteUrl(siteUrl, route));
-      return `<url><loc>${loc}</loc><lastmod>${nowIsoDate}</lastmod></url>`;
+      const lastmod = lastmodByRoute.get(route) || museumLastmod;
+      return `<url><loc>${loc}</loc><lastmod>${lastmod}</lastmod></url>`;
     })
     .join('');
 
@@ -55,7 +112,7 @@ function createRobotsTxt(siteUrl) {
 
 async function run() {
   const siteUrl = getSiteUrl();
-  const sitemapXml = createSitemapXml(siteUrl);
+  const sitemapXml = await createSitemapXml(siteUrl);
   const robotsTxt = createRobotsTxt(siteUrl);
 
   await fs.mkdir(publicDir, { recursive: true });

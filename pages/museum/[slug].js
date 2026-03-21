@@ -21,6 +21,7 @@ import { shouldShowAffiliateNote } from '../../lib/nonAffiliateMuseums';
 import kidFriendlyMuseums, { isKidFriendly as resolveKidFriendly } from '../../lib/kidFriendlyMuseums';
 import { trackFavoriteAdd, trackTicketsClick } from '../../lib/analytics';
 import { getStaticMuseumBySlug, getStaticMuseums } from '../../lib/staticMuseums';
+import { getSiteUrl } from '../../lib/siteUrl';
 
 function todayYMD(tz = 'Europe/Amsterdam') {
   try {
@@ -188,6 +189,7 @@ function FavoriteButton({ active, onToggle, label }) {
 }
 
 const DEFAULT_TAB = 'exhibitions';
+const SITE_URL = getSiteUrl();
 const TAB_IDS = ['exhibitions', 'map'];
 const TAB_HASHES = {
   exhibitions: 'tentoonstellingen',
@@ -509,7 +511,7 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
       '@type': 'Museum',
       name: displayName,
       description: seoDescription,
-      url: `https://www.museumbuddy.app${canonical}`,
+      url: `${SITE_URL}${canonical}`,
       image: heroImageUrl || undefined,
       address: locationLines.length
         ? {
@@ -532,6 +534,7 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
       resolvedMuseum.postalCode,
       resolvedMuseum.province,
       seoDescription,
+      SITE_URL,
     ]
   );
 
