@@ -45,6 +45,15 @@ function normalizeStructuredData(input) {
   return [input];
 }
 
+function serializeStructuredData(item) {
+  return JSON.stringify(item)
+    .replace(/</g, '\\u003c')
+    .replace(/>/g, '\\u003e')
+    .replace(/&/g, '\\u0026')
+    .replace(/\u2028/g, '\\u2028')
+    .replace(/\u2029/g, '\\u2029');
+}
+
 export default function SEO({ title, description, image, canonical, structuredData, robots }) {
   const { asPath } = useRouter();
   const pathname = stripQueryAndHash(asPath || '/');
@@ -72,7 +81,7 @@ export default function SEO({ title, description, image, canonical, structuredDa
         <script
           key={`ld-json-${index}`}
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(item) }}
+          dangerouslySetInnerHTML={{ __html: serializeStructuredData(item) }}
         />
       ))}
     </Head>
