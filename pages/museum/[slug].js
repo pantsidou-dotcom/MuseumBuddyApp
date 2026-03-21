@@ -21,6 +21,7 @@ import { shouldShowAffiliateNote } from '../../lib/nonAffiliateMuseums';
 import kidFriendlyMuseums, { isKidFriendly as resolveKidFriendly } from '../../lib/kidFriendlyMuseums';
 import { trackFavoriteAdd, trackTicketsClick } from '../../lib/analytics';
 import { getStaticMuseumBySlug, getStaticMuseums } from '../../lib/staticMuseums';
+import { getStaticExhibitionsForMuseumSlug } from '../../lib/staticExhibitions';
 import { getSiteUrl } from '../../lib/siteUrl';
 
 function todayYMD(tz = 'Europe/Amsterdam') {
@@ -127,6 +128,20 @@ function normaliseExpositionRow(row, museumSlug) {
     childFriendly: tags.childFriendly,
     temporary: tags.temporary,
   };
+}
+
+function getStaticExpositionRowsForSlug(slug) {
+  return getStaticExhibitionsForMuseumSlug(slug).map((entry) => ({
+    id: entry.id,
+    titel: entry.titel,
+    start_datum: entry.start_datum,
+    eind_datum: entry.eind_datum,
+    bron_url: entry.bron_url,
+    beschrijving: entry.beschrijving || entry.omschrijving || entry.description || null,
+    omschrijving: entry.omschrijving || entry.beschrijving || entry.description || null,
+    ticket_affiliate_url: entry.ticket_affiliate_url || null,
+    ticket_url: entry.ticket_url || null,
+  }));
 }
 
 function getLocationLines(museum) {
@@ -1078,6 +1093,7 @@ export async function getStaticProps({ params }) {
   }
 
   const fallbackStaticRow = getStaticMuseumBySlug(slug);
+  const staticExpoRows = getStaticExpositionRowsForSlug(slug);
 
   if (!supabaseClient) {
     if (!fallbackStaticRow) {
@@ -1088,7 +1104,7 @@ export async function getStaticProps({ params }) {
       props: {
         error: null,
         museum,
-        expositions: [],
+        expositions: staticExpoRows,
       },
     };
   }
@@ -1107,7 +1123,7 @@ export async function getStaticProps({ params }) {
           props: {
             error: null,
             museum,
-            expositions: [],
+            expositions: staticExpoRows,
           },
         };
       }
@@ -1118,7 +1134,7 @@ export async function getStaticProps({ params }) {
         props: {
           error: 'museumQueryFailed',
           museum: null,
-          expositions: [],
+          expositions: staticExpoRows,
         },
       };
     }
@@ -1130,7 +1146,7 @@ export async function getStaticProps({ params }) {
           props: {
             error: null,
             museum,
-            expositions: [],
+            expositions: staticExpoRows,
           },
         };
       }
@@ -1156,6 +1172,25 @@ export async function getStaticProps({ params }) {
       expoRows = expoData;
     }
 
+    if (staticExpoRows.length > 0) {
+      const seen = new Set(
+        expoRows.map((row) => {
+          const title = row?.titel || '';
+          const start = row?.start_datum || '';
+          const end = row?.eind_datum || '';
+          return `${title.toLowerCase()}|${start}|${end}`;
+        })
+      );
+
+      staticExpoRows.forEach((row) => {
+        const key = `${(row?.titel || '').toLowerCase()}|${row?.start_datum || ''}|${row?.eind_datum || ''}`;
+        if (!seen.has(key)) {
+          seen.add(key);
+          expoRows.push(row);
+        }
+      });
+    }
+
     return {
       props: {
         museum,
@@ -1170,7 +1205,7 @@ export async function getStaticProps({ params }) {
         props: {
           error: null,
           museum,
-          expositions: [],
+          expositions: staticExpoRows,
         },
       };
     }
@@ -1178,7 +1213,7 @@ export async function getStaticProps({ params }) {
       props: {
         error: 'unknown',
         museum: null,
-        expositions: [],
+        expositions: staticExpoRows,
       },
     };
   }
