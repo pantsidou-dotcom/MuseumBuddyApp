@@ -145,6 +145,7 @@ body {
   margin: 0;
   background: var(--body-bg);
   color: var(--text);
+  overflow-x: hidden;
 }
 
 body {
@@ -159,7 +160,7 @@ body {
 
 @media (min-width: 768px) {
   .app-scale-shell {
-    width: calc(100% / 0.9);
+    width: 100%;
     transform: scale(0.9);
     transform-origin: top center;
     margin: 0 auto;
