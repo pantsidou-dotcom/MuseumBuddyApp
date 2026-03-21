@@ -20,8 +20,10 @@ import {
   CATEGORY_TRANSLATION_KEYS,
 } from '../lib/museumCategories';
 import { getStaticExhibitions } from '../lib/staticExhibitions';
+import { getSiteUrl } from '../lib/siteUrl';
 
 const FILTERS_EVENT = 'museumBuddy:openFilters';
+const SITE_URL = getSiteUrl();
 
 const MUSEUM_SELECT_COLUMNS = [
   'id',
@@ -771,7 +773,7 @@ export default function ExhibitionsPage({ exhibitions = [], error = null }) {
       '@type': 'CollectionPage',
       name: t('exhibitionsPageTitle'),
       description: t('exhibitionsPageDescription'),
-      url: 'https://www.museumbuddy.app/tentoonstellingen',
+      url: `${SITE_URL}/tentoonstellingen`,
       inLanguage: lang === 'nl' ? 'nl-NL' : 'en',
       about: {
         '@type': 'Place',

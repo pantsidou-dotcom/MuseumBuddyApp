@@ -2,15 +2,19 @@ import SEO from '../components/SEO';
 import { useLanguage } from '../components/LanguageContext';
 
 export default function AboutPage() {
-  const { t } = useLanguage();
+  const { lang, t } = useLanguage();
   const emailAddress = 'info@museumbuddy.nl';
+  const description =
+    lang === 'en'
+      ? 'Learn what MuseumBuddy does and how to contact us.'
+      : 'Lees wat MuseumBuddy doet en hoe je contact opneemt.';
   const whatItems = t('aboutWhatItems');
   const contactBody = t('aboutContactBody', { email: emailAddress });
   const [contactPrefix = '', contactSuffix = ''] = contactBody.split(emailAddress);
 
   return (
     <>
-      <SEO title={t('aboutTitle')} />
+      <SEO title={t('aboutTitle')} description={description} />
       <h1 className="page-title">{t('aboutTitle')}</h1>
       <p>{t('aboutIntro')}</p>
       <section>

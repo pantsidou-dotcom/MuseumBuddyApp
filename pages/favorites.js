@@ -9,7 +9,11 @@ import createBlurDataUrl from '../lib/createBlurDataUrl';
 
 export default function FavoritesPage() {
   const { favorites } = useFavorites();
-  const { t } = useLanguage();
+  const { lang, t } = useLanguage();
+  const description =
+    lang === 'en'
+      ? 'View your saved museums and exhibitions in MuseumBuddy.'
+      : 'Bekijk je opgeslagen musea en tentoonstellingen in MuseumBuddy.';
 
   const museumFavorites = favorites.filter((f) => f.type === 'museum');
   const expositionFavorites = favorites.filter((f) => f.type === 'exposition');
@@ -17,7 +21,7 @@ export default function FavoritesPage() {
 
   return (
     <>
-      <SEO title={t('favoritesTitle')} />
+      <SEO title={t('favoritesTitle')} description={description} />
       <h1 className="page-title">{t('favoritesTitle')}</h1>
       {favorites.length === 0 ? (
         <section
