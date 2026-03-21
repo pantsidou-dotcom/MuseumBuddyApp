@@ -925,6 +925,7 @@ export default function Home({ initialMuseums = [], initialError = null }) {
           <span className="hero-tagline">{t('heroTagline')}</span>
           <h1 className="hero-title">{t('heroTitle')}</h1>
           <p className="hero-subtext">{t('heroSubtitle')}</p>
+          <h2 className="page-subtitle">{t('homeSeoIntroHeading')}</h2>
           <p className="hero-subtext">{t('homeSeoIntro')}</p>
           <div className="hero-ctas">
             <Button
@@ -1053,10 +1054,13 @@ export default function Home({ initialMuseums = [], initialError = null }) {
         )}
       </section>
       <section className="page-intro" aria-label="SEO content">
+        <h2 className="page-subtitle">{t('homeSeoFooterHeading')}</h2>
         <p className="page-subtitle">
           {t('homeSeoFooter')}{' '}
           <Link href="/tentoonstellingen">{
-            lang === 'nl' ? 'Tentoonstellingen in Amsterdam' : 'Exhibitions in Amsterdam'
+            lang === 'nl'
+              ? 'Bekijk alle tentoonstellingen in Amsterdam'
+              : 'View all exhibitions in Amsterdam'
           }</Link>.
         </p>
       </section>
