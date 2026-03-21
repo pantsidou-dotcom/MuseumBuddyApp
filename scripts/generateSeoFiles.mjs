@@ -8,7 +8,7 @@ const __dirname = path.dirname(__filename);
 const projectRoot = path.resolve(__dirname, '..');
 const publicDir = path.join(projectRoot, 'public');
 
-const STATIC_ROUTES = ['/', '/about', '/privacy', '/favorites', '/disclaimer', '/tentoonstellingen'];
+const STATIC_ROUTES = ['/', '/about', '/privacy', '/disclaimer', '/tentoonstellingen'];
 const DEFAULT_SITE_URL = 'https://museumbuddy.nl';
 
 function getSiteUrl() {
@@ -50,7 +50,7 @@ function createSitemapXml(siteUrl) {
 }
 
 function createRobotsTxt(siteUrl) {
-  return `User-agent: *\nAllow: /\n\nSitemap: ${siteUrl}/sitemap.xml\n`;
+  return `User-agent: *\nAllow: /\nDisallow: /favorites\n\nSitemap: ${siteUrl}/sitemap.xml\n`;
 }
 
 async function run() {

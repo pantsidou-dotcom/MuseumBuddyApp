@@ -37,17 +37,27 @@ function resolveImageUrl(image, baseUrl) {
   return `${baseUrl}${normalizedPath}`;
 }
 
-export default function SEO({ title, description, image, canonical }) {
+function normalizeStructuredData(input) {
+  if (!input) return [];
+  if (Array.isArray(input)) {
+    return input.filter(Boolean);
+  }
+  return [input];
+}
+
+export default function SEO({ title, description, image, canonical, structuredData, robots }) {
   const { asPath } = useRouter();
   const pathname = stripQueryAndHash(asPath || '/');
   const url = toAbsoluteUrl(SITE_URL, pathname);
   const canonicalUrl = resolveCanonical(canonical, SITE_URL, pathname);
   const ogImage = resolveImageUrl(image, SITE_URL);
+  const structuredDataItems = normalizeStructuredData(structuredData);
 
   return (
     <Head>
       {title && <title>{title}</title>}
       {description && <meta name="description" content={description} />}
+      {robots && <meta name="robots" content={robots} />}
       <meta property="og:type" content="website" />
       {title && <meta property="og:title" content={title} />}
       {description && <meta property="og:description" content={description} />}
@@ -58,6 +68,13 @@ export default function SEO({ title, description, image, canonical }) {
       {description && <meta name="twitter:description" content={description} />}
       {ogImage && <meta name="twitter:image" content={ogImage} />}
       <link rel="canonical" href={canonicalUrl} />
+      {structuredDataItems.map((item, index) => (
+        <script
+          key={`ld-json-${index}`}
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(item) }}
+        />
+      ))}
     </Head>
   );
 }

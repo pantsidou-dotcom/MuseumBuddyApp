@@ -501,7 +501,39 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
   );
 
   const seoDescription = summary || t('museumDescription', { name: displayName });
+  const seoTitle = `${displayName} in Amsterdam | MuseumBuddy`;
   const canonical = `/museum/${slug}`;
+  const museumStructuredData = useMemo(
+    () => ({
+      '@context': 'https://schema.org',
+      '@type': 'Museum',
+      name: displayName,
+      description: seoDescription,
+      url: `https://www.museumbuddy.app${canonical}`,
+      image: heroImageUrl || undefined,
+      address: locationLines.length
+        ? {
+            '@type': 'PostalAddress',
+            streetAddress: resolvedMuseum.address || undefined,
+            postalCode: resolvedMuseum.postalCode || undefined,
+            addressLocality: resolvedMuseum.city || 'Amsterdam',
+            addressRegion: resolvedMuseum.province || undefined,
+            addressCountry: 'NL',
+          }
+        : undefined,
+    }),
+    [
+      canonical,
+      displayName,
+      heroImageUrl,
+      locationLines.length,
+      resolvedMuseum.address,
+      resolvedMuseum.city,
+      resolvedMuseum.postalCode,
+      resolvedMuseum.province,
+      seoDescription,
+    ]
+  );
 
   const expositionItems = useMemo(
     () =>
@@ -852,10 +884,11 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
   return (
     <section className={`museum-detail${heroImage ? ' has-hero' : ''}`}>
       <SEO
-        title={`${displayName} — MuseumBuddy`}
+        title={seoTitle}
         description={seoDescription}
         image={heroImageUrl}
         canonical={canonical}
+        structuredData={museumStructuredData}
       />
       <div className="museum-detail-container museum-hero-heading-container">
         <div className="museum-hero-heading">
@@ -912,6 +945,18 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
       <div className="museum-detail-container">
         <div className="museum-detail-grid">
           <div className="museum-detail-main">
+            <section className="page-intro" aria-label="Museum SEO content">
+              <p className="page-subtitle">
+                {t('museumDetailSeoBody')}{' '}
+                <Link href="/tentoonstellingen">
+                  {lang === 'nl' ? 'Tentoonstellingen in Amsterdam' : 'Exhibitions in Amsterdam'}
+                </Link>{' '}
+                ·{' '}
+                <Link href="/">
+                  {lang === 'nl' ? 'Musea in Amsterdam' : 'Museums in Amsterdam'}
+                </Link>
+              </p>
+            </section>
             <div className="museum-tablist" role="tablist" aria-label={t('museumTabsLabel')}>
               {tabDefinitions.map((tab, index) => {
                 const isActive = activeTab === tab.id;
