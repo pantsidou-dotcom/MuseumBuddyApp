@@ -1025,6 +1025,7 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
                           ticketUrl={directTicketUrl}
                           museumSlug={slug}
                           tags={exposition.tags}
+                          variant="museum-detail"
                         />
                       )}
                     />

@@ -44,7 +44,7 @@ function getPlaceholderImage(exposition) {
   return PLACEHOLDER_IMAGES[index];
 }
 
-export default function ExpositionCard({ exposition, ticketUrl, affiliateUrl, museumSlug, tags = {} }) {
+export default function ExpositionCard({ exposition, ticketUrl, affiliateUrl, museumSlug, tags = {}, variant = 'default' }) {
   if (!exposition) return null;
 
   const description = typeof exposition.description === 'string' ? exposition.description.trim() : '';
@@ -143,7 +143,12 @@ export default function ExpositionCard({ exposition, ticketUrl, affiliateUrl, mu
   ];
   const activeTags = tagDefinitions.filter((tag) => tag.active);
   const mediaClassName = 'exposition-card__media exposition-card__media--placeholder';
-  const placeholderImage = useMemo(() => getPlaceholderImage(exposition), [exposition]);
+  const placeholderImage = useMemo(() => {
+    if (variant === 'museum-detail' && slug === 'rijksmuseum-amsterdam') {
+      return '/images/rijksmuseum-exhibition-abstract.svg';
+    }
+    return getPlaceholderImage(exposition);
+  }, [exposition, slug, variant]);
   const placeholderAlt = t('expositionIllustrationAlt', {
     title: exposition.titel || t('unknown'),
   });
