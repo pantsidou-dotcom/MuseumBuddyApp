@@ -796,23 +796,54 @@ export default function ExhibitionsPage({ exhibitions = [], error = null }) {
   const hasBaseCards = allCards.length > 0;
   const hasVisibleCards = visibleCards.length > 0;
   const exhibitionsStructuredData = useMemo(
-    () => ({
-      '@context': 'https://schema.org',
-      '@type': 'CollectionPage',
-      name: t('exhibitionsPageTitle'),
-      description: t('exhibitionsPageDescription'),
-      url: `${SITE_URL}/tentoonstellingen`,
-      inLanguage: lang === 'nl' ? 'nl-NL' : 'en',
-      about: {
-        '@type': 'Place',
-        name: 'Amsterdam',
-      },
-      mainEntity: {
-        '@type': 'ItemList',
-        name: lang === 'nl' ? 'Tentoonstellingen in Amsterdam' : 'Exhibitions in Amsterdam',
-      },
-    }),
-    [lang, t]
+    () => {
+      const schemaCards = allCards
+        .filter((card) => card?.title && card?.slug)
+        .slice(0, 40);
+
+      return {
+        '@context': 'https://schema.org',
+        '@type': 'CollectionPage',
+        name: t('exhibitionsPageTitle'),
+        description: t('exhibitionsPageDescription'),
+        url: `${SITE_URL}/tentoonstellingen`,
+        inLanguage: lang === 'nl' ? 'nl-NL' : 'en',
+        about: {
+          '@type': 'Place',
+          name: 'Amsterdam',
+        },
+        mainEntity: {
+          '@type': 'ItemList',
+          name: lang === 'nl' ? 'Tentoonstellingen in Amsterdam' : 'Exhibitions in Amsterdam',
+          numberOfItems: schemaCards.length,
+          itemListElement: schemaCards.map((card, index) => {
+            const exhibitionUrl = `${SITE_URL}/tentoonstellingen?museums=${encodeURIComponent(card.slug)}`;
+            const museumUrl = `${SITE_URL}/museum/${card.slug}`;
+            const exhibitionName = card.title;
+
+            return {
+              '@type': 'ListItem',
+              position: index + 1,
+              url: exhibitionUrl,
+              name: exhibitionName,
+              item: {
+                '@type': 'Event',
+                name: exhibitionName,
+                url: exhibitionUrl,
+                location: {
+                  '@type': 'Place',
+                  name: card.museumName || museumNames[card.slug] || card.slug,
+                  url: museumUrl,
+                },
+                ...(card.startDate ? { startDate: card.startDate } : {}),
+                ...(card.endDate ? { endDate: card.endDate } : {}),
+              },
+            };
+          }),
+        },
+      };
+    },
+    [allCards, lang, t]
   );
 
   return (

@@ -854,23 +854,48 @@ export default function Home({ initialMuseums = [], initialError = null }) {
     [t]
   );
   const homeStructuredData = useMemo(
-    () => ({
-      '@context': 'https://schema.org',
-      '@type': 'CollectionPage',
-      name: t('homeTitle'),
-      description: t('homeDescription'),
-      url: `${SITE_URL}/`,
-      inLanguage: lang === 'nl' ? 'nl-NL' : 'en',
-      about: {
-        '@type': 'Place',
-        name: 'Amsterdam',
-      },
-      mainEntity: {
-        '@type': 'ItemList',
-        name: lang === 'nl' ? 'Musea in Amsterdam' : 'Museums in Amsterdam',
-      },
-    }),
-    [lang, t]
+    () => {
+      const schemaMuseumsSource =
+        initialSortedMuseums.length > 0 ? initialSortedMuseums : staticMuseumsWithCategories;
+      const schemaMuseums = schemaMuseumsSource
+        .filter((museum) => museum?.slug && museum.slug !== 'amsterdam-tulip-museum-amsterdam')
+        .slice(0, 30);
+
+      return {
+        '@context': 'https://schema.org',
+        '@type': 'CollectionPage',
+        name: t('homeTitle'),
+        description: t('homeDescription'),
+        url: `${SITE_URL}/`,
+        inLanguage: lang === 'nl' ? 'nl-NL' : 'en',
+        about: {
+          '@type': 'Place',
+          name: 'Amsterdam',
+        },
+        mainEntity: {
+          '@type': 'ItemList',
+          name: lang === 'nl' ? 'Musea in Amsterdam' : 'Museums in Amsterdam',
+          numberOfItems: schemaMuseums.length,
+          itemListElement: schemaMuseums.map((museum, index) => {
+            const museumName = museumNames[museum.slug] || museum.naam || museum.name || museum.slug;
+            const museumUrl = `${SITE_URL}/museum/${museum.slug}`;
+            return {
+              '@type': 'ListItem',
+              position: index + 1,
+              url: museumUrl,
+              name: museumName,
+              item: {
+                '@type': 'WebPage',
+                '@id': museumUrl,
+                url: museumUrl,
+                name: museumName,
+              },
+            };
+          }),
+        },
+      };
+    },
+    [initialSortedMuseums, lang, staticMuseumsWithCategories, t]
   );
 
   if (error) {
