@@ -20,17 +20,20 @@ export default function KidFriendlyMuseumsLandingPage() {
   const { lang } = useLanguage();
   const title =
     lang === 'en'
-      ? 'Kid-friendly museums in Amsterdam | MuseumBuddy'
-      : 'Kindvriendelijke musea in Amsterdam | MuseumBuddy';
+      ? 'Our curated selection of kid-friendly museums in Amsterdam | MuseumBuddy'
+      : 'Onze selectie kindvriendelijke musea in Amsterdam | MuseumBuddy';
   const description =
     lang === 'en'
-      ? 'Discover kid-friendly museums in Amsterdam for a fun family day out.'
-      : 'Ontdek kindvriendelijke musea in Amsterdam voor een leuke dag uit met het gezin.';
-  const heading = lang === 'en' ? 'Kid-friendly museums in Amsterdam' : 'Kindvriendelijke musea in Amsterdam';
+      ? "Discover MuseumBuddy's curated selection of kid-friendly museums in Amsterdam, chosen for interactive and family-friendly experiences."
+      : "Ontdek MuseumBuddy's selectie kindvriendelijke musea in Amsterdam, gekozen op interactieve en gezinsvriendelijke museumervaringen.";
+  const heading =
+    lang === 'en'
+      ? 'Our curated selection of kid-friendly museums in Amsterdam'
+      : 'Onze selectie kindvriendelijke musea in Amsterdam';
   const intro =
     lang === 'en'
-      ? 'These museums are selected as family-friendly and are a great starting point for visiting Amsterdam with children.'
-      : 'Deze musea zijn geselecteerd als kindvriendelijk en vormen een goed startpunt voor een museumdag met kinderen in Amsterdam.';
+      ? `Looking for kid-friendly museums in Amsterdam? This page is a curated editorial selection by MuseumBuddy, not a complete overview of every family museum in the city. We focus on places that can work especially well for families because they offer interactive elements, clear storytelling, visual experiences, or themes that often appeal to children. Each museum in this selection is included because we believe it can provide a strong starting point for a family museum day in Amsterdam.\n\nFamilies differ in age, interests, and attention span, so a museum that is great for one child may be less suitable for another. We therefore recommend checking the museum's own website for current exhibitions, opening hours, ticket conditions, and any age-specific activities before you visit. Use this page as a practical shortlist you can trust: carefully chosen options, transparent positioning, and realistic expectations for planning a museum outing with children.`
+      : `Op zoek naar kindvriendelijke musea in Amsterdam? Deze pagina is een redactionele selectie van MuseumBuddy en geen volledige lijst van alle gezinsvriendelijke musea in de stad. We kiezen musea die vaak goed werken voor gezinnen, bijvoorbeeld door interactieve onderdelen, duidelijke verhaallijnen, visuele beleving of thema's die veel kinderen aanspreken. Elk museum op deze pagina staat hier omdat wij denken dat het een sterk startpunt kan zijn voor een museumdag met kinderen in Amsterdam.\n\nGezinnen verschillen in leeftijd, interesses en aandachtsspanne. Een museum dat perfect is voor het ene kind, past daarom niet altijd even goed bij het andere. Controleer vóór je bezoek altijd de website van het museum voor actuele tentoonstellingen, openingstijden, ticketinformatie en eventuele leeftijdsgerichte activiteiten. Zie deze pagina als een betrouwbare shortlist: zorgvuldig geselecteerd, transparant gepositioneerd en bedoeld om realistische verwachtingen te geven.`;
 
   const museums = getStaticMuseums()
     .filter((museum) => KID_FRIENDLY_SET.has((museum.slug || '').toLowerCase()))
@@ -64,7 +67,11 @@ export default function KidFriendlyMuseumsLandingPage() {
       />
       <section className="page-intro">
         <h1 className="page-title">{heading}</h1>
-        <p className="page-subtitle">{intro}</p>
+        {intro.split('\n\n').map((paragraph) => (
+          <p key={paragraph} className="page-subtitle">
+            {paragraph}
+          </p>
+        ))}
       </section>
       <p className="count">{museums.length} musea</p>
       {museums.length ? (
