@@ -57,6 +57,7 @@ export default function FreeMuseumsLandingPage() {
       <SEO
         title={title}
         description={description}
+        robots="noindex,follow"
         canonical="/gratis-musea-amsterdam"
         image="/images/og-home.svg"
         structuredData={structuredData}

@@ -15,7 +15,6 @@ const STATIC_ROUTES = [
   '/disclaimer',
   '/tentoonstellingen',
   '/kindvriendelijke-musea-amsterdam',
-  '/gratis-musea-amsterdam',
 ];
 const DEFAULT_SITE_URL = 'https://museumbuddy.nl';
 const ROUTE_SOURCE_FILES = {
@@ -29,7 +28,6 @@ const ROUTE_SOURCE_FILES = {
     'lib/staticMuseums.js',
     'lib/kidFriendlyMuseums.js',
   ],
-  '/gratis-musea-amsterdam': ['pages/gratis-musea-amsterdam.js', 'lib/staticMuseums.js'],
 };
 const MUSEUM_SOURCE_FILES = ['pages/museum/[slug].js', 'lib/staticMuseums.js', 'lib/museumSummaries.js'];
 
