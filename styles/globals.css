@@ -3367,6 +3367,21 @@ button.hero-quick-link {
   line-height: 1.25;
 }
 
+.museum-card-title-link {
+  color: inherit;
+  text-decoration: none;
+}
+
+.museum-card-title-link:hover {
+  text-decoration: underline;
+}
+
+.museum-card-title-link:focus-visible {
+  outline: 2px solid rgba(59, 130, 246, 0.45);
+  outline-offset: 3px;
+  border-radius: 0.25rem;
+}
+
 .museum-card-location {
   margin: 0;
   display: inline-flex;

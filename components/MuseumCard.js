@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import Link from 'next/link';
 import { Fragment, useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
 import { useFavorites } from './FavoritesContext';
@@ -528,6 +529,28 @@ export default function MuseumCard({
     [isInteractiveEvent, navigateToMuseum]
   );
 
+  const handleDetailLinkClick = useCallback(
+    (event) => {
+      const openInNewTab = event.metaKey || event.ctrlKey;
+      trackCardClick({
+        ...analyticsData,
+        openInNewTab,
+      });
+    },
+    [analyticsData]
+  );
+
+  const handleDetailLinkAuxClick = useCallback(
+    (event) => {
+      if (event.button !== 1) return;
+      trackCardClick({
+        ...analyticsData,
+        openInNewTab: true,
+      });
+    },
+    [analyticsData]
+  );
+
   return (
     <article
       className="museum-card"
@@ -541,37 +564,46 @@ export default function MuseumCard({
       onKeyDown={handleCardKeyDown}
     >
       <div className="museum-card-image">
-        {normalizedImage && (
-          <Image
-            src={normalizedImage}
-            alt={imageAlt}
-            fill
-            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-            className="museum-card-media"
-            style={{ objectFit: 'cover' }}
-            {...(placeholderDataUrl ? { placeholder: 'blur', blurDataURL: placeholderDataUrl } : {})}
-            priority={priority}
-            loading={priority ? 'eager' : 'lazy'}
-            fetchPriority={priority ? 'high' : 'auto'}
-            quality={70}
-          />
-        )}
-        <div className="museum-card-overlay" aria-hidden="true">
-          <span className="museum-card-overlay-label">{t('view')}</span>
-          <span className="museum-card-overlay-icon">
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M5 12h14" />
-              <path d="M13 6l6 6-6 6" />
-            </svg>
-          </span>
-        </div>
+        <Link
+          href={detailHref}
+          className="museum-card-media-link"
+          aria-label={`${t('view')} ${displayName}`}
+          data-card-interactive="true"
+          onClick={handleDetailLinkClick}
+          onAuxClick={handleDetailLinkAuxClick}
+        >
+          {normalizedImage && (
+            <Image
+              src={normalizedImage}
+              alt={imageAlt}
+              fill
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+              className="museum-card-media"
+              style={{ objectFit: 'cover' }}
+              {...(placeholderDataUrl ? { placeholder: 'blur', blurDataURL: placeholderDataUrl } : {})}
+              priority={priority}
+              loading={priority ? 'eager' : 'lazy'}
+              fetchPriority={priority ? 'high' : 'auto'}
+              quality={70}
+            />
+          )}
+          <div className="museum-card-overlay" aria-hidden="true">
+            <span className="museum-card-overlay-label">{t('view')}</span>
+            <span className="museum-card-overlay-icon">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M5 12h14" />
+                <path d="M13 6l6 6-6 6" />
+              </svg>
+            </span>
+          </div>
+        </Link>
         <div className="museum-card-ticket" data-card-interactive="true">
           {renderTicketButton('ticket-button--card')}
         </div>
@@ -627,7 +659,15 @@ export default function MuseumCard({
             </p>
           )}
           <h3 className="museum-card-title" id={headingId}>
-            {museum.title}
+            <Link
+              href={detailHref}
+              className="museum-card-title-link"
+              data-card-interactive="true"
+              onClick={handleDetailLinkClick}
+              onAuxClick={handleDetailLinkAuxClick}
+            >
+              {museum.title}
+            </Link>
           </h3>
           {summary && (
             <p className="museum-card-summary" id={summaryId}>
