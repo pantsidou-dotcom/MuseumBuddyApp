@@ -12,7 +12,6 @@ const STATIC_ROUTES = [
   '/',
   '/about',
   '/privacy',
-  '/favorites',
   '/disclaimer',
   '/tentoonstellingen',
   '/kindvriendelijke-musea-amsterdam',
@@ -23,7 +22,6 @@ const ROUTE_SOURCE_FILES = {
   '/': ['pages/index.js', 'lib/staticMuseums.js'],
   '/about': ['pages/about.js'],
   '/privacy': ['pages/privacy.js'],
-  '/favorites': ['pages/favorites.js'],
   '/disclaimer': ['pages/disclaimer.js'],
   '/tentoonstellingen': ['pages/tentoonstellingen.js', 'lib/staticExhibitions.js'],
   '/kindvriendelijke-musea-amsterdam': [

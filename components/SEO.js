@@ -56,7 +56,7 @@ function withLangParam(url, lang) {
   }
 }
 
-export default function SEO({ title, description, image, canonical, structuredData }) {
+export default function SEO({ title, description, image, canonical, structuredData, robots }) {
   const { asPath } = useRouter();
   const { lang } = useLanguage();
   const pathname = stripQueryAndHash(asPath || '/');
@@ -72,6 +72,7 @@ export default function SEO({ title, description, image, canonical, structuredDa
     <Head>
       {title && <title>{title}</title>}
       {description && <meta name="description" content={description} />}
+      {robots && <meta name="robots" content={robots} />}
       <meta property="og:type" content="website" />
       {title && <meta property="og:title" content={title} />}
       {description && <meta property="og:description" content={description} />}

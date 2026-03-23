@@ -21,7 +21,7 @@ export default function FavoritesPage() {
 
   return (
     <>
-      <SEO title={t('favoritesTitle')} description={description} />
+      <SEO title={t('favoritesTitle')} description={description} robots="noindex,follow" />
       <h1 className="page-title">{t('favoritesTitle')}</h1>
       {favorites.length === 0 ? (
         <section
