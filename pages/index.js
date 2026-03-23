@@ -1088,6 +1088,14 @@ export default function Home({ initialMuseums = [], initialError = null }) {
               : 'View all exhibitions in Amsterdam'
           }</Link>.
         </p>
+        <p className="page-subtitle">
+          {t('homeSeoLinksIntro')}{' '}
+          <Link href="/tentoonstellingen">{t('homeSeoLinkExhibitions')}</Link>,{' '}
+          <Link href="/kindvriendelijke-musea-amsterdam">{t('homeSeoLinkKidFriendly')}</Link>,{' '}
+          <Link href="/gratis-musea-amsterdam">{t('homeSeoLinkFree')}</Link>,{' '}
+          <Link href="/museum/rijksmuseum-amsterdam">{t('homeSeoLinkRijksmuseum')}</Link>,{' '}
+          <Link href="/museum/van-gogh-museum-amsterdam">{t('homeSeoLinkVanGogh')}</Link>.
+        </p>
       </section>
     </>
   );
