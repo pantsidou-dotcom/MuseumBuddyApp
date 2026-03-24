@@ -135,6 +135,22 @@ function truncate(text, maxLength = 180) {
   return `${cleaned.slice(0, maxLength - 1)}…`;
 }
 
+function isCurrentOrUpcoming(card, todayTimestamp) {
+  if (!card || todayTimestamp === null) return true;
+  const startValue = card.startDate ? Date.parse(card.startDate) : null;
+  const endValue = card.endDate ? Date.parse(card.endDate) : null;
+
+  if (typeof endValue === 'number' && !Number.isNaN(endValue)) {
+    return endValue >= todayTimestamp;
+  }
+
+  if (typeof startValue === 'number' && !Number.isNaN(startValue)) {
+    return startValue >= todayTimestamp;
+  }
+
+  return false;
+}
+
 function pickImage(row, museum) {
   const candidates = [row?.afbeelding_url, row?.image_url, row?.hero_image_url, row?.hero_afbeelding_url, row?.banner_url];
 
@@ -795,7 +811,7 @@ export default function ExhibitionsPage({ exhibitions = [], error = null }) {
 
   const hasBaseCards = allCards.length > 0;
   const hasVisibleCards = visibleCards.length > 0;
-  const popularExhibitions = useMemo(() => {
+  const highlightedExhibitions = useMemo(() => {
     const sourceCards = hasVisibleCards ? visibleCards : allCards;
     const seen = new Set();
     const selected = [];
@@ -811,6 +827,41 @@ export default function ExhibitionsPage({ exhibitions = [], error = null }) {
 
     return selected;
   }, [allCards, hasVisibleCards, visibleCards]);
+
+  const topExhibitionPicks = useMemo(() => {
+    const sourceCards = hasVisibleCards ? visibleCards : allCards;
+    const dateCheckedCards = sourceCards.filter((card) => isCurrentOrUpcoming(card, todayTimestamp));
+    const candidateCards = dateCheckedCards.length >= 3 ? dateCheckedCards : sourceCards;
+    const selected = [];
+    const usedMuseums = new Set();
+    const usedTitles = new Set();
+
+    for (const card of candidateCards) {
+      if (!card?.slug || !card?.title) continue;
+      const titleKey = `${card.slug}|${card.title}`.toLowerCase();
+      if (usedTitles.has(titleKey)) continue;
+      if (usedMuseums.has(card.slug) && selected.length < 3) continue;
+
+      const hasDateRange = Boolean(card.startDate || card.endDate);
+      const hasThemeDescription = Boolean(card.summary);
+      const reason = hasDateRange
+        ? t('exhibitionsTopReasonDate')
+        : hasThemeDescription
+          ? t('exhibitionsTopReasonTheme')
+          : t('exhibitionsTopReasonCollection');
+
+      selected.push({
+        ...card,
+        reason,
+      });
+      usedMuseums.add(card.slug);
+      usedTitles.add(titleKey);
+
+      if (selected.length >= 4) break;
+    }
+
+    return selected;
+  }, [allCards, hasVisibleCards, t, todayTimestamp, visibleCards]);
 
   const exhibitionsStructuredData = useMemo(
     () => {
@@ -910,11 +961,11 @@ export default function ExhibitionsPage({ exhibitions = [], error = null }) {
           {t('exhibitionsPopularHeading')}
         </h2>
         <p className="page-subtitle">{t('exhibitionsPopularDescription')}</p>
-        {popularExhibitions.length === 0 ? (
+        {highlightedExhibitions.length === 0 ? (
           <p className="page-subtitle">{t('exhibitionsPopularEmpty')}</p>
         ) : (
           <ul>
-            {popularExhibitions.map((item) => (
+            {highlightedExhibitions.map((item) => (
               <li key={`popular-${item.exhibitionId || item.slug}-${item.title}`}>
                 <Link href={`/tentoonstellingen?museums=${encodeURIComponent(item.slug)}`}>
                   {item.title}
@@ -922,6 +973,29 @@ export default function ExhibitionsPage({ exhibitions = [], error = null }) {
                 —{' '}
                 <Link href={`/museum/${item.slug}`}>
                   {item.museumName || museumNames[item.slug] || item.slug}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+      <section className="page-intro" aria-labelledby="top-exhibitions-heading">
+        <h2 id="top-exhibitions-heading" className="page-subtitle">
+          {t('exhibitionsTopHeading')}
+        </h2>
+        <p className="page-subtitle">{t('exhibitionsTopDescription')}</p>
+        {topExhibitionPicks.length === 0 ? (
+          <p className="page-subtitle">{t('exhibitionsTopEmpty')}</p>
+        ) : (
+          <ul>
+            {topExhibitionPicks.map((item) => (
+              <li key={`top-${item.exhibitionId || item.slug}-${item.title}`}>
+                <strong>{item.title}</strong> — {item.museumName || museumNames[item.slug] || item.slug}.{' '}
+                {item.reason}{' '}
+                <Link href={`/museum/${item.slug}`}>{t('exhibitionsTopViewMuseum')}</Link>{' '}
+                ·{' '}
+                <Link href={`/tentoonstellingen?museums=${encodeURIComponent(item.slug)}`}>
+                  {t('exhibitionsTopViewMuseumExhibitions')}
                 </Link>
               </li>
             ))}
