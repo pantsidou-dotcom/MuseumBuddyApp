@@ -1087,7 +1087,14 @@ export default function Home({ initialMuseums = [], initialError = null }) {
       </section>
       <section className="page-intro" aria-label="SEO content">
         <h2 className="page-subtitle">{t('homeSeoIntroHeading')}</h2>
-        <p className="page-subtitle">{t('homeSeoIntro')}</p>
+        <p className="page-subtitle">
+          {t('homeSeoIntro')}{' '}
+          <Link href="/beste-musea-amsterdam">
+            {lang === 'nl'
+              ? 'Bekijk ook onze selectie van de beste musea in Amsterdam'
+              : 'Also explore our selection of the best museums in Amsterdam'}
+          </Link>.
+        </p>
         <h2 className="page-subtitle">{t('homeSeoFooterHeading')}</h2>
         <p className="page-subtitle">
           {t('homeSeoFooter')}{' '}
