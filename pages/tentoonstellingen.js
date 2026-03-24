@@ -795,6 +795,23 @@ export default function ExhibitionsPage({ exhibitions = [], error = null }) {
 
   const hasBaseCards = allCards.length > 0;
   const hasVisibleCards = visibleCards.length > 0;
+  const popularExhibitions = useMemo(() => {
+    const sourceCards = hasVisibleCards ? visibleCards : allCards;
+    const seen = new Set();
+    const selected = [];
+
+    for (const card of sourceCards) {
+      if (!card?.slug || !card?.title) continue;
+      const key = `${card.slug}|${card.title}`.toLowerCase();
+      if (seen.has(key)) continue;
+      seen.add(key);
+      selected.push(card);
+      if (selected.length >= 6) break;
+    }
+
+    return selected;
+  }, [allCards, hasVisibleCards, visibleCards]);
+
   const exhibitionsStructuredData = useMemo(
     () => {
       const schemaCards = allCards
@@ -888,6 +905,29 @@ export default function ExhibitionsPage({ exhibitions = [], error = null }) {
         <h2 className="page-subtitle">{t('exhibitionsSeoIntroHeading')}</h2>
         <p className="page-subtitle">{t('exhibitionsSeoIntro')}</p>
       </section>
+      <section className="page-intro" aria-labelledby="popular-exhibitions-heading">
+        <h2 id="popular-exhibitions-heading" className="page-subtitle">
+          {t('exhibitionsPopularHeading')}
+        </h2>
+        <p className="page-subtitle">{t('exhibitionsPopularDescription')}</p>
+        {popularExhibitions.length === 0 ? (
+          <p className="page-subtitle">{t('exhibitionsPopularEmpty')}</p>
+        ) : (
+          <ul>
+            {popularExhibitions.map((item) => (
+              <li key={`popular-${item.exhibitionId || item.slug}-${item.title}`}>
+                <Link href={`/tentoonstellingen?museums=${encodeURIComponent(item.slug)}`}>
+                  {item.title}
+                </Link>{' '}
+                —{' '}
+                <Link href={`/museum/${item.slug}`}>
+                  {item.museumName || museumNames[item.slug] || item.slug}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
       <p className="count">
         {visibleCards.length} {t('exhibitions')}
       </p>
@@ -937,6 +977,27 @@ export default function ExhibitionsPage({ exhibitions = [], error = null }) {
           {t('exhibitionsSeoFooter')}{' '}
           <Link href="/">{lang === 'nl' ? 'Bekijk alle musea in Amsterdam' : 'View all museums in Amsterdam'}</Link>.
         </p>
+        <h2 className="page-subtitle">{t('exhibitionsTipsHeading')}</h2>
+        <ul>
+          <li>{t('exhibitionsTipsItem1')}</li>
+          <li>{t('exhibitionsTipsItem2')}</li>
+          <li>{t('exhibitionsTipsItem3')}</li>
+        </ul>
+        <h2 className="page-subtitle">{t('exhibitionsTimingHeading')}</h2>
+        <p className="page-subtitle">{t('exhibitionsTimingBody')}</p>
+        <h2 className="page-subtitle">{t('exhibitionsExploreLinksHeading')}</h2>
+        <p className="page-subtitle">{t('exhibitionsExploreLinksIntro')}</p>
+        <ul>
+          <li>
+            <Link href="/">{t('exhibitionsExploreHome')}</Link>
+          </li>
+          <li>
+            <Link href="/kindvriendelijke-musea-amsterdam">{t('exhibitionsExploreKids')}</Link>
+          </li>
+          <li>
+            <Link href="/gratis-musea-amsterdam">{t('exhibitionsExploreFree')}</Link>
+          </li>
+        </ul>
       </section>
     </>
   );
