@@ -215,6 +215,149 @@ const CATEGORY_CONTENT = {
   },
 };
 
+const MUSEUM_DETAIL_ENHANCEMENTS = {
+  'rijksmuseum-amsterdam': {
+    nl: {
+      positioning:
+        'Het Rijksmuseum is het nationale kunstmuseum van Nederland, met iconische werken uit de Gouden Eeuw en een brede collectie van middeleeuwen tot nu.',
+      why: [
+        'Sterke keuze voor liefhebbers van klassieke kunst en Nederlandse geschiedenis.',
+        'Je ziet wereldberoemde topstukken én toegepaste kunst in één bezoek.',
+        'Ideaal als je een compleet museum zoekt met veel variatie per zaal.',
+      ],
+      tips: [
+        'Reserveer je ticket en tijdslot vooraf, vooral in weekenden en vakanties.',
+        'Kom vroeg op de dag voor een rustiger rondje langs de populairste zalen.',
+      ],
+    },
+    en: {
+      positioning:
+        'The Rijksmuseum is the Netherlands’ national art museum, known for Dutch Golden Age masterpieces and a broad collection from medieval to modern periods.',
+      why: [
+        'A strong pick for visitors interested in classic art and Dutch history.',
+        'You can combine famous highlights with decorative arts in one visit.',
+        'Great if you want a large museum with varied galleries.',
+      ],
+      tips: [
+        'Book your ticket and timeslot in advance, especially on weekends.',
+        'Arrive early to experience the busiest rooms more comfortably.',
+      ],
+    },
+  },
+  'van-gogh-museum-amsterdam': {
+    nl: {
+      positioning:
+        'Het Van Gogh Museum biedt de grootste collectie werken van Vincent van Gogh, aangevuld met brieven en kunst van tijdgenoten die zijn ontwikkeling tonen.',
+      why: [
+        'Perfect voor bezoekers die het verhaal achter Van Goghs werk willen begrijpen.',
+        'De opbouw door de jaren maakt stijlveranderingen direct zichtbaar.',
+        'Interessant voor zowel kunstliefhebbers als eerste museumbezoekers.',
+      ],
+      tips: [
+        'Tickets zijn vaak snel uitverkocht; boek ruim vooraf online.',
+        'Kies een tijdslot vroeg of later op de dag om piekdrukte te vermijden.',
+      ],
+    },
+    en: {
+      positioning:
+        'The Van Gogh Museum presents the world’s largest Van Gogh collection, with letters and works by contemporaries that add context to his artistic development.',
+      why: [
+        'Ideal if you want to understand the story behind Van Gogh’s work.',
+        'The chronological layout makes style changes easy to follow.',
+        'Works well for both art enthusiasts and first-time museum visitors.',
+      ],
+      tips: [
+        'Tickets often sell out quickly, so book online well in advance.',
+        'Choose an early or late timeslot to avoid peak crowding.',
+      ],
+    },
+  },
+  'anne-frank-huis-amsterdam': {
+    nl: {
+      positioning:
+        'Het Anne Frank Huis is een indrukwekkende herinneringsplek over de Tweede Wereldoorlog, met het Achterhuis als centraal onderdeel van het bezoek.',
+      why: [
+        'Bijzonder waardevol voor bezoekers met interesse in geschiedenis en mensenrechten.',
+        'Het museum combineert persoonlijke verhalen met historische context.',
+        'Een sterk bezoek voor wie Amsterdam ook via zijn oorlogsverleden wil begrijpen.',
+      ],
+      tips: [
+        'Tickets worden alleen online verkocht en raken vaak vroeg uitverkocht.',
+        'Plan extra tijd rondom je tijdslot; de omgeving is vaak druk.',
+      ],
+    },
+    en: {
+      positioning:
+        'The Anne Frank House is a powerful memorial museum about World War II, centered around the Secret Annex experience.',
+      why: [
+        'Especially meaningful for visitors interested in history and human rights.',
+        'It combines personal stories with broader historical context.',
+        'A strong choice if you want to understand Amsterdam through its wartime past.',
+      ],
+      tips: [
+        'Tickets are sold online only and often sell out early.',
+        'Allow extra time around your entry slot because the area is usually busy.',
+      ],
+    },
+  },
+  'stedelijk-museum-amsterdam': {
+    nl: {
+      positioning:
+        'Het Stedelijk Museum Amsterdam is dé plek voor moderne en hedendaagse kunst en design, met een sterke internationale programmering.',
+      why: [
+        'Aanrader voor liefhebbers van moderne kunst, design en visuele cultuur.',
+        'De combinatie van collectie en tijdelijke exposities zorgt voor afwisseling.',
+        'Geschikt als je vernieuwende kunst naast bekende namen wilt zien.',
+      ],
+      tips: [
+        'Bekijk vooraf welke tijdelijke tentoonstellingen er lopen voor je route.',
+        'Plan doordeweeks een bezoek voor meer rust in populaire zalen.',
+      ],
+    },
+    en: {
+      positioning:
+        'The Stedelijk Museum Amsterdam focuses on modern and contemporary art and design, with a strong international program.',
+      why: [
+        'Recommended for visitors into modern art, design, and visual culture.',
+        'Its mix of collection galleries and temporary shows adds variety.',
+        'Great if you want experimental work alongside well-known names.',
+      ],
+      tips: [
+        'Check current temporary exhibitions in advance to plan your route.',
+        'Visit on weekdays for a calmer experience in busy galleries.',
+      ],
+    },
+  },
+  'moco-museum-amsterdam': {
+    nl: {
+      positioning:
+        'Moco Museum richt zich op moderne, hedendaagse en street art, met toegankelijke tentoonstellingen van bekende namen en nieuwe makers.',
+      why: [
+        'Goede keuze voor bezoekers die moderne kunst op een laagdrempelige manier willen ontdekken.',
+        'Populaire werken en fotogenieke installaties maken het bezoek dynamisch.',
+        'Past goed bij een korter museumbezoek in het Museumkwartier.',
+      ],
+      tips: [
+        'Koop tickets vooraf voor je gewenste tijdslot, zeker op drukke dagen.',
+        'Ga vroeg of aan het einde van de middag voor minder wachttijd bij highlights.',
+      ],
+    },
+    en: {
+      positioning:
+        'Moco Museum focuses on modern, contemporary, and street art with accessible exhibitions featuring both famous names and emerging artists.',
+      why: [
+        'A good pick for visitors who want an approachable modern art experience.',
+        'Popular works and photogenic installations keep the visit dynamic.',
+        'Fits well into a shorter museum visit in the Museum Quarter.',
+      ],
+      tips: [
+        'Book your preferred timeslot in advance, especially on busy days.',
+        'Go early or later in the afternoon for shorter waits at highlights.',
+      ],
+    },
+  },
+};
+
 function buildSeoMetaDescription(name, summary) {
   const safeSummary = typeof summary === 'string' ? summary.trim() : '';
   if (!safeSummary) {
@@ -437,13 +580,19 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
   const museumCategories = useMemo(() => getMuseumCategories(slug), [slug]);
   const primaryCategory = museumCategories[0];
   const categoryContent = primaryCategory ? CATEGORY_CONTENT[primaryCategory] : null;
+  const detailEnhancement = MUSEUM_DETAIL_ENHANCEMENTS[slug]?.[lang] || MUSEUM_DETAIL_ENHANCEMENTS[slug]?.nl || null;
   const introText = summary
     ? `${summary} Op deze pagina vind je de belangrijkste bezoekersinformatie voor ${displayName} in Amsterdam.`
     : `${displayName} is een museum in Amsterdam. Hier vind je praktische informatie voor je bezoek, inclusief tentoonstellingen en routehulp.`;
-  const whyVisitText = categoryContent
+  const whyVisitText = detailEnhancement
+    ? null
+    : categoryContent
     ? `${displayName} is een goede keuze als ${categoryContent.why}.`
     : `${displayName} is interessant als je een museum in Amsterdam zoekt met een duidelijke focus en actuele tentoonstellingen.`;
   const visitTips = useMemo(() => {
+    if (detailEnhancement?.tips?.length) {
+      return detailEnhancement.tips.slice(0, 2);
+    }
     const tips = [];
     if (categoryContent?.tips) {
       tips.push(categoryContent.tips);
@@ -458,7 +607,7 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
       tips.push(`Bekijk vooraf de ${expositionCount} actuele tentoonstelling(en) om je route in het museum te plannen.`);
     }
     return tips.slice(0, 4);
-  }, [categoryContent?.tips, expositionCount, hasTicketLink, openingHours]);
+  }, [categoryContent?.tips, detailEnhancement?.tips, expositionCount, hasTicketLink, openingHours]);
   const bestMomentText = categoryContent?.bestMoment
     ? `Voor ${displayName} is ${categoryContent.bestMoment}.`
     : `Doordeweeks buiten de middagpiek is meestal een prettig moment om ${displayName} te bezoeken.`;
@@ -1095,8 +1244,18 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
             <section className="page-intro" aria-label="Museum SEO content">
               <p className="page-subtitle">{introText}</p>
 
+              {detailEnhancement?.positioning ? <p>{detailEnhancement.positioning}</p> : null}
+
               <h2>{lang === 'nl' ? 'Waarom dit museum bezoeken?' : 'Why visit this museum?'}</h2>
-              <p>{whyVisitText}</p>
+              {detailEnhancement?.why?.length ? (
+                <ul>
+                  {detailEnhancement.why.slice(0, 3).map((reason) => (
+                    <li key={reason}>{reason}</li>
+                  ))}
+                </ul>
+              ) : (
+                <p>{whyVisitText}</p>
+              )}
 
               {visitTips.length > 0 ? (
                 <>
