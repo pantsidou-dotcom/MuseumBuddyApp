@@ -19,6 +19,7 @@ import formatImageCredit from '../../lib/formatImageCredit';
 import { supabase as supabaseClient } from '../../lib/supabase';
 import { shouldShowAffiliateNote } from '../../lib/nonAffiliateMuseums';
 import kidFriendlyMuseums, { isKidFriendly as resolveKidFriendly } from '../../lib/kidFriendlyMuseums';
+import { getMuseumCategories } from '../../lib/museumCategories';
 import { trackFavoriteAdd, trackTicketsClick } from '../../lib/analytics';
 import { getStaticMuseumBySlug, getStaticMuseums } from '../../lib/staticMuseums';
 import { getStaticExhibitionsForMuseumSlug } from '../../lib/staticExhibitions';
@@ -161,6 +162,87 @@ function getLocationLines(museum) {
   return lines;
 }
 
+const CATEGORY_CONTENT = {
+  history: {
+    why: 'je historische context zoekt en Amsterdam beter wilt begrijpen',
+    tips: 'Check vooraf of er rondleidingen of audiotours zijn voor extra context.',
+    bestMoment: 'doordeweeks in de ochtend voor een rustiger bezoek met meer leestijd',
+  },
+  art: {
+    why: 'je kunst in verschillende stijlen en perioden wilt vergelijken',
+    tips: 'Plan 60–90 minuten zodat je de vaste collectie én tijdelijke zalen rustig kunt bekijken.',
+    bestMoment: 'vroeg op de dag; dan is het vaak rustiger bij populaire werken',
+  },
+  'modern-art': {
+    why: 'je hedendaagse kunst, installaties en vernieuwende vormen wilt ervaren',
+    tips: 'Neem de tijd per zaal: moderne kunst wint vaak met een rustige kijkronde.',
+    bestMoment: 'later in de middag op weekdagen, wanneer piekdrukte vaak afneemt',
+  },
+  science: {
+    why: 'je interactieve en educatieve opstellingen zoekt',
+    tips: 'Reserveer extra tijd voor interactieve onderdelen, die duren vaak langer dan verwacht.',
+    bestMoment: 'net na opening om wachtrijen bij populaire opstellingen te vermijden',
+  },
+  photography: {
+    why: 'je fotografie en visuele verhalen in detail wilt bekijken',
+    tips: 'Let op het licht en de ruimte-indeling: die zijn vaak onderdeel van de presentatie.',
+    bestMoment: 'op rustige weekochtenden voor meer tijd bij kleinere zalen',
+  },
+  architecture: {
+    why: 'je naast de collectie ook het gebouw en de stadsontwikkeling interessant vindt',
+    tips: 'Kijk niet alleen naar objecten, maar ook naar maquettes en bouwtekeningen.',
+    bestMoment: 'doordeweeks buiten piekuren, zodat je details beter kunt bekijken',
+  },
+  maritime: {
+    why: 'je maritieme geschiedenis en verhalen over handel en scheepvaart wilt ontdekken',
+    tips: 'Combineer binnenzalen met eventuele buitenonderdelen als het weer goed is.',
+    bestMoment: 'een droge dag met rustig weer, vooral bij locaties met buitenobjecten',
+  },
+  culture: {
+    why: 'je verschillende culturele perspectieven en verhalen wilt verkennen',
+    tips: 'Lees zaalteksten actief: ze geven vaak belangrijke context bij de objecten.',
+    bestMoment: 'doordeweeks, zodat je rustiger door tekst- en verhaallijnen kunt gaan',
+  },
+  religion: {
+    why: 'je religieuze geschiedenis, rituelen en erfgoed beter wilt begrijpen',
+    tips: 'Kies een rustig moment, zodat je de historische context echt kunt opnemen.',
+    bestMoment: 'eerste deel van de dag voor een stillere sfeer in de zalen',
+  },
+  film: {
+    why: 'je filmcultuur, cinema-geschiedenis en visueel experiment wilt beleven',
+    tips: 'Controleer vooraf het programma als je museumbezoek wilt combineren met een filmvoorstelling.',
+    bestMoment: 'late middag of begin avond als je ook een screening wilt meepakken',
+  },
+};
+
+function buildSeoMetaDescription(name, summary) {
+  const safeSummary = typeof summary === 'string' ? summary.trim() : '';
+  if (!safeSummary) {
+    return `${name} in Amsterdam bezoeken? Bekijk openingstijden, tickets, tentoonstellingen en praktische bezoektips op MuseumBuddy.`;
+  }
+  const compactSummary = safeSummary.replace(/\s+/g, ' ');
+  const trimmedSummary =
+    compactSummary.length > 140 ? `${compactSummary.slice(0, 137).trimEnd()}…` : compactSummary;
+  return `${name} in Amsterdam: ${trimmedSummary} Inclusief tips, beste bezoekmoment en tentoonstellingen.`;
+}
+
+function getRelatedMuseums(slug, allMuseums) {
+  const categories = getMuseumCategories(slug);
+  if (!categories.length || !Array.isArray(allMuseums)) return [];
+
+  return allMuseums
+    .filter((museum) => museum?.slug && museum.slug !== slug)
+    .map((museum) => {
+      const relatedCategories = getMuseumCategories(museum.slug);
+      const overlap = relatedCategories.filter((category) => categories.includes(category));
+      return { museum, overlapCount: overlap.length };
+    })
+    .filter((entry) => entry.overlapCount > 0)
+    .sort((a, b) => b.overlapCount - a.overlapCount || a.museum.name.localeCompare(b.museum.name))
+    .slice(0, 3)
+    .map((entry) => entry.museum);
+}
+
 function ShareButton({ onShare, label }) {
   return (
     <button type="button" className="icon-button large" aria-label={label} onClick={onShare}>
@@ -239,6 +321,14 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
   const { favorites, toggleFavorite } = useFavorites();
 
   const resolvedMuseum = useMemo(() => (museum ? { ...museum } : null), [museum]);
+  const allMuseums = useMemo(() => {
+    const staticMuseums = getStaticMuseums().map((entry) => normaliseMuseumRow(entry)).filter(Boolean);
+    const bySlug = new Map(staticMuseums.map((entry) => [entry.slug, entry]));
+    if (resolvedMuseum?.slug && !bySlug.has(resolvedMuseum.slug)) {
+      bySlug.set(resolvedMuseum.slug, resolvedMuseum);
+    }
+    return Array.from(bySlug.values());
+  }, [resolvedMuseum]);
   const isKidFriendlyMuseum = useMemo(
     () => (resolvedMuseum ? resolveKidFriendly(resolvedMuseum, KID_FRIENDLY_SLUG_SET) : false),
     [resolvedMuseum]
@@ -343,6 +433,37 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
   const locationLabel = [resolvedMuseum.city, resolvedMuseum.province].filter(Boolean).join(', ');
   const hasWebsite = Boolean(resolvedMuseum.websiteUrl);
   const hasTicketLink = Boolean(ticketUrl);
+  const expositionCount = Array.isArray(expositions) ? expositions.length : 0;
+  const museumCategories = useMemo(() => getMuseumCategories(slug), [slug]);
+  const primaryCategory = museumCategories[0];
+  const categoryContent = primaryCategory ? CATEGORY_CONTENT[primaryCategory] : null;
+  const introText = summary
+    ? `${summary} Op deze pagina vind je de belangrijkste bezoekersinformatie voor ${displayName} in Amsterdam.`
+    : `${displayName} is een museum in Amsterdam. Hier vind je praktische informatie voor je bezoek, inclusief tentoonstellingen en routehulp.`;
+  const whyVisitText = categoryContent
+    ? `${displayName} is een goede keuze als ${categoryContent.why}.`
+    : `${displayName} is interessant als je een museum in Amsterdam zoekt met een duidelijke focus en actuele tentoonstellingen.`;
+  const visitTips = useMemo(() => {
+    const tips = [];
+    if (categoryContent?.tips) {
+      tips.push(categoryContent.tips);
+    }
+    if (openingHours) {
+      tips.push(`Controleer de actuele openingstijden (${openingHours}) en eventuele afwijkingen op feestdagen.`);
+    }
+    if (hasTicketLink) {
+      tips.push('Boek je ticket vooraf, vooral in weekenden en vakanties.');
+    }
+    if (expositionCount > 0) {
+      tips.push(`Bekijk vooraf de ${expositionCount} actuele tentoonstelling(en) om je route in het museum te plannen.`);
+    }
+    return tips.slice(0, 4);
+  }, [categoryContent?.tips, expositionCount, hasTicketLink, openingHours]);
+  const bestMomentText = categoryContent?.bestMoment
+    ? `Voor ${displayName} is ${categoryContent.bestMoment}.`
+    : `Doordeweeks buiten de middagpiek is meestal een prettig moment om ${displayName} te bezoeken.`;
+  const relatedMuseums = useMemo(() => getRelatedMuseums(slug, allMuseums), [allMuseums, slug]);
+  const showFreeGuideLink = Boolean(resolvedMuseum.free);
 
   const favoritePayload = useMemo(
     () => ({
@@ -517,7 +638,7 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
     [openExternalLink, resolvedMuseum.websiteUrl]
   );
 
-  const seoDescription = summary || t('museumDescription', { name: displayName });
+  const seoDescription = buildSeoMetaDescription(displayName, summary || t('museumDescription', { name: displayName }));
   const seoTitle = `${displayName} in Amsterdam | MuseumBuddy`;
   const canonical = `/museum/${slug}`;
   const museumStructuredData = useMemo(
@@ -528,6 +649,10 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
       description: seoDescription,
       url: `${SITE_URL}${canonical}`,
       image: heroImageUrl || undefined,
+      sameAs: resolvedMuseum.websiteUrl || undefined,
+      telephone: resolvedMuseum.phone || undefined,
+      email: resolvedMuseum.email || undefined,
+      isAccessibleForFree: resolvedMuseum.free || undefined,
       address: locationLines.length
         ? {
             '@type': 'PostalAddress',
@@ -546,8 +671,12 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
       locationLines.length,
       resolvedMuseum.address,
       resolvedMuseum.city,
+      resolvedMuseum.email,
+      resolvedMuseum.free,
+      resolvedMuseum.phone,
       resolvedMuseum.postalCode,
       resolvedMuseum.province,
+      resolvedMuseum.websiteUrl,
       seoDescription,
       SITE_URL,
     ]
@@ -964,6 +1093,25 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
         <div className="museum-detail-grid">
           <div className="museum-detail-main">
             <section className="page-intro" aria-label="Museum SEO content">
+              <p className="page-subtitle">{introText}</p>
+
+              <h2>{lang === 'nl' ? 'Waarom dit museum bezoeken?' : 'Why visit this museum?'}</h2>
+              <p>{whyVisitText}</p>
+
+              {visitTips.length > 0 ? (
+                <>
+                  <h2>{lang === 'nl' ? 'Tips voor je bezoek' : 'Tips for your visit'}</h2>
+                  <ul>
+                    {visitTips.map((tip) => (
+                      <li key={tip}>{tip}</li>
+                    ))}
+                  </ul>
+                </>
+              ) : null}
+
+              <h2>{lang === 'nl' ? 'Beste moment om te gaan' : 'Best time to visit'}</h2>
+              <p>{bestMomentText}</p>
+
               <p className="page-subtitle">
                 {t('museumDetailSeoBody')}{' '}
                 <Link href="/tentoonstellingen">
@@ -973,7 +1121,37 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
                 <Link href="/">
                   {lang === 'nl' ? 'Musea in Amsterdam' : 'Museums in Amsterdam'}
                 </Link>
+                {isKidFriendlyMuseum ? (
+                  <>
+                    {' '}
+                    ·{' '}
+                    <Link href="/kindvriendelijke-musea-amsterdam">
+                      {lang === 'nl' ? 'Kindvriendelijke musea' : 'Kid-friendly museums'}
+                    </Link>
+                  </>
+                ) : null}
+                {showFreeGuideLink ? (
+                  <>
+                    {' '}
+                    ·{' '}
+                    <Link href="/gratis-musea-amsterdam">
+                      {lang === 'nl' ? 'Gratis musea' : 'Free museums'}
+                    </Link>
+                  </>
+                ) : null}
               </p>
+
+              {relatedMuseums.length > 0 ? (
+                <p className="page-subtitle">
+                  {lang === 'nl' ? 'Gerelateerde musea:' : 'Related museums:'}{' '}
+                  {relatedMuseums.map((item, index) => (
+                    <Fragment key={item.slug}>
+                      {index > 0 ? ', ' : ''}
+                      <Link href={`/museum/${item.slug}`}>{item.name}</Link>
+                    </Fragment>
+                  ))}
+                </p>
+              ) : null}
             </section>
             <div className="museum-tablist" role="tablist" aria-label={t('museumTabsLabel')}>
               {tabDefinitions.map((tab, index) => {
