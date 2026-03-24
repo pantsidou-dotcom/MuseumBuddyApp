@@ -960,7 +960,6 @@ export default function ExhibitionsPage({ exhibitions = [], error = null }) {
         <h2 id="popular-exhibitions-heading" className="page-subtitle">
           {t('exhibitionsPopularHeading')}
         </h2>
-        <p className="page-subtitle">{t('exhibitionsPopularDescription')}</p>
         {highlightedExhibitions.length === 0 ? (
           <p className="page-subtitle">{t('exhibitionsPopularEmpty')}</p>
         ) : (
