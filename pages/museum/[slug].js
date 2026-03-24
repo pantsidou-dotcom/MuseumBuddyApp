@@ -1152,6 +1152,28 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
                   ))}
                 </p>
               ) : null}
+
+              <h2>{lang === 'nl' ? 'Andere musea ontdekken?' : 'Discover other museums?'}</h2>
+              <p className="page-subtitle">
+                <Link href="/beste-musea-amsterdam">
+                  {lang === 'nl'
+                    ? 'Bekijk onze selectie van de beste musea in Amsterdam'
+                    : 'Explore our selection of the best museums in Amsterdam'}
+                </Link>
+                {relatedMuseums.length > 0 ? (
+                  <>
+                    {' '}
+                    ·{' '}
+                    {relatedMuseums.slice(0, 2).map((item, index) => (
+                      <Fragment key={`cross-link-${item.slug}`}>
+                        {index > 0 ? ', ' : ''}
+                        <Link href={`/museum/${item.slug}`}>{item.name}</Link>
+                      </Fragment>
+                    ))}
+                  </>
+                ) : null}
+                .
+              </p>
             </section>
             <div className="museum-tablist" role="tablist" aria-label={t('museumTabsLabel')}>
               {tabDefinitions.map((tab, index) => {

@@ -934,6 +934,19 @@ export default function ExhibitionsPage({ exhibitions = [], error = null }) {
           {t('exhibitionsPageHeading')}
         </h1>
         <p className="page-subtitle">{t('exhibitionsPageSubtitle')}</p>
+        <p className="page-subtitle">
+          {lang === 'nl' ? (
+            <>
+              Weet je nog niet welk museum bij je past? Bekijk onze selectie van de{' '}
+              <Link href="/beste-musea-amsterdam">beste musea in Amsterdam</Link>.
+            </>
+          ) : (
+            <>
+              Not sure which museum fits you best? Explore our selection of the{' '}
+              <Link href="/beste-musea-amsterdam">best museums in Amsterdam</Link>.
+            </>
+          )}
+        </p>
         <Button href="/" variant="secondary" size="sm">
           {t('exhibitionsBackHome')}
         </Button>
