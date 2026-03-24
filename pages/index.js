@@ -976,6 +976,15 @@ export default function Home({ initialMuseums = [], initialError = null }) {
             >
               {t('heroViewExhibitions')}
             </Button>
+            <Button
+              href="/beste-musea-amsterdam"
+              size="lg"
+              variant="secondary"
+              className="hero-cta-button hero-cta-button--secondary"
+              prefetch
+            >
+              {lang === 'nl' ? 'Beste musea in Amsterdam' : 'Best museums in Amsterdam'}
+            </Button>
           </div>
         </div>
         <form className="hero-card hero-search" onSubmit={(e) => e.preventDefault()}>
@@ -1093,6 +1102,9 @@ export default function Home({ initialMuseums = [], initialError = null }) {
           <Link href="/tentoonstellingen">{t('homeSeoLinkExhibitions')}</Link>,{' '}
           <Link href="/kindvriendelijke-musea-amsterdam">{t('homeSeoLinkKidFriendly')}</Link>,{' '}
           <Link href="/gratis-musea-amsterdam">{t('homeSeoLinkFree')}</Link>,{' '}
+          <Link href="/beste-musea-amsterdam">
+            {lang === 'nl' ? 'Beste musea in Amsterdam' : 'Best museums in Amsterdam'}
+          </Link>,{' '}
           <Link href="/museum/rijksmuseum-amsterdam">{t('homeSeoLinkRijksmuseum')}</Link>,{' '}
           <Link href="/museum/van-gogh-museum-amsterdam">{t('homeSeoLinkVanGogh')}</Link>.
         </p>
