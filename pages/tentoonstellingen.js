@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import MuseumCard from '../components/MuseumCard';
@@ -21,6 +22,7 @@ import {
 } from '../lib/museumCategories';
 import { getStaticExhibitions } from '../lib/staticExhibitions';
 import { getSiteUrl } from '../lib/siteUrl';
+import { resolveImageUrl } from '../lib/resolveImageSource';
 
 const FILTERS_EVENT = 'museumBuddy:openFilters';
 const SITE_URL = getSiteUrl();
@@ -160,6 +162,46 @@ function buildTopPickSummary(card, t, language) {
     title: exhibitionTitle,
     museum: museumName,
   });
+}
+
+function TopExhibitionCard({ item, t }) {
+  const museumName = item?.museumName || museumNames[item?.slug] || item?.slug;
+  const detailUrl = item?.slug ? `/museum/${item.slug}` : '/tentoonstellingen';
+  const exhibitionListUrl = item?.slug
+    ? `/tentoonstellingen?museums=${encodeURIComponent(item.slug)}`
+    : '/tentoonstellingen';
+  const cardImageUrl = resolveImageUrl(item?.image) || '/images/exposition-placeholder.svg';
+  const cardImageAlt = t('expositionIllustrationAlt', {
+    title: item?.title || t('unknown'),
+  });
+
+  return (
+    <article className="top-exhibition-card">
+      <Link href={detailUrl} className="top-exhibition-card__media-link" aria-label={`${item?.title} — ${museumName}`}>
+        <div className="top-exhibition-card__media">
+          <Image
+            src={cardImageUrl}
+            alt={cardImageAlt}
+            fill
+            sizes="(min-width: 1200px) 280px, (min-width: 768px) 42vw, 90vw"
+            style={{ objectFit: 'cover' }}
+          />
+        </div>
+      </Link>
+      <div className="top-exhibition-card__body">
+        <h3 className="top-exhibition-card__title">
+          <Link href={detailUrl}>{item?.title}</Link>
+        </h3>
+        <p className="top-exhibition-card__museum">{museumName}</p>
+        {item?.summary ? <p className="top-exhibition-card__summary">{item.summary}</p> : null}
+        <p className="top-exhibition-card__links">
+          <Link href={detailUrl}>{t('exhibitionsTopViewMuseum')}</Link>
+          {' · '}
+          <Link href={exhibitionListUrl}>{t('exhibitionsTopViewMuseumExhibitions')}</Link>
+        </p>
+      </div>
+    </article>
+  );
 }
 
 function isCurrentOrUpcoming(card, todayTimestamp) {
@@ -982,17 +1024,10 @@ export default function ExhibitionsPage({ exhibitions = [], error = null }) {
         {topExhibitionPicks.length === 0 ? (
           <p className="page-subtitle">{t('exhibitionsTopEmpty')}</p>
         ) : (
-          <ul className="grid" style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+          <ul className="top-exhibition-grid" style={{ listStyle: 'none', padding: 0, margin: 0 }}>
             {topExhibitionPicks.map((item) => (
               <li key={`top-${item.exhibitionId || item.slug}-${item.title}`}>
-                <MuseumCard museum={item} priority={false} />
-                <p className="card-sub" style={{ marginTop: '0.75rem' }}>
-                  <Link href={`/museum/${item.slug}`}>{t('exhibitionsTopViewMuseum')}</Link>
-                  {' · '}
-                  <Link href={`/tentoonstellingen?museums=${encodeURIComponent(item.slug)}`}>
-                    {t('exhibitionsTopViewMuseumExhibitions')}
-                  </Link>
-                </p>
+                <TopExhibitionCard item={item} t={t} />
               </li>
             ))}
           </ul>
