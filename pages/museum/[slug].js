@@ -1145,22 +1145,16 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
     };
   }, []);
 
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    const hash = TAB_HASHES[activeTab] || TAB_HASHES[DEFAULT_TAB];
-    if (!hash) return;
-    const nextHash = `#${hash}`;
-    if (window.location.hash !== nextHash) {
-      window.history.replaceState(null, '', nextHash);
-    }
-  }, [activeTab]);
-
   const handleTabSelect = useCallback(
     (tabId) => {
       if (!tabDefinitions.some((tab) => tab.id === tabId)) return;
       setActiveTab(tabId);
       const hash = TAB_HASHES[tabId];
       if (typeof window !== 'undefined' && hash) {
+        const nextHash = `#${hash}`;
+        if (window.location.hash !== nextHash) {
+          window.history.replaceState(null, '', nextHash);
+        }
         const scrollToPanel = () => {
           const panel = document.getElementById(hash);
           if (panel) {
@@ -1302,8 +1296,14 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
                 aria-label={ticketAriaLabel}
                 data-affiliate={showAffiliateNote ? 'true' : undefined}
               >
-                <span className="ticket-button__label">
+                <span className={showAffiliateNote ? 'ticket-button__label ticket-button__label--stacked' : 'ticket-button__label'}>
                   <span className="ticket-button__label-text">{t('ticketActionPrices')}</span>
+                  {showAffiliateNote ? (
+                    <span className="ticket-button__badge">
+                      {t('ticketsPartnerBadge')}
+                      <span className="sr-only"> — {t('ticketsAffiliateIntro')}</span>
+                    </span>
+                  ) : null}
                 </span>
               </a>
             </div>
@@ -1518,8 +1518,14 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
                   aria-label={ticketAriaLabel}
                   data-affiliate={showAffiliateNote ? 'true' : undefined}
                 >
-                  <span className="ticket-button__label">
+                  <span className={showAffiliateNote ? 'ticket-button__label ticket-button__label--stacked' : 'ticket-button__label'}>
                     <span className="ticket-button__label-text">{t('ticketActionView')}</span>
+                    {showAffiliateNote ? (
+                      <span className="ticket-button__badge">
+                        {t('ticketsPartnerBadge')}
+                        <span className="sr-only"> — {t('ticketsAffiliateIntro')}</span>
+                      </span>
+                    ) : null}
                   </span>
                 </a>
               </section>
