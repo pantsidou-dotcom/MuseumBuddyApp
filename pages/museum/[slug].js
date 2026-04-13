@@ -1160,6 +1160,33 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
     };
   }, []);
 
+  useEffect(() => {
+    if (typeof window === 'undefined') return undefined;
+    const { history } = window;
+    const previousScrollRestoration = history?.scrollRestoration;
+
+    if (history && typeof history.scrollRestoration === 'string') {
+      history.scrollRestoration = 'manual';
+    }
+
+    const forceScrollTop = () => {
+      window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+    };
+
+    forceScrollTop();
+    if (typeof window.requestAnimationFrame === 'function') {
+      window.requestAnimationFrame(forceScrollTop);
+    }
+    const timeoutId = window.setTimeout(forceScrollTop, 0);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+      if (history && typeof previousScrollRestoration === 'string') {
+        history.scrollRestoration = previousScrollRestoration;
+      }
+    };
+  }, [slug]);
+
   const handleTabSelect = useCallback(
     (tabId) => {
       if (!tabDefinitions.some((tab) => tab.id === tabId)) return;

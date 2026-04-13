@@ -470,6 +470,9 @@ export default function MuseumCard({
         }
         return;
       }
+      if (typeof window !== 'undefined' && window.history?.scrollRestoration) {
+        window.history.scrollRestoration = 'manual';
+      }
       router.push(detailUrl, undefined, { scroll: true });
     },
     [analyticsData, detailUrl, router]
