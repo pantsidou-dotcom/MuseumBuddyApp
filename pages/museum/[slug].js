@@ -456,6 +456,10 @@ const TAB_TITLE_KEYS = {
   exhibitions: 'tabTitleExhibitions',
   map: 'tabTitleMap',
 };
+const TAB_PANEL_IDS = {
+  exhibitions: 'museum-panel-exhibitions',
+  map: 'museum-panel-map',
+};
 const HASH_TO_TAB = Object.entries(TAB_HASHES).reduce(
   (acc, [id, hash]) => {
     acc[hash] = id;
@@ -1114,6 +1118,7 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
       TAB_IDS.map((id) => ({
         id,
         hash: TAB_HASHES[id],
+        panelId: TAB_PANEL_IDS[id],
         label: t(TAB_LABEL_KEYS[id]),
         title: t(TAB_TITLE_KEYS[id]),
       })),
@@ -1166,7 +1171,7 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
           window.history.replaceState(null, '', nextHash);
         }
         const scrollToPanel = () => {
-          const panel = document.getElementById(hash);
+          const panel = document.getElementById(TAB_PANEL_IDS[tabId]);
           if (panel) {
             panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
           }
@@ -1424,7 +1429,7 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
                     type="button"
                     role="tab"
                     id={`museum-tab-${tab.id}`}
-                    aria-controls={tab.hash}
+                    aria-controls={tab.panelId}
                     aria-selected={isActive}
                     aria-label={tab.title}
                     tabIndex={isActive ? 0 : -1}
@@ -1439,7 +1444,7 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
             </div>
 
             <section
-              id={TAB_HASHES.exhibitions}
+              id={TAB_PANEL_IDS.exhibitions}
               role="tabpanel"
               aria-labelledby="museum-tab-exhibitions"
               className="museum-tabpanel"
@@ -1476,7 +1481,7 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
             </section>
 
             <section
-              id={TAB_HASHES.map}
+              id={TAB_PANEL_IDS.map}
               role="tabpanel"
               aria-labelledby="museum-tab-map"
               className="museum-tabpanel"
