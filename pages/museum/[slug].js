@@ -665,14 +665,17 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
     return `${displayName} is a strong pick for ${primaryCategoryLabel} who want culture and practical planning in one visit.`;
   }, [detailEnhancement?.intro, displayName, expositionCount, lang, primaryCategoryLabel]);
   const heroStatusSignals = useMemo(
-    () =>
-      hasTicketLink
-        ? [
-            t('heroStatusPopular'),
-            t('heroStatusReservationRecommended'),
-          ]
-        : [t('heroStatusPopular')],
-    [hasTicketLink, t]
+    () => {
+      const tipText = (detailEnhancement?.tips || []).join(' ').toLowerCase();
+      const busySignals = ['druk', 'piek', 'uitverkocht', 'busy', 'peak', 'sell out'];
+      const likelyBusy = busySignals.some((keyword) => tipText.includes(keyword));
+
+      if (!likelyBusy) return [];
+      if (!hasTicketLink) return [t('heroStatusPopular')];
+
+      return [t('heroStatusPopular'), t('heroStatusReservationRecommended')];
+    },
+    [detailEnhancement?.tips, hasTicketLink, t]
   );
   const decisionFacts = useMemo(
     () => [
@@ -950,9 +953,8 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
       ) : null}
       <h1 className="detail-title museum-hero-title">{displayName}</h1>
       <p className="detail-sub museum-hero-decision">{heroDecisionPitch}</p>
-      {summary && <p className="detail-sub museum-hero-tagline">{summary}</p>}
     </>
-  ), [displayName, heroDecisionPitch, heroStatusSignals, locationLabel, summary, t]);
+  ), [displayName, heroDecisionPitch, heroStatusSignals, locationLabel, t]);
 
   const heroImageAlt = t('museumHeroImageAlt', { name: displayName });
 
