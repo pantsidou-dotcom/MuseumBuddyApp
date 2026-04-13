@@ -248,10 +248,6 @@ export default function MuseumCard({
   const metaTagId = metaTag ? `${headingId}-meta-tag` : undefined;
   const metaId = meta ? `${headingId}-meta` : undefined;
   const describedById = [summaryId, metaTagId, metaId].filter(Boolean).join(' ') || undefined;
-  const detailHref = useMemo(
-    () => ({ pathname: '/museum/[slug]', query: { slug: museum.slug } }),
-    [museum.slug]
-  );
   const detailUrl = useMemo(() => (museum.slug ? `/museum/${museum.slug}` : '/'), [museum.slug]);
   const ticketHoverMessage = showAffiliateNote ? t('ticketsAffiliateDisclosure') : undefined;
   const ticketDisclosureLine = [t('ticketsAffiliateDisclosure'), t('ticketsAffiliatePricesMayVary')]
@@ -474,9 +470,12 @@ export default function MuseumCard({
         }
         return;
       }
-      router.push(detailHref);
+      if (typeof window !== 'undefined' && window.history?.scrollRestoration) {
+        window.history.scrollRestoration = 'manual';
+      }
+      router.push(detailUrl, undefined, { scroll: true });
     },
-    [analyticsData, detailHref, detailUrl, router]
+    [analyticsData, detailUrl, router]
   );
 
   const isInteractiveEvent = useCallback((event) => {
@@ -565,7 +564,7 @@ export default function MuseumCard({
     >
       <div className="museum-card-image">
         <Link
-          href={detailHref}
+          href={detailUrl}
           className="museum-card-media-link"
           aria-label={`${t('view')} ${displayName}`}
           data-card-interactive="true"
@@ -660,7 +659,7 @@ export default function MuseumCard({
           )}
           <h3 className="museum-card-title" id={headingId}>
             <Link
-              href={detailHref}
+              href={detailUrl}
               className="museum-card-title-link"
               data-card-interactive="true"
               onClick={handleDetailLinkClick}
