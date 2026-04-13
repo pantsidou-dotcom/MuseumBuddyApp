@@ -27,6 +27,7 @@ export default function Layout({ children }) {
   const favoritesActive = router.pathname.startsWith('/favorites');
   const aboutActive = router.pathname === '/about';
   const exhibitionsActive = router.pathname === '/tentoonstellingen';
+  const guidesActive = router.pathname === '/museumgidsen-amsterdam';
   const onMuseumDetailPage = router.pathname === '/museum/[slug]';
   const showFiltersControl = !onMuseumDetailPage;
 
@@ -48,6 +49,9 @@ export default function Layout({ children }) {
               <NavSection className="ds-nav__section--primary">
                 <NavLink href="/tentoonstellingen" active={exhibitionsActive}>
                   {t('exhibitionsNavLabel')}
+                </NavLink>
+                <NavLink href="/museumgidsen-amsterdam" active={guidesActive}>
+                  {lang === 'en' ? 'Museum guides' : 'Museumgidsen'}
                 </NavLink>
                 <NavLink href="/about" active={aboutActive}>
                   {t('aboutLabel')}

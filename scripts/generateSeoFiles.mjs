@@ -15,6 +15,8 @@ const STATIC_ROUTES = [
   '/disclaimer',
   '/tentoonstellingen',
   '/kindvriendelijke-musea-amsterdam',
+  '/museumgidsen-amsterdam',
+  '/ons-lieve-heer-op-solder-tickets',
 ];
 const DEFAULT_SITE_URL = 'https://museumbuddy.nl';
 const ROUTE_SOURCE_FILES = {
@@ -27,6 +29,11 @@ const ROUTE_SOURCE_FILES = {
     'pages/kindvriendelijke-musea-amsterdam.js',
     'lib/staticMuseums.js',
     'lib/kidFriendlyMuseums.js',
+  ],
+  '/museumgidsen-amsterdam': ['pages/museumgidsen-amsterdam.js'],
+  '/ons-lieve-heer-op-solder-tickets': [
+    'pages/ons-lieve-heer-op-solder-tickets.js',
+    'components/TicketLandingTemplate.js',
   ],
 };
 const MUSEUM_SOURCE_FILES = ['pages/museum/[slug].js', 'lib/staticMuseums.js', 'lib/museumSummaries.js'];

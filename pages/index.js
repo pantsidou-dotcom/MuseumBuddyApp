@@ -1106,6 +1106,9 @@ export default function Home({ initialMuseums = [], initialError = null }) {
         </p>
         <p className="page-subtitle">
           {t('homeSeoLinksIntro')}{' '}
+          <Link href="/museumgidsen-amsterdam">
+            {lang === 'nl' ? 'Museumgidsen Amsterdam' : 'Museum guides Amsterdam'}
+          </Link>,{' '}
           <Link href="/tentoonstellingen">{t('homeSeoLinkExhibitions')}</Link>,{' '}
           <Link href="/kindvriendelijke-musea-amsterdam">{t('homeSeoLinkKidFriendly')}</Link>,{' '}
           <Link href="/gratis-musea-amsterdam">{t('homeSeoLinkFree')}</Link>,{' '}
