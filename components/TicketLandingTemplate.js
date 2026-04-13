@@ -1,6 +1,5 @@
 import Link from 'next/link';
 import SEO from './SEO';
-import Button from './ui/Button';
 
 function PracticalSummary({ items }) {
   return (
@@ -47,6 +46,29 @@ export default function TicketLandingTemplate({
   affiliateNote,
   structuredData,
 }) {
+  const ticketRel = 'sponsored noopener noreferrer';
+  const partnerLabel = 'Partner';
+  const disclosureLabel = 'Partnerlink (affiliate)';
+
+  const renderPartnerButton = (label) => (
+    <a
+      href={primaryCtaHref}
+      target="_blank"
+      rel={ticketRel}
+      className="museum-primary-action primary ticket-landing__primary-action"
+      aria-label={`${label} — ${disclosureLabel}`}
+      data-affiliate="true"
+    >
+      <span className="ticket-button__label ticket-button__label--stacked">
+        <span className="ticket-button__label-text">{label}</span>
+        <span className="ticket-button__badge">
+          {partnerLabel}
+          <span className="sr-only"> — {disclosureLabel}</span>
+        </span>
+      </span>
+    </a>
+  );
+
   return (
     <>
       <SEO title={title} description={description} canonical={canonical} structuredData={structuredData} />
@@ -55,15 +77,16 @@ export default function TicketLandingTemplate({
         <h1>{h1}</h1>
         <p>{intro}</p>
         <div className="ticket-landing__hero-actions">
-          <Button href={primaryCtaHref} size="lg" className="ticket-landing__cta" rel="sponsored noopener" target="_blank">
-            {primaryCtaLabel}
-          </Button>
+          {renderPartnerButton(primaryCtaLabel)}
           {detailPageHref ? (
             <Link href={detailPageHref} className="ticket-landing__secondary-link">
               {detailPageLabel}
             </Link>
           ) : null}
         </div>
+        <p className="ticket-landing__legal-note">
+          {disclosureLabel}: als je via deze knop boekt, kan MuseumBuddy een kleine commissie ontvangen. Dit kost jou niets extra&apos;s.
+        </p>
       </section>
 
       <PracticalSummary items={practicalItems} />
@@ -74,20 +97,12 @@ export default function TicketLandingTemplate({
         <h2 id="ticket-landing-tickets">Tickets en beschikbaarheid</h2>
         <p>{ticketSectionText}</p>
         <div className="ticket-landing__hero-actions">
-          <Button href={primaryCtaHref} size="lg" className="ticket-landing__cta" rel="sponsored noopener" target="_blank">
-            Bekijk actuele ticketopties
-          </Button>
-          <Button
-            href={primaryCtaHref}
-            variant="secondary"
-            size="lg"
-            className="ticket-landing__cta"
-            rel="sponsored noopener"
-            target="_blank"
-          >
-            Controleer beschikbaarheid
-          </Button>
+          {renderPartnerButton('Bekijk actuele ticketopties')}
+          {renderPartnerButton('Controleer beschikbaarheid')}
         </div>
+        <p className="ticket-landing__legal-note">
+          Partnerlink (affiliate): boek je via een partner, dan kan MuseumBuddy een vergoeding ontvangen. Jij betaalt nooit extra via deze link.
+        </p>
         {affiliateNote ? <p className="ticket-landing__affiliate-note">{affiliateNote}</p> : null}
       </section>
 

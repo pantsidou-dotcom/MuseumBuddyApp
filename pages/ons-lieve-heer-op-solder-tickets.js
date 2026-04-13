@@ -70,7 +70,7 @@ export default function OnsLieveHeerOpSolderTicketsPage() {
       practicalItems={practicalItems}
       infoBlocks={infoBlocks}
       ticketSectionText="Wil je je bezoek plannen? Via onze partner kun je actuele ticketopties bekijken en direct controleren welke momenten nog beschikbaar zijn."
-      affiliateNote="Soms ontvangen we een kleine vergoeding als je via een partner boekt. Dit kost jou niets extra's."
+      affiliateNote="Controleer bij de partner altijd de actuele voorwaarden en ticketdetails voordat je afrondt."
       structuredData={structuredData}
     />
   );

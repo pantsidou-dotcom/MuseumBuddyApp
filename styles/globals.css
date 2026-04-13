@@ -4494,6 +4494,10 @@ button.hero-quick-link {
   margin-top: 18px;
 }
 
+.ticket-landing__primary-action {
+  color: var(--accent-ink);
+}
+
 .ticket-landing__secondary-link {
   display: inline-flex;
   align-items: center;
@@ -4567,6 +4571,13 @@ button.hero-quick-link {
   margin-top: 12px;
   font-size: 0.9rem;
   color: var(--muted);
+}
+
+.ticket-landing__legal-note {
+  margin-top: 10px;
+  font-size: 0.78rem;
+  line-height: 1.5;
+  color: color-mix(in srgb, var(--muted) 92%, var(--text) 8%);
 }
 
 .ticket-landing__links {
