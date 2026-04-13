@@ -649,6 +649,34 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
     .replace(`${displayName} is best visited `, '')
     .trim()
     .replace(/\.$/, '');
+  const heroDecisionPitch = useMemo(() => {
+    if (detailEnhancement?.intro) {
+      return detailEnhancement.intro;
+    }
+    if (lang === 'nl') {
+      if (expositionCount > 0) {
+        return `${displayName} is geschikt voor ${primaryCategoryLabel} die actuele tentoonstellingen willen combineren met een soepel museumbezoek.`;
+      }
+      return `${displayName} is een sterke keuze voor ${primaryCategoryLabel} die in één bezoek cultuur en praktische planning willen combineren.`;
+    }
+    if (expositionCount > 0) {
+      return `${displayName} suits ${primaryCategoryLabel} who want to combine current exhibitions with an easy visit plan.`;
+    }
+    return `${displayName} is a strong pick for ${primaryCategoryLabel} who want culture and practical planning in one visit.`;
+  }, [detailEnhancement?.intro, displayName, expositionCount, lang, primaryCategoryLabel]);
+  const heroStatusSignals = useMemo(
+    () => {
+      const tipText = (detailEnhancement?.tips || []).join(' ').toLowerCase();
+      const busySignals = ['druk', 'piek', 'uitverkocht', 'busy', 'peak', 'sell out'];
+      const likelyBusy = busySignals.some((keyword) => tipText.includes(keyword));
+
+      if (!likelyBusy) return [];
+      if (!hasTicketLink) return [t('heroStatusPopular')];
+
+      return [t('heroStatusPopular'), t('heroStatusReservationRecommended')];
+    },
+    [detailEnhancement?.tips, hasTicketLink, t]
+  );
   const decisionFacts = useMemo(
     () => [
       { key: 'forWho', label: t('decisionForWho'), value: primaryCategoryLabel },
@@ -914,10 +942,19 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
   const renderHeroHeading = useCallback(() => (
     <>
       {locationLabel && <p className="detail-sub museum-hero-location">{locationLabel}</p>}
+      {heroStatusSignals.length ? (
+        <div className="museum-hero-signals" aria-label={t('heroStatusLabel')}>
+          {heroStatusSignals.map((signal) => (
+            <span key={signal} className="museum-hero-signal">
+              {signal}
+            </span>
+          ))}
+        </div>
+      ) : null}
       <h1 className="detail-title museum-hero-title">{displayName}</h1>
-      {summary && <p className="detail-sub museum-hero-tagline">{summary}</p>}
+      <p className="detail-sub museum-hero-decision">{heroDecisionPitch}</p>
     </>
-  ), [displayName, locationLabel, summary]);
+  ), [displayName, heroDecisionPitch, heroStatusSignals, locationLabel, t]);
 
   const heroImageAlt = t('museumHeroImageAlt', { name: displayName });
 
@@ -993,6 +1030,7 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
                   {showAffiliateNote ? (
                     <p className="museum-primary-action__hint">{t('ticketPartnerHint')}</p>
                   ) : null}
+                  <p className="museum-primary-action__microcopy">{t('ticketActionHeroMicrocopy')}</p>
                   {ticketContext ? (
                     <TicketButtonNote affiliate={showAffiliateNote} showIcon={false} id={heroTicketNoteId} className="sr-only">
                       {createTicketNote('hero-ticket-note')}
