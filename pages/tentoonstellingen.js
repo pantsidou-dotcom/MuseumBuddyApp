@@ -1010,7 +1010,7 @@ export default function ExhibitionsPage({ exhibitions = [], error = null }) {
             </>
           )}
         </p>
-        <Link href="/" className="museum-backlink">
+        <Link href="/" className="museum-backlink exhibitions-backlink">
           <svg
             viewBox="0 0 24 24"
             fill="none"

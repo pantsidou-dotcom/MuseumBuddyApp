@@ -1994,6 +1994,9 @@ button.hero-quick-link {
   outline: 2px solid var(--accent);
   outline-offset: 3px;
 }
+.exhibitions-backlink {
+  margin-bottom: var(--space-16);
+}
 .museum-primary-action-bar {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
