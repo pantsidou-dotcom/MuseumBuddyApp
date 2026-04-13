@@ -1133,6 +1133,16 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
 
   useEffect(() => {
     if (typeof window === 'undefined') return undefined;
+    const initialHash = window.location.hash.replace('#', '').toLowerCase();
+    const shouldResetLandingHash =
+      initialHash === TAB_HASHES.exhibitions || initialHash === 'overzicht' || initialHash === 'bezoekersinfo';
+
+    if (shouldResetLandingHash) {
+      const nextUrl = `${window.location.pathname}${window.location.search}`;
+      window.history.replaceState(null, '', nextUrl);
+      window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+    }
+
     const handleHashChange = () => {
       const nextHash = window.location.hash.replace('#', '').toLowerCase();
       if (nextHash && HASH_TO_TAB[nextHash]) {
