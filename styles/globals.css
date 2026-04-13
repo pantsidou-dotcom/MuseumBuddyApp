@@ -1861,6 +1861,16 @@ button.hero-quick-link {
 .museum-hero-sidebar { display: flex; flex-direction: column; gap: clamp(10px, 2vw, 18px); }
 .museum-visitor-card { display: flex; flex-direction: column; gap: clamp(12px, 2vw, var(--space-16)); }
 .museum-visitor-card--hero { height: 100%; }
+.museum-primary-action--hero {
+  padding: 14px 22px;
+  font-size: 1rem;
+}
+.museum-primary-action__hint {
+  margin: 0;
+  font-size: 0.75rem;
+  color: var(--muted);
+  line-height: 1.35;
+}
 .museum-visitor-actions {
   display: flex;
   flex-direction: column;
@@ -2111,6 +2121,84 @@ button.hero-quick-link {
   display: flex;
   flex-direction: column;
   gap: clamp(24px, 4vw, 36px);
+}
+.museum-decision-strip {
+  margin: clamp(18px, 3vw, 24px) 0 clamp(20px, 3vw, 30px);
+  padding: clamp(16px, 2.2vw, 22px);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--panel-border);
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.95), rgba(248, 250, 252, 0.92));
+  box-shadow: var(--panel-shadow);
+}
+.museum-decision-strip__header h2 {
+  margin: 0;
+  font-size: clamp(1.15rem, 2vw, 1.35rem);
+}
+.museum-decision-strip__header p {
+  margin: 6px 0 0;
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+.museum-decision-grid {
+  list-style: none;
+  margin: 14px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+}
+.museum-decision-card {
+  margin: 0;
+  padding: 12px 14px;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  background: rgba(255, 255, 255, 0.86);
+}
+.museum-decision-card__label {
+  margin: 0;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  font-weight: 600;
+}
+.museum-decision-card__value {
+  margin: 6px 0 0;
+  font-size: 0.94rem;
+  line-height: 1.35;
+  font-weight: 600;
+  color: var(--text);
+}
+.museum-inline-cta {
+  margin-top: 14px;
+}
+.museum-bottom-cta {
+  margin-top: clamp(8px, 2vw, 18px);
+  padding: clamp(18px, 3vw, 24px);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--panel-border);
+  background: var(--card-bg);
+  box-shadow: var(--panel-shadow);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.museum-bottom-cta h2 {
+  margin: 0;
+  font-size: clamp(1.1rem, 2vw, 1.3rem);
+}
+.museum-bottom-cta p {
+  margin: 0;
+  color: var(--muted);
+}
+.museum-detail .page-intro h2,
+.museum-detail .museum-expositions-heading,
+.museum-detail .museum-map-title,
+.museum-detail .museum-bottom-cta h2,
+.museum-detail .museum-decision-strip__header h2 {
+  font-size: clamp(1rem, 1.6vw, 1.18rem);
+  line-height: 1.35;
+  font-weight: 700;
 }
 .museum-tablist {
   display: inline-flex;

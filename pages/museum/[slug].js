@@ -19,7 +19,7 @@ import formatImageCredit from '../../lib/formatImageCredit';
 import { supabase as supabaseClient } from '../../lib/supabase';
 import { shouldShowAffiliateNote } from '../../lib/nonAffiliateMuseums';
 import kidFriendlyMuseums, { isKidFriendly as resolveKidFriendly } from '../../lib/kidFriendlyMuseums';
-import { getMuseumCategories } from '../../lib/museumCategories';
+import { CATEGORY_TRANSLATION_KEYS, getMuseumCategories } from '../../lib/museumCategories';
 import { trackFavoriteAdd, trackTicketsClick } from '../../lib/analytics';
 import { getStaticMuseumBySlug, getStaticMuseums } from '../../lib/staticMuseums';
 import { getStaticExhibitionsForMuseumSlug } from '../../lib/staticExhibitions';
@@ -213,6 +213,19 @@ const CATEGORY_CONTENT = {
     tips: 'Controleer vooraf het programma als je museumbezoek wilt combineren met een filmvoorstelling.',
     bestMoment: 'late middag of begin avond als je ook een screening wilt meepakken',
   },
+};
+
+const VISIT_DURATION_BY_CATEGORY = {
+  history: { nl: '1,5–2,5 uur', en: '1.5–2.5 hours' },
+  art: { nl: '2–3 uur', en: '2–3 hours' },
+  'modern-art': { nl: '1,5–2,5 uur', en: '1.5–2.5 hours' },
+  science: { nl: '2–3 uur', en: '2–3 hours' },
+  photography: { nl: '1–1,5 uur', en: '1–1.5 hours' },
+  architecture: { nl: '1–2 uur', en: '1–2 hours' },
+  maritime: { nl: '1,5–2,5 uur', en: '1.5–2.5 hours' },
+  culture: { nl: '1,5–2,5 uur', en: '1.5–2.5 hours' },
+  religion: { nl: '1–2 uur', en: '1–2 hours' },
+  film: { nl: '2–3 uur', en: '2–3 hours' },
 };
 
 const MUSEUM_DETAIL_ENHANCEMENTS = {
@@ -613,6 +626,34 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
     : `Doordeweeks buiten de middagpiek is meestal een prettig moment om ${displayName} te bezoeken.`;
   const relatedMuseums = useMemo(() => getRelatedMuseums(slug, allMuseums), [allMuseums, slug]);
   const showFreeGuideLink = Boolean(resolvedMuseum.free);
+  const primaryCategoryLabel = useMemo(() => {
+    if (!primaryCategory) return lang === 'nl' ? 'algemene museumbezoekers' : 'general museum visitors';
+    const translationKey = CATEGORY_TRANSLATION_KEYS[primaryCategory];
+    return translationKey ? t(translationKey) : primaryCategory;
+  }, [lang, primaryCategory, t]);
+  const averageVisitDuration =
+    VISIT_DURATION_BY_CATEGORY[primaryCategory]?.[lang] || (lang === 'nl' ? '1,5–2 uur' : '1.5–2 hours');
+  const reservationAdvice = hasTicketLink
+    ? lang === 'nl'
+      ? 'Ja, vooraf reserveren is slim (zeker in weekenden en vakanties).'
+      : 'Yes, booking ahead is recommended (especially on weekends and holidays).'
+    : lang === 'nl'
+    ? 'Controleer eerst de officiële website voor toegang en reservering.'
+    : 'Check the official website first for access and reservations.';
+  const bestVisitMoment = bestMomentText
+    .replace(`Voor ${displayName} is `, '')
+    .replace(`${displayName} is best visited `, '')
+    .trim()
+    .replace(/\.$/, '');
+  const decisionFacts = useMemo(
+    () => [
+      { key: 'forWho', label: t('decisionForWho'), value: primaryCategoryLabel },
+      { key: 'duration', label: t('decisionDuration'), value: averageVisitDuration },
+      { key: 'reservation', label: t('decisionReservation'), value: reservationAdvice },
+      { key: 'bestMoment', label: t('decisionBestMoment'), value: bestVisitMoment },
+    ],
+    [averageVisitDuration, bestVisitMoment, primaryCategoryLabel, reservationAdvice, t]
+  );
 
   const favoritePayload = useMemo(
     () => ({
@@ -766,13 +807,13 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
   }, [displayName, slug, t]);
 
   const handleTicketLinkClick = useCallback(
-    (event) => {
+    (event, location = 'museum_detail_hero') => {
       if (!ticketUrl) return;
       trackTicketsClick({
         ...analyticsData,
         url: ticketUrl,
         affiliate: affiliateTicketUrl ? 'affiliate' : 'direct',
-        location: 'museum_detail_hero',
+        location,
       });
       openExternalLink(ticketUrl, event);
     },
@@ -923,9 +964,8 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
                     href={ticketUrl}
                     target="_blank"
                     rel={ticketRel}
-                    className="museum-primary-action primary"
-                    aria-describedby={ticketContext ? heroTicketNoteId : undefined}
-                    onClick={handleTicketLinkClick}
+                    className="museum-primary-action primary museum-primary-action--hero"
+                    onClick={(event) => handleTicketLinkClick(event, 'museum_detail_hero')}
                     title={ticketHoverMessage}
                     aria-label={ticketAriaLabel}
                     data-affiliate={showAffiliateNote ? 'true' : undefined}
@@ -937,7 +977,7 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
                           : 'ticket-button__label'
                       }
                     >
-                      <span className="ticket-button__label-text">{t('buyTickets')}</span>
+                      <span className="ticket-button__label-text">{t('ticketActionAvailability')}</span>
                       {showAffiliateNote ? (
                         <span className="ticket-button__badge">
                           {t('ticketsPartnerBadge')}
@@ -946,13 +986,11 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
                       ) : null}
                     </span>
                   </a>
+                  {showAffiliateNote ? (
+                    <p className="museum-primary-action__hint">{t('ticketPartnerHint')}</p>
+                  ) : null}
                   {ticketContext ? (
-                    <TicketButtonNote
-                      affiliate={showAffiliateNote}
-                      showIcon={false}
-                      id={heroTicketNoteId}
-                      className="museum-primary-action__note museum-visitor-action__note"
-                    >
+                    <TicketButtonNote affiliate={showAffiliateNote} showIcon={false} id={heroTicketNoteId} className="sr-only">
                       {createTicketNote('hero-ticket-note')}
                     </TicketButtonNote>
                   ) : null}
@@ -1107,22 +1145,16 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
     };
   }, []);
 
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    const hash = TAB_HASHES[activeTab] || TAB_HASHES[DEFAULT_TAB];
-    if (!hash) return;
-    const nextHash = `#${hash}`;
-    if (window.location.hash !== nextHash) {
-      window.history.replaceState(null, '', nextHash);
-    }
-  }, [activeTab]);
-
   const handleTabSelect = useCallback(
     (tabId) => {
       if (!tabDefinitions.some((tab) => tab.id === tabId)) return;
       setActiveTab(tabId);
       const hash = TAB_HASHES[tabId];
       if (typeof window !== 'undefined' && hash) {
+        const nextHash = `#${hash}`;
+        if (window.location.hash !== nextHash) {
+          window.history.replaceState(null, '', nextHash);
+        }
         const scrollToPanel = () => {
           const panel = document.getElementById(hash);
           if (panel) {
@@ -1239,6 +1271,45 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
       </div>
 
       <div className="museum-detail-container">
+        <section className="museum-decision-strip" aria-label={t('decisionSectionTitle')}>
+          <div className="museum-decision-strip__header">
+            <h2>{t('decisionSectionTitle')}</h2>
+            <p>{t('decisionSectionSubtitle')}</p>
+          </div>
+          <ul className="museum-decision-grid">
+            {decisionFacts.map((item) => (
+              <li key={item.key} className="museum-decision-card">
+                <p className="museum-decision-card__label">{item.label}</p>
+                <p className="museum-decision-card__value">{item.value}</p>
+              </li>
+            ))}
+          </ul>
+          {hasTicketLink ? (
+            <div className="museum-inline-cta">
+              <a
+                href={ticketUrl}
+                target="_blank"
+                rel={ticketRel}
+                className="museum-primary-action primary"
+                onClick={(event) => handleTicketLinkClick(event, 'museum_detail_mid')}
+                title={ticketHoverMessage}
+                aria-label={ticketAriaLabel}
+                data-affiliate={showAffiliateNote ? 'true' : undefined}
+              >
+                <span className={showAffiliateNote ? 'ticket-button__label ticket-button__label--stacked' : 'ticket-button__label'}>
+                  <span className="ticket-button__label-text">{t('ticketActionPrices')}</span>
+                  {showAffiliateNote ? (
+                    <span className="ticket-button__badge">
+                      {t('ticketsPartnerBadge')}
+                      <span className="sr-only"> — {t('ticketsAffiliateIntro')}</span>
+                    </span>
+                  ) : null}
+                </span>
+              </a>
+            </div>
+          ) : null}
+        </section>
+
         <div className="museum-detail-grid">
           <div className="museum-detail-main">
             <section className="page-intro" aria-label="Museum SEO content">
@@ -1432,6 +1503,33 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
                 )}
               </div>
             </section>
+
+            {hasTicketLink ? (
+              <section className="museum-bottom-cta" aria-label={t('ticketActionView')}>
+                <h2>{t('ticketActionView')}</h2>
+                <p>{t('decisionBottomCtaText')}</p>
+                <a
+                  href={ticketUrl}
+                  target="_blank"
+                  rel={ticketRel}
+                  className="museum-primary-action primary"
+                  onClick={(event) => handleTicketLinkClick(event, 'museum_detail_bottom')}
+                  title={ticketHoverMessage}
+                  aria-label={ticketAriaLabel}
+                  data-affiliate={showAffiliateNote ? 'true' : undefined}
+                >
+                  <span className={showAffiliateNote ? 'ticket-button__label ticket-button__label--stacked' : 'ticket-button__label'}>
+                    <span className="ticket-button__label-text">{t('ticketActionView')}</span>
+                    {showAffiliateNote ? (
+                      <span className="ticket-button__badge">
+                        {t('ticketsPartnerBadge')}
+                        <span className="sr-only"> — {t('ticketsAffiliateIntro')}</span>
+                      </span>
+                    ) : null}
+                  </span>
+                </a>
+              </section>
+            ) : null}
           </div>
 
         </div>
