@@ -561,7 +561,7 @@ export default function MuseumCard({
     >
       <div className="museum-card-image">
         <Link
-          href={detailHref}
+          href={detailUrl}
           className="museum-card-media-link"
           aria-label={`${t('view')} ${displayName}`}
           data-card-interactive="true"
@@ -656,7 +656,7 @@ export default function MuseumCard({
           )}
           <h3 className="museum-card-title" id={headingId}>
             <Link
-              href={detailHref}
+              href={detailUrl}
               className="museum-card-title-link"
               data-card-interactive="true"
               onClick={handleDetailLinkClick}
