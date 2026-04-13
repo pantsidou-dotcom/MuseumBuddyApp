@@ -403,13 +403,6 @@ export default function Home({ initialMuseums = [], initialError = null }) {
     return params.toString();
   }, []);
 
-  const handleQuickShowExhibitions = useCallback(() => {
-    skipNextUrlSync.current = true;
-    setActiveFilters((prev) => ({ ...DEFAULT_FILTERS, ...prev, exhibitions: true }));
-    setSheetFilters((prev) => ({ ...DEFAULT_FILTERS, ...prev, exhibitions: true }));
-    setFiltersSheetOpen(false);
-  }, [setActiveFilters, setSheetFilters, setFiltersSheetOpen]);
-
   useEffect(() => {
     if (!activeFilters.nearby) return;
     if (userLocation) return;
@@ -976,15 +969,6 @@ export default function Home({ initialMuseums = [], initialError = null }) {
             >
               {t('heroViewExhibitions')}
             </Button>
-            <Button
-              href="/beste-musea-amsterdam"
-              size="lg"
-              variant="secondary"
-              className="hero-cta-button hero-cta-button--secondary"
-              prefetch
-            >
-              {lang === 'nl' ? 'Beste musea in Amsterdam' : 'Best museums in Amsterdam'}
-            </Button>
           </div>
         </div>
         <form className="hero-card hero-search" onSubmit={(e) => e.preventDefault()}>
@@ -1016,14 +1000,6 @@ export default function Home({ initialMuseums = [], initialError = null }) {
                 <path d="M10 20h4" />
               </svg>
               <span>{t('filtersButton')}</span>
-            </button>
-            <button
-              type="button"
-              className="hero-quick-link hero-quick-link--primary"
-              onClick={handleQuickShowExhibitions}
-              aria-pressed={activeFilters.exhibitions}
-            >
-              {t('exhibitions')}
             </button>
             {(query ||
               activeFilters.exhibitions ||
