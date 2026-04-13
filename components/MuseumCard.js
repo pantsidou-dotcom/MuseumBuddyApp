@@ -248,10 +248,6 @@ export default function MuseumCard({
   const metaTagId = metaTag ? `${headingId}-meta-tag` : undefined;
   const metaId = meta ? `${headingId}-meta` : undefined;
   const describedById = [summaryId, metaTagId, metaId].filter(Boolean).join(' ') || undefined;
-  const detailHref = useMemo(
-    () => ({ pathname: '/museum/[slug]', query: { slug: museum.slug } }),
-    [museum.slug]
-  );
   const detailUrl = useMemo(() => (museum.slug ? `/museum/${museum.slug}` : '/'), [museum.slug]);
   const ticketHoverMessage = showAffiliateNote ? t('ticketsAffiliateDisclosure') : undefined;
   const ticketDisclosureLine = [t('ticketsAffiliateDisclosure'), t('ticketsAffiliatePricesMayVary')]
@@ -474,9 +470,9 @@ export default function MuseumCard({
         }
         return;
       }
-      router.push(detailHref);
+      router.push(detailUrl, undefined, { scroll: true });
     },
-    [analyticsData, detailHref, detailUrl, router]
+    [analyticsData, detailUrl, router]
   );
 
   const isInteractiveEvent = useCallback((event) => {
