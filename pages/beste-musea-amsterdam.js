@@ -1,5 +1,7 @@
+import Image from 'next/image';
 import Link from 'next/link';
 import SEO from '../components/SEO';
+import museumImages from '../lib/museumImages';
 import { getStaticMuseumBySlug } from '../lib/staticMuseums';
 
 const FEATURED_SLUGS = [
@@ -55,18 +57,56 @@ function MuseumInlineLinks({ slugs }) {
   });
 }
 
-function MuseumRecommendation({ slug, whyVisit }) {
+function MuseumSellCard({ slug, whyVisit }) {
   const museum = getMuseum(slug);
   if (!museum) return null;
 
+  const ticketUrl = museum.ticket_affiliate_url || museum.website_url;
+  const imageSource = museumImages[museum.slug];
+
   return (
-    <article>
-      <h3>
-        <Link href={`/museum/${museum.slug}`}>{museum.naam}</Link>
-      </h3>
-      <p>
-        {museum.samenvatting} {whyVisit}
-      </p>
+    <article className="museum-sell-card">
+      <Link href={`/museum/${museum.slug}`} className="museum-sell-card__image-link" aria-label={`Bekijk ${museum.naam}`}>
+        <div className="museum-sell-card__image-wrap">
+          {imageSource ? (
+            <Image
+              src={imageSource}
+              alt={museum.naam}
+              fill
+              className="museum-sell-card__image"
+              sizes="(max-width: 720px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            />
+          ) : (
+            <div className="museum-sell-card__image-fallback" />
+          )}
+        </div>
+      </Link>
+
+      <div className="museum-sell-card__content">
+        <h3>
+          <Link href={`/museum/${museum.slug}`}>{museum.naam}</Link>
+        </h3>
+        <p>
+          {museum.samenvatting} {whyVisit}
+        </p>
+
+        <div className="museum-sell-card__actions">
+          <Link href={`/museum/${museum.slug}`} className="museum-sell-card__detail-btn">
+            Meer info
+          </Link>
+          {ticketUrl ? (
+            <a
+              href={ticketUrl}
+              target="_blank"
+              rel="sponsored noopener noreferrer"
+              className="ticket-button museum-sell-card__ticket-btn"
+              aria-label={`Koop tickets voor ${museum.naam}`}
+            >
+              Koop tickets
+            </a>
+          ) : null}
+        </div>
+      </div>
     </article>
   );
 }
@@ -126,42 +166,46 @@ export default function BestMuseumsAmsterdamPage() {
 
       <section style={{ marginBottom: '2rem' }}>
         <h2>De bekendste musea in Amsterdam</h2>
-        <MuseumRecommendation
-          slug="rijksmuseum-amsterdam"
-          whyVisit="Een sterke keuze als je in één bezoek zowel kunst als Nederlandse geschiedenis wilt meepakken, met een brede opzet voor verschillende interesses."
-        />
-        <MuseumRecommendation
-          slug="van-gogh-museum-amsterdam"
-          whyVisit="Een aanrader voor wie gericht de werken en ontwikkeling van Van Gogh wil ontdekken in een museum dat volledig rond zijn oeuvre is opgebouwd."
-        />
-        <MuseumRecommendation
-          slug="anne-frank-huis-amsterdam"
-          whyVisit="Dit museum maakt veel indruk door de historische context en de directe koppeling met een van de bekendste verhalen uit de twintigste eeuw."
-        />
+        <div className="museum-sell-grid">
+          <MuseumSellCard
+            slug="rijksmuseum-amsterdam"
+            whyVisit="Een sterke keuze als je in één bezoek zowel kunst als Nederlandse geschiedenis wilt meepakken, met een brede opzet voor verschillende interesses."
+          />
+          <MuseumSellCard
+            slug="van-gogh-museum-amsterdam"
+            whyVisit="Een aanrader voor wie gericht de werken en ontwikkeling van Van Gogh wil ontdekken in een museum dat volledig rond zijn oeuvre is opgebouwd."
+          />
+          <MuseumSellCard
+            slug="anne-frank-huis-amsterdam"
+            whyVisit="Dit museum maakt veel indruk door de historische context en de directe koppeling met een van de bekendste verhalen uit de twintigste eeuw."
+          />
+        </div>
       </section>
 
       <section style={{ marginBottom: '2rem' }}>
         <h2>Minder bekende, maar bijzondere musea</h2>
-        <MuseumRecommendation
-          slug="micropia-museum-amsterdam"
-          whyVisit="Bijzonder door het specifieke thema: je ontdekt een onzichtbare wereld die je in traditionele kunstmusea niet tegenkomt."
-        />
-        <MuseumRecommendation
-          slug="het-schip-amsterdam"
-          whyVisit="Interessant als je meer wilt begrijpen over Amsterdamse architectuur en hoe ontwerp, wonen en stadsgeschiedenis samenkomen."
-        />
-        <MuseumRecommendation
-          slug="huis-marseille-amsterdam"
-          whyVisit="Een goede optie voor fotografieliefhebbers die liever een compacter museum kiezen met een duidelijke focus."
-        />
-        <MuseumRecommendation
-          slug="nxt-museum-amsterdam"
-          whyVisit="Sterk voor bezoekers die moderne, immersieve installaties zoeken in plaats van een klassieke museumroute."
-        />
-        <MuseumRecommendation
-          slug="woonbootmuseum-amsterdam"
-          whyVisit="Uniek doordat het concreet laat zien hoe wonen op het water eruitziet, iets dat nauw verbonden is met de stad zelf."
-        />
+        <div className="museum-sell-grid">
+          <MuseumSellCard
+            slug="micropia-museum-amsterdam"
+            whyVisit="Bijzonder door het specifieke thema: je ontdekt een onzichtbare wereld die je in traditionele kunstmusea niet tegenkomt."
+          />
+          <MuseumSellCard
+            slug="het-schip-amsterdam"
+            whyVisit="Interessant als je meer wilt begrijpen over Amsterdamse architectuur en hoe ontwerp, wonen en stadsgeschiedenis samenkomen."
+          />
+          <MuseumSellCard
+            slug="huis-marseille-amsterdam"
+            whyVisit="Een goede optie voor fotografieliefhebbers die liever een compacter museum kiezen met een duidelijke focus."
+          />
+          <MuseumSellCard
+            slug="nxt-museum-amsterdam"
+            whyVisit="Sterk voor bezoekers die moderne, immersieve installaties zoeken in plaats van een klassieke museumroute."
+          />
+          <MuseumSellCard
+            slug="woonbootmuseum-amsterdam"
+            whyVisit="Uniek doordat het concreet laat zien hoe wonen op het water eruitziet, iets dat nauw verbonden is met de stad zelf."
+          />
+        </div>
       </section>
 
       <section style={{ marginBottom: '2rem' }}>
@@ -208,6 +252,95 @@ export default function BestMuseumsAmsterdamPage() {
           <Link href="/museum/micropia-museum-amsterdam">Micropia</Link>.
         </p>
       </section>
+
+      <style jsx>{`
+        .museum-sell-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+          gap: 14px;
+          margin-top: 0.9rem;
+        }
+
+        .museum-sell-card {
+          border-radius: 14px;
+          overflow: hidden;
+          border: 1px solid rgba(148, 163, 184, 0.28);
+          background: var(--surface);
+          box-shadow: 0 10px 26px rgba(15, 23, 42, 0.08);
+          display: flex;
+          flex-direction: column;
+        }
+
+        .museum-sell-card__image-link {
+          display: block;
+        }
+
+        .museum-sell-card__image-wrap {
+          position: relative;
+          width: 100%;
+          aspect-ratio: 16 / 10;
+          overflow: hidden;
+        }
+
+        .museum-sell-card__image {
+          object-fit: cover;
+          transition: transform 0.35s ease;
+        }
+
+        .museum-sell-card:hover .museum-sell-card__image {
+          transform: scale(1.04);
+        }
+
+        .museum-sell-card__image-fallback {
+          width: 100%;
+          height: 100%;
+          background: linear-gradient(135deg, #c7d2fe, #bfdbfe);
+        }
+
+        .museum-sell-card__content {
+          padding: 0.85rem 0.85rem 1rem;
+        }
+
+        .museum-sell-card h3 {
+          margin: 0;
+          font-size: 1rem;
+          line-height: 1.3;
+        }
+
+        .museum-sell-card p {
+          margin: 0.6rem 0 0;
+          font-size: 0.9rem;
+          line-height: 1.5;
+          color: var(--text-secondary);
+        }
+
+        .museum-sell-card__actions {
+          margin-top: 0.85rem;
+          display: flex;
+          align-items: center;
+          gap: 0.55rem;
+          flex-wrap: wrap;
+        }
+
+        .museum-sell-card__detail-btn {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          border-radius: 10px;
+          border: 1px solid rgba(148, 163, 184, 0.4);
+          padding: 0.4rem 0.65rem;
+          text-decoration: none;
+          color: var(--text-primary);
+          font-size: 0.8rem;
+          font-weight: 600;
+        }
+
+        .museum-sell-card__ticket-btn {
+          padding: 0.42rem 0.72rem;
+          border-radius: 10px;
+          font-size: 0.8rem;
+        }
+      `}</style>
     </>
   );
 }
