@@ -4484,6 +4484,19 @@ button.hero-quick-link {
   line-height: 1.2;
 }
 
+.ticket-landing__hero-media {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 7;
+  overflow: hidden;
+  border-radius: 12px;
+  margin-bottom: 14px;
+}
+
+.ticket-landing__hero-image {
+  object-position: center;
+}
+
 .ticket-landing__hero p,
 .ticket-landing__section p {
   margin: 0;
@@ -4581,6 +4594,11 @@ button.hero-quick-link {
   font-size: 0.78rem;
   line-height: 1.5;
   color: color-mix(in srgb, var(--muted) 92%, var(--text) 8%);
+}
+
+.ticket-landing__hero-credit {
+  margin-top: 8px;
+  font-size: 0.7rem;
 }
 
 .ticket-landing__links {
