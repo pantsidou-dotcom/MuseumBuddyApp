@@ -44,10 +44,13 @@ export default function MuseumGuidesAmsterdamPage() {
       <ul className="guide-hub-list" style={{ listStyle: 'none', padding: 0, margin: 0 }}>
         {guidePages.map((guide) => (
           <li key={guide.href} className="guide-hub-item">
-            <h2>
-              <Link href={guide.href}>{guide.title}</Link>
-            </h2>
-            <p>{guide.description}</p>
+            <Link href={guide.href} className="guide-hub-item__link" aria-label={`Bekijk: ${guide.title}`}>
+              <h2 className="guide-hub-item__title">{guide.title}</h2>
+              <p className="guide-hub-item__description">{guide.description}</p>
+              <span className="guide-hub-item__button" aria-hidden="true">
+                bekijken <span aria-hidden="true">→</span>
+              </span>
+            </Link>
           </li>
         ))}
       </ul>
