@@ -4725,27 +4725,51 @@ button.hero-quick-link {
 
 .guide-hub-list {
   display: grid;
-  gap: 12px;
+  gap: 14px;
 }
 
 .guide-hub-item {
+  display: grid;
+  gap: 10px;
+  align-content: start;
   border: 1px solid color-mix(in srgb, var(--panel-border) 82%, transparent);
   background: color-mix(in srgb, var(--surface) 96%, transparent);
-  border-radius: 14px;
-  padding: clamp(14px, 3vw, 20px);
+  border-radius: 16px;
+  padding: clamp(16px, 3vw, 22px);
+  box-shadow: var(--ds-shadow-sm);
+  transition: border-color 0.22s ease, box-shadow 0.22s ease, transform 0.22s ease;
 }
 
-.guide-hub-item h2 {
-  margin: 0 0 8px;
-  font-size: clamp(1.05rem, 2.4vw, 1.25rem);
+.guide-hub-item:hover,
+.guide-hub-item:focus-within {
+  border-color: color-mix(in srgb, var(--ds-color-primary) 34%, var(--panel-border));
+  box-shadow: var(--ds-shadow-md);
+  transform: translateY(-1px);
 }
 
-.guide-hub-item h2 a {
-  color: var(--ds-color-primary);
-  text-decoration: underline;
-  text-underline-offset: 3px;
-}
-
-.guide-hub-item p {
+.guide-hub-item__title {
   margin: 0;
+  font-size: clamp(1.05rem, 2.4vw, 1.25rem);
+  line-height: 1.3;
+}
+
+.guide-hub-item__title a {
+  color: var(--ds-color-text-strong);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.guide-hub-item__title a:hover,
+.guide-hub-item__title a:focus-visible {
+  color: var(--ds-color-primary-strong);
+}
+
+.guide-hub-item__description {
+  margin: 0;
+  color: var(--ds-color-text-default);
+}
+
+.guide-hub-item__button {
+  justify-self: start;
+  margin-top: 2px;
 }
