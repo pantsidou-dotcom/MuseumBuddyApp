@@ -42,29 +42,6 @@ const GROUPS = [
   },
 ];
 
-const QUICK_CHOICES = [
-  {
-    title: 'Regenachtige dag',
-    description: 'Alleen musea die nu open zijn, handig als je direct naar binnen wilt.',
-    href: '/?open_now=1',
-  },
-  {
-    title: 'Kort bezoek',
-    description: 'Snelle musea van ongeveer 60–90 minuten voor een compact programma.',
-    href: '#kort-bezoek',
-  },
-  {
-    title: 'Met kinderen',
-    description: 'Bekijk direct kindvriendelijke musea met praktische tips.',
-    href: '/kindvriendelijke-musea-amsterdam',
-  },
-  {
-    title: 'Gratis of budgetvriendelijk',
-    description: 'Selectie van gratis en laagdrempelige museumopties.',
-    href: '/gratis-musea-amsterdam',
-  },
-];
-
 function getMuseum(slug) {
   return getStaticMuseumBySlug(slug);
 }
@@ -142,6 +119,13 @@ function MuseumCardCompact({ slug, compact = false }) {
             </Button>
           ) : null}
         </div>
+
+        {hasTickets ? (
+          <p className="museum-compact-card__affiliate-note">
+            Je koopt tickets via een affiliate partner. MuseumBuddy ontvangt mogelijk commissie bij aankoop via deze
+            link. Prijzen kunnen afwijken.
+          </p>
+        ) : null}
       </div>
     </article>
   );
@@ -198,18 +182,6 @@ export default function BestMuseumsAmsterdamPage() {
           MuseumBuddy-detailpagina, zodat je makkelijk kunt doorklikken voor meer context en je bezoek beter kunt
           plannen.
         </p>
-      </section>
-
-      <section className="museum-overview-section museum-overview-section--quick" aria-labelledby="snelle-keuzes-heading">
-        <h2 id="snelle-keuzes-heading">Snelle keuzes</h2>
-        <div className="quick-choice-grid">
-          {QUICK_CHOICES.map((choice) => (
-            <Link key={choice.title} href={choice.href} className="quick-choice-link">
-              <strong>{choice.title}</strong>
-              <span>{choice.description}</span>
-            </Link>
-          ))}
-        </div>
       </section>
 
       <section className="museum-overview-section" aria-labelledby="bekendste-musea-heading">
@@ -294,53 +266,6 @@ export default function BestMuseumsAmsterdamPage() {
 
         .museum-overview-section h2 {
           margin: 0 0 1rem;
-        }
-
-        .museum-overview-section--quick {
-          padding: 1rem;
-          border: 1px solid #e5e7eb;
-          border-radius: 16px;
-          background: color-mix(in srgb, var(--ds-color-primary-soft) 22%, #fff 78%);
-        }
-
-        .quick-choice-grid {
-          display: grid;
-          grid-template-columns: repeat(2, minmax(0, 1fr));
-          gap: 0.75rem;
-        }
-
-        .quick-choice-link {
-          display: flex;
-          flex-direction: column;
-          gap: 0.35rem;
-          padding: 0.85rem 0.95rem;
-          border-radius: 12px;
-          border: 1px solid color-mix(in srgb, var(--ds-color-primary) 20%, transparent);
-          background: #ffffff;
-          color: var(--ds-color-text-strong);
-          text-decoration: none;
-          transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
-          box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
-          cursor: pointer;
-        }
-
-        .quick-choice-link strong {
-          font-size: 0.98rem;
-          line-height: 1.2;
-        }
-
-        .quick-choice-link span {
-          font-size: 0.88rem;
-          color: var(--ds-color-text-muted);
-          line-height: 1.35;
-        }
-
-        .quick-choice-link:hover,
-        .quick-choice-link:focus-visible {
-          border-color: color-mix(in srgb, var(--ds-color-primary) 45%, transparent);
-          box-shadow: 0 10px 24px rgba(37, 99, 235, 0.12);
-          transform: translateY(-1px);
-          outline: none;
         }
 
         .museum-cards-grid {
@@ -452,6 +377,18 @@ export default function BestMuseumsAmsterdamPage() {
           white-space: nowrap;
         }
 
+        :global(.museum-compact-card__action-button.ds-button--primary) {
+          color: #ffffff;
+        }
+
+        :global(.museum-compact-card__action-button.ds-button--primary:hover) {
+          color: #ffffff;
+        }
+
+        :global([data-theme='dark'] .museum-compact-card__action-button.ds-button--primary) {
+          color: #ffffff;
+        }
+
         :global(.museum-compact-card__action-button--secondary) {
           gap: var(--ds-space-1);
         }
@@ -460,22 +397,27 @@ export default function BestMuseumsAmsterdamPage() {
           margin-left: 2px;
         }
 
+        :global(.museum-compact-card__affiliate-note) {
+          margin: 0.1rem 0 0;
+          color: #475569;
+          font-size: 0.78rem;
+          line-height: 1.45;
+        }
+
         .museum-overview-section__subtitle {
           margin: 0 0 1rem;
         }
 
         @media (max-width: 1024px) {
           .museum-cards-grid,
-          .museum-cards-grid--hidden,
-          .quick-choice-grid {
+          .museum-cards-grid--hidden {
             grid-template-columns: repeat(2, minmax(0, 1fr));
           }
         }
 
         @media (max-width: 700px) {
           .museum-cards-grid,
-          .museum-cards-grid--hidden,
-          .quick-choice-grid {
+          .museum-cards-grid--hidden {
             grid-template-columns: 1fr;
           }
         }
