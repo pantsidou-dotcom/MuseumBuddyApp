@@ -1,8 +1,14 @@
 import TicketLandingTemplate from '../components/TicketLandingTemplate';
+import formatImageCredit from '../lib/formatImageCredit';
+import museumImageCredits from '../lib/museumImageCredits';
+import museumImages from '../lib/museumImages';
 import museumTicketUrls from '../lib/museumTicketUrls';
 
 const DETAIL_PAGE_URL = '/museum/ons-lieve-heer-op-solder-amsterdam';
+const MUSEUM_SLUG = 'ons-lieve-heer-op-solder-amsterdam';
 const TICKET_URL = museumTicketUrls['ons-lieve-heer-op-solder-amsterdam'];
+const HERO_IMAGE = museumImages[MUSEUM_SLUG];
+const HERO_IMAGE_CREDIT = formatImageCredit(museumImageCredits[MUSEUM_SLUG]);
 
 const practicalItems = [
   { label: 'Prijsindicatie', value: '± €16–€18 p.p.' },
@@ -72,6 +78,9 @@ export default function OnsLieveHeerOpSolderTicketsPage() {
       ticketSectionText="Wil je je bezoek plannen? Via onze partner kun je actuele ticketopties bekijken en direct controleren welke momenten nog beschikbaar zijn."
       affiliateNote="Controleer bij de partner altijd de actuele voorwaarden en ticketdetails voordat je afrondt."
       structuredData={structuredData}
+      heroImageSrc={HERO_IMAGE}
+      heroImageAlt="Museum Ons’ Lieve Heer op Solder in Amsterdam"
+      heroImageCreditSegments={HERO_IMAGE_CREDIT?.segments}
     />
   );
 }

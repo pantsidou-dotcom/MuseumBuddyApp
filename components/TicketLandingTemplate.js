@@ -1,3 +1,5 @@
+import { Fragment } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import SEO from './SEO';
 
@@ -45,6 +47,9 @@ export default function TicketLandingTemplate({
   ticketSectionText,
   affiliateNote,
   structuredData,
+  heroImageSrc,
+  heroImageAlt,
+  heroImageCreditSegments,
 }) {
   const ticketRel = 'sponsored noopener noreferrer';
   const partnerLabel = 'Partner';
@@ -69,24 +74,60 @@ export default function TicketLandingTemplate({
     </a>
   );
 
+  const hasHeroImage = Boolean(heroImageSrc);
+  const creditSegments = Array.isArray(heroImageCreditSegments) ? heroImageCreditSegments : [];
+  const hasHeroImageCredit = creditSegments.length > 0;
+
   return (
     <>
       <SEO title={title} description={description} canonical={canonical} structuredData={structuredData} />
 
-      <section className="ticket-landing__hero">
-        <h1>{h1}</h1>
-        <p>{intro}</p>
-        <div className="ticket-landing__hero-actions">
-          {renderPartnerButton(primaryCtaLabel)}
-          {detailPageHref ? (
-            <Link href={detailPageHref} className="ticket-landing__secondary-link">
-              {detailPageLabel}
-            </Link>
+      <section className={`ticket-landing__hero${hasHeroImage ? ' ticket-landing__hero--with-image' : ''}`}>
+        {hasHeroImage ? (
+          <div className="ticket-landing__hero-media">
+            <Image
+              src={heroImageSrc}
+              alt={heroImageAlt || ''}
+              fill
+              className="ticket-landing__hero-image"
+              sizes="(max-width: 900px) 100vw, 900px"
+              priority
+              style={{ objectFit: 'cover' }}
+            />
+            <div className="ticket-landing__hero-media-overlay" aria-hidden="true" />
+          </div>
+        ) : null}
+        <div className={`ticket-landing__hero-content${hasHeroImage ? ' ticket-landing__hero-content--overlay' : ''}`}>
+          <h1>{h1}</h1>
+          <p>{intro}</p>
+          <div className="ticket-landing__hero-actions">
+            {renderPartnerButton(primaryCtaLabel)}
+            {detailPageHref ? (
+              <Link href={detailPageHref} className="ticket-landing__secondary-link">
+                {detailPageLabel}
+              </Link>
+            ) : null}
+          </div>
+          <p className="ticket-landing__legal-note">
+            {disclosureLabel}: als je via deze knop boekt, kan MuseumBuddy een kleine commissie ontvangen. Dit kost jou niets extra&apos;s.
+          </p>
+          {hasHeroImageCredit ? (
+            <p className="ticket-landing__hero-credit image-credit">
+              {creditSegments.map((segment, index) => (
+                <Fragment key={`ticket-hero-credit-${segment.key}-${index}`}>
+                  {index > 0 ? <span className="image-credit-divider">•</span> : null}
+                  {segment.url ? (
+                    <a className="image-credit-link" href={segment.url} target="_blank" rel="noreferrer">
+                      {segment.label}
+                    </a>
+                  ) : (
+                    <span className="image-credit-part">{segment.label}</span>
+                  )}
+                </Fragment>
+              ))}
+            </p>
           ) : null}
         </div>
-        <p className="ticket-landing__legal-note">
-          {disclosureLabel}: als je via deze knop boekt, kan MuseumBuddy een kleine commissie ontvangen. Dit kost jou niets extra&apos;s.
-        </p>
       </section>
 
       <PracticalSummary items={practicalItems} />

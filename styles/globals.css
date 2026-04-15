@@ -4478,10 +4478,87 @@ button.hero-quick-link {
   box-shadow: var(--ds-shadow-sm);
 }
 
+.ticket-landing__hero {
+  position: relative;
+}
+
 .ticket-landing__hero h1 {
   margin: 0 0 12px;
   font-size: clamp(1.65rem, 4.8vw, 2.35rem);
   line-height: 1.2;
+}
+
+.ticket-landing__hero-media {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 7;
+  overflow: hidden;
+  border-radius: 12px;
+  margin-bottom: 14px;
+}
+
+.ticket-landing__hero-image {
+  object-position: center;
+}
+
+.ticket-landing__hero-media-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(6, 18, 34, 0.38) 0%, rgba(6, 18, 34, 0.68) 100%);
+}
+
+.ticket-landing__hero-content {
+  position: relative;
+}
+
+.ticket-landing__hero--with-image {
+  overflow: hidden;
+  padding: 0;
+  border: 1px solid color-mix(in srgb, var(--panel-border) 78%, transparent);
+  background: transparent;
+}
+
+.ticket-landing__hero--with-image .ticket-landing__hero-content--overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: clamp(20px, 4vw, 34px);
+}
+
+.ticket-landing__hero--with-image .ticket-landing__hero-media {
+  aspect-ratio: 16 / 8;
+  margin-bottom: 0;
+}
+
+.ticket-landing__hero--with-image h1,
+.ticket-landing__hero--with-image .ticket-landing__hero-content--overlay > p,
+.ticket-landing__hero--with-image .ticket-landing__secondary-link,
+.ticket-landing__hero--with-image .ticket-landing__hero-credit,
+.ticket-landing__hero--with-image .ticket-landing__legal-note {
+  color: #fff !important;
+  text-shadow: 0 2px 16px rgba(2, 6, 23, 0.6);
+}
+
+.ticket-landing__hero--with-image h1,
+ .ticket-landing__hero--with-image .ticket-landing__hero-content--overlay > p {
+  max-width: 900px;
+}
+
+.ticket-landing__hero--with-image .ticket-landing__legal-note {
+  font-size: 0.9rem;
+  line-height: 1.45;
+  color: rgba(255, 255, 255, 0.96) !important;
+  max-width: 900px;
+}
+
+.ticket-landing__hero--with-image .ticket-landing__hero-credit .image-credit-link,
+.ticket-landing__hero--with-image .ticket-landing__hero-credit .image-credit-part,
+.ticket-landing__hero--with-image .ticket-landing__hero-credit .image-credit-divider {
+  color: inherit;
 }
 
 .ticket-landing__hero p,
@@ -4583,6 +4660,20 @@ button.hero-quick-link {
   color: color-mix(in srgb, var(--muted) 92%, var(--text) 8%);
 }
 
+.ticket-landing__hero-credit {
+  margin-top: 8px;
+  font-size: 0.7rem;
+}
+
+.ticket-landing__hero--with-image .ticket-landing__hero-credit {
+  margin-top: 0;
+  font-size: 0.8rem;
+}
+
+.ticket-landing__hero--with-image .ticket-landing__hero-actions {
+  margin-top: 2px;
+}
+
 .ticket-landing__links {
   margin: 0;
   padding-left: 18px;
@@ -4596,6 +4687,30 @@ button.hero-quick-link {
   color: var(--ds-color-primary);
   text-decoration: underline;
   text-underline-offset: 3px;
+}
+
+@media (max-width: 767px) {
+  .ticket-landing__hero--with-image .ticket-landing__hero-media {
+    aspect-ratio: 4 / 5;
+  }
+
+  .ticket-landing__hero--with-image h1 {
+    font-size: clamp(1.55rem, 6vw, 2rem);
+    margin-bottom: 8px;
+  }
+
+  .ticket-landing__hero--with-image .ticket-landing__hero-content--overlay > p {
+    font-size: 1rem;
+    line-height: 1.45;
+  }
+
+  .ticket-landing__hero--with-image .ticket-landing__hero-actions {
+    margin-top: 4px;
+  }
+
+  .ticket-landing__hero--with-image .ticket-landing__hero-credit {
+    font-size: 0.72rem;
+  }
 }
 
 @media (min-width: 768px) {
