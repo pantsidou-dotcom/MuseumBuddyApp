@@ -939,6 +939,12 @@ export default function Home({ initialMuseums = [], initialError = null }) {
         }}
       />
       <section className="hero">
+        <a
+          href="https://www.museumbuddy.nl/beste-musea-amsterdam"
+          className="hero-featured-link"
+        >
+          Beste Musea in Amsterdam
+        </a>
         <div className="hero-content">
           <span className="hero-tagline">{t('heroTagline')}</span>
           <h1 className="hero-title">{t('heroTitle')}</h1>
