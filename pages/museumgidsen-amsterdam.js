@@ -3,9 +3,19 @@ import SEO from '../components/SEO';
 
 const guidePages = [
   {
+    href: '/eye-filmmuseum-amsterdam',
+    title: 'Eye Filmmuseum Amsterdam gids',
+    description: 'Praktische info en rustige doorverwijzingen naar vergelijkbare musea in Amsterdam.',
+  },
+  {
     href: '/ons-lieve-heer-op-solder-tickets',
     title: "Ons' Lieve Heer op Solder tickets",
     description: 'Praktische informatie, openingstijden en ticketbeschikbaarheid voor een rustig bezoek.',
+  },
+  {
+    href: '/moderne-kunst-musea-amsterdam',
+    title: 'Moderne kunst musea in Amsterdam',
+    description: 'Vergelijk musea voor moderne kunst met duidelijke doorkliks naar de detailpagina’s.',
   },
   {
     href: '/beste-musea-amsterdam',
