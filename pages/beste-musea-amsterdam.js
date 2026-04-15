@@ -400,8 +400,8 @@ export default function BestMuseumsAmsterdamPage() {
         :global(.museum-compact-card__affiliate-note) {
           margin: 0.1rem 0 0;
           color: #475569;
-          font-size: 0.78rem;
-          line-height: 1.45;
+          font-size: 0.68rem;
+          line-height: 1.35;
         }
 
         .museum-overview-section__subtitle {
