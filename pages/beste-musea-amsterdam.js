@@ -301,31 +301,31 @@ export default function BestMuseumsAmsterdamPage() {
         .quick-choice-grid {
           display: flex;
           flex-wrap: wrap;
-          gap: 0.7rem;
+          gap: 0.65rem;
         }
 
         .quick-choice-card {
-          flex: 1 1 180px;
-          min-width: 180px;
-          max-width: 240px;
+          flex: 0 1 210px;
+          min-width: 170px;
+          max-width: 210px;
           display: flex;
           flex-direction: column;
           gap: 0.45rem;
-          border: 1px solid #cbd5e1;
+          border: 1px solid #93c5fd;
           border-radius: 10px;
           padding: 0.72rem 0.8rem;
           text-decoration: none;
           color: inherit;
-          background: #fff;
-          box-shadow: 0 2px 8px rgba(15, 23, 42, 0.05);
+          background: linear-gradient(180deg, #f8fbff 0%, #eef6ff 100%);
+          box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.7), 0 4px 10px rgba(37, 99, 235, 0.12);
           transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
         }
 
         .quick-choice-card:hover,
         .quick-choice-card:focus-visible {
-          border-color: #94a3b8;
-          box-shadow: 0 14px 24px rgba(15, 23, 42, 0.1);
-          transform: translateY(-1px);
+          border-color: #2563eb;
+          box-shadow: 0 10px 20px rgba(37, 99, 235, 0.22);
+          transform: translateY(-2px);
         }
 
         .quick-choice-card h3 {
@@ -343,8 +343,8 @@ export default function BestMuseumsAmsterdamPage() {
 
         .quick-choice-card__cta {
           margin-top: 0.2rem;
-          color: #0f172a;
-          font-weight: 600;
+          color: #1d4ed8;
+          font-weight: 700;
           font-size: 0.84rem;
           display: inline-flex;
           align-items: center;
@@ -353,27 +353,47 @@ export default function BestMuseumsAmsterdamPage() {
 
         .museum-selection-grid {
           display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(205px, 1fr));
+          grid-template-columns: repeat(auto-fill, minmax(220px, 260px));
           gap: 0.75rem;
+          justify-content: flex-start;
         }
 
         .museum-selection-grid--compact {
-          grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+          grid-template-columns: repeat(auto-fill, minmax(200px, 235px));
         }
 
         .museum-selection-grid :global(.museum-card) {
           height: 100%;
-          --card-aspect-ratio: 16 / 10;
+          --card-aspect-ratio: 16 / 9;
           border-radius: 12px;
         }
 
+        .museum-selection-grid :global(.museum-card-actions),
+        .museum-selection-grid :global(.museum-card-hours),
+        .museum-selection-grid :global(.museum-card-tags),
+        .museum-selection-grid :global(.museum-card-location),
+        .museum-selection-grid :global(.museum-card-meta),
+        .museum-selection-grid :global(.museum-card-meta-tag),
+        .museum-selection-grid :global(.museum-card__affiliate-note) {
+          display: none;
+        }
+
         .museum-selection-grid :global(.museum-card-info) {
-          padding: 0.85rem;
+          padding: 0.7rem;
         }
 
         .museum-selection-grid :global(.museum-card-summary) {
-          font-size: 0.9rem;
-          line-height: 1.45;
+          font-size: 0.82rem;
+          line-height: 1.3;
+          margin-top: 0.3rem;
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+        }
+
+        .museum-selection-grid :global(.museum-card-title) {
+          font-size: 0.98rem;
         }
 
         .museum-selection-grid--compact :global(.museum-card-info) {
