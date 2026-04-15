@@ -1,6 +1,8 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import SEO from '../components/SEO';
+import Badge from '../components/ui/Badge';
+import Button from '../components/ui/Button';
 import museumImages from '../lib/museumImages';
 import museumImageCredits from '../lib/museumImageCredits';
 import { getStaticMuseumBySlug } from '../lib/staticMuseums';
@@ -124,18 +126,20 @@ function MuseumCardCompact({ slug, compact = false }) {
         {creditLine ? <p className="museum-compact-card__credit">{creditLine}</p> : null}
 
         <div className="museum-compact-card__actions">
-          <Link href={`/museum/${museum.slug}`} className="museum-compact-card__cta">
+          <Button href={`/museum/${museum.slug}`} variant="primary" className="museum-compact-card__action-button">
             Bekijk museum
-          </Link>
+          </Button>
           {hasTickets ? (
-            <a
+            <Button
+              as="a"
               href={museum.ticket_affiliate_url}
               target="_blank"
               rel="sponsored noopener noreferrer"
-              className="museum-compact-card__ticket"
+              variant="secondary"
+              className="museum-compact-card__action-button museum-compact-card__action-button--secondary"
             >
-              Tickets <span className="museum-compact-card__badge">Partner</span>
-            </a>
+              Tickets <Badge size="sm">Partner</Badge>
+            </Button>
           ) : null}
         </div>
       </div>
@@ -296,7 +300,7 @@ export default function BestMuseumsAmsterdamPage() {
           padding: 1rem;
           border: 1px solid #e5e7eb;
           border-radius: 16px;
-          background: #f8fafc;
+          background: color-mix(in srgb, var(--ds-color-primary-soft) 22%, #fff 78%);
         }
 
         .quick-choice-grid {
@@ -311,11 +315,12 @@ export default function BestMuseumsAmsterdamPage() {
           gap: 0.35rem;
           padding: 0.85rem 0.95rem;
           border-radius: 12px;
-          border: 1px solid #dbe2ea;
+          border: 1px solid color-mix(in srgb, var(--ds-color-primary) 20%, transparent);
           background: #ffffff;
-          color: #111827;
+          color: var(--ds-color-text-strong);
           text-decoration: none;
           transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+          box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
           cursor: pointer;
         }
 
@@ -326,14 +331,14 @@ export default function BestMuseumsAmsterdamPage() {
 
         .quick-choice-link span {
           font-size: 0.88rem;
-          color: #4b5563;
+          color: var(--ds-color-text-muted);
           line-height: 1.35;
         }
 
         .quick-choice-link:hover,
         .quick-choice-link:focus-visible {
-          border-color: #b8c7d9;
-          box-shadow: 0 8px 22px rgba(15, 23, 42, 0.08);
+          border-color: color-mix(in srgb, var(--ds-color-primary) 45%, transparent);
+          box-shadow: 0 10px 24px rgba(37, 99, 235, 0.12);
           transform: translateY(-1px);
           outline: none;
         }
@@ -441,44 +446,18 @@ export default function BestMuseumsAmsterdamPage() {
           gap: 0.5rem;
         }
 
-        :global(.museum-compact-card__cta) {
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          border-radius: 10px;
-          padding: 0.55rem 0.75rem;
-          background: #0f172a;
-          color: #ffffff;
-          font-size: 0.85rem;
-          text-decoration: none;
-          font-weight: 600;
-        }
-
-        :global(.museum-compact-card__cta:hover) {
-          background: #1e293b;
-        }
-
-        :global(.museum-compact-card__ticket) {
-          color: #334155;
-          font-size: 0.76rem;
-          text-decoration: none;
-          display: inline-flex;
-          align-items: center;
-          gap: 0.3rem;
+        :global(.museum-compact-card__action-button) {
+          font-size: 0.9375rem;
+          min-height: 36px;
           white-space: nowrap;
         }
 
-        :global(.museum-compact-card__ticket:hover) {
-          text-decoration: underline;
+        :global(.museum-compact-card__action-button--secondary) {
+          gap: var(--ds-space-1);
         }
 
-        :global(.museum-compact-card__badge) {
-          border: 1px solid #d1d5db;
-          border-radius: 999px;
-          padding: 0.08rem 0.4rem;
-          font-size: 0.68rem;
-          background: #f8fafc;
-          color: #475569;
+        :global(.museum-compact-card__action-button--secondary .ds-badge) {
+          margin-left: 2px;
         }
 
         .museum-overview-section__subtitle {
