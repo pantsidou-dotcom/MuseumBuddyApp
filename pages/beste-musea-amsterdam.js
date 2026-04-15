@@ -131,11 +131,7 @@ function QuickChoiceCard({ title, description, href }) {
       <h3>{title}</h3>
       <p>{description}</p>
       <span className="quick-choice-card__cta">
-        Bekijk selectie
-        <svg viewBox="0 0 24 24" aria-hidden="true">
-          <path d="M5 12h14" />
-          <path d="M13 6l6 6-6 6" />
-        </svg>
+        Naar selectie <span aria-hidden="true">→</span>
       </span>
     </Link>
   );
@@ -303,22 +299,25 @@ export default function BestMuseumsAmsterdamPage() {
         }
 
         .quick-choice-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
-          gap: 0.9rem;
+          display: flex;
+          flex-wrap: wrap;
+          gap: 0.7rem;
         }
 
         .quick-choice-card {
+          flex: 1 1 180px;
+          min-width: 180px;
+          max-width: 240px;
           display: flex;
           flex-direction: column;
-          gap: 0.55rem;
+          gap: 0.45rem;
           border: 1px solid #cbd5e1;
-          border-radius: 12px;
-          padding: 1rem;
+          border-radius: 10px;
+          padding: 0.72rem 0.8rem;
           text-decoration: none;
           color: inherit;
-          background: linear-gradient(180deg, #ffffff, #f8fafc);
-          box-shadow: 0 8px 18px rgba(15, 23, 42, 0.06);
+          background: #fff;
+          box-shadow: 0 2px 8px rgba(15, 23, 42, 0.05);
           transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
         }
 
@@ -331,62 +330,59 @@ export default function BestMuseumsAmsterdamPage() {
 
         .quick-choice-card h3 {
           margin: 0;
-          font-size: 1rem;
+          font-size: 0.98rem;
+          line-height: 1.25;
         }
 
         .quick-choice-card p {
           margin: 0;
           color: #4b5563;
-          font-size: 0.95rem;
-          line-height: 1.45;
+          font-size: 0.88rem;
+          line-height: 1.35;
         }
 
         .quick-choice-card__cta {
-          margin-top: auto;
-          color: #111827;
-          font-weight: 700;
-          font-size: 0.92rem;
+          margin-top: 0.2rem;
+          color: #0f172a;
+          font-weight: 600;
+          font-size: 0.84rem;
           display: inline-flex;
           align-items: center;
-          gap: 0.45rem;
-        }
-
-        .quick-choice-card__cta svg {
-          width: 16px;
-          height: 16px;
-          fill: none;
-          stroke: currentColor;
-          stroke-width: 1.8;
-          stroke-linecap: round;
-          stroke-linejoin: round;
+          gap: 0.25rem;
         }
 
         .museum-selection-grid {
           display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-          gap: 1rem;
+          grid-template-columns: repeat(auto-fit, minmax(205px, 1fr));
+          gap: 0.75rem;
         }
 
         .museum-selection-grid--compact {
-          grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+          grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
         }
 
         .museum-selection-grid :global(.museum-card) {
           height: 100%;
-        }
-
-        .museum-selection-grid--compact :global(.museum-card) {
           --card-aspect-ratio: 16 / 10;
           border-radius: 12px;
         }
 
-        .museum-selection-grid--compact :global(.museum-card-info) {
+        .museum-selection-grid :global(.museum-card-info) {
           padding: 0.85rem;
         }
 
-        .museum-selection-grid--compact :global(.museum-card-summary) {
+        .museum-selection-grid :global(.museum-card-summary) {
           font-size: 0.9rem;
           line-height: 1.45;
+        }
+
+        .museum-selection-grid--compact :global(.museum-card-info) {
+          padding: 0.78rem;
+        }
+
+        .museum-selection-grid--compact :global(.museum-card-summary) {
+          font-size: 0.84rem;
+          line-height: 1.4;
         }
       `}</style>
     </>
