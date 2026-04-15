@@ -1,7 +1,11 @@
-import Image from 'next/image';
 import Link from 'next/link';
+import MuseumCard from '../components/MuseumCard';
 import SEO from '../components/SEO';
+import { getMuseumCategories } from '../lib/museumCategories';
+import museumImageCredits from '../lib/museumImageCredits';
 import museumImages from '../lib/museumImages';
+import museumNames from '../lib/museumNames';
+import museumTicketUrls from '../lib/museumTicketUrls';
 import { getStaticMuseumBySlug } from '../lib/staticMuseums';
 
 const FEATURED_SLUGS = [
@@ -55,25 +59,54 @@ const QUICK_CHOICES = [
   },
   {
     title: 'Regenachtige dag',
-    description: 'Binnenopties voor een ontspannen museumdag in de stad.',
-    href: '/museumgidsen-amsterdam',
+    description: 'Musea voor een comfortabele binnenmiddag.',
+    href: '#regenachtige-dag',
   },
   {
     title: 'Kort bezoek (1–2 uur)',
-    description: 'Snelle keuzes als je beperkte tijd hebt in Amsterdam.',
-    href: '#tips-kiezen',
+    description: 'Compacte keuzes als je weinig tijd hebt.',
+    href: '#kort-bezoek',
   },
+];
+
+const RAINY_DAY_SLUGS = [
+  'rijksmuseum-amsterdam',
+  'van-gogh-museum-amsterdam',
+  'stedelijk-museum-amsterdam',
+  'nemo-science-museum-amsterdam',
+];
+
+const SHORT_VISIT_SLUGS = [
+  'micropia-museum-amsterdam',
+  'huis-marseille-amsterdam',
+  'woonbootmuseum-amsterdam',
+  'ons-lieve-heer-op-solder-amsterdam',
 ];
 
 function getMuseum(slug) {
   return getStaticMuseumBySlug(slug);
 }
 
-function getSingleSentence(text) {
-  if (!text) return 'Een interessante keuze voor een museumbezoek in Amsterdam.';
-  const trimmed = text.trim();
-  const firstSentenceMatch = trimmed.match(/^[^.!?]+[.!?]/);
-  return firstSentenceMatch ? firstSentenceMatch[0] : trimmed;
+function buildMuseumCardData(slug) {
+  const museum = getMuseum(slug);
+  if (!museum) return null;
+
+  const ticketAffiliateUrl = museum.ticket_affiliate_url || museumTicketUrls[slug] || null;
+  const ticketUrl = ticketAffiliateUrl || museum.website_url || null;
+
+  return {
+    id: museum.id,
+    slug: museum.slug,
+    title: museumNames[slug] || museum.naam,
+    city: museum.stad,
+    province: museum.provincie,
+    free: museum.gratis_toegankelijk,
+    categories: getMuseumCategories(slug),
+    image: museumImages[slug] || null,
+    imageCredit: museumImageCredits[slug],
+    ticketUrl,
+    ticketAffiliateUrl,
+  };
 }
 
 function MuseumInlineLinks({ slugs }) {
@@ -97,46 +130,28 @@ function QuickChoiceCard({ title, description, href }) {
     <Link className="quick-choice-card" href={href}>
       <h3>{title}</h3>
       <p>{description}</p>
-      <span>Bekijk selectie</span>
+      <span className="quick-choice-card__cta">
+        Bekijk selectie
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M5 12h14" />
+          <path d="M13 6l6 6-6 6" />
+        </svg>
+      </span>
     </Link>
   );
 }
 
-function MuseumSelectionCard({ slug }) {
-  const museum = getMuseum(slug);
-  if (!museum) return null;
-
-  const image = museumImages[slug] || '/images/og-home.svg';
-  const summary = getSingleSentence(museum.samenvatting);
+function MuseumSelectionGrid({ slugs, compact = false }) {
+  const cards = slugs.map(buildMuseumCardData).filter(Boolean);
 
   return (
-    <article className="museum-selection-card">
-      <div className="museum-selection-card__image-wrapper">
-        <Image src={image} alt={museum.naam} className="museum-selection-card__image" sizes="(max-width: 800px) 100vw, 360px" />
-      </div>
-
-      <div className="museum-selection-card__content">
-        <h3>{museum.naam}</h3>
-        <p>{summary}</p>
-
-        <div className="museum-selection-card__actions">
-          <Link className="museum-selection-card__primary" href={`/museum/${museum.slug}`}>
-            Bekijk museum
-          </Link>
-
-          {museum.ticket_affiliate_url ? (
-            <a
-              className="museum-selection-card__secondary"
-              href={museum.ticket_affiliate_url}
-              target="_blank"
-              rel="noreferrer sponsored"
-            >
-              Tickets bekijken
-            </a>
-          ) : null}
-        </div>
-      </div>
-    </article>
+    <div className={`museum-selection-grid${compact ? ' museum-selection-grid--compact' : ''}`}>
+      {cards.map((museum, index) => (
+        <article key={museum.slug}>
+          <MuseumCard museum={museum} priority={!compact && index === 0} />
+        </article>
+      ))}
+    </div>
   );
 }
 
@@ -196,7 +211,7 @@ export default function BestMuseumsAmsterdamPage() {
       <section className="content-section" aria-labelledby="snelle-keuzes-title">
         <h2 id="snelle-keuzes-title">Snelle keuzes</h2>
         <p className="section-intro">Kies hieronder direct een richting en ga door naar de selectie die bij je bezoek past.</p>
-        <div className="quick-choice-grid">
+        <div className="quick-choice-grid" role="navigation" aria-label="Snelle museumkeuzes">
           {QUICK_CHOICES.map((choice) => (
             <QuickChoiceCard key={choice.title} {...choice} />
           ))}
@@ -205,22 +220,30 @@ export default function BestMuseumsAmsterdamPage() {
 
       <section className="content-section" aria-labelledby="populaire-musea">
         <h2 id="populaire-musea">De bekendste musea in Amsterdam</h2>
-        <p className="section-intro">Deze musea zijn vaak een logische eerste keuze als je voor het eerst in Amsterdam bent.</p>
-        <div className="museum-selection-grid">
-          {FEATURED_SLUGS.map((slug) => (
-            <MuseumSelectionCard key={slug} slug={slug} />
-          ))}
-        </div>
+        <p className="section-intro">Deze kaarten volgen dezelfde opzet als op de homepage, inclusief ticketpartner-label en fotocredits.</p>
+        <MuseumSelectionGrid slugs={FEATURED_SLUGS} />
       </section>
 
       <section className="content-section" aria-labelledby="bijzondere-musea">
         <h2 id="bijzondere-musea">Minder bekende, maar bijzondere musea</h2>
-        <p className="section-intro">Voor wie iets anders zoekt dan de bekendste highlights, met compacte en onderscheidende keuzes.</p>
-        <div className="museum-selection-grid">
-          {HIDDEN_GEM_SLUGS.map((slug) => (
-            <MuseumSelectionCard key={slug} slug={slug} />
-          ))}
-        </div>
+        <p className="section-intro">Voor wie iets anders zoekt dan de bekendste highlights, met een compactere kaartweergave.</p>
+        <MuseumSelectionGrid slugs={HIDDEN_GEM_SLUGS} compact />
+      </section>
+
+      <section id="regenachtige-dag" className="content-section" aria-labelledby="regenachtige-dag-title">
+        <h2 id="regenachtige-dag-title">Regenachtige dag: comfortabele binnenkeuzes</h2>
+        <p className="section-intro">
+          Deze keuzes zijn praktisch op natte dagen, omdat je er gemakkelijk langer binnen kunt blijven zonder dat je tempo hoog hoeft te liggen.
+        </p>
+        <MuseumSelectionGrid slugs={RAINY_DAY_SLUGS} compact />
+      </section>
+
+      <section id="kort-bezoek" className="content-section" aria-labelledby="kort-bezoek-title">
+        <h2 id="kort-bezoek-title">Kort bezoek (1–2 uur): snel kiezen</h2>
+        <p className="section-intro">
+          Heb je weinig tijd? Deze musea zijn vaak geschikt voor een compacter bezoek. Klik door voor actuele openingstijden, details en tickets.
+        </p>
+        <MuseumSelectionGrid slugs={SHORT_VISIT_SLUGS} compact />
       </section>
 
       <section className="content-section" style={{ marginBottom: '2rem' }}>
@@ -275,7 +298,7 @@ export default function BestMuseumsAmsterdamPage() {
 
         .section-intro {
           margin: 0.6rem 0 1rem;
-          max-width: 70ch;
+          max-width: 74ch;
           color: #374151;
         }
 
@@ -289,18 +312,21 @@ export default function BestMuseumsAmsterdamPage() {
           display: flex;
           flex-direction: column;
           gap: 0.55rem;
-          border: 1px solid #e5e7eb;
+          border: 1px solid #cbd5e1;
           border-radius: 12px;
           padding: 1rem;
           text-decoration: none;
           color: inherit;
-          background: #fff;
-          transition: border-color 0.15s ease;
+          background: linear-gradient(180deg, #ffffff, #f8fafc);
+          box-shadow: 0 8px 18px rgba(15, 23, 42, 0.06);
+          transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
         }
 
         .quick-choice-card:hover,
         .quick-choice-card:focus-visible {
-          border-color: #9ca3af;
+          border-color: #94a3b8;
+          box-shadow: 0 14px 24px rgba(15, 23, 42, 0.1);
+          transform: translateY(-1px);
         }
 
         .quick-choice-card h3 {
@@ -315,11 +341,24 @@ export default function BestMuseumsAmsterdamPage() {
           line-height: 1.45;
         }
 
-        .quick-choice-card span {
+        .quick-choice-card__cta {
           margin-top: auto;
           color: #111827;
-          font-weight: 600;
+          font-weight: 700;
           font-size: 0.92rem;
+          display: inline-flex;
+          align-items: center;
+          gap: 0.45rem;
+        }
+
+        .quick-choice-card__cta svg {
+          width: 16px;
+          height: 16px;
+          fill: none;
+          stroke: currentColor;
+          stroke-width: 1.8;
+          stroke-linecap: round;
+          stroke-linejoin: round;
         }
 
         .museum-selection-grid {
@@ -328,77 +367,26 @@ export default function BestMuseumsAmsterdamPage() {
           gap: 1rem;
         }
 
-        .museum-selection-card {
-          display: flex;
-          flex-direction: column;
-          border: 1px solid #e5e7eb;
-          border-radius: 14px;
-          overflow: hidden;
-          background: #fff;
+        .museum-selection-grid--compact {
+          grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
         }
 
-        .museum-selection-card__image-wrapper {
-          position: relative;
-          width: 100%;
-          aspect-ratio: 4 / 3;
-          background: #f3f4f6;
+        .museum-selection-grid :global(.museum-card) {
+          height: 100%;
         }
 
-        .museum-selection-card__image {
-          object-fit: cover;
+        .museum-selection-grid--compact :global(.museum-card) {
+          --card-aspect-ratio: 16 / 10;
+          border-radius: 12px;
         }
 
-        .museum-selection-card__content {
-          display: flex;
-          flex-direction: column;
-          gap: 0.7rem;
-          padding: 1rem;
+        .museum-selection-grid--compact :global(.museum-card-info) {
+          padding: 0.85rem;
         }
 
-        .museum-selection-card__content h3 {
-          margin: 0;
-          font-size: 1.05rem;
-          color: #111827;
-        }
-
-        .museum-selection-card__content p {
-          margin: 0;
-          color: #374151;
-          line-height: 1.45;
-          min-height: 3em;
-        }
-
-        .museum-selection-card__actions {
-          display: flex;
-          align-items: center;
-          flex-wrap: wrap;
-          gap: 0.55rem 0.85rem;
-          margin-top: 0.2rem;
-        }
-
-        .museum-selection-card__primary {
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          padding: 0.48rem 0.75rem;
-          border-radius: 8px;
-          background: #111827;
-          color: #fff;
-          text-decoration: none;
-          font-weight: 600;
-          font-size: 0.92rem;
-        }
-
-        .museum-selection-card__primary:hover,
-        .museum-selection-card__primary:focus-visible {
-          background: #1f2937;
-        }
-
-        .museum-selection-card__secondary {
-          color: #4b5563;
+        .museum-selection-grid--compact :global(.museum-card-summary) {
           font-size: 0.9rem;
-          text-decoration: underline;
-          text-underline-offset: 2px;
+          line-height: 1.45;
         }
       `}</style>
     </>
