@@ -1,5 +1,10 @@
+import Image from 'next/image';
 import Link from 'next/link';
 import SEO from '../components/SEO';
+import Badge from '../components/ui/Badge';
+import Button from '../components/ui/Button';
+import museumImages from '../lib/museumImages';
+import museumImageCredits from '../lib/museumImageCredits';
 import { getStaticMuseumBySlug } from '../lib/staticMuseums';
 
 const FEATURED_SLUGS = [
@@ -15,6 +20,8 @@ const HIDDEN_GEM_SLUGS = [
   'nxt-museum-amsterdam',
   'woonbootmuseum-amsterdam',
 ];
+
+const QUICK_VISIT_SLUGS = ['micropia-museum-amsterdam', 'huis-marseille-amsterdam', 'woonbootmuseum-amsterdam'];
 
 const GROUPS = [
   {
@@ -55,18 +62,70 @@ function MuseumInlineLinks({ slugs }) {
   });
 }
 
-function MuseumRecommendation({ slug, whyVisit }) {
+function getCreditLine(slug) {
+  const credit = museumImageCredits[slug];
+  if (!credit) return null;
+
+  const parts = [credit.author, credit.source, credit.license].filter(Boolean);
+  return parts.length ? `Fotocredit: ${parts.join(' • ')}` : null;
+}
+
+function MuseumCardCompact({ slug, compact = false }) {
   const museum = getMuseum(slug);
   if (!museum) return null;
 
+  const image = museumImages[slug];
+  const creditLine = getCreditLine(slug);
+  const hasTickets = Boolean(museum.ticket_affiliate_url);
+
   return (
-    <article>
-      <h3>
-        <Link href={`/museum/${museum.slug}`}>{museum.naam}</Link>
-      </h3>
-      <p>
-        {museum.samenvatting} {whyVisit}
-      </p>
+    <article className={`museum-compact-card${compact ? ' museum-compact-card--small' : ''}`}>
+      <Link href={`/museum/${museum.slug}`} className="museum-compact-card__image-link" aria-label={`Bekijk ${museum.naam}`}>
+        {image ? (
+          <Image
+            src={image}
+            alt={museum.naam}
+            className="museum-compact-card__image"
+            sizes={compact ? '(max-width: 900px) 100vw, 33vw' : '(max-width: 900px) 100vw, 40vw'}
+          />
+        ) : (
+          <div className="museum-compact-card__image museum-compact-card__image--placeholder" aria-hidden="true" />
+        )}
+      </Link>
+      {creditLine ? <p className="museum-compact-card__credit">{creditLine}</p> : null}
+
+      <div className="museum-compact-card__content">
+        <h3>
+          <Link href={`/museum/${museum.slug}`}>{museum.naam}</Link>
+        </h3>
+
+        <p className="museum-compact-card__summary">{museum.samenvatting}</p>
+
+        <div className="museum-compact-card__actions">
+          <Button href={`/museum/${museum.slug}`} variant="primary" className="museum-compact-card__action-button">
+            Bekijk museum
+          </Button>
+          {hasTickets ? (
+            <Button
+              as="a"
+              href={museum.ticket_affiliate_url}
+              target="_blank"
+              rel="sponsored noopener noreferrer"
+              variant="secondary"
+              className="museum-compact-card__action-button museum-compact-card__action-button--secondary"
+            >
+              Tickets <Badge size="sm">Partner</Badge>
+            </Button>
+          ) : null}
+        </div>
+
+        {hasTickets ? (
+          <p className="museum-compact-card__affiliate-note">
+            Je koopt tickets via een affiliate partner. MuseumBuddy ontvangt mogelijk commissie bij aankoop via deze
+            link. Prijzen kunnen afwijken.
+          </p>
+        ) : null}
+      </div>
     </article>
   );
 }
@@ -124,47 +183,37 @@ export default function BestMuseumsAmsterdamPage() {
         </p>
       </section>
 
-      <section style={{ marginBottom: '2rem' }}>
-        <h2>De bekendste musea in Amsterdam</h2>
-        <MuseumRecommendation
-          slug="rijksmuseum-amsterdam"
-          whyVisit="Een sterke keuze als je in één bezoek zowel kunst als Nederlandse geschiedenis wilt meepakken, met een brede opzet voor verschillende interesses."
-        />
-        <MuseumRecommendation
-          slug="van-gogh-museum-amsterdam"
-          whyVisit="Een aanrader voor wie gericht de werken en ontwikkeling van Van Gogh wil ontdekken in een museum dat volledig rond zijn oeuvre is opgebouwd."
-        />
-        <MuseumRecommendation
-          slug="anne-frank-huis-amsterdam"
-          whyVisit="Dit museum maakt veel indruk door de historische context en de directe koppeling met een van de bekendste verhalen uit de twintigste eeuw."
-        />
+      <section className="museum-overview-section" aria-labelledby="bekendste-musea-heading">
+        <h2 id="bekendste-musea-heading">De bekendste musea in Amsterdam</h2>
+        <div className="museum-cards-grid museum-cards-grid--featured">
+          {FEATURED_SLUGS.map((slug) => (
+            <MuseumCardCompact key={slug} slug={slug} />
+          ))}
+        </div>
       </section>
 
-      <section style={{ marginBottom: '2rem' }}>
-        <h2>Minder bekende, maar bijzondere musea</h2>
-        <MuseumRecommendation
-          slug="micropia-museum-amsterdam"
-          whyVisit="Bijzonder door het specifieke thema: je ontdekt een onzichtbare wereld die je in traditionele kunstmusea niet tegenkomt."
-        />
-        <MuseumRecommendation
-          slug="het-schip-amsterdam"
-          whyVisit="Interessant als je meer wilt begrijpen over Amsterdamse architectuur en hoe ontwerp, wonen en stadsgeschiedenis samenkomen."
-        />
-        <MuseumRecommendation
-          slug="huis-marseille-amsterdam"
-          whyVisit="Een goede optie voor fotografieliefhebbers die liever een compacter museum kiezen met een duidelijke focus."
-        />
-        <MuseumRecommendation
-          slug="nxt-museum-amsterdam"
-          whyVisit="Sterk voor bezoekers die moderne, immersieve installaties zoeken in plaats van een klassieke museumroute."
-        />
-        <MuseumRecommendation
-          slug="woonbootmuseum-amsterdam"
-          whyVisit="Uniek doordat het concreet laat zien hoe wonen op het water eruitziet, iets dat nauw verbonden is met de stad zelf."
-        />
+      <section className="museum-overview-section" aria-labelledby="bijzondere-musea-heading">
+        <h2 id="bijzondere-musea-heading">Minder bekende, maar bijzondere musea</h2>
+        <div className="museum-cards-grid museum-cards-grid--hidden">
+          {HIDDEN_GEM_SLUGS.map((slug) => (
+            <MuseumCardCompact key={slug} slug={slug} compact />
+          ))}
+        </div>
       </section>
 
-      <section style={{ marginBottom: '2rem' }}>
+      <section id="kort-bezoek" className="museum-overview-section" aria-labelledby="kort-bezoek-heading">
+        <h2 id="kort-bezoek-heading">Kort bezoek (ongeveer 60–90 minuten)</h2>
+        <p className="page-subtitle museum-overview-section__subtitle">
+          Weinig tijd? Deze musea zijn meestal goed te doen als compacte stop en geven toch een sterke ervaring.
+        </p>
+        <div className="museum-cards-grid museum-cards-grid--hidden">
+          {QUICK_VISIT_SLUGS.map((slug) => (
+            <MuseumCardCompact key={slug} slug={slug} compact />
+          ))}
+        </div>
+      </section>
+
+      <section className="museum-overview-section" style={{ marginBottom: '2rem' }}>
         <h2>Welk museum past bij jou?</h2>
         <ul>
           {GROUPS.map((group) => (
@@ -175,7 +224,7 @@ export default function BestMuseumsAmsterdamPage() {
         </ul>
       </section>
 
-      <section style={{ marginBottom: '2rem' }}>
+      <section className="museum-overview-section" style={{ marginBottom: '2rem' }}>
         <h2>Tips voor het kiezen van een museum</h2>
         <ul>
           <li>
@@ -197,7 +246,7 @@ export default function BestMuseumsAmsterdamPage() {
         </ul>
       </section>
 
-      <section style={{ marginBottom: '2rem' }}>
+      <section className="museum-overview-section" style={{ marginBottom: '2rem' }}>
         <h2>Meer musea ontdekken in Amsterdam</h2>
         <p>
           Wil je verder vergelijken? Bekijk alle actuele <Link href="/tentoonstellingen">tentoonstellingen</Link>, ga
@@ -208,6 +257,173 @@ export default function BestMuseumsAmsterdamPage() {
           <Link href="/museum/micropia-museum-amsterdam">Micropia</Link>.
         </p>
       </section>
+
+      <style jsx>{`
+        .museum-overview-section {
+          margin-bottom: 2.5rem;
+        }
+
+        .museum-overview-section h2 {
+          margin: 0 0 1rem;
+        }
+
+        .museum-cards-grid {
+          display: grid;
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+          gap: 1rem;
+        }
+
+        .museum-cards-grid--hidden {
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+          gap: 0.85rem;
+        }
+
+        :global(.museum-compact-card) {
+          display: flex;
+          flex-direction: column;
+          border: 1px solid #e5e7eb;
+          border-radius: 14px;
+          overflow: hidden;
+          background: #ffffff;
+          min-height: 305px;
+        }
+
+        :global(.museum-compact-card--small) {
+          min-height: 250px;
+        }
+
+        :global(.museum-compact-card__image-link) {
+          display: block;
+          position: relative;
+        }
+
+        :global(.museum-compact-card__image) {
+          width: 100%;
+          height: 140px;
+          object-fit: cover;
+          display: block;
+        }
+
+        :global(.museum-compact-card--small .museum-compact-card__image) {
+          height: 108px;
+        }
+
+        :global(.museum-compact-card__image--placeholder) {
+          background: linear-gradient(135deg, #dbeafe, #f1f5f9);
+        }
+
+        :global(.museum-compact-card__content) {
+          display: flex;
+          flex: 1;
+          flex-direction: column;
+          gap: 0.55rem;
+          padding: 0.8rem;
+        }
+
+        :global(.museum-compact-card__content h3) {
+          margin: 0;
+          font-size: 1rem;
+          line-height: 1.25;
+        }
+
+        :global(.museum-compact-card__content h3 a) {
+          color: #111827;
+          text-decoration: none;
+        }
+
+        :global(.museum-compact-card__content h3 a:hover) {
+          text-decoration: underline;
+        }
+
+        :global(.museum-compact-card__summary) {
+          margin: 0;
+          color: #374151;
+          font-size: 0.9rem;
+          line-height: 1.35;
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+        }
+
+        :global(.museum-compact-card--small .museum-compact-card__summary) {
+          -webkit-line-clamp: 1;
+          font-size: 0.86rem;
+        }
+
+        :global(.museum-compact-card__credit) {
+          margin: 0;
+          padding: 0.3rem 0.8rem 0.25rem;
+          color: #6b7280;
+          font-size: 0.62rem;
+          line-height: 1.25;
+          border-top: 1px solid #eef2f7;
+          background: #fcfdff;
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+        }
+
+        :global(.museum-compact-card__actions) {
+          margin-top: auto;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 0.5rem;
+        }
+
+        :global(.museum-compact-card__action-button) {
+          font-size: 0.9375rem;
+          min-height: 36px;
+          white-space: nowrap;
+        }
+
+        :global(.museum-compact-card__action-button.ds-button--primary) {
+          color: #ffffff;
+        }
+
+        :global(.museum-compact-card__action-button.ds-button--primary:hover) {
+          color: #ffffff;
+        }
+
+        :global([data-theme='dark'] .museum-compact-card__action-button.ds-button--primary) {
+          color: #ffffff;
+        }
+
+        :global(.museum-compact-card__action-button--secondary) {
+          gap: var(--ds-space-1);
+        }
+
+        :global(.museum-compact-card__action-button--secondary .ds-badge) {
+          margin-left: 2px;
+        }
+
+        :global(.museum-compact-card__affiliate-note) {
+          margin: 0.1rem 0 0;
+          color: #475569;
+          font-size: 0.68rem;
+          line-height: 1.35;
+        }
+
+        .museum-overview-section__subtitle {
+          margin: 0 0 1rem;
+        }
+
+        @media (max-width: 1024px) {
+          .museum-cards-grid,
+          .museum-cards-grid--hidden {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+          }
+        }
+
+        @media (max-width: 700px) {
+          .museum-cards-grid,
+          .museum-cards-grid--hidden {
+            grid-template-columns: 1fr;
+          }
+        }
+      `}</style>
     </>
   );
 }
