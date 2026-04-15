@@ -13,6 +13,11 @@ const guidePages = [
     description: 'Praktische informatie, openingstijden en ticketbeschikbaarheid voor een rustig bezoek.',
   },
   {
+    href: '/moderne-kunst-musea-amsterdam',
+    title: 'Moderne kunst musea in Amsterdam',
+    description: 'Vergelijk musea voor moderne kunst met duidelijke doorkliks naar de detailpagina’s.',
+  },
+  {
     href: '/beste-musea-amsterdam',
     title: 'Beste musea in Amsterdam',
     description: 'Onze redactionele selectie met musea die vaak als eerste keuze worden bekeken.',

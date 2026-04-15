@@ -4842,3 +4842,38 @@ button.hero-quick-link {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
+
+.museum-guide-link-grid {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.museum-guide-link-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  width: 100%;
+  padding: 0.85rem 1rem;
+  border-radius: 12px;
+  border: 1px solid color-mix(in srgb, var(--ds-color-primary) 40%, var(--panel-border));
+  background: color-mix(in srgb, var(--ds-color-primary) 12%, var(--surface));
+  color: var(--ds-color-text-strong);
+  text-decoration: none;
+  font-weight: 600;
+  transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+}
+
+.museum-guide-link-button:hover,
+.museum-guide-link-button:focus-visible {
+  background: color-mix(in srgb, var(--ds-color-primary) 18%, var(--surface));
+  border-color: color-mix(in srgb, var(--ds-color-primary) 64%, var(--panel-border));
+  transform: translateY(-1px);
+  outline: none;
+}
+
+@media (min-width: 768px) {
+  .museum-guide-link-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}

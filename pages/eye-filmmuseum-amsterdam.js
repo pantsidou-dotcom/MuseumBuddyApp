@@ -142,17 +142,17 @@ export default function EyeFilmmuseumAmsterdamPage() {
 
       <section className="museum-guide-section">
         <h2>Meer categorieën om verder te vergelijken</h2>
-        <ul>
-          <li>
-            <Link href="/beste-musea-amsterdam">Musea in Amsterdam</Link>
-          </li>
-          <li>
-            <Link href="/kindvriendelijke-musea-amsterdam">Beste musea bij slecht weer</Link>
-          </li>
-          <li>
-            <Link href="/museum/stedelijk-museum-amsterdam">Musea met moderne kunst</Link>
-          </li>
-        </ul>
+        <div className="museum-guide-link-grid">
+          <Link href="/beste-musea-amsterdam" className="museum-guide-link-button">
+            Beste Musea in Amsterdam <span aria-hidden="true">→</span>
+          </Link>
+          <Link href="/kindvriendelijke-musea-amsterdam" className="museum-guide-link-button">
+            Kindvriendelijke musea in Amsterdam <span aria-hidden="true">→</span>
+          </Link>
+          <Link href="/moderne-kunst-musea-amsterdam" className="museum-guide-link-button">
+            Musea met moderne kunst <span aria-hidden="true">→</span>
+          </Link>
+        </div>
       </section>
     </>
   );
