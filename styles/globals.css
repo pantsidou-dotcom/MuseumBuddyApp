@@ -4513,23 +4513,46 @@ button.hero-quick-link {
 
 .ticket-landing__hero--with-image {
   overflow: hidden;
+  padding: 0;
+  border: 1px solid color-mix(in srgb, var(--panel-border) 78%, transparent);
+  background: transparent;
 }
 
 .ticket-landing__hero--with-image .ticket-landing__hero-content--overlay {
   position: absolute;
-  inset: auto clamp(16px, 3vw, 24px) clamp(14px, 2.8vw, 22px);
-  z-index: 1;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: clamp(20px, 4vw, 34px);
+}
+
+.ticket-landing__hero--with-image .ticket-landing__hero-media {
+  aspect-ratio: 16 / 8;
+  margin-bottom: 0;
 }
 
 .ticket-landing__hero--with-image h1,
-.ticket-landing__hero--with-image p,
+.ticket-landing__hero--with-image .ticket-landing__hero-content--overlay > p,
 .ticket-landing__hero--with-image .ticket-landing__secondary-link,
-.ticket-landing__hero--with-image .ticket-landing__hero-credit {
-  color: #fff;
+.ticket-landing__hero--with-image .ticket-landing__hero-credit,
+.ticket-landing__hero--with-image .ticket-landing__legal-note {
+  color: #fff !important;
+  text-shadow: 0 2px 16px rgba(2, 6, 23, 0.6);
+}
+
+.ticket-landing__hero--with-image h1,
+ .ticket-landing__hero--with-image .ticket-landing__hero-content--overlay > p {
+  max-width: 900px;
 }
 
 .ticket-landing__hero--with-image .ticket-landing__legal-note {
-  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.9rem;
+  line-height: 1.45;
+  color: rgba(255, 255, 255, 0.96) !important;
+  max-width: 900px;
 }
 
 .ticket-landing__hero--with-image .ticket-landing__hero-credit .image-credit-link,
@@ -4642,6 +4665,15 @@ button.hero-quick-link {
   font-size: 0.7rem;
 }
 
+.ticket-landing__hero--with-image .ticket-landing__hero-credit {
+  margin-top: 0;
+  font-size: 0.8rem;
+}
+
+.ticket-landing__hero--with-image .ticket-landing__hero-actions {
+  margin-top: 2px;
+}
+
 .ticket-landing__links {
   margin: 0;
   padding-left: 18px;
@@ -4655,6 +4687,30 @@ button.hero-quick-link {
   color: var(--ds-color-primary);
   text-decoration: underline;
   text-underline-offset: 3px;
+}
+
+@media (max-width: 767px) {
+  .ticket-landing__hero--with-image .ticket-landing__hero-media {
+    aspect-ratio: 4 / 5;
+  }
+
+  .ticket-landing__hero--with-image h1 {
+    font-size: clamp(1.55rem, 6vw, 2rem);
+    margin-bottom: 8px;
+  }
+
+  .ticket-landing__hero--with-image .ticket-landing__hero-content--overlay > p {
+    font-size: 1rem;
+    line-height: 1.45;
+  }
+
+  .ticket-landing__hero--with-image .ticket-landing__hero-actions {
+    margin-top: 4px;
+  }
+
+  .ticket-landing__hero--with-image .ticket-landing__hero-credit {
+    font-size: 0.72rem;
+  }
 }
 
 @media (min-width: 768px) {
