@@ -942,8 +942,10 @@ export default function Home({ initialMuseums = [], initialError = null }) {
         <a
           href="https://www.museumbuddy.nl/beste-musea-amsterdam"
           className="hero-featured-link"
+          aria-label="Bekijk de gids: Beste Musea in Amsterdam"
         >
-          Beste Musea in Amsterdam
+          <span className="hero-featured-link__eyebrow">Gids</span>
+          <span className="hero-featured-link__label">Beste Musea in Amsterdam</span>
         </a>
         <div className="hero-content">
           <span className="hero-tagline">{t('heroTagline')}</span>
