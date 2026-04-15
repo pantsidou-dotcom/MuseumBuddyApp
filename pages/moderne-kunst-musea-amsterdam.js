@@ -89,14 +89,14 @@ export default function ModernArtMuseumsAmsterdamPage() {
 
       <section className="museum-guide-section">
         <h2>Verder vergelijken</h2>
-        <div className="museum-guide-link-grid">
-          <Link href="/beste-musea-amsterdam" className="museum-guide-link-button">
+        <div className="museum-guide-actions">
+          <Link href="/beste-musea-amsterdam" className="ticket-button museum-guide-action-link">
             Beste Musea in Amsterdam <span aria-hidden="true">→</span>
           </Link>
-          <Link href="/eye-filmmuseum-amsterdam" className="museum-guide-link-button">
+          <Link href="/eye-filmmuseum-amsterdam" className="ticket-button museum-guide-action-link">
             Eye Filmmuseum praktische gids <span aria-hidden="true">→</span>
           </Link>
-          <Link href="/museumgidsen-amsterdam" className="museum-guide-link-button">
+          <Link href="/museumgidsen-amsterdam" className="ticket-button museum-guide-action-link">
             Alle museumgidsen <span aria-hidden="true">→</span>
           </Link>
         </div>
