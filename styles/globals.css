@@ -4478,6 +4478,10 @@ button.hero-quick-link {
   box-shadow: var(--ds-shadow-sm);
 }
 
+.ticket-landing__hero {
+  position: relative;
+}
+
 .ticket-landing__hero h1 {
   margin: 0 0 12px;
   font-size: clamp(1.65rem, 4.8vw, 2.35rem);
@@ -4495,6 +4499,43 @@ button.hero-quick-link {
 
 .ticket-landing__hero-image {
   object-position: center;
+}
+
+.ticket-landing__hero-media-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(6, 18, 34, 0.38) 0%, rgba(6, 18, 34, 0.68) 100%);
+}
+
+.ticket-landing__hero-content {
+  position: relative;
+}
+
+.ticket-landing__hero--with-image {
+  overflow: hidden;
+}
+
+.ticket-landing__hero--with-image .ticket-landing__hero-content--overlay {
+  position: absolute;
+  inset: auto clamp(16px, 3vw, 24px) clamp(14px, 2.8vw, 22px);
+  z-index: 1;
+}
+
+.ticket-landing__hero--with-image h1,
+.ticket-landing__hero--with-image p,
+.ticket-landing__hero--with-image .ticket-landing__secondary-link,
+.ticket-landing__hero--with-image .ticket-landing__hero-credit {
+  color: #fff;
+}
+
+.ticket-landing__hero--with-image .ticket-landing__legal-note {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.ticket-landing__hero--with-image .ticket-landing__hero-credit .image-credit-link,
+.ticket-landing__hero--with-image .ticket-landing__hero-credit .image-credit-part,
+.ticket-landing__hero--with-image .ticket-landing__hero-credit .image-credit-divider {
+  color: inherit;
 }
 
 .ticket-landing__hero p,
