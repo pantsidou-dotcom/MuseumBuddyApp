@@ -92,6 +92,7 @@ function MuseumCardCompact({ slug, compact = false }) {
           <div className="museum-compact-card__image museum-compact-card__image--placeholder" aria-hidden="true" />
         )}
       </Link>
+      {creditLine ? <p className="museum-compact-card__credit">{creditLine}</p> : null}
 
       <div className="museum-compact-card__content">
         <h3>
@@ -99,8 +100,6 @@ function MuseumCardCompact({ slug, compact = false }) {
         </h3>
 
         <p className="museum-compact-card__summary">{museum.samenvatting}</p>
-
-        {creditLine ? <p className="museum-compact-card__credit">{creditLine}</p> : null}
 
         <div className="museum-compact-card__actions">
           <Button href={`/museum/${museum.slug}`} variant="primary" className="museum-compact-card__action-button">
@@ -354,9 +353,12 @@ export default function BestMuseumsAmsterdamPage() {
 
         :global(.museum-compact-card__credit) {
           margin: 0;
+          padding: 0.3rem 0.8rem 0.25rem;
           color: #6b7280;
-          font-size: 0.72rem;
+          font-size: 0.62rem;
           line-height: 1.25;
+          border-top: 1px solid #eef2f7;
+          background: #fcfdff;
           display: -webkit-box;
           -webkit-line-clamp: 2;
           -webkit-box-orient: vertical;
