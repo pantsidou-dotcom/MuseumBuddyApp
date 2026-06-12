@@ -131,9 +131,9 @@ function MuseumCardCompact({ slug, compact = false }) {
 }
 
 export default function BestMuseumsAmsterdamPage() {
-  const title = 'Beste musea in Amsterdam | MuseumBuddy';
+  const title = 'Beste musea Amsterdam: topkeuzes en verborgen parels | MuseumBuddy';
   const description =
-    'Discover the best museums in Amsterdam. From famous highlights like the Rijksmuseum to hidden gems. Find the perfect museum for your visit.';
+    'Vergelijk de beste musea in Amsterdam: Rijksmuseum, Van Gogh, Anne Frank Huis, moderne kunst, fotografie, wetenschap en verborgen parels voor je bezoek.';
 
   const structuredData = {
     '@context': 'https://schema.org',

@@ -45,9 +45,9 @@ function ModernArtMuseumCard({ slug, why }) {
 }
 
 export default function ModernArtMuseumsAmsterdamPage() {
-  const title = 'Moderne kunst musea in Amsterdam | Praktische gids';
+  const title = 'Moderne kunst Amsterdam: musea voor modern masters | MuseumBuddy';
   const description =
-    'Ontdek musea met moderne kunst in Amsterdam. Vergelijk Stedelijk, Moco, Nxt, STRAAT en Eye Filmmuseum en klik door naar detailpagina’s.';
+    'Vergelijk moderne kunst musea in Amsterdam: Stedelijk, Moco, Nxt, STRAAT en Eye. Praktische gids voor modern masters, street art en digitale kunst.';
 
   const structuredData = {
     '@context': 'https://schema.org',
