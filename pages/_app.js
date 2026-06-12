@@ -1,5 +1,6 @@
 import Head from 'next/head';
 import Script from 'next/script';
+import { Analytics } from '@vercel/analytics/next';
 import '../styles/globals.css';
 import Layout from '../components/Layout';
 import { FavoritesProvider } from '../components/FavoritesContext';
@@ -61,6 +62,7 @@ export default function MyApp({ Component, pageProps }) {
         <Layout>
           <Component {...pageProps} />
         </Layout>
+        <Analytics />
       </FavoritesProvider>
     </LanguageProvider>
   );
