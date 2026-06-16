@@ -60,6 +60,8 @@ function normaliseMuseumRow(row) {
     postalCode: row.postcode || row.postal_code || null,
     phone: row.telefoonnummer || row.telefoon || row.phone || null,
     email: row.email || null,
+    latitude: resolveCoordinate(row.latitude, row.lat, row.breedtegraad),
+    longitude: resolveCoordinate(row.longitude, row.lng, row.lon, row.lengtegraad),
     instagram: row.instagram || null,
     facebook: row.facebook || null,
     twitter: row.twitter || row.x || null,
@@ -160,6 +162,72 @@ function getLocationLines(museum) {
     if (fallback) lines.push(fallback);
   }
   return lines;
+}
+
+const SCHEMA_DAY_RANGES = [
+  { pattern: /daily|dagelijks/i, days: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'] },
+  { pattern: /mon(?:day)?|ma/i, days: ['Monday'] },
+  { pattern: /tue(?:sday)?|di/i, days: ['Tuesday'] },
+  { pattern: /wed(?:nesday)?|wo/i, days: ['Wednesday'] },
+  { pattern: /thu(?:rsday)?|do/i, days: ['Thursday'] },
+  { pattern: /fri(?:day)?|vr/i, days: ['Friday'] },
+  { pattern: /sat(?:urday)?|za/i, days: ['Saturday'] },
+  { pattern: /sun(?:day)?|zo/i, days: ['Sunday'] },
+];
+
+const SCHEMA_DAY_ORDER = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+
+function expandDayRange(startDay, endDay) {
+  const startIndex = SCHEMA_DAY_ORDER.indexOf(startDay);
+  const endIndex = SCHEMA_DAY_ORDER.indexOf(endDay);
+  if (startIndex === -1 || endIndex === -1) return [];
+  if (startIndex <= endIndex) return SCHEMA_DAY_ORDER.slice(startIndex, endIndex + 1);
+  return [...SCHEMA_DAY_ORDER.slice(startIndex), ...SCHEMA_DAY_ORDER.slice(0, endIndex + 1)];
+}
+
+function resolveSchemaDays(label) {
+  const normalized = String(label || '').trim();
+  const daily = SCHEMA_DAY_RANGES[0];
+  if (daily.pattern.test(normalized)) return daily.days;
+
+  const matchedDays = SCHEMA_DAY_RANGES.slice(1).filter(({ pattern }) => pattern.test(normalized)).map(({ days }) => days[0]);
+  if (matchedDays.length >= 2 && /[–-]/.test(normalized)) {
+    return expandDayRange(matchedDays[0], matchedDays[matchedDays.length - 1]);
+  }
+  return matchedDays;
+}
+
+function buildOpeningHoursSpecification(openingHoursText) {
+  if (!openingHoursText || typeof openingHoursText !== 'string') return undefined;
+
+  const specs = openingHoursText
+    .split(',')
+    .map((part) => part.trim())
+    .map((part) => {
+      const timeMatch = part.match(/(\d{1,2}[:.]\d{2})\s*[–-]\s*(\d{1,2}[:.]\d{2})/);
+      if (!timeMatch) return null;
+      const dayLabel = part.slice(0, timeMatch.index).trim();
+      const dayOfWeek = resolveSchemaDays(dayLabel || openingHoursText);
+      if (!dayOfWeek.length) return null;
+      return {
+        '@type': 'OpeningHoursSpecification',
+        dayOfWeek,
+        opens: timeMatch[1].replace('.', ':'),
+        closes: timeMatch[2].replace('.', ':'),
+      };
+    })
+    .filter(Boolean);
+
+  return specs.length ? specs : undefined;
+}
+
+function resolveCoordinate(...values) {
+  for (const value of values) {
+    if (value === undefined || value === null || value === '') continue;
+    const numericValue = typeof value === 'number' ? value : Number.parseFloat(String(value).replace(',', '.'));
+    if (Number.isFinite(numericValue)) return numericValue;
+  }
+  return undefined;
 }
 
 const CATEGORY_CONTENT = {
@@ -554,6 +622,7 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
     resolvedMuseum.raw?.openingstijden ||
     null;
   const affiliateTicketUrl = resolvedMuseum.ticketAffiliateUrl || museumTicketUrls[slug] || null;
+  const ticketPageUrl = affiliateTicketUrl || resolvedMuseum.ticketUrl || null;
   const directTicketUrl = resolvedMuseum.ticketUrl || resolvedMuseum.websiteUrl || null;
   const ticketUrl = affiliateTicketUrl || directTicketUrl;
   const showAffiliateNote = Boolean(affiliateTicketUrl) && shouldShowAffiliateNote(slug);
@@ -863,44 +932,105 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
   const seoDescription = buildSeoMetaDescription(displayName, summary || t('museumDescription', { name: displayName }));
   const seoTitle = `${displayName} in Amsterdam | MuseumBuddy`;
   const canonical = `/museum/${slug}`;
+  const mapQueryParts = [displayName, ...locationLines];
+  if (!locationLines.length) {
+    mapQueryParts.push(resolvedMuseum.address, resolvedMuseum.city, resolvedMuseum.province);
+  }
+  const mapQuery = mapQueryParts.filter(Boolean).join(', ');
+  const mapEmbedUrl = mapQuery ? `https://www.google.com/maps?q=${encodeURIComponent(mapQuery)}&output=embed` : null;
+  const mapDirectionsUrl = mapQuery ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(mapQuery)}` : null;
+  const openingHoursSpecification = useMemo(() => buildOpeningHoursSpecification(openingHours), [openingHours]);
   const museumStructuredData = useMemo(
-    () => ({
-      '@context': 'https://schema.org',
-      '@type': 'Museum',
-      name: displayName,
-      description: seoDescription,
-      url: `${SITE_URL}${canonical}`,
-      image: heroImageUrl || undefined,
-      sameAs: resolvedMuseum.websiteUrl || undefined,
-      telephone: resolvedMuseum.phone || undefined,
-      email: resolvedMuseum.email || undefined,
-      isAccessibleForFree: resolvedMuseum.free || undefined,
-      address: locationLines.length
-        ? {
-            '@type': 'PostalAddress',
-            streetAddress: resolvedMuseum.address || undefined,
-            postalCode: resolvedMuseum.postalCode || undefined,
-            addressLocality: resolvedMuseum.city || 'Amsterdam',
-            addressRegion: resolvedMuseum.province || undefined,
-            addressCountry: 'NL',
-          }
-        : undefined,
-    }),
+    () => [
+      {
+        '@context': 'https://schema.org',
+        '@type': 'Museum',
+        name: displayName,
+        description: seoDescription,
+        url: `${SITE_URL}${canonical}`,
+        image: heroImageUrl || undefined,
+        sameAs: resolvedMuseum.websiteUrl || undefined,
+        telephone: resolvedMuseum.phone || undefined,
+        email: resolvedMuseum.email || undefined,
+        isAccessibleForFree: resolvedMuseum.free || undefined,
+        openingHoursSpecification,
+        geo:
+          resolvedMuseum.latitude !== undefined && resolvedMuseum.longitude !== undefined
+            ? {
+                '@type': 'GeoCoordinates',
+                latitude: resolvedMuseum.latitude,
+                longitude: resolvedMuseum.longitude,
+              }
+            : undefined,
+        hasMap: mapDirectionsUrl || undefined,
+        containedInPlace: {
+          '@type': 'City',
+          name: 'Amsterdam',
+        },
+        address: locationLines.length
+          ? {
+              '@type': 'PostalAddress',
+              streetAddress: resolvedMuseum.address || undefined,
+              postalCode: resolvedMuseum.postalCode || undefined,
+              addressLocality: resolvedMuseum.city || 'Amsterdam',
+              addressRegion: resolvedMuseum.province || undefined,
+              addressCountry: 'NL',
+            }
+          : undefined,
+        offers: ticketPageUrl
+          ? {
+              '@type': 'Offer',
+              url: ticketPageUrl,
+              availability: 'https://schema.org/InStock',
+            }
+          : undefined,
+      },
+      {
+        '@context': 'https://schema.org',
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          {
+            '@type': 'ListItem',
+            position: 1,
+            name: 'MuseumBuddy',
+            item: SITE_URL,
+          },
+          {
+            '@type': 'ListItem',
+            position: 2,
+            name: t('breadcrumbMuseums'),
+            item: SITE_URL,
+          },
+          {
+            '@type': 'ListItem',
+            position: 3,
+            name: displayName,
+            item: `${SITE_URL}${canonical}`,
+          },
+        ],
+      },
+    ],
     [
       canonical,
       displayName,
       heroImageUrl,
       locationLines.length,
+      mapDirectionsUrl,
       resolvedMuseum.address,
       resolvedMuseum.city,
       resolvedMuseum.email,
       resolvedMuseum.free,
+      resolvedMuseum.latitude,
+      resolvedMuseum.longitude,
       resolvedMuseum.phone,
       resolvedMuseum.postalCode,
       resolvedMuseum.province,
       resolvedMuseum.websiteUrl,
+      openingHoursSpecification,
       seoDescription,
       SITE_URL,
+      t,
+      ticketPageUrl,
     ]
   );
 
@@ -1272,14 +1402,6 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
     },
     [tabDefinitions]
   );
-
-  const mapQueryParts = [displayName, ...locationLines];
-  if (!locationLines.length) {
-    mapQueryParts.push(resolvedMuseum.address, resolvedMuseum.city, resolvedMuseum.province);
-  }
-  const mapQuery = mapQueryParts.filter(Boolean).join(', ');
-  const mapEmbedUrl = mapQuery ? `https://www.google.com/maps?q=${encodeURIComponent(mapQuery)}&output=embed` : null;
-  const mapDirectionsUrl = mapQuery ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(mapQuery)}` : null;
 
   const handleMapDirectionsClick = useCallback(
     (event) => {
