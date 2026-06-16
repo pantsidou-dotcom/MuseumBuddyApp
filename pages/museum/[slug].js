@@ -932,6 +932,7 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
   const seoDescription = buildSeoMetaDescription(displayName, summary || t('museumDescription', { name: displayName }));
   const seoTitle = `${displayName} in Amsterdam | MuseumBuddy`;
   const canonical = `/museum/${slug}`;
+  const museumOverviewPath = '/beste-musea-amsterdam';
   const mapQueryParts = [displayName, ...locationLines];
   if (!locationLines.length) {
     mapQueryParts.push(resolvedMuseum.address, resolvedMuseum.city, resolvedMuseum.province);
@@ -992,14 +993,14 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
           {
             '@type': 'ListItem',
             position: 1,
-            name: 'MuseumBuddy',
+            name: 'Home',
             item: SITE_URL,
           },
           {
             '@type': 'ListItem',
             position: 2,
-            name: t('breadcrumbMuseums'),
-            item: SITE_URL,
+            name: lang === 'nl' ? 'Musea Amsterdam' : 'Museums Amsterdam',
+            item: `${SITE_URL}${museumOverviewPath}`,
           },
           {
             '@type': 'ListItem',
@@ -1014,8 +1015,10 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
       canonical,
       displayName,
       heroImageUrl,
+      lang,
       locationLines.length,
       mapDirectionsUrl,
+      museumOverviewPath,
       resolvedMuseum.address,
       resolvedMuseum.city,
       resolvedMuseum.email,
