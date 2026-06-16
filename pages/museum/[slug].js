@@ -60,8 +60,8 @@ function normaliseMuseumRow(row) {
     postalCode: row.postcode || row.postal_code || null,
     phone: row.telefoonnummer || row.telefoon || row.phone || null,
     email: row.email || null,
-    latitude: resolveCoordinate(row.latitude, row.lat, row.breedtegraad),
-    longitude: resolveCoordinate(row.longitude, row.lng, row.lon, row.lengtegraad),
+    latitude: resolveCoordinate(row.latitude, row.lat, row.breedtegraad) ?? null,
+    longitude: resolveCoordinate(row.longitude, row.lng, row.lon, row.lengtegraad) ?? null,
     instagram: row.instagram || null,
     facebook: row.facebook || null,
     twitter: row.twitter || row.x || null,
@@ -955,7 +955,7 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
         isAccessibleForFree: resolvedMuseum.free || undefined,
         openingHoursSpecification,
         geo:
-          resolvedMuseum.latitude !== undefined && resolvedMuseum.longitude !== undefined
+          resolvedMuseum.latitude != null && resolvedMuseum.longitude != null
             ? {
                 '@type': 'GeoCoordinates',
                 latitude: resolvedMuseum.latitude,
