@@ -19,11 +19,11 @@ const { pathToFileURL } = require('url');
 
   const page = fs.readFileSync(path.resolve(__dirname, '../pages/museumgids/kindvriendelijke-musea-amsterdam.js'), 'utf8');
   assert(page.includes('FAMILY_GUIDE_TITLE'));
-  assert.strictEqual((page.match(/<h1>/g) || []).length, 1);
+  assert.strictEqual((page.match(/<h1/g) || []).length, 1);
   assert(page.includes('BreadcrumbList'));
   assert(page.includes('FAQPage'));
   assert(page.includes('rel={profile.ticketPartnerCategory === \'affiliate\' ? \'sponsored noopener noreferrer\''));
-  assert(page.includes('FAMILY_AFFILIATE_DISCLOSURE'));
+  assert(page.includes("t('affiliateDisclaimer')"));
   assert(page.includes('role="tablist"'));
   assert(page.includes('family_ticket_cta_clicked'));
 
