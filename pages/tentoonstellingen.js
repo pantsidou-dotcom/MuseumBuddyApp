@@ -1113,7 +1113,7 @@ export default function ExhibitionsPage({ exhibitions = [], error = null }) {
             <Link href="/">{t('exhibitionsExploreHome')}</Link>
           </li>
           <li>
-            <Link href="/kindvriendelijke-musea-amsterdam">{t('exhibitionsExploreKids')}</Link>
+            <Link href="/museumgids/kindvriendelijke-musea-amsterdam">{t('exhibitionsExploreKids')}</Link>
           </li>
           <li>
             <Link href="/gratis-musea-amsterdam">{t('exhibitionsExploreFree')}</Link>

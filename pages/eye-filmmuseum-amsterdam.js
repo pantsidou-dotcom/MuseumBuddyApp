@@ -146,7 +146,7 @@ export default function EyeFilmmuseumAmsterdamPage() {
           <Link href="/beste-musea-amsterdam" className="ticket-button museum-guide-action-link">
             Beste Musea in Amsterdam <span aria-hidden="true">→</span>
           </Link>
-          <Link href="/kindvriendelijke-musea-amsterdam" className="ticket-button museum-guide-action-link">
+          <Link href="/museumgids/kindvriendelijke-musea-amsterdam" className="ticket-button museum-guide-action-link">
             Kindvriendelijke musea in Amsterdam <span aria-hidden="true">→</span>
           </Link>
           <Link href="/moderne-kunst-musea-amsterdam" className="ticket-button museum-guide-action-link">

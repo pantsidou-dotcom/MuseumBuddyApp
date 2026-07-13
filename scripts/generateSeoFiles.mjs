@@ -18,7 +18,7 @@ const PRIORITY_STATIC_ROUTES = [
   '/beste-musea-amsterdam',
   '/eye-filmmuseum-amsterdam',
   '/gratis-musea-amsterdam',
-  '/kindvriendelijke-musea-amsterdam',
+  '/museumgids/kindvriendelijke-musea-amsterdam',
   '/moderne-kunst-musea-amsterdam',
   '/musea-amsterdam-centrum',
   '/musea-amsterdam-vandaag-open',
@@ -31,6 +31,7 @@ const PRIORITY_STATIC_ROUTES = [
 const EXCLUDED_STATIC_PAGE_ROUTES = new Set([
   // Persoonlijke/noindex pagina; geen commerciële of SEO-landingspagina.
   '/favorites',
+  '/kindvriendelijke-musea-amsterdam',
 ]);
 const DEFAULT_SITE_URL = 'https://museumbuddy.nl';
 const ROUTE_SOURCE_FILES = {
@@ -42,10 +43,11 @@ const ROUTE_SOURCE_FILES = {
   '/beste-musea-amsterdam': ['pages/beste-musea-amsterdam.js', 'lib/staticMuseums.js'],
   '/eye-filmmuseum-amsterdam': ['pages/eye-filmmuseum-amsterdam.js', 'lib/staticMuseums.js'],
   '/gratis-musea-amsterdam': ['pages/gratis-musea-amsterdam.js', 'lib/staticMuseums.js'],
-  '/kindvriendelijke-musea-amsterdam': [
-    'pages/kindvriendelijke-musea-amsterdam.js',
+  '/museumgids/kindvriendelijke-musea-amsterdam': [
+    'pages/museumgids/kindvriendelijke-musea-amsterdam.js',
     'lib/staticMuseums.js',
     'lib/kidFriendlyMuseums.js',
+    'lib/familyGuide.js',
   ],
   '/moderne-kunst-musea-amsterdam': ['pages/moderne-kunst-musea-amsterdam.js', 'lib/seoLandingPages.js', 'lib/museumCategories.js'],
   '/musea-amsterdam-centrum': ['pages/musea-amsterdam-centrum.js', 'lib/seoLandingPages.js', 'lib/staticMuseums.js'],
@@ -126,7 +128,7 @@ async function getStaticPageRoutes() {
 async function getStaticRoutes() {
   const discoveredRoutes = await getStaticPageRoutes();
   const indexableDiscoveryRoutes = Object.entries(DISCOVERY_PAGE_CONFIGS)
-    .filter(([key]) => buildDiscoveryPage(key).indexable)
+    .filter(([key]) => key !== 'met-kinderen' && buildDiscoveryPage(key).indexable)
     .map(([, config]) => config.path);
   return [...new Set([...PRIORITY_STATIC_ROUTES, ...indexableDiscoveryRoutes, ...discoveredRoutes])];
 }

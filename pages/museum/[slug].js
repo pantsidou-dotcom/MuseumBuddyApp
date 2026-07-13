@@ -1560,7 +1560,7 @@ export default function MuseumDetailPage({ museum, expositions, error }) {
                   <>
                     {' '}
                     ·{' '}
-                    <Link href="/kindvriendelijke-musea-amsterdam">
+                    <Link href="/museumgids/kindvriendelijke-musea-amsterdam">
                       {lang === 'nl' ? 'Kindvriendelijke musea' : 'Kid-friendly museums'}
                     </Link>
                   </>

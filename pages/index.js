@@ -1086,7 +1086,7 @@ export default function Home({ initialMuseums = [], initialError = null }) {
             {lang === 'nl' ? 'Museumgidsen Amsterdam' : 'Museum guides Amsterdam'}
           </Link>,{' '}
           <Link href="/tentoonstellingen">{t('homeSeoLinkExhibitions')}</Link>,{' '}
-          <Link href="/kindvriendelijke-musea-amsterdam">{t('homeSeoLinkKidFriendly')}</Link>,{' '}
+          <Link href="/museumgids/kindvriendelijke-musea-amsterdam">{t('homeSeoLinkKidFriendly')}</Link>,{' '}
           <Link href="/gratis-musea-amsterdam">{t('homeSeoLinkFree')}</Link>,{' '}
           <Link href="/beste-musea-amsterdam">
             {lang === 'nl' ? 'Beste musea in Amsterdam' : 'Best museums in Amsterdam'}

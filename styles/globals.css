@@ -4858,3 +4858,140 @@ button.hero-quick-link {
     min-width: 240px;
   }
 }
+
+.family-guide {
+  max-width: var(--container-max, 1120px);
+  margin: 0 auto;
+  padding: 1rem 1rem 3rem;
+  color: var(--ds-color-text, var(--text));
+}
+
+.family-guide__breadcrumbs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  align-items: center;
+  margin: 0 0 1rem;
+  color: var(--ds-color-text-muted, var(--muted));
+  font-size: 0.9rem;
+}
+
+.family-guide__hero {
+  margin-bottom: 1.5rem;
+  padding-block: 1.25rem;
+}
+
+.family-guide__eyebrow,
+.family-guide__method {
+  color: var(--ds-color-text-muted, var(--muted));
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.family-guide__method {
+  max-width: 760px;
+}
+
+.family-guide__museum {
+  border: 1px solid color-mix(in srgb, var(--panel-border) 86%, transparent);
+  border-radius: 14px;
+  background: var(--surface);
+  box-shadow: var(--shadow-sm, 0 10px 24px rgba(15, 23, 42, 0.06));
+}
+
+.family-guide__museum h3 {
+  margin-top: 0;
+}
+
+.family-guide__museum p {
+  margin-block: 0.45rem;
+}
+
+.family-guide__museum {
+  display: grid;
+  grid-template-columns: minmax(220px, 320px) minmax(0, 1fr);
+  gap: 1.15rem;
+  margin: 1rem 0;
+  padding: 1rem;
+}
+
+.family-guide__image {
+  position: relative;
+}
+
+.family-guide__image img {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4 / 3;
+  border-radius: 12px;
+  object-fit: cover;
+}
+
+.family-guide__badge {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  margin: 0 0 0.35rem;
+  padding: 0.25rem 0.6rem;
+  border: 1px solid color-mix(in srgb, var(--accent) 28%, var(--panel-border));
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--accent) 8%, var(--surface));
+  color: var(--accent);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.family-guide__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  margin-top: 0.8rem;
+}
+
+.family-guide__cta,
+.family-guide__details-link {
+  min-width: 0;
+}
+
+.family-guide__details-link {
+  background: var(--surface);
+  color: var(--accent);
+  border: 1px solid color-mix(in srgb, var(--accent) 36%, var(--panel-border));
+  box-shadow: none;
+}
+
+.family-guide__situations {
+  display: grid;
+  gap: 0.45rem;
+  margin: 0;
+  padding: 1rem 1rem 1rem 1.4rem;
+  border: 1px solid color-mix(in srgb, var(--panel-border) 86%, transparent);
+  border-radius: 14px;
+  background: var(--surface);
+}
+
+.family-guide__image-credit {
+  margin: 0.35rem 0 0;
+}
+
+.family-guide__card-affiliate-note {
+  margin: 0.4rem 0 0;
+  grid-column: 1 / -1;
+}
+
+.family-guide__affiliate {
+  max-width: 760px;
+  margin-top: 0.75rem;
+}
+
+@media (max-width: 760px) {
+  .family-guide {
+    padding-inline: 0.75rem;
+  }
+
+  .family-guide__museum {
+    grid-template-columns: 1fr;
+  }
+
+
+}

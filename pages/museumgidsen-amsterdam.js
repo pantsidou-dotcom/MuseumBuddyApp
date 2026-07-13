@@ -23,7 +23,7 @@ const guidePages = [
     description: 'Onze redactionele selectie met musea die vaak als eerste keuze worden bekeken.',
   },
   {
-    href: '/kindvriendelijke-musea-amsterdam',
+    href: '/museumgids/kindvriendelijke-musea-amsterdam',
     title: 'Kindvriendelijke musea in Amsterdam',
     description: 'Snel overzicht voor gezinnen, inclusief praktische context per museumkeuze.',
   },
