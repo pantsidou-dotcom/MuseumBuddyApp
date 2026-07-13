@@ -30,8 +30,7 @@ const pageCopy = {
     h1: 'De beste kindvriendelijke musea in Amsterdam',
     intro: 'Amsterdam heeft musea waar kinderen kunnen experimenteren, ontdekken, luisteren, kijken of spelen. De beste keuze hangt vooral af van leeftijd, prikkelgevoeligheid, bezoekduur en hoeveel interactie je zoekt.',
     method: 'Redactionele volgorde: actieve interactie, duidelijke leeftijdsdoelgroep, structureel familieaanbod, praktische bruikbaarheid en actuele officiële bronnen. Affiliatevergoeding telt niet mee.',
-    quick: 'Snel kiezen',
-    main: 'Belangrijkste aanbevelingen',
+    main: 'Aanbevelingen',
     conclusion: 'Conclusie:',
     why: 'Waarom leuk met kinderen',
     age: 'Leeftijd:',
@@ -69,8 +68,7 @@ const pageCopy = {
     h1: 'The best kid-friendly museums in Amsterdam',
     intro: 'Amsterdam has museums where children can experiment, discover, listen, look and play. The best choice depends on age, sensory needs, visit length and how much interaction you want.',
     method: 'Editorial order is based on active interaction, clear age fit, structural family offer, practical usefulness and current official sources. Affiliate compensation never affects placement.',
-    quick: 'Quick picks',
-    main: 'Main recommendations',
+    main: 'Recommendations',
     conclusion: 'Conclusion:',
     why: 'Why it is fun with children',
     age: 'Age:',
@@ -197,16 +195,6 @@ export default function FamilyFriendlyMuseumsAmsterdamPage() {
           <p className="page-subtitle">{cp.intro}</p>
           <p className="family-guide__method">{cp.method}</p>
         </section>
-
-        <section className="museum-guide-section family-guide__quick" aria-labelledby="quick-picks"><h2 id="quick-picks">{cp.quick}</h2><div className="family-guide__quick-grid">
-          {[
-            [lang === 'en' ? 'Best all-round choice' : 'Beste allround keuze', mainProfiles[0]],
-            [getProfileText(mainProfiles[1], lang, 'label'), mainProfiles[1]],
-            [lang === 'en' ? 'Best for young children' : 'Beste voor jonge kinderen', mainProfiles[4]],
-            [lang === 'en' ? 'Best with older children' : 'Beste met oudere kinderen', mainProfiles[5]],
-            [getProfileText(mainProfiles[2], lang, 'label'), mainProfiles[2]],
-          ].map(([title, profile]) => <article key={title} className="family-guide__quick-card"><div><h3>{title}</h3><p><strong>{getProfileText(profile, lang, 'name')}</strong></p><p>{getProfileText(profile, lang, 'reason')}</p><p>{getProfileText(profile, lang, 'age')}</p></div><TicketCta profile={profile} section="quick_pick" children={cp.tickets} badgeText={cp.partnerlink} /></article>)}
-        </div></section>
 
         <section className="museum-guide-section" aria-labelledby="main-recommendations"><h2 id="main-recommendations">{cp.main}</h2>{mainProfiles.map((profile) => {
           const creditSegments = getCreditSegments(profile.slug, t);
