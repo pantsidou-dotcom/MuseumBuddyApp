@@ -23,6 +23,7 @@ import {
 import { getStaticExhibitions } from '../lib/staticExhibitions';
 import { getSiteUrl } from '../lib/siteUrl';
 import { resolveImageUrl } from '../lib/resolveImageSource';
+import { groupExhibitionsByDateStatus, normalizeExhibitionDates, shouldShowAsCurrent } from '../lib/exhibitionStatus';
 
 const FILTERS_EVENT = 'museumBuddy:openFilters';
 const SITE_URL = getSiteUrl();
@@ -204,20 +205,8 @@ function TopExhibitionCard({ item, t }) {
   );
 }
 
-function isCurrentOrUpcoming(card, todayTimestamp) {
-  if (!card || todayTimestamp === null) return true;
-  const startValue = card.startDate ? Date.parse(card.startDate) : null;
-  const endValue = card.endDate ? Date.parse(card.endDate) : null;
-
-  if (typeof endValue === 'number' && !Number.isNaN(endValue)) {
-    return endValue >= todayTimestamp;
-  }
-
-  if (typeof startValue === 'number' && !Number.isNaN(startValue)) {
-    return startValue >= todayTimestamp;
-  }
-
-  return false;
+function isCurrentOrUpcoming(card) {
+  return card?.dateStatus === 'current' || card?.dateStatus === 'scheduled' || card?.dateStatus === 'permanent';
 }
 
 function pickImage(row, museum) {
@@ -282,8 +271,9 @@ function mapExhibitionToCard(exhibition, t, language) {
     null;
   const directTicketUrl = exhibition.ticket_url || museum.website_url || null;
   const ticketUrl = affiliateTicketUrl || directTicketUrl;
-  const startDate = exhibition.start_datum || exhibition.startDatum || null;
-  const endDate = exhibition.eind_datum || exhibition.eindDatum || null;
+  const normalizedDates = normalizeExhibitionDates(exhibition);
+  const startDate = normalizedDates.start_date;
+  const endDate = normalizedDates.end_date;
 
   return {
     exhibitionId: exhibition.id,
@@ -303,6 +293,10 @@ function mapExhibitionToCard(exhibition, t, language) {
     museumName,
     startDate,
     endDate,
+    isPermanent: normalizedDates.is_permanent,
+    dateStatus: normalizedDates.date_status,
+    verificationStatus: normalizedDates.verification_status,
+    archivedAt: normalizedDates.archived_at,
   };
 }
 
@@ -539,6 +533,13 @@ async function loadExhibitionsForStaticProps() {
         ticket_affiliate_url: row.ticket_affiliate_url || row.ticketAffiliateUrl || null,
         ticket_url: row.ticket_url || row.ticketUrl || null,
         bron_url: row.bron_url || row.source_url || null,
+        source_url: row.source_url || row.bron_url || null,
+        source_last_checked_at: row.source_last_checked_at || null,
+        content_last_verified_at: row.content_last_verified_at || null,
+        archived_at: row.archived_at || null,
+        is_permanent: row.is_permanent === true,
+        date_status: row.date_status || null,
+        verification_status: row.verification_status || null,
         afbeelding_url: row.afbeelding_url || row.image_url || null,
         image_url: row.image_url || null,
         museum,
@@ -629,7 +630,7 @@ export default function ExhibitionsPage({ exhibitions = [], error = null }) {
   }, [allCards, lang]);
 
   const emptyFilters = useMemo(() => {
-    const base = { openNow: false, exhibitions: false };
+    const base = { openNow: false, exhibitions: false, showEnded: false };
     TYPE_FILTERS.forEach((type) => {
       base[type.stateKey] = false;
     });
@@ -773,12 +774,6 @@ export default function ExhibitionsPage({ exhibitions = [], error = null }) {
     activeFilters.exhibitions || selectedTypeCount > 0 || selectedMuseumCount > 0
   );
 
-  const todayYmd = useMemo(() => todayYMD(DEFAULT_TIME_ZONE), []);
-  const todayTimestamp = useMemo(() => {
-    const parsed = Date.parse(todayYmd);
-    return Number.isNaN(parsed) ? null : parsed;
-  }, [todayYmd]);
-
   const visibleCards = useMemo(() => {
     return allCards.filter((card) => {
       if (!card) return false;
@@ -787,18 +782,8 @@ export default function ExhibitionsPage({ exhibitions = [], error = null }) {
         return false;
       }
 
-      if (activeFilters.exhibitions && todayTimestamp !== null) {
-        const startValue = card.startDate ? Date.parse(card.startDate) : null;
-        const endValue = card.endDate ? Date.parse(card.endDate) : null;
-
-        if (typeof startValue === 'number' && !Number.isNaN(startValue) && startValue > todayTimestamp) {
-          return false;
-        }
-
-        if (typeof endValue === 'number' && !Number.isNaN(endValue) && endValue < todayTimestamp) {
-          return false;
-        }
-      }
+      if (!isCurrentOrUpcoming(card)) return false;
+      if (activeFilters.exhibitions && !shouldShowAsCurrent(card)) return false;
 
       if (selectedTypeIds.length > 0) {
         const categories = Array.isArray(card.categories) ? card.categories : [];
@@ -814,7 +799,7 @@ export default function ExhibitionsPage({ exhibitions = [], error = null }) {
 
       return true;
     });
-  }, [allCards, activeFilters, selectedTypeIds, selectedMuseumSlugs, todayTimestamp]);
+  }, [allCards, activeFilters, selectedTypeIds, selectedMuseumSlugs]);
 
   const filtersContainerRef = useRef(null);
   const openNowButtonRef = useRef(null);
@@ -883,8 +868,8 @@ export default function ExhibitionsPage({ exhibitions = [], error = null }) {
 
   const topExhibitionPicks = useMemo(() => {
     const sourceCards = hasVisibleCards ? visibleCards : allCards;
-    const dateCheckedCards = sourceCards.filter((card) => isCurrentOrUpcoming(card, todayTimestamp));
-    const candidateCards = dateCheckedCards.length >= 3 ? dateCheckedCards : sourceCards;
+    const dateCheckedCards = sourceCards.filter((card) => isCurrentOrUpcoming(card));
+    const candidateCards = dateCheckedCards;
     const selected = [];
     const usedMuseums = new Set();
     const usedTitles = new Set();
@@ -908,7 +893,16 @@ export default function ExhibitionsPage({ exhibitions = [], error = null }) {
     }
 
     return selected;
-  }, [allCards, hasVisibleCards, lang, t, todayTimestamp, visibleCards]);
+  }, [allCards, hasVisibleCards, lang, t, visibleCards]);
+
+  const statusSections = useMemo(() => groupExhibitionsByDateStatus(visibleCards), [visibleCards]);
+
+  const defaultSections = [
+    { id: 'current', title: lang === 'nl' ? 'Nu te zien' : 'Now on view', cards: statusSections.current },
+    { id: 'scheduled', title: lang === 'nl' ? 'Binnenkort' : 'Upcoming', cards: statusSections.scheduled },
+    { id: 'permanent', title: lang === 'nl' ? 'Permanent' : 'Permanent', cards: statusSections.permanent },
+    ...(activeFilters.showEnded ? [{ id: 'ended', title: lang === 'nl' ? 'Afgelopen' : 'Past', cards: statusSections.ended }] : []),
+  ];
 
   const exhibitionsStructuredData = useMemo(
     () => {
@@ -1081,13 +1075,22 @@ export default function ExhibitionsPage({ exhibitions = [], error = null }) {
       ) : !hasVisibleCards ? (
         <p>{t('noFilteredExhibitions')}</p>
       ) : (
-        <ul className="grid" style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-          {visibleCards.map((museum, index) => (
-            <li key={`exhibition-${museum.exhibitionId || museum.slug || index}`}>
-              <MuseumCard museum={museum} priority={index < 6} highlightOpenNow={openNowActive} />
-            </li>
+        <>
+          {defaultSections.map((section) => (
+            section.cards.length > 0 ? (
+              <section key={section.id} className="page-intro" aria-labelledby={`exhibition-section-${section.id}`}>
+                <h2 id={`exhibition-section-${section.id}`} className="page-subtitle">{section.title}</h2>
+                <ul className="grid" style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+                  {section.cards.map((museum, index) => (
+                    <li key={`exhibition-${section.id}-${museum.exhibitionId || museum.slug || index}`}>
+                      <MuseumCard museum={museum} priority={index < 6} highlightOpenNow={openNowActive} />
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            ) : null
           ))}
-        </ul>
+        </>
       )}
       <section className="page-intro" aria-label="SEO content">
         <h2 className="page-subtitle">{t('exhibitionsSeoFooterHeading')}</h2>
