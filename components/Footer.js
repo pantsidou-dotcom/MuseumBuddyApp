@@ -20,7 +20,7 @@ export default function Footer() {
           <nav className="footer-links" aria-label="Footer">
             <Link href="/privacy">{t('privacy')}</Link>
             <Link href="/disclaimer">{t('disclaimer')}</Link>
-            <Link href="/kindvriendelijke-musea-amsterdam">
+            <Link href="/museumgids/kindvriendelijke-musea-amsterdam">
               {lang === 'en' ? 'Kid-friendly museums' : 'Kindvriendelijke musea'}
             </Link>
             <Link href="/gratis-musea-amsterdam">

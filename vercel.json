@@ -1,0 +1,19 @@
+{
+  "redirects": [
+    {
+      "source": "/kindvriendelijke-musea-amsterdam",
+      "destination": "/museumgids/kindvriendelijke-musea-amsterdam",
+      "permanent": true
+    },
+    {
+      "source": "/kindvriendelijk",
+      "destination": "/museumgids/kindvriendelijke-musea-amsterdam",
+      "permanent": true
+    },
+    {
+      "source": "/ontdek/met-kinderen",
+      "destination": "/museumgids/kindvriendelijke-musea-amsterdam",
+      "permanent": true
+    }
+  ]
+}
