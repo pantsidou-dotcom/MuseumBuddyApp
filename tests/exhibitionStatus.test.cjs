@@ -11,6 +11,7 @@ async function run() {
     normalizeExhibitionDates,
     shouldShowAsCurrent,
     buildExhibitionArchiveUpdate,
+    groupExhibitionsByDateStatus,
   } = await loadModule('../lib/exhibitionStatus.js');
   const today = '2026-07-13';
   const opts = { today, timeZone: 'Europe/Amsterdam', now: new Date('2026-07-13T10:00:00.000Z') };
@@ -22,7 +23,7 @@ async function run() {
   assert.strictEqual(normalizeExhibitionDates({ end_date: '2026-07-14' }, opts).date_status, 'current', 'einddatum morgen');
   assert.strictEqual(normalizeExhibitionDates({ start_date: '2026-07-01' }, opts).date_status, 'unknown', 'geen einddatum onbekend');
   assert.strictEqual(shouldShowAsCurrent({ start_date: '2026-07-01' }, opts), false, 'geen einddatum niet automatisch actueel');
-  assert.strictEqual(shouldShowAsCurrent({ start_date: '2026-07-01', verification_status: 'verified' }, opts), true, 'geverifieerd zonder einddatum mag actueel');
+  assert.strictEqual(shouldShowAsCurrent({ verification_status: 'verified' }, opts), true, 'geverifieerd zonder einddatum mag actueel');
   assert.strictEqual(normalizeExhibitionDates({ is_permanent: true }, opts).date_status, 'permanent', 'permanente tentoonstelling');
   assert.strictEqual(shouldShowAsCurrent({ date_status: 'unknown' }, opts), false, 'onbekende status niet actueel');
   assert.strictEqual(normalizeExhibitionDates({ end_date: '2026-07-13T23:30:00-10:00' }, opts).end_date, '2026-07-13', 'verschillende tijdzones datumdeel stabiel');
@@ -33,6 +34,15 @@ async function run() {
   assert.ok(first.archived_at, 'cron archiveert verlopen');
   assert.strictEqual(second.archived_at, undefined, 'cron opnieuw uitvoeren is idempotent');
   assert.strictEqual(buildExhibitionArchiveUpdate({ id: 2, end_date: '2026-07-12', archived_at: '2026-07-12T00:00:00Z' }, opts).archived_at, undefined, 'reeds gearchiveerd record blijft staan');
+
+  const grouped = groupExhibitionsByDateStatus([
+    { id: 'card-current', startDate: '2026-07-01', verificationStatus: 'verified' },
+    { id: 'card-permanent', isPermanent: true },
+    { id: 'card-scheduled', startDate: '2026-07-14', endDate: '2026-08-01' },
+  ], opts);
+  assert.deepStrictEqual(grouped.current.map((item) => item.id), ['card-current'], 'frontend kaart met camelCase datums blijft zichtbaar');
+  assert.deepStrictEqual(grouped.permanent.map((item) => item.id), ['card-permanent'], 'frontend kaart met camelCase permanent blijft zichtbaar');
+  assert.deepStrictEqual(grouped.scheduled.map((item) => item.id), ['card-scheduled'], 'frontend kaart met camelCase planning blijft zichtbaar');
 
   console.log('Exhibition lifecycle tests passed.');
 }
