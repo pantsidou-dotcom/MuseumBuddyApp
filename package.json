@@ -7,7 +7,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "test": "node tests/ticketCta.test.cjs && node tests/kidFriendlyFilter.test.cjs && node tests/nearbyFilter.test.cjs && node tests/museumSearch.test.cjs && node tests/exhibitionStatus.test.cjs",
+    "test": "node tests/ticketCta.test.cjs && node tests/kidFriendlyFilter.test.cjs && node tests/nearbyFilter.test.cjs && node tests/museumSearch.test.cjs && node tests/exhibitionStatus.test.cjs && node tests/discoveryPages.test.cjs",
     "build:web": "next build",
     "cap:copy": "npx cap copy",
     "cap:sync": "npx cap sync",
