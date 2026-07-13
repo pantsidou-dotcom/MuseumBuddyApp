@@ -2,6 +2,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { getStaticMuseums } from '../lib/staticMuseums.js';
+import { buildDiscoveryPage, DISCOVERY_PAGE_CONFIGS } from '../lib/discoveryPages.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -57,6 +58,10 @@ const ROUTE_SOURCE_FILES = {
     'components/TicketLandingTemplate.js',
   ],
 };
+for (const config of Object.values(DISCOVERY_PAGE_CONFIGS)) {
+  ROUTE_SOURCE_FILES[config.path] = ['pages/ontdek/[slug].js', 'lib/discoveryPages.js', 'lib/staticMuseums.js', 'lib/staticExhibitions.js'];
+}
+
 const MUSEUM_SOURCE_FILES = ['pages/museum/[slug].js', 'lib/staticMuseums.js', 'lib/museumSummaries.js'];
 
 
@@ -65,6 +70,7 @@ function pageFilePathToRoute(relativeFilePath) {
   const routePath = path.join(path.dirname(relativeFilePath), parsedPath.name).replace(/\\/g, '/');
   const withoutPagesPrefix = routePath.replace(/^pages\//, '');
 
+  if (withoutPagesPrefix.startsWith('api/')) return null;
   if (withoutPagesPrefix === 'index') return '/';
   if (withoutPagesPrefix.endsWith('/index')) return `/${withoutPagesPrefix.replace(/\/index$/, '')}`;
   return `/${withoutPagesPrefix}`;
@@ -101,7 +107,7 @@ async function getStaticPageRoutes() {
         if (!isStaticPageFile(dirent, relativeFilePath)) return;
 
         const route = pageFilePathToRoute(relativeFilePath);
-        if (!EXCLUDED_STATIC_PAGE_ROUTES.has(route)) {
+        if (route && !EXCLUDED_STATIC_PAGE_ROUTES.has(route)) {
           discoveredRoutes.push(route);
         }
       })
@@ -119,7 +125,10 @@ async function getStaticPageRoutes() {
 
 async function getStaticRoutes() {
   const discoveredRoutes = await getStaticPageRoutes();
-  return [...new Set([...PRIORITY_STATIC_ROUTES, ...discoveredRoutes])];
+  const indexableDiscoveryRoutes = Object.entries(DISCOVERY_PAGE_CONFIGS)
+    .filter(([key]) => buildDiscoveryPage(key).indexable)
+    .map(([, config]) => config.path);
+  return [...new Set([...PRIORITY_STATIC_ROUTES, ...indexableDiscoveryRoutes, ...discoveredRoutes])];
 }
 
 function getRouteSourceFiles(route) {
