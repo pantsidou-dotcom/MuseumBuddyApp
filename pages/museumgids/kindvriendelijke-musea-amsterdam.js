@@ -3,21 +3,138 @@ import Link from 'next/link';
 import SEO from '../../components/SEO';
 import { useLanguage } from '../../components/LanguageContext';
 import museumImages from '../../lib/museumImages';
+import museumImageCredits from '../../lib/museumImageCredits';
+import formatImageCredit from '../../lib/formatImageCredit';
 import {
   FAMILY_GUIDE_CANONICAL_URL,
   FAMILY_GUIDE_DESCRIPTION,
   FAMILY_GUIDE_LAST_VERIFIED_AT,
   FAMILY_GUIDE_PATH,
   FAMILY_GUIDE_TITLE,
-  familyAgeGroups,
   familyMuseumProfiles,
   getFamilyGuideIndexabilityStatus,
 } from '../../lib/familyGuide';
 
 const checkedDate = new Intl.DateTimeFormat('nl-NL', { dateStyle: 'long' }).format(new Date(`${FAMILY_GUIDE_LAST_VERIFIED_AT}T00:00:00Z`));
-const mainProfiles = familyMuseumProfiles.filter((profile) => profile.cardType === 'main');
-const otherProfiles = familyMuseumProfiles.filter((profile) => profile.cardType !== 'main');
+const visibleProfiles = familyMuseumProfiles.filter((profile) => profile.slug !== 'scheepvaartmuseum-amsterdam');
+const mainProfiles = visibleProfiles.filter((profile) => profile.cardType === 'main');
 const indexability = getFamilyGuideIndexabilityStatus();
+
+const pageCopy = {
+  nl: {
+    details: 'Bekijk museumdetails',
+    tickets: 'Bekijk tickets',
+    partnerlink: 'Partnerlink',
+    checked: 'Laatst gecontroleerd',
+    verified: 'geverifieerde musea',
+    h1: 'De beste kindvriendelijke musea in Amsterdam',
+    intro: 'Amsterdam heeft musea waar kinderen kunnen experimenteren, ontdekken, luisteren, kijken of spelen. De beste keuze hangt vooral af van leeftijd, prikkelgevoeligheid, bezoekduur en hoeveel interactie je zoekt.',
+    method: 'Redactionele volgorde: actieve interactie, duidelijke leeftijdsdoelgroep, structureel familieaanbod, praktische bruikbaarheid en actuele officiële bronnen. Affiliatevergoeding telt niet mee.',
+    quick: 'Snel kiezen',
+    main: 'Belangrijkste aanbevelingen',
+    conclusion: 'Conclusie:',
+    why: 'Waarom leuk met kinderen',
+    age: 'Leeftijd:',
+    duration: 'Bezoekduur:',
+    practical: 'Praktisch:',
+    price: 'Prijsinformatie:',
+    source: 'Gecontroleerd:',
+    officialSource: 'officiële bron',
+    availability: 'Controleer tickets en beschikbaarheid',
+    situations: 'Welk museum past bij jullie dag?',
+    tips: 'Praktische tips',
+    tipsText: 'Reken meestal 60 tot 180 minuten. Reserveer vooraf bij populaire musea, vakanties en kinderprogramma’s. Controleer bij kleine kinderen altijd kinderwagens, verschoonruimte, rustplekken en actuele agenda. Prijsinformatie verwijst bewust naar actuele ticketpagina’s wanneer exacte bedragen snel kunnen wijzigen.',
+    faq: 'Veelgestelde vragen',
+    situationsList: ['Veel zelf doen: NEMO of Wereldmuseum Junior.', 'Maar twee uur: Eye, Micropia of Joods Museum junior.', 'Met een peuter: controleer Eye Cinemini en houd het bezoek kort.', 'Verschillende leeftijden: NEMO of Rijksmuseum geeft de breedste marge.', 'Regenachtige dag: kies een museum met voldoende binnenactiviteit en reserveer vooraf.', 'Kunst zonder snel vervelen: Rijksmuseum met familiespel.', 'Tieners: Micropia, Eye, NEMO of Rijksmuseum.'],
+    faqItems: [
+      ['Welk museum in Amsterdam is het leukst voor kinderen?', 'Voor veel gezinnen is NEMO de veiligste allround keuze als kinderen vooral zelf willen doen. Wereldmuseum Junior en Joods Museum junior zijn sterker wanneer je een duidelijke junioromgeving zoekt.'],
+      ['Wat is een goed museum in Amsterdam voor een kind van vier?', 'Kijk vooral naar korte, tastbare bezoeken. NEMO kan vanaf ongeveer vier jaar werken; Eye Cinemini is specifiek geschikt voor 2–6 jaar wanneer het programma loopt.'],
+      ['Welk museum in Amsterdam is geschikt voor een peuter?', 'Voor peuters is een kort programma belangrijker dan een groot museum. Eye Cinemini is de duidelijkste keuze wanneer er een passende voorstelling is; controleer vooraf tijden en tickets.'],
+      ['Wat is het meest interactieve museum in Amsterdam?', 'NEMO en Wereldmuseum Junior hebben de sterkste hands-on basis. Joods Museum junior is ook interactief, maar met een specifiekere thematische focus.'],
+      ['Welke Amsterdamse musea zijn gratis voor kinderen?', 'Het Rijksmuseum vermeldt gratis toegang tot en met 17 jaar. Andere kinderprijzen en gratis leeftijden verschillen per museum; controleer de actuele ticketpagina voor je boekt.'],
+      ['Moet je museumtickets voor kinderen vooraf reserveren?', 'Ja, vooral in weekenden, vakanties en bij programma’s zoals Cinemini of familierondleidingen. Bij populaire musea voorkomt vooraf reserveren teleurstelling.'],
+      ['Welk museum in Amsterdam is leuk met tieners?', 'Micropia, NEMO, Eye en het Rijksmuseum kunnen goed werken met tieners, afhankelijk van hun interesse in wetenschap, film of kunst.'],
+      ['Wat kun je met kinderen doen in Amsterdam als het regent?', 'Kies een museum met voldoende binnenactiviteit: NEMO voor experimenten, Wereldmuseum Junior voor actief ontdekken, of Eye voor een kort filmprogramma.'],
+    ],
+    breadcrumbGuide: 'Museumgids',
+    breadcrumbCurrent: 'Kindvriendelijke musea in Amsterdam',
+    via: 'via',
+  },
+  en: {
+    details: 'View museum details',
+    tickets: 'View tickets',
+    partnerlink: 'Partner link',
+    checked: 'Last checked',
+    verified: 'verified museums',
+    h1: 'The best kid-friendly museums in Amsterdam',
+    intro: 'Amsterdam has museums where children can experiment, discover, listen, look and play. The best choice depends on age, sensory needs, visit length and how much interaction you want.',
+    method: 'Editorial order is based on active interaction, clear age fit, structural family offer, practical usefulness and current official sources. Affiliate compensation never affects placement.',
+    quick: 'Quick picks',
+    main: 'Main recommendations',
+    conclusion: 'Conclusion:',
+    why: 'Why it is fun with children',
+    age: 'Age:',
+    duration: 'Visit length:',
+    practical: 'Practical:',
+    price: 'Child price info:',
+    source: 'Checked:',
+    officialSource: 'official source',
+    availability: 'Check tickets and availability',
+    situations: 'Which museum fits your day?',
+    tips: 'Practical tips',
+    tipsText: 'Plan around 60 to 180 minutes. Book ahead for popular museums, holidays and family programmes. With small children, check strollers, changing facilities, quiet moments and the current agenda. Price information points to current ticket pages when exact prices may change quickly.',
+    faq: 'Frequently asked questions',
+    situationsList: ['Lots to do yourself: NEMO or Wereldmuseum Junior.', 'Only two hours: Eye, Micropia or Jewish Museum junior.', 'With a toddler: check Eye Cinemini and keep the visit short.', 'Different ages: NEMO or Rijksmuseum gives the broadest range.', 'Rainy day: choose a museum with enough indoor activity and book ahead.', 'Art without children getting bored quickly: Rijksmuseum with the family game.', 'Teenagers: Micropia, Eye, NEMO or Rijksmuseum.'],
+    faqItems: [
+      ['Which Amsterdam museum is most fun for children?', 'For many families NEMO is the safest all-round choice when children mainly want to do things themselves. Wereldmuseum Junior and Jewish Museum junior are stronger when you want a clear junior environment.'],
+      ['What is a good Amsterdam museum for a four-year-old?', 'Look for short, tangible visits. NEMO can work from around age four; Eye Cinemini is specifically designed for ages 2–6 when the programme is on.'],
+      ['Which Amsterdam museum is suitable for a toddler?', 'For toddlers, a short programme matters more than a large museum. Eye Cinemini is the clearest option when there is a suitable screening; check times and tickets first.'],
+      ['What is the most interactive museum in Amsterdam?', 'NEMO and Wereldmuseum Junior have the strongest hands-on basis. Jewish Museum junior is also interactive, but with a more specific theme.'],
+      ['Which Amsterdam museums are free for children?', 'The Rijksmuseum states free admission up to and including age 17. Other child prices and free ages differ per museum; check the current ticket page before booking.'],
+      ['Should you reserve museum tickets for children in advance?', 'Yes, especially on weekends, holidays and for programmes such as Cinemini or family tours. Booking ahead helps avoid disappointment at popular museums.'],
+      ['Which Amsterdam museum is fun with teenagers?', 'Micropia, NEMO, Eye and the Rijksmuseum can work well with teenagers depending on their interest in science, film or art.'],
+      ['What can you do with children in Amsterdam when it rains?', 'Choose a museum with enough indoor activity: NEMO for experiments, Wereldmuseum Junior for active discovery, or Eye for a short film programme.'],
+    ],
+    via: 'via',
+  },
+};
+
+const profileCopy = {
+  'nemo-science-museum-amsterdam': {
+    nl: { name: 'NEMO Science Museum', label: 'Veel zelf doen', reason: 'Veel proefjes en experimenten op één plek.', rank: 'meest uitgesproken hands-on profiel', why: 'Kinderen kunnen zelf experimenteren met wetenschap, techniek, licht en constructies, waardoor het bezoek draait om doen in plaats van lang stil kijken.', age: 'vanaf ca. 4 jaar, sterk voor 7–12 jaar', activities: ['experimenteren', 'demonstraties', 'zelf ontdekken'], practical: 'Vooraf reserveren is verstandig in weekenden en vakanties. Kan druk en prikkelrijk zijn.', price: 'Bekijk actuele kinderprijzen bij de ticketaanbieder.' },
+    en: { name: 'NEMO Science Museum', label: 'Lots to do yourself', reason: 'Many experiments and hands-on exhibits in one place.', rank: 'the clearest hands-on profile', why: 'Children can experiment with science, technology, light and construction themselves, so the visit is less about standing still and looking for a long time.', age: 'from about 4 years; especially strong for 7–12', activities: ['experiments', 'demonstrations', 'self-guided discovery'], practical: 'Booking ahead is sensible on weekends and holidays. It can be busy and sensory-rich.', price: 'Check current child prices with the ticket provider.' },
+  },
+  'wereldmuseum-amsterdam': {
+    nl: { name: 'Wereldmuseum', label: 'Beste voor veel zelf doen', reason: 'Junioraanbod is gebouwd rond aanraken, ervaren en meedoen.', rank: 'structureel kindermuseum met heldere leeftijdsdoelgroep', why: 'Wereldmuseum Junior is structureel opgezet rond zien, aanraken, ervaren en meedoen, met een duidelijke focus op kinderen van 6 tot 13 jaar.', age: '6–13 jaar', activities: ['meedoen in Junior-tentoonstelling', 'verhalen en opdrachten', 'zintuiglijke onderdelen'], practical: 'Reserveer vooraf voor Junior-programma’s en populaire dagen.', price: 'Bekijk actuele kinderprijzen bij de ticketaanbieder.' },
+    en: { name: 'Wereldmuseum', label: 'Best for hands-on discovery', reason: 'The Junior offer is built around touching, experiencing and joining in.', rank: 'a structural children’s museum with a clear age focus', why: 'Wereldmuseum Junior is structurally designed around seeing, touching, experiencing and participating, with a clear focus on children aged 6 to 13.', age: '6–13 years', activities: ['Junior exhibition activities', 'stories and assignments', 'sensory elements'], practical: 'Book ahead for Junior programmes and popular days.', price: 'Check current child prices with the ticket provider.' },
+  },
+  'joods-museum-amsterdam': {
+    nl: { name: 'Joods Museum', label: 'Beste juniorhuis', reason: 'De juniorafdeling is concreet, actief en overzichtelijk.', rank: 'permanente junioromgeving met concrete kinderactiviteiten', why: 'Joods Museum junior is ingericht als een huis waar kinderen voorwerpen mogen gebruiken, challah kunnen bakken en hun naam in Hebreeuws kunnen leren schrijven.', age: '6–12 jaar', activities: ['Joods Museum junior', 'huisopdrachten', 'muziek en taal'], practical: 'Vooraf reserveren aanbevolen bij gezinsactiviteiten.', price: 'Kinderen onder 6 jaar gratis volgens officiële familiepagina.' },
+    en: { name: 'Jewish Museum', label: 'Best junior house', reason: 'The junior department is concrete, active and easy to navigate.', rank: 'a permanent junior environment with concrete children’s activities', why: 'Jewish Museum junior is set up like a house where children can use objects, bake challah and learn to write their name in Hebrew.', age: '6–12 years', activities: ['Jewish Museum junior', 'house-based assignments', 'music and language'], practical: 'Booking ahead is recommended for family activities.', price: 'Children under 6 are free according to the official family page.' },
+  },
+  'rijksmuseum-amsterdam': {
+    nl: { name: 'Rijksmuseum', label: 'Kunst met opdracht', reason: 'Topstukken met familiespel en gratis toegang t/m 17 jaar.', rank: 'sterk wanneer gezinnen kunst willen zien met kindvriendelijke routes', why: 'Het Rijksmuseum koppelt topstukken aan familieprogramma’s, een familiespel en praktische gezinsinformatie, waardoor kunst kijken meer richting krijgt.', age: 'vanaf ca. 6 jaar; gratis t/m 17 jaar', activities: ['familiespel', 'familierondleiding', 'topstukken zoeken'], practical: 'Reserveer tijdslot vooraf; het museum kan druk zijn.', price: 'Gratis voor iedereen tot en met 17 jaar.' },
+    en: { name: 'Rijksmuseum', label: 'Art with a task', reason: 'Masterpieces, a family game and free admission up to age 17.', rank: 'strong when families want to see art with child-friendly routes', why: 'The Rijksmuseum connects masterpieces with family programmes, a family game and practical family information, which gives children more direction while looking at art.', age: 'from about 6 years; free up to age 17', activities: ['family game', 'family tour', 'finding highlights'], practical: 'Reserve a timeslot in advance; the museum can be busy.', price: 'Free for everyone up to and including 17 years.' },
+  },
+  'eye-filmmuseum-amsterdam': {
+    nl: { name: 'Eye Filmmuseum', label: 'Kort en filmisch', reason: 'Cinemini is kort en gemaakt voor 2–6 jaar.', rank: 'goed voor korte programma’s en jonge kinderen wanneer agenda past', why: 'Eye heeft structurele kinderfilms en Cinemini voor peuters en kleuters, met korte films en experimenten met licht en schaduw.', age: '2–6 jaar voor Cinemini; oudere kinderen per film of tentoonstelling', activities: ['Cinemini', 'kinderfilms', 'licht- en schaduwspel'], practical: 'Reserveer voor films en Cinemini.', price: 'Bekijk actuele prijs per film, tentoonstelling of activiteit.' },
+    en: { name: 'Eye Filmmuseum', label: 'Short and cinematic', reason: 'Cinemini is short and made for ages 2–6.', rank: 'good for short programmes and young children when the agenda fits', why: 'Eye has structural children’s films and Cinemini for toddlers and preschoolers, with short films and experiments with light and shadow.', age: '2–6 years for Cinemini; older children depending on film or exhibition', activities: ['Cinemini', 'children’s films', 'light and shadow play'], practical: 'Book films and Cinemini ahead.', price: 'Check the current price per film, exhibition or activity.' },
+  },
+  'micropia-museum-amsterdam': {
+    nl: { name: 'Micropia Museum', label: 'Nieuwsgierige onderzoekers', reason: 'Microben, microscopen en labverhalen passen goed bij oudere kinderen.', rank: 'compact en inhoudelijk sterk voor oudere kinderen', why: 'Micropia maakt microben zichtbaar met microscopen, interactieve displays en verhalen uit het lab; vooral sterk voor nieuwsgierige oudere kinderen.', age: 'vanaf ca. 8 jaar', activities: ['microscopen', 'labverhalen', 'interactieve displays'], practical: 'Online tickets zijn praktisch; combineer eventueel met ARTIS. Donkere ruimtes en microbiologie passen niet bij elk jong kind.', price: 'Bekijk actuele kinderprijzen bij de ticketaanbieder.' },
+    en: { name: 'Micropia Museum', label: 'Curious researchers', reason: 'Microbes, microscopes and lab stories work well for older children.', rank: 'compact and content-rich for older children', why: 'Micropia makes microbes visible with microscopes, interactive displays and lab stories; it is especially strong for curious older children.', age: 'from about 8 years', activities: ['microscopes', 'lab stories', 'interactive displays'], practical: 'Online tickets are practical; you can combine with ARTIS. Dark rooms and microbiology may not suit every young child.', price: 'Check current child prices with the ticket provider.' },
+  },
+};
+
+function getProfileText(profile, lang, key) {
+  return profileCopy[profile.slug]?.[lang]?.[key] || profileCopy[profile.slug]?.nl?.[key] || profile[key] || '';
+}
+
+function getCreditSegments(slug, t) {
+  const formatted = formatImageCredit(museumImageCredits[slug], t);
+  return formatted?.segments || [];
+}
+
 
 function trackAttr(event, profile, section, extra = {}) {
   return {
@@ -29,7 +146,7 @@ function trackAttr(event, profile, section, extra = {}) {
   };
 }
 
-function TicketCta({ profile, section, children = 'Bekijk tickets' }) {
+function TicketCta({ profile, section, children, badgeText }) {
   return (
     <a
       className="ticket-button museum-guide-action-link family-guide__cta"
@@ -40,40 +157,32 @@ function TicketCta({ profile, section, children = 'Bekijk tickets' }) {
     >
       <span className="ticket-button__label ticket-button__label--stacked">
         <span className="ticket-button__label-text">{children}</span>
-        {profile.ticketPartnerCategory === 'affiliate' ? <span className="ticket-button__badge">Partnerlink</span> : null}
+        {profile.ticketPartnerCategory === 'affiliate' ? <span className="ticket-button__badge">{badgeText}</span> : null}
       </span>
     </a>
   );
 }
 
-function DetailLink({ profile, section }) {
+function DetailLink({ profile, section, children }) {
   return (
     <Link className="ticket-button museum-guide-action-link family-guide__details-link" href={`/museum/${profile.slug}`} {...trackAttr('family_museum_details_clicked', profile, section)}>
-      Bekijk museumdetails
+      {children}
     </Link>
   );
 }
 
 export default function FamilyFriendlyMuseumsAmsterdamPage() {
   const { lang, t } = useLanguage();
-  const itemList = familyMuseumProfiles.map((profile, index) => ({ '@type': 'ListItem', position: index + 1, url: `${FAMILY_GUIDE_CANONICAL_URL}#${profile.slug}`, name: profile.slug }));
-  const faqItems = [
-    ['Welk museum in Amsterdam is het leukst voor kinderen?', 'Voor veel gezinnen is NEMO de veiligste allround keuze als kinderen vooral zelf willen doen. Wereldmuseum Junior en Joods Museum junior zijn sterker wanneer je een duidelijke junioromgeving zoekt.'],
-    ['Wat is een goed museum in Amsterdam voor een kind van vier?', 'Kijk vooral naar korte, tastbare bezoeken. NEMO kan vanaf ongeveer vier jaar werken; Eye Cinemini is specifiek geschikt voor 2–6 jaar wanneer het programma loopt.'],
-    ['Welk museum in Amsterdam is geschikt voor een peuter?', 'Voor peuters is een kort programma belangrijker dan een groot museum. Eye Cinemini is de duidelijkste keuze wanneer er een passende voorstelling is; controleer vooraf tijden en tickets.'],
-    ['Wat is het meest interactieve museum in Amsterdam?', 'NEMO en Wereldmuseum Junior hebben de sterkste hands-on basis. Joods Museum junior is ook interactief, maar met een specifiekere thematische focus.'],
-    ['Welke Amsterdamse musea zijn gratis voor kinderen?', 'Het Rijksmuseum vermeldt gratis toegang tot en met 17 jaar. Andere kinderprijzen en gratis leeftijden verschillen per museum; controleer de actuele ticketpagina voor je boekt.'],
-    ['Moet je museumtickets voor kinderen vooraf reserveren?', 'Ja, vooral in weekenden, vakanties en bij programma’s zoals Cinemini of familierondleidingen. Bij populaire musea voorkomt vooraf reserveren teleurstelling.'],
-    ['Welk museum in Amsterdam is leuk met tieners?', 'Micropia, NEMO, Eye en het Rijksmuseum kunnen goed werken met tieners, afhankelijk van hun interesse in wetenschap, film of kunst.'],
-    ['Wat kun je met kinderen doen in Amsterdam als het regent?', 'Kies een museum met voldoende binnenactiviteit: NEMO voor experimenten, Wereldmuseum Junior voor actief ontdekken, of Eye voor een kort filmprogramma.'],
-  ];
+  const cp = pageCopy[lang] || pageCopy.nl;
+  const itemList = visibleProfiles.map((profile, index) => ({ '@type': 'ListItem', position: index + 1, url: `${FAMILY_GUIDE_CANONICAL_URL}#${profile.slug}`, name: profile.slug }));
+  const faqItems = cp.faqItems;
   const structuredData = [
     { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [
       { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://museumbuddy.nl/' },
-      { '@type': 'ListItem', position: 2, name: 'Museumgids', item: 'https://museumbuddy.nl/museumgidsen-amsterdam' },
-      { '@type': 'ListItem', position: 3, name: 'Kindvriendelijke musea in Amsterdam', item: FAMILY_GUIDE_CANONICAL_URL },
+      { '@type': 'ListItem', position: 2, name: cp.breadcrumbGuide, item: 'https://museumbuddy.nl/museumgidsen-amsterdam' },
+      { '@type': 'ListItem', position: 3, name: cp.breadcrumbCurrent, item: FAMILY_GUIDE_CANONICAL_URL },
     ]},
-    { '@context': 'https://schema.org', '@type': 'CollectionPage', name: 'De beste kindvriendelijke musea in Amsterdam', description: FAMILY_GUIDE_DESCRIPTION, url: FAMILY_GUIDE_CANONICAL_URL, mainEntity: { '@type': 'ItemList', itemListElement: itemList } },
+    { '@context': 'https://schema.org', '@type': 'CollectionPage', name: cp.h1, description: FAMILY_GUIDE_DESCRIPTION, url: FAMILY_GUIDE_CANONICAL_URL, mainEntity: { '@type': 'ItemList', itemListElement: itemList } },
     { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: faqItems.map(([question, answer]) => ({ '@type': 'Question', name: question, acceptedAnswer: { '@type': 'Answer', text: answer } })) },
   ];
 
@@ -81,40 +190,34 @@ export default function FamilyFriendlyMuseumsAmsterdamPage() {
     <>
       <SEO title={FAMILY_GUIDE_TITLE} description={FAMILY_GUIDE_DESCRIPTION} canonical={FAMILY_GUIDE_PATH} image="/images/og-family-museums.svg" structuredData={structuredData} robots={indexability.robots} />
       <article className="family-guide" data-analytics-event="family_guide_viewed" data-language={lang}>
-        <nav className="family-guide__breadcrumbs" aria-label="Breadcrumb"><Link href="/">Home</Link><span>›</span><Link href="/museumgidsen-amsterdam">Museumgids</Link><span>›</span><span>Kindvriendelijke musea in Amsterdam</span></nav>
+        <nav className="family-guide__breadcrumbs" aria-label="Breadcrumb"><Link href="/">Home</Link><span>›</span><Link href="/museumgidsen-amsterdam">{cp.breadcrumbGuide}</Link><span>›</span><span>{cp.breadcrumbCurrent}</span></nav>
         <section className="page-intro family-guide__hero">
-          <p className="family-guide__eyebrow">Laatst gecontroleerd: {checkedDate} · {indexability.recommendableCount} geverifieerde musea</p>
-          <h1 className="page-title">De beste kindvriendelijke musea in Amsterdam</h1>
-          <p className="page-subtitle">Amsterdam heeft musea waar kinderen kunnen experimenteren, ontdekken, luisteren, kijken of spelen. De beste keuze hangt vooral af van leeftijd, prikkelgevoeligheid, bezoekduur en hoeveel interactie je zoekt.</p>
-          <p className="family-guide__method">Redactionele volgorde: actieve interactie, duidelijke leeftijdsdoelgroep, structureel familieaanbod, praktische bruikbaarheid en actuele officiële bronnen. Affiliatevergoeding telt niet mee.</p>
+          <p className="family-guide__eyebrow">{cp.checked}: {checkedDate} · {visibleProfiles.length} {cp.verified}</p>
+          <h1 className="page-title">{cp.h1}</h1>
+          <p className="page-subtitle">{cp.intro}</p>
+          <p className="family-guide__method">{cp.method}</p>
         </section>
 
-        <section className="museum-guide-section family-guide__quick" aria-labelledby="quick-picks"><h2 id="quick-picks">Snel kiezen</h2><div className="family-guide__quick-grid">
+        <section className="museum-guide-section family-guide__quick" aria-labelledby="quick-picks"><h2 id="quick-picks">{cp.quick}</h2><div className="family-guide__quick-grid">
           {[
-            ['Beste allround keuze', mainProfiles[0], 'Veel proefjes en experimenten op één plek.'],
-            ['Beste voor veel zelf doen', mainProfiles[1], 'Junioraanbod is gebouwd rond aanraken, ervaren en meedoen.'],
-            ['Beste voor jonge kinderen', mainProfiles[4], 'Cinemini is kort en gemaakt voor 2–6 jaar.'],
-            ['Beste met oudere kinderen', mainProfiles[5], 'Microben, microscopen en labverhalen passen goed bij nieuwsgierige oudere kinderen.'],
-            ['Beste voor kunst met kinderen', mainProfiles[3], 'Topstukken met familiespel en gratis toegang t/m 17 jaar.'],
-          ].map(([title, profile, reason]) => <article key={title} className="family-guide__quick-card"><h3>{title}</h3><p><strong>{profile.slug.replace(/-/g, ' ').replace('amsterdam','')}</strong></p><p>{reason}</p><p>{profile.recommendedAgeLabel}</p><TicketCta profile={profile} section="quick_pick" /></article>)}
+            [lang === 'en' ? 'Best all-round choice' : 'Beste allround keuze', mainProfiles[0]],
+            [getProfileText(mainProfiles[1], lang, 'label'), mainProfiles[1]],
+            [lang === 'en' ? 'Best for young children' : 'Beste voor jonge kinderen', mainProfiles[4]],
+            [lang === 'en' ? 'Best with older children' : 'Beste met oudere kinderen', mainProfiles[5]],
+            [getProfileText(mainProfiles[2], lang, 'label'), mainProfiles[2]],
+          ].map(([title, profile]) => <article key={title} className="family-guide__quick-card"><div><h3>{title}</h3><p><strong>{getProfileText(profile, lang, 'name')}</strong></p><p>{getProfileText(profile, lang, 'reason')}</p><p>{getProfileText(profile, lang, 'age')}</p></div><TicketCta profile={profile} section="quick_pick" children={cp.tickets} badgeText={cp.partnerlink} /></article>)}
         </div></section>
 
-        <section className="museum-guide-section" aria-labelledby="age-choice"><h2 id="age-choice">Kies op leeftijd</h2><p>Leeftijd is een indicatie: interesse, prikkelgevoeligheid en actuele activiteiten verschillen per kind.</p><div className="family-guide__chips" role="tablist" aria-label="Leeftijdsindicatie">
-          {familyAgeGroups.map((group) => <a key={group.key} role="tab" className="family-guide__chip" href={`#age-${group.key}`} data-analytics-event="family_age_filter_selected" data-age-category={group.key}>{group.label}</a>)}
-        </div>{familyAgeGroups.map((group) => <section key={group.key} id={`age-${group.key}`} className="family-guide__age-block"><h3>{group.label}</h3><p>{group.description}</p><p>{familyMuseumProfiles.filter((p) => p.ageGroups.includes(group.key)).map((p) => p.slug.replace(/-/g, ' ').replace('amsterdam','')).join(' · ')}</p></section>)}</section>
+        <section className="museum-guide-section" aria-labelledby="main-recommendations"><h2 id="main-recommendations">{cp.main}</h2>{mainProfiles.map((profile) => {
+          const creditSegments = getCreditSegments(profile.slug, t);
+          return <article key={profile.slug} id={profile.slug} className="family-guide__museum"><div className="family-guide__image"><Image src={museumImages[profile.slug]} alt={profile.imageAlt} width={720} height={420} />{creditSegments.length ? <p className="image-credit family-guide__image-credit">{creditSegments.map((segment, index) => <span key={`${profile.slug}-credit-${segment.key}-${index}`}>{index > 0 ? <span aria-hidden="true" className="image-credit-divider">•</span> : null}{segment.url ? <a className="image-credit-link" href={segment.url} target="_blank" rel="noreferrer">{segment.label}</a> : <span className="image-credit-part">{segment.label}</span>}</span>)}</p> : null}</div><div className="family-guide__museum-body"><p className="family-guide__badge">{getProfileText(profile, lang, 'label')}</p><h3>{getProfileText(profile, lang, 'name')}</h3><p><strong>{cp.conclusion}</strong> {getProfileText(profile, lang, 'rank')}.</p><h4>{cp.why}</h4><p>{getProfileText(profile, lang, 'why')}</p><ul>{getProfileText(profile, lang, 'activities').map((activity) => <li key={activity}>{activity}</li>)}</ul><p><strong>{cp.age}</strong> {getProfileText(profile, lang, 'age')}</p><p><strong>{cp.duration}</strong> {profile.typicalVisitDurationMin}–{profile.typicalVisitDurationMax} min</p><p><strong>{cp.practical}</strong> {getProfileText(profile, lang, 'practical')}</p><p><strong>{cp.price}</strong> {getProfileText(profile, lang, 'price')}</p><p><strong>{cp.source}</strong> {checkedDate} {cp.via} <a href={profile.familySourceUrl} rel="noopener noreferrer" target="_blank">{cp.officialSource}</a>.</p><div className="family-guide__actions"><TicketCta profile={profile} section="main_card" children={cp.availability} badgeText={cp.partnerlink} /><DetailLink profile={profile} section="main_card">{cp.details}</DetailLink><p className="ticket-button__note family-guide__card-affiliate-note"><span className="ticket-button__note-text"><span className="ticket-button__note-line">{t('ticketsAffiliateIntro')}</span><span className="ticket-button__note-line ticket-button__note-disclosure">{t('ticketsAffiliateDisclosure')} {t('ticketsAffiliatePricesMayVary')}</span></span></p></div></div></article>;
+        })}</section>
 
-        <section className="museum-guide-section" aria-labelledby="comparison"><h2 id="comparison">Vergelijk kindvriendelijke musea</h2><div className="family-guide__table-wrap" data-analytics-event="family_comparison_used"><table><thead><tr><th>Museum</th><th>Vooral geschikt voor</th><th>Leeftijd</th><th>Interactief</th><th>Duur</th><th>Kinderprijs/gratis</th><th>Reserveren</th><th>Buurt</th></tr></thead><tbody>{familyMuseumProfiles.map((p) => <tr key={p.slug}><td><a href={`#${p.slug}`}>{p.slug.replace(/-/g, ' ').replace('amsterdam','')}</a></td><td>{p.label}</td><td>{p.recommendedAgeLabel}</td><td>{p.interactiveLevel}</td><td>{p.typicalVisitDurationMin}–{p.typicalVisitDurationMax} min</td><td>{p.freeChildAgeInformation || p.childTicketInformation}</td><td>{p.reservationRecommendation}</td><td>{p.neighbourhood}</td></tr>)}</tbody></table></div></section>
+        <section className="museum-guide-section" aria-labelledby="situations"><h2 id="situations">{cp.situations}</h2><ul className="family-guide__situations">{cp.situationsList.map((item) => <li key={item}>{item}</li>)}</ul></section>
 
-        <section className="museum-guide-section" aria-labelledby="main-recommendations"><h2 id="main-recommendations">Belangrijkste aanbevelingen</h2>{mainProfiles.map((profile) => <article key={profile.slug} id={profile.slug} className="family-guide__museum"><div className="family-guide__image"><Image src={museumImages[profile.slug]} alt={profile.imageAlt} width={720} height={420} /></div><div><p className="family-guide__badge">{profile.label}</p><h3>{profile.slug.replace(/-/g, ' ').replace('amsterdam','')}</h3><p><strong>Conclusie:</strong> {profile.rankReason}.</p><h4>Waarom leuk met kinderen</h4><p>{profile.whyFunForChildren}</p><ul>{profile.handsOnActivities.map((activity) => <li key={activity}>{activity}</li>)}</ul><p><strong>Leeftijd:</strong> {profile.recommendedAgeLabel}</p><p><strong>Bezoekduur:</strong> {profile.typicalVisitDurationMin}–{profile.typicalVisitDurationMax} minuten</p><p><strong>Praktisch:</strong> {profile.reservationRecommendation} {profile.noiseOrSensoryInformation || ''}</p><p><strong>Prijsinformatie:</strong> {profile.freeChildAgeInformation || profile.childTicketInformation}</p><p><strong>Gecontroleerd:</strong> {checkedDate} via <a href={profile.familySourceUrl} rel="noopener noreferrer" target="_blank">officiële bron</a>.</p><div className="family-guide__actions"><TicketCta profile={profile} section="main_card" children="Controleer tickets en beschikbaarheid" /><DetailLink profile={profile} section="main_card" /></div></div></article>)}</section>
+        <section className="museum-guide-section" aria-labelledby="tips"><h2 id="tips">{cp.tips}</h2><p>{cp.tipsText}</p><p className="ticket-button__note family-guide__affiliate"><span className="ticket-button__note-text"><span className="ticket-button__note-line ticket-button__note-disclosure">{t('ticketsAffiliateIntro')}<br />{t('ticketsAffiliateDisclosure')} {t('ticketsAffiliatePricesMayVary')}</span></span></p></section>
 
-        <section className="museum-guide-section" aria-labelledby="other-options"><h2 id="other-options">Overige goede keuzes</h2><div className="family-guide__other-grid">{otherProfiles.map((profile) => <article key={profile.slug}><h3>{profile.slug.replace(/-/g, ' ').replace('amsterdam','')}</h3><p>{profile.whyFunForChildren}</p><p>Voor {profile.recommendedAgeLabel}; niet de eerste keuze omdat {profile.rankReason}.</p><TicketCta profile={profile} section="other_card" /></article>)}</div></section>
-
-        <section className="museum-guide-section" aria-labelledby="situations"><h2 id="situations">Welk museum past bij jullie dag?</h2><ul className="family-guide__situations"><li>Veel zelf doen: <a href="#nemo-science-museum-amsterdam">NEMO</a> of <a href="#wereldmuseum-amsterdam">Wereldmuseum Junior</a>.</li><li>Maar twee uur: Eye, Micropia of Joods Museum junior.</li><li>Met een peuter: controleer Eye Cinemini en houd het bezoek kort.</li><li>Verschillende leeftijden: NEMO of Rijksmuseum geeft de breedste marge.</li><li>Regenachtige dag: kies een museum met voldoende binnenactiviteit en reserveer vooraf.</li><li>Kunst zonder snel vervelen: Rijksmuseum met familiespel.</li><li>Tieners: Micropia, Eye, NEMO of Rijksmuseum.</li></ul></section>
-
-        <section className="museum-guide-section" aria-labelledby="tips"><h2 id="tips">Praktische tips</h2><p>Reken meestal 60 tot 180 minuten. Reserveer vooraf bij populaire musea, vakanties en kinderprogramma’s. Controleer bij kleine kinderen altijd kinderwagens, verschoonruimte, rustplekken en actuele agenda. Prijsinformatie verwijst bewust naar actuele ticketpagina’s wanneer exacte bedragen snel kunnen wijzigen.</p><p className="ticket-button__note family-guide__affiliate"><span className="ticket-button__note-text"><span className="ticket-button__note-line ticket-button__note-disclosure">{t('affiliateDisclaimer')}</span></span></p></section>
-
-        <section className="museum-guide-section" aria-labelledby="faq"><h2 id="faq">Veelgestelde vragen</h2>{faqItems.map(([question, answer]) => <details key={question} className="guide-faq-item" data-analytics-event="family_faq_opened"><summary>{question}</summary><p>{answer}</p></details>)}</section>
-        <section className="museum-guide-section family-guide__bottom-cta"><h2>Klaar om te kiezen?</h2><p>Begin met de vergelijking of open direct de ticketpagina van je voorkeursmuseum. MuseumBuddy verkoopt zelf geen tickets.</p><TicketCta profile={mainProfiles[0]} section="bottom_cta" children="Bekijk tickets voor NEMO" /></section>
+        <section className="museum-guide-section" aria-labelledby="faq"><h2 id="faq">{cp.faq}</h2>{faqItems.map(([question, answer]) => <details key={question} className="guide-faq-item" data-analytics-event="family_faq_opened"><summary>{question}</summary><p>{answer}</p></details>)}</section>
       </article>
     </>
   );

@@ -23,8 +23,14 @@ const { pathToFileURL } = require('url');
   assert(page.includes('BreadcrumbList'));
   assert(page.includes('FAQPage'));
   assert(page.includes('rel={profile.ticketPartnerCategory === \'affiliate\' ? \'sponsored noopener noreferrer\''));
-  assert(page.includes("t('affiliateDisclaimer')"));
-  assert(page.includes('role="tablist"'));
+  assert(page.includes("t('ticketsAffiliateIntro')"));
+  assert(!page.includes('Kies op leeftijd'));
+  assert(!page.includes('Vergelijk kindvriendelijke musea'));
+  assert(!page.includes('Overige goede keuzes'));
+  assert(!page.includes('Klaar om te kiezen'));
+  assert(page.includes('formatImageCredit'));
+  assert(page.includes('visibleProfiles'));
+  assert(!page.includes("id=\"age-choice\""));
   assert(page.includes('family_ticket_cta_clicked'));
 
   const vercelConfig = fs.readFileSync(path.resolve(__dirname, '../vercel.json'), 'utf8');
