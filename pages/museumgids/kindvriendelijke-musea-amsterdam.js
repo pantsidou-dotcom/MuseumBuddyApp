@@ -176,8 +176,8 @@ export default function FamilyFriendlyMuseumsAmsterdamPage() {
   const faqItems = cp.faqItems;
   const structuredData = [
     { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [
-      { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://museumbuddy.nl/' },
-      { '@type': 'ListItem', position: 2, name: cp.breadcrumbGuide, item: 'https://museumbuddy.nl/museumgidsen-amsterdam' },
+      { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://www.museumbuddy.nl/' },
+      { '@type': 'ListItem', position: 2, name: cp.breadcrumbGuide, item: 'https://www.museumbuddy.nl/museumgidsen-amsterdam' },
       { '@type': 'ListItem', position: 3, name: cp.breadcrumbCurrent, item: FAMILY_GUIDE_CANONICAL_URL },
     ]},
     { '@context': 'https://schema.org', '@type': 'CollectionPage', name: cp.h1, description: FAMILY_GUIDE_DESCRIPTION, url: FAMILY_GUIDE_CANONICAL_URL, mainEntity: { '@type': 'ItemList', itemListElement: itemList } },

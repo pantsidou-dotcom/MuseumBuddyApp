@@ -25,6 +25,7 @@ import { DEFAULT_TIME_ZONE } from '../lib/openingHours.js';
 import { trackCtaExhibitions } from '../lib/analytics';
 import { getStaticMuseums } from '../lib/staticMuseums';
 import { getSiteUrl } from '../lib/siteUrl';
+import { organizationJsonLd, websiteJsonLd } from '../lib/structuredData';
 
 const FEATURED_SLUGS = [
   'van-gogh-museum-amsterdam',
@@ -854,7 +855,7 @@ export default function Home({ initialMuseums = [], initialError = null }) {
         .filter((museum) => museum?.slug && museum.slug !== 'amsterdam-tulip-museum-amsterdam')
         .slice(0, 30);
 
-      return {
+      return [websiteJsonLd(), organizationJsonLd(), {
         '@context': 'https://schema.org',
         '@type': 'CollectionPage',
         name: t('homeTitle'),
@@ -886,7 +887,7 @@ export default function Home({ initialMuseums = [], initialError = null }) {
             };
           }),
         },
-      };
+      }];
     },
     [initialSortedMuseums, lang, staticMuseumsWithCategories, t]
   );

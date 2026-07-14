@@ -11,7 +11,8 @@
     "build:web": "next build",
     "cap:copy": "npx cap copy",
     "cap:sync": "npx cap sync",
-    "prebuild": "npm run generate:seo"
+    "prebuild": "npm run generate:seo",
+    "seo:check": "node scripts/seoCheck.mjs"
   },
   "engines": {
     "node": "20.x"

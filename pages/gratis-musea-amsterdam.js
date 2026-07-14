@@ -39,7 +39,7 @@ export default function FreeMuseumsLandingPage() {
     headline: heading,
     description,
     inLanguage: lang === 'en' ? 'en' : 'nl',
-    mainEntityOfPage: 'https://museumbuddy.nl/gratis-musea-amsterdam',
+    mainEntityOfPage: 'https://www.museumbuddy.nl/gratis-musea-amsterdam',
   };
 
   return (

@@ -33,7 +33,7 @@ const EXCLUDED_STATIC_PAGE_ROUTES = new Set([
   '/favorites',
   '/kindvriendelijke-musea-amsterdam',
 ]);
-const DEFAULT_SITE_URL = 'https://museumbuddy.nl';
+const DEFAULT_SITE_URL = 'https://www.museumbuddy.nl';
 const ROUTE_SOURCE_FILES = {
   '/': ['pages/index.js', 'lib/staticMuseums.js'],
   '/about': ['pages/about.js'],
@@ -141,8 +141,7 @@ function getRouteSourceFiles(route) {
 }
 
 function getSiteUrl() {
-  const rawSiteUrl = process.env.NEXT_PUBLIC_SITE_URL || process.env.SITE_URL || DEFAULT_SITE_URL;
-  return rawSiteUrl.replace(/\/+$/, '');
+  return DEFAULT_SITE_URL;
 }
 
 function xmlEscape(value = '') {
@@ -190,22 +189,21 @@ async function createSitemapXml(siteUrl) {
     .filter(Boolean)
     .map((slug) => `/museum/${slug}`);
 
-  const nowIsoDate = new Date().toISOString();
   const routeLastmodEntries = await Promise.all(
     staticRoutes.map(async (route) => {
       const sourceFiles = getRouteSourceFiles(route);
-      const lastmod = await getMostRecentMtimeIso(sourceFiles, nowIsoDate);
+      const lastmod = await getMostRecentMtimeIso(sourceFiles, null);
       return [route, lastmod];
     })
   );
-  const museumLastmod = await getMostRecentMtimeIso(MUSEUM_SOURCE_FILES, nowIsoDate);
+  const museumLastmod = await getMostRecentMtimeIso(MUSEUM_SOURCE_FILES, null);
   const lastmodByRoute = new Map(routeLastmodEntries);
 
   const urls = [...staticRoutes, ...museumRoutes]
     .map((route) => {
       const loc = xmlEscape(toAbsoluteUrl(siteUrl, route));
       const lastmod = lastmodByRoute.get(route) || museumLastmod;
-      return `<url><loc>${loc}</loc><lastmod>${lastmod}</lastmod></url>`;
+      return `<url><loc>${loc}</loc>${lastmod ? `<lastmod>${lastmod}</lastmod>` : ''}</url>`;
     })
     .join('');
 
