@@ -49,7 +49,7 @@ export default function OnsLieveHeerOpSolderTicketsPage() {
     name: 'Ons’ Lieve Heer op Solder tickets, openingstijden en praktische info',
     description:
       'Praktische informatie voor je bezoek aan Ons’ Lieve Heer op Solder in Amsterdam: tickets, openingstijden, beste moment en bezoektijd.',
-    url: 'https://museumbuddy.nl/ons-lieve-heer-op-solder-tickets',
+    url: 'https://www.museumbuddy.nl/ons-lieve-heer-op-solder-tickets',
     inLanguage: 'nl-NL',
     mainEntity: {
       '@type': 'TouristAttraction',

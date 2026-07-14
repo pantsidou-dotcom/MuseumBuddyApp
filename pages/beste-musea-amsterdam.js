@@ -148,7 +148,7 @@ export default function BestMuseumsAmsterdamPage() {
           '@type': 'ListItem',
           position: index + 1,
           name: museum?.naam || slug,
-          url: `https://museumbuddy.nl/museum/${slug}`,
+          url: `https://www.museumbuddy.nl/museum/${slug}`,
         };
       }),
     },

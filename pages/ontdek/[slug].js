@@ -21,7 +21,7 @@ export default function DiscoveryPage({ page }) {
     '@type': 'CollectionPage',
     name: config.heading,
     description: config.intro,
-    mainEntity: { '@type': 'ItemList', numberOfItems: results.length, itemListElement: results.map((item, index) => ({ '@type': 'ListItem', position: index + 1, name: item.naam || item.title, url: item.slug ? `https://museumbuddy.nl/museum/${item.slug}` : undefined })) },
+    mainEntity: { '@type': 'ItemList', numberOfItems: results.length, itemListElement: results.map((item, index) => ({ '@type': 'ListItem', position: index + 1, name: item.naam || item.title, url: item.slug ? `https://www.museumbuddy.nl/museum/${item.slug}` : undefined })) },
   } : null;
 
   return <>

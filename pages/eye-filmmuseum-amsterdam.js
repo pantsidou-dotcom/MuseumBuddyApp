@@ -74,7 +74,7 @@ export default function EyeFilmmuseumAmsterdamPage() {
     '@type': 'TouristAttraction',
     name: 'Eye Filmmuseum',
     description,
-    url: 'https://museumbuddy.nl/eye-filmmuseum-amsterdam',
+    url: 'https://www.museumbuddy.nl/eye-filmmuseum-amsterdam',
     address: {
       '@type': 'PostalAddress',
       streetAddress: 'IJpromenade 1',

@@ -22,6 +22,7 @@ import {
 } from '../lib/museumCategories';
 import { getStaticExhibitions } from '../lib/staticExhibitions';
 import { getSiteUrl } from '../lib/siteUrl';
+import { breadcrumbList } from '../lib/structuredData';
 import { resolveImageUrl } from '../lib/resolveImageSource';
 import { groupExhibitionsByDateStatus, normalizeExhibitionDates, shouldShowAsCurrent } from '../lib/exhibitionStatus';
 
@@ -910,7 +911,7 @@ export default function ExhibitionsPage({ exhibitions = [], error = null }) {
         .filter((card) => card?.title && card?.slug)
         .slice(0, 40);
 
-      return {
+      return [breadcrumbList([{ name: 'Home', path: '/' }, { name: 'Tentoonstellingen', path: '/tentoonstellingen' }]), {
         '@context': 'https://schema.org',
         '@type': 'CollectionPage',
         name: t('exhibitionsPageTitle'),
@@ -926,7 +927,7 @@ export default function ExhibitionsPage({ exhibitions = [], error = null }) {
           name: lang === 'nl' ? 'Tentoonstellingen in Amsterdam' : 'Exhibitions in Amsterdam',
           numberOfItems: schemaCards.length,
           itemListElement: schemaCards.map((card, index) => {
-            const exhibitionUrl = `${SITE_URL}/tentoonstellingen?museums=${encodeURIComponent(card.slug)}`;
+            const exhibitionUrl = `${SITE_URL}/tentoonstellingen#${card.slug}`;
             const museumUrl = `${SITE_URL}/museum/${card.slug}`;
             const exhibitionName = card.title;
 
@@ -950,7 +951,7 @@ export default function ExhibitionsPage({ exhibitions = [], error = null }) {
             };
           }),
         },
-      };
+      }];
     },
     [allCards, lang, t]
   );

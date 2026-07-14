@@ -2,6 +2,42 @@
   "redirects": [
     {
       "source": "/kindvriendelijke-musea-amsterdam",
+      "has": [
+        { "type": "host", "value": "museumbuddy.nl" },
+        { "type": "query", "key": "lang", "value": "(nl|en)" }
+      ],
+      "destination": "https://www.museumbuddy.nl/museumgids/kindvriendelijke-musea-amsterdam",
+      "permanent": true
+    },
+    {
+      "source": "/:path*",
+      "has": [
+        { "type": "host", "value": "museumbuddy.nl" },
+        { "type": "query", "key": "lang", "value": "(nl|en)" }
+      ],
+      "destination": "https://www.museumbuddy.nl/:path*",
+      "permanent": true
+    },
+    {
+      "source": "/:path*",
+      "has": [{ "type": "host", "value": "museumbuddy.nl" }],
+      "destination": "https://www.museumbuddy.nl/:path*",
+      "permanent": true
+    },
+    {
+      "source": "/kindvriendelijke-musea-amsterdam",
+      "has": [{ "type": "query", "key": "lang", "value": "(nl|en)" }],
+      "destination": "/museumgids/kindvriendelijke-musea-amsterdam",
+      "permanent": true
+    },
+    {
+      "source": "/:path*",
+      "has": [{ "type": "query", "key": "lang", "value": "(nl|en)" }],
+      "destination": "/:path*",
+      "permanent": true
+    },
+    {
+      "source": "/kindvriendelijke-musea-amsterdam",
       "destination": "/museumgids/kindvriendelijke-musea-amsterdam",
       "permanent": true
     },
