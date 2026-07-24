@@ -1722,9 +1722,38 @@ button.hero-quick-link {
 @media (min-width: 640px){ .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (min-width: 1024px){ .grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 
-.top-exhibition-grid { display: grid; gap: 12px; }
-@media (min-width: 640px){ .top-exhibition-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-@media (min-width: 1100px){ .top-exhibition-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.exhibitions-recommendation__content {
+  display: grid;
+  gap: 16px;
+}
+
+.exhibitions-recommendation__alternatives {
+  display: grid;
+  align-content: start;
+  gap: 10px;
+}
+
+.exhibitions-recommendation__alternatives-label,
+.top-exhibition-card__prompt {
+  margin: 0;
+  color: var(--accent);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.exhibitions-recommendation__browse {
+  width: fit-content;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.top-exhibition-grid { display: grid; gap: 10px; }
+@media (min-width: 640px){ .top-exhibition-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (min-width: 900px){
+  .exhibitions-recommendation__content { grid-template-columns: minmax(0, 1.1fr) minmax(360px, 0.9fr); gap: 24px; }
+}
 
 .top-exhibition-card {
   background: var(--surface);
@@ -1776,6 +1805,28 @@ button.hero-quick-link {
 .top-exhibition-card__links {
   margin: 2px 0 0;
   font-size: 0.82rem;
+}
+
+.top-exhibition-card--featured {
+  border-color: color-mix(in srgb, var(--accent) 36%, var(--card-border));
+  box-shadow: 0 14px 30px rgba(15, 23, 42, 0.12);
+}
+
+.top-exhibition-card--featured .top-exhibition-card__media {
+  aspect-ratio: 16 / 8;
+}
+
+.top-exhibition-card--featured .top-exhibition-card__body {
+  padding: 16px;
+  gap: 8px;
+}
+
+.top-exhibition-card--featured .top-exhibition-card__title {
+  font-size: 1.22rem;
+}
+
+.top-exhibition-card--featured .top-exhibition-card__summary {
+  -webkit-line-clamp: 3;
 }
 
 .card {
@@ -4915,6 +4966,94 @@ button.hero-quick-link {
   padding: 1rem;
 }
 
+.family-guide__recommendations {
+  display: grid;
+  gap: 0.75rem;
+}
+
+/* The first recommendation answers the default question; the remaining facts are
+   available on demand so comparing options does not become a long reading task. */
+.family-guide__museum {
+  grid-template-columns: 132px minmax(0, 1fr);
+  gap: 0.9rem;
+  margin: 0;
+  padding: 0.75rem;
+}
+
+.family-guide__museum--featured {
+  border-color: color-mix(in srgb, var(--accent) 34%, var(--panel-border));
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.1);
+}
+
+.family-guide__image img {
+  aspect-ratio: 1 / 1;
+}
+
+.family-guide__museum-body {
+  min-width: 0;
+}
+
+.family-guide__museum h3 {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+.family-guide__reason {
+  margin: 0.3rem 0 !important;
+  line-height: 1.4;
+}
+
+.family-guide__at-a-glance {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1rem;
+  margin: 0.45rem 0;
+  font-size: 0.88rem;
+}
+
+.family-guide__at-a-glance div {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.family-guide__at-a-glance dt {
+  color: var(--ds-color-text-muted, var(--muted));
+}
+
+.family-guide__at-a-glance dd {
+  margin: 0;
+  font-weight: 600;
+}
+
+.family-guide__details {
+  margin-top: 0.45rem;
+  font-size: 0.9rem;
+}
+
+.family-guide__details summary {
+  color: var(--accent);
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.family-guide__details > :not(summary) {
+  margin-block: 0.45rem;
+}
+
+.family-guide__details h4 {
+  margin-bottom: 0;
+  font-size: 0.9rem;
+}
+
+.family-guide__actions {
+  margin-top: 0.6rem;
+}
+
+.family-guide__actions .ticket-button {
+  padding: 0.55rem 0.75rem;
+  font-size: 0.88rem;
+}
+
 .family-guide__image {
   position: relative;
 }
@@ -4991,6 +5130,10 @@ button.hero-quick-link {
 
   .family-guide__museum {
     grid-template-columns: 1fr;
+  }
+
+  .family-guide__image img {
+    aspect-ratio: 16 / 7;
   }
 
 
