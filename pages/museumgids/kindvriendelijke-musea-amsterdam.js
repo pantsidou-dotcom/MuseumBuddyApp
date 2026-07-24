@@ -38,6 +38,7 @@ const pageCopy = {
     practical: 'Praktisch:',
     price: 'Prijsinformatie:',
     source: 'Gecontroleerd:',
+    moreDetails: 'Waarom deze keuze?',
     officialSource: 'officiële bron',
     availability: 'Controleer tickets en beschikbaarheid',
     situations: 'Welk museum past bij jullie dag?',
@@ -76,6 +77,7 @@ const pageCopy = {
     practical: 'Practical:',
     price: 'Child price info:',
     source: 'Checked:',
+    moreDetails: 'Why this pick?',
     officialSource: 'official source',
     availability: 'Check tickets and availability',
     situations: 'Which museum fits your day?',
@@ -169,6 +171,38 @@ function DetailLink({ profile, section, children }) {
   );
 }
 
+function FamilyRecommendationCard({ profile, cp, lang, t, featured = false }) {
+  const creditSegments = getCreditSegments(profile.slug, t);
+
+  return (
+    <article id={profile.slug} className={`family-guide__museum${featured ? ' family-guide__museum--featured' : ''}`}>
+      <div className="family-guide__image">
+        <Image src={museumImages[profile.slug]} alt={profile.imageAlt} width={720} height={420} />
+        {creditSegments.length ? <p className="image-credit family-guide__image-credit">{creditSegments.map((segment, index) => <span key={`${profile.slug}-credit-${segment.key}-${index}`}>{index > 0 ? <span aria-hidden="true" className="image-credit-divider">•</span> : null}{segment.url ? <a className="image-credit-link" href={segment.url} target="_blank" rel="noreferrer">{segment.label}</a> : <span className="image-credit-part">{segment.label}</span>}</span>)}</p> : null}
+      </div>
+      <div className="family-guide__museum-body">
+        <p className="family-guide__badge">{getProfileText(profile, lang, 'label')}</p>
+        <h3>{getProfileText(profile, lang, 'name')}</h3>
+        <p className="family-guide__reason">{getProfileText(profile, lang, 'reason')}</p>
+        <dl className="family-guide__at-a-glance">
+          <div><dt>{cp.age}</dt><dd>{getProfileText(profile, lang, 'age')}</dd></div>
+          <div><dt>{cp.duration}</dt><dd>{profile.typicalVisitDurationMin}–{profile.typicalVisitDurationMax} min</dd></div>
+        </dl>
+        <details className="family-guide__details">
+          <summary>{cp.moreDetails}</summary>
+          <p><strong>{cp.conclusion}</strong> {getProfileText(profile, lang, 'rank')}.</p>
+          <h4>{cp.why}</h4><p>{getProfileText(profile, lang, 'why')}</p>
+          <ul>{getProfileText(profile, lang, 'activities').map((activity) => <li key={activity}>{activity}</li>)}</ul>
+          <p><strong>{cp.practical}</strong> {getProfileText(profile, lang, 'practical')}</p>
+          <p><strong>{cp.price}</strong> {getProfileText(profile, lang, 'price')}</p>
+          <p><strong>{cp.source}</strong> {checkedDate} {cp.via} <a href={profile.familySourceUrl} rel="noopener noreferrer" target="_blank">{cp.officialSource}</a>.</p>
+        </details>
+        <div className="family-guide__actions"><TicketCta profile={profile} section="main_card" children={cp.availability} badgeText={cp.partnerlink} /><DetailLink profile={profile} section="main_card">{cp.details}</DetailLink><p className="ticket-button__note family-guide__card-affiliate-note"><span className="ticket-button__note-text"><span className="ticket-button__note-line">{t('ticketsAffiliateIntro')}</span><span className="ticket-button__note-line ticket-button__note-disclosure">{t('ticketsAffiliateDisclosure')} {t('ticketsAffiliatePricesMayVary')}</span></span></p></div>
+      </div>
+    </article>
+  );
+}
+
 export default function FamilyFriendlyMuseumsAmsterdamPage() {
   const { lang, t } = useLanguage();
   const cp = pageCopy[lang] || pageCopy.nl;
@@ -196,10 +230,12 @@ export default function FamilyFriendlyMuseumsAmsterdamPage() {
           <p className="family-guide__method">{cp.method}</p>
         </section>
 
-        <section className="museum-guide-section" aria-labelledby="main-recommendations"><h2 id="main-recommendations">{cp.main}</h2>{mainProfiles.map((profile) => {
-          const creditSegments = getCreditSegments(profile.slug, t);
-          return <article key={profile.slug} id={profile.slug} className="family-guide__museum"><div className="family-guide__image"><Image src={museumImages[profile.slug]} alt={profile.imageAlt} width={720} height={420} />{creditSegments.length ? <p className="image-credit family-guide__image-credit">{creditSegments.map((segment, index) => <span key={`${profile.slug}-credit-${segment.key}-${index}`}>{index > 0 ? <span aria-hidden="true" className="image-credit-divider">•</span> : null}{segment.url ? <a className="image-credit-link" href={segment.url} target="_blank" rel="noreferrer">{segment.label}</a> : <span className="image-credit-part">{segment.label}</span>}</span>)}</p> : null}</div><div className="family-guide__museum-body"><p className="family-guide__badge">{getProfileText(profile, lang, 'label')}</p><h3>{getProfileText(profile, lang, 'name')}</h3><p><strong>{cp.conclusion}</strong> {getProfileText(profile, lang, 'rank')}.</p><h4>{cp.why}</h4><p>{getProfileText(profile, lang, 'why')}</p><ul>{getProfileText(profile, lang, 'activities').map((activity) => <li key={activity}>{activity}</li>)}</ul><p><strong>{cp.age}</strong> {getProfileText(profile, lang, 'age')}</p><p><strong>{cp.duration}</strong> {profile.typicalVisitDurationMin}–{profile.typicalVisitDurationMax} min</p><p><strong>{cp.practical}</strong> {getProfileText(profile, lang, 'practical')}</p><p><strong>{cp.price}</strong> {getProfileText(profile, lang, 'price')}</p><p><strong>{cp.source}</strong> {checkedDate} {cp.via} <a href={profile.familySourceUrl} rel="noopener noreferrer" target="_blank">{cp.officialSource}</a>.</p><div className="family-guide__actions"><TicketCta profile={profile} section="main_card" children={cp.availability} badgeText={cp.partnerlink} /><DetailLink profile={profile} section="main_card">{cp.details}</DetailLink><p className="ticket-button__note family-guide__card-affiliate-note"><span className="ticket-button__note-text"><span className="ticket-button__note-line">{t('ticketsAffiliateIntro')}</span><span className="ticket-button__note-line ticket-button__note-disclosure">{t('ticketsAffiliateDisclosure')} {t('ticketsAffiliatePricesMayVary')}</span></span></p></div></div></article>;
-        })}</section>
+        <section className="museum-guide-section" aria-labelledby="main-recommendations">
+          <h2 id="main-recommendations">{cp.main}</h2>
+          <div className="family-guide__recommendations">
+            {mainProfiles.map((profile, index) => <FamilyRecommendationCard key={profile.slug} profile={profile} cp={cp} lang={lang} t={t} featured={index === 0} />)}
+          </div>
+        </section>
 
         <section className="museum-guide-section" aria-labelledby="situations"><h2 id="situations">{cp.situations}</h2><ul className="family-guide__situations">{cp.situationsList.map((item) => <li key={item}>{item}</li>)}</ul></section>
 

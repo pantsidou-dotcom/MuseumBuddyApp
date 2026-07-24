@@ -166,7 +166,7 @@ function buildTopPickSummary(card, t, language) {
   });
 }
 
-function TopExhibitionCard({ item, t }) {
+function TopExhibitionCard({ item, t, featured = false }) {
   const museumName = item?.museumName || museumNames[item?.slug] || item?.slug;
   const detailUrl = item?.slug ? `/museum/${item.slug}` : '/tentoonstellingen';
   const exhibitionListUrl = item?.slug
@@ -178,7 +178,7 @@ function TopExhibitionCard({ item, t }) {
   });
 
   return (
-    <article className="top-exhibition-card">
+    <article className={`top-exhibition-card${featured ? ' top-exhibition-card--featured' : ''}`}>
       <Link href={detailUrl} className="top-exhibition-card__media-link" aria-label={`${item?.title} — ${museumName}`}>
         <div className="top-exhibition-card__media">
           <Image
@@ -195,6 +195,7 @@ function TopExhibitionCard({ item, t }) {
           <Link href={detailUrl}>{item?.title}</Link>
         </h3>
         <p className="top-exhibition-card__museum">{museumName}</p>
+        {featured ? <p className="top-exhibition-card__prompt">{t('exhibitionsTopFeaturedLabel')}</p> : null}
         {item?.summary ? <p className="top-exhibition-card__summary">{item.summary}</p> : null}
         <p className="top-exhibition-card__links">
           <Link href={detailUrl}>{t('exhibitionsTopViewMuseum')}</Link>
@@ -1024,7 +1025,7 @@ export default function ExhibitionsPage({ exhibitions = [], error = null }) {
         <h2 className="page-subtitle">{t('exhibitionsSeoIntroHeading')}</h2>
         <p className="page-subtitle">{t('exhibitionsSeoIntro')}</p>
       </section>
-      <section className="page-intro" aria-labelledby="top-exhibitions-heading">
+      <section className="page-intro exhibitions-recommendation" aria-labelledby="top-exhibitions-heading">
         <h2 id="top-exhibitions-heading" className="page-subtitle">
           {t('exhibitionsTopHeading')}
         </h2>
@@ -1032,16 +1033,27 @@ export default function ExhibitionsPage({ exhibitions = [], error = null }) {
         {topExhibitionPicks.length === 0 ? (
           <p className="page-subtitle">{t('exhibitionsTopEmpty')}</p>
         ) : (
-          <ul className="top-exhibition-grid" style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-            {topExhibitionPicks.map((item) => (
-              <li key={`top-${item.exhibitionId || item.slug}-${item.title}`}>
-                <TopExhibitionCard item={item} t={t} />
-              </li>
-            ))}
-          </ul>
+          <div className="exhibitions-recommendation__content">
+            <TopExhibitionCard item={topExhibitionPicks[0]} t={t} featured />
+            {topExhibitionPicks.length > 1 ? (
+              <div className="exhibitions-recommendation__alternatives">
+                <p className="exhibitions-recommendation__alternatives-label">{t('exhibitionsTopAlternativesLabel')}</p>
+                <ul className="top-exhibition-grid" style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+                  {topExhibitionPicks.slice(1).map((item) => (
+                    <li key={`top-${item.exhibitionId || item.slug}-${item.title}`}>
+                      <TopExhibitionCard item={item} t={t} />
+                    </li>
+                  ))}
+                </ul>
+                <a className="exhibitions-recommendation__browse" href="#all-exhibitions">
+                  {t('exhibitionsTopBrowseAll')}
+                </a>
+              </div>
+            ) : null}
+          </div>
         )}
       </section>
-      <p className="count">
+      <p id="all-exhibitions" className="count" tabIndex="-1">
         {visibleCards.length} {t('exhibitions')}
       </p>
       <div className="filters-inline" ref={filtersContainerRef}>
